@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { User } from "@frontporch/shared";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -30,28 +30,68 @@ export default async function DashboardPage() {
     .eq("user_id", authUser.id)
     .eq("status", "active");
 
+  // Fetch pending membership requests
+  const { data: pendingMemberships } = await supabase
+    .from("memberships")
+    .select(`
+      *,
+      neighborhood:neighborhoods(*)
+    `)
+    .eq("user_id", authUser.id)
+    .eq("status", "pending");
+
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>
         Welcome, {profile?.name || authUser.email}!
       </h1>
 
+      {pendingMemberships && pendingMemberships.length > 0 && (
+        <section style={styles.section}>
+          <div style={styles.pendingBanner}>
+            <span style={styles.pendingIcon}>⏳</span>
+            <div>
+              <strong>Pending Requests</strong>
+              <p style={styles.pendingText}>
+                {pendingMemberships.map((m: any) => m.neighborhood.name).join(", ")}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {memberships && memberships.length > 0 ? (
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Your Neighborhoods</h2>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Your Neighborhoods</h2>
+            <Link href="/neighborhoods/new" style={styles.addButton}>
+              + New
+            </Link>
+          </div>
           <div style={styles.cardGrid}>
             {memberships.map((membership: any) => (
-              <div key={membership.id} style={styles.card}>
+              <Link
+                key={membership.id}
+                href={`/neighborhoods/${membership.neighborhood.slug}`}
+                style={styles.card}
+              >
                 <h3 style={styles.cardTitle}>
                   {membership.neighborhood.name}
                 </h3>
                 <p style={styles.cardDescription}>
                   {membership.neighborhood.description || "No description"}
                 </p>
-                <span style={styles.roleBadge}>
-                  {membership.role}
-                </span>
-              </div>
+                <div style={styles.cardFooter}>
+                  <span style={styles.roleBadge}>
+                    {membership.role}
+                  </span>
+                  {membership.neighborhood.location && (
+                    <span style={styles.location}>
+                      {membership.neighborhood.location}
+                    </span>
+                  )}
+                </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -62,9 +102,9 @@ export default async function DashboardPage() {
             <p style={styles.emptyText}>
               You haven&apos;t joined any neighborhoods. Create one or ask a neighbor for an invite!
             </p>
-            <button style={styles.primaryButton}>
+            <Link href="/neighborhoods/new" style={styles.primaryButton}>
               Create a Neighborhood
-            </button>
+            </Link>
           </div>
         </section>
       )}
@@ -72,22 +112,26 @@ export default async function DashboardPage() {
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Quick Actions</h2>
         <div style={styles.actionGrid}>
-          <div style={styles.actionCard}>
-            <span style={styles.actionIcon}>📚</span>
-            <span>Browse Library</span>
-          </div>
-          <div style={styles.actionCard}>
-            <span style={styles.actionIcon}>📅</span>
-            <span>View Events</span>
-          </div>
-          <div style={styles.actionCard}>
-            <span style={styles.actionIcon}>👶</span>
-            <span>Childcare</span>
-          </div>
-          <div style={styles.actionCard}>
-            <span style={styles.actionIcon}>👥</span>
-            <span>Directory</span>
-          </div>
+          <Link href="/profile" style={styles.actionCard}>
+            <span style={styles.actionIcon}>👤</span>
+            <span>Edit Profile</span>
+          </Link>
+          <Link href="/neighborhoods/new" style={styles.actionCard}>
+            <span style={styles.actionIcon}>🏘️</span>
+            <span>New Neighborhood</span>
+          </Link>
+          {memberships && memberships.length > 0 && (
+            <>
+              <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/directory`} style={styles.actionCard}>
+                <span style={styles.actionIcon}>👥</span>
+                <span>Directory</span>
+              </Link>
+              <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/library`} style={styles.actionCard}>
+                <span style={styles.actionIcon}>📚</span>
+                <span>Library</span>
+              </Link>
+            </>
+          )}
         </div>
       </section>
     </div>
@@ -108,10 +152,22 @@ const styles: { [key: string]: React.CSSProperties } = {
   section: {
     marginBottom: "2rem",
   },
+  sectionHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "1rem",
+  },
   sectionTitle: {
     fontSize: "1.25rem",
     fontWeight: "600",
-    marginBottom: "1rem",
+    margin: 0,
+  },
+  addButton: {
+    color: "#2563eb",
+    textDecoration: "none",
+    fontSize: "0.875rem",
+    fontWeight: "500",
   },
   cardGrid: {
     display: "grid",
@@ -123,6 +179,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "8px",
     padding: "1.5rem",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    textDecoration: "none",
+    color: "inherit",
+    transition: "box-shadow 0.15s ease",
   },
   cardTitle: {
     fontSize: "1.125rem",
@@ -134,6 +193,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "0.875rem",
     margin: "0 0 1rem 0",
   },
+  cardFooter: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   roleBadge: {
     display: "inline-block",
     backgroundColor: "#e0e7ff",
@@ -143,6 +207,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "0.75rem",
     fontWeight: "500",
     textTransform: "capitalize",
+  },
+  location: {
+    fontSize: "0.75rem",
+    color: "#888",
   },
   emptyState: {
     backgroundColor: "white",
@@ -161,14 +229,31 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: "1.5rem",
   },
   primaryButton: {
+    display: "inline-block",
     backgroundColor: "#2563eb",
     color: "white",
-    border: "none",
     padding: "0.75rem 1.5rem",
     borderRadius: "6px",
     fontSize: "1rem",
     fontWeight: "500",
-    cursor: "pointer",
+    textDecoration: "none",
+  },
+  pendingBanner: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1rem",
+    backgroundColor: "#fef3c7",
+    padding: "1rem 1.25rem",
+    borderRadius: "8px",
+    border: "1px solid #fcd34d",
+  },
+  pendingIcon: {
+    fontSize: "1.5rem",
+  },
+  pendingText: {
+    margin: "0.25rem 0 0 0",
+    fontSize: "0.875rem",
+    color: "#92400e",
   },
   actionGrid: {
     display: "grid",
@@ -186,6 +271,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "0.5rem",
     cursor: "pointer",
     fontSize: "0.875rem",
+    textDecoration: "none",
+    color: "inherit",
   },
   actionIcon: {
     fontSize: "1.5rem",
