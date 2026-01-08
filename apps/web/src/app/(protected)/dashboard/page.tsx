@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import responsive from "@/app/responsive.module.css";
+import dashboardStyles from "./dashboard.module.css";
 
 // Only these emails can create new neighborhoods
 const ADMIN_EMAILS = ["stahl@hey.com"];
@@ -70,7 +71,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div style={styles.container}>
+    <div className={dashboardStyles.container}>
       <h1 style={styles.title}>
         Welcome, {profile?.name || authUser.email}!
       </h1>
@@ -171,7 +172,7 @@ export default async function DashboardPage() {
       )}
 
       <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Quick Actions</h2>
+        <h2 className={dashboardStyles.sectionTitle}>Quick Actions</h2>
         <div className={responsive.grid4}>
           <Link href="/profile" style={styles.actionCard}>
             <span style={styles.actionIcon}>👤</span>

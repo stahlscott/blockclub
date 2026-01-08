@@ -4,22 +4,26 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import profileStyles from "./profile.module.css";
 
 interface PhoneEntry {
   label: string;
   number: string;
 }
 
-// Format phone for display: 5551234567 -> (555) 123-4567
-function formatPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+// Format phone as user types: 5551234567 -> 555-123-4567
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  if (digits.length <= 3) {
+    return digits;
+  } else if (digits.length <= 6) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  } else {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
-  return phone;
 }
 
-// Validate phone is 10 digits
+// Validate phone is 10 digits (or empty)
 function isValidPhone(phone: string): boolean {
   const digits = phone.replace(/\D/g, "");
   return digits.length === 0 || digits.length === 10;
@@ -65,9 +69,13 @@ export default function ProfilePage() {
         
         // Load phones array, or migrate from legacy phone field
         if (profileData.phones && profileData.phones.length > 0) {
-          setPhones(profileData.phones);
+          // Format existing phone numbers for display
+          setPhones(profileData.phones.map((p: PhoneEntry) => ({
+            ...p,
+            number: formatPhoneInput(p.number)
+          })));
         } else if (profileData.phone) {
-          setPhones([{ label: "Primary", number: normalizePhone(profileData.phone) }]);
+          setPhones([{ label: "Primary", number: formatPhoneInput(profileData.phone) }]);
         } else {
           setPhones([]);
         }
@@ -89,7 +97,12 @@ export default function ProfilePage() {
 
   const updatePhone = (index: number, field: "label" | "number", value: string) => {
     const updated = [...phones];
-    updated[index] = { ...updated[index], [field]: value };
+    if (field === "number") {
+      // Auto-format phone number as user types
+      updated[index] = { ...updated[index], number: formatPhoneInput(value) };
+    } else {
+      updated[index] = { ...updated[index], [field]: value };
+    }
     setPhones(updated);
   };
 
@@ -201,26 +214,26 @@ export default function ProfilePage() {
             
             <div style={styles.phoneList}>
               {phones.map((phone, index) => (
-                <div key={index} style={styles.phoneRow}>
+                <div key={index} className={profileStyles.phoneRow}>
                   <input
                     type="text"
                     value={phone.label}
                     onChange={(e) => updatePhone(index, "label", e.target.value)}
-                    style={styles.phoneLabelInput}
+                    className={profileStyles.phoneLabelInput}
                     placeholder="Label (e.g., Mom)"
                   />
                   <input
                     type="tel"
                     value={phone.number}
                     onChange={(e) => updatePhone(index, "number", e.target.value)}
-                    style={styles.phoneNumberInput}
-                    placeholder="Phone number"
-                    maxLength={14}
+                    className={profileStyles.phoneNumberInput}
+                    placeholder="555-555-5555"
+                    maxLength={12}
                   />
                   <button
                     type="button"
                     onClick={() => removePhone(index)}
-                    style={styles.removeButton}
+                    className={profileStyles.removeButton}
                     aria-label="Remove phone"
                   >
                     &times;

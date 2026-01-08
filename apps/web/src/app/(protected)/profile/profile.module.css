@@ -1,0 +1,59 @@
+.phoneRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.phoneLabelInput {
+  flex: 0 0 100px;
+  padding: 0.625rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 0.875rem;
+  min-width: 0;
+}
+
+.phoneNumberInput {
+  flex: 1;
+  padding: 0.625rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 0.875rem;
+  min-width: 0;
+}
+
+.removeButton {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: white;
+  color: #999;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .phoneRow {
+    flex-wrap: wrap;
+  }
+  
+  .phoneLabelInput {
+    flex: 1 1 80px;
+    min-width: 80px;
+  }
+  
+  .phoneNumberInput {
+    flex: 2 1 120px;
+    min-width: 120px;
+  }
+  
+  .removeButton {
+    flex: 0 0 32px;
+  }
+}
