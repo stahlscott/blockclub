@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
+
+// Only these emails can create new neighborhoods
+const ADMIN_EMAILS = ["stahl@hey.com"];
 
 export default function NewNeighborhoodPage() {
   const router = useRouter();
@@ -14,6 +17,27 @@ export default function NewNeighborhoodPage() {
   const [requireApproval, setRequireApproval] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push("/signin");
+        return;
+      }
+
+      if (!ADMIN_EMAILS.includes(user.email || "")) {
+        router.push("/dashboard");
+        return;
+      }
+
+      setAuthorized(true);
+    }
+    checkAuth();
+  }, [router]);
 
   const generateSlug = (name: string) => {
     return name
@@ -100,6 +124,16 @@ export default function NewNeighborhoodPage() {
 
     router.push(`/neighborhoods/${slug}`);
   };
+
+  if (authorized === null) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

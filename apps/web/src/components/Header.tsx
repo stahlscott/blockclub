@@ -1,96 +1,88 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
+import styles from "./Header.module.css";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header style={styles.header}>
-      <div style={styles.container}>
-        <Link href="/" style={styles.logo}>
+    <header className={styles.header}>
+      <div className={styles.container}>
+        <Link href="/" className={styles.logo}>
           Front Porch
         </Link>
 
-        <nav style={styles.nav}>
+        {/* Desktop nav */}
+        <nav className={styles.nav}>
           {loading ? (
-            <span style={styles.loading}>...</span>
+            <span className={styles.loading}>...</span>
           ) : user ? (
             <>
-              <Link href="/dashboard" style={styles.navLink}>
+              <Link href="/dashboard" className={styles.navLink}>
                 Dashboard
               </Link>
-              <Link href="/profile" style={styles.navLink}>
+              <Link href="/profile" className={styles.navLink}>
                 Profile
               </Link>
-              <button onClick={signOut} style={styles.signOutButton}>
+              <button onClick={signOut} className={styles.signOutButton}>
                 Sign out
               </button>
             </>
           ) : (
             <>
-              <Link href="/signin" style={styles.navLink}>
+              <Link href="/signin" className={styles.navLink}>
                 Sign in
               </Link>
-              <Link href="/signup" style={styles.signUpButton}>
+              <Link href="/signup" className={styles.signUpButton}>
                 Sign up
               </Link>
             </>
           )}
         </nav>
+
+        {/* Mobile menu button */}
+        <button
+          className={styles.menuButton}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
       </div>
+
+      {/* Mobile nav dropdown */}
+      {menuOpen && (
+        <nav className={styles.mobileNav}>
+          {loading ? (
+            <span className={styles.loading}>...</span>
+          ) : user ? (
+            <>
+              <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                Dashboard
+              </Link>
+              <Link href="/profile" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                Profile
+              </Link>
+              <button onClick={() => { signOut(); setMenuOpen(false); }} className={styles.mobileSignOutButton}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/signin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                Sign in
+              </Link>
+              <Link href="/signup" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                Sign up
+              </Link>
+            </>
+          )}
+        </nav>
+      )}
     </header>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  header: {
-    backgroundColor: "white",
-    borderBottom: "1px solid #e5e5e5",
-    padding: "0.75rem 1rem",
-  },
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  logo: {
-    fontSize: "1.25rem",
-    fontWeight: "600",
-    color: "#111",
-    textDecoration: "none",
-  },
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-  },
-  navLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-  },
-  signUpButton: {
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.5rem 1rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-  },
-  signOutButton: {
-    backgroundColor: "transparent",
-    color: "#666",
-    padding: "0.5rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-  },
-  loading: {
-    color: "#999",
-  },
-};

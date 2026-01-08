@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
+// Only these emails can create new neighborhoods
+const ADMIN_EMAILS = ["stahl@hey.com"];
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -12,6 +15,8 @@ export default async function DashboardPage() {
   if (!authUser) {
     redirect("/signin");
   }
+
+  const canCreateNeighborhood = ADMIN_EMAILS.includes(authUser.email || "");
 
   // Fetch user profile
   const { data: profile } = await supabase
@@ -115,9 +120,11 @@ export default async function DashboardPage() {
         <section style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Your Neighborhoods</h2>
-            <Link href="/neighborhoods/new" style={styles.addButton}>
-              + New
-            </Link>
+            {canCreateNeighborhood && (
+              <Link href="/neighborhoods/new" style={styles.addButton}>
+                + New
+              </Link>
+            )}
           </div>
           <div style={styles.cardGrid}>
             {memberships.map((membership: any) => (
@@ -151,11 +158,13 @@ export default async function DashboardPage() {
           <div style={styles.emptyState}>
             <h2 style={styles.emptyTitle}>No neighborhoods yet</h2>
             <p style={styles.emptyText}>
-              You haven&apos;t joined any neighborhoods. Create one or ask a neighbor for an invite!
+              You haven&apos;t joined any neighborhoods yet. Ask a neighbor for an invite link!
             </p>
-            <Link href="/neighborhoods/new" style={styles.primaryButton}>
-              Create a Neighborhood
-            </Link>
+            {canCreateNeighborhood && (
+              <Link href="/neighborhoods/new" style={styles.primaryButton}>
+                Create a Neighborhood
+              </Link>
+            )}
           </div>
         </section>
       )}
@@ -167,10 +176,12 @@ export default async function DashboardPage() {
             <span style={styles.actionIcon}>👤</span>
             <span>Edit Profile</span>
           </Link>
-          <Link href="/neighborhoods/new" style={styles.actionCard}>
-            <span style={styles.actionIcon}>🏘️</span>
-            <span>New Neighborhood</span>
-          </Link>
+          {canCreateNeighborhood && (
+            <Link href="/neighborhoods/new" style={styles.actionCard}>
+              <span style={styles.actionIcon}>🏘️</span>
+              <span>New Neighborhood</span>
+            </Link>
+          )}
           {memberships && memberships.length > 0 && (
             <>
               <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/directory`} style={styles.actionCard}>
