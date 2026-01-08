@@ -7,7 +7,7 @@ import { logger } from "./logger";
  */
 export async function ensureUserProfile(
   supabase: SupabaseClient,
-  user: User
+  user: User,
 ): Promise<{ success: boolean; error?: string }> {
   // Check if profile exists
   const { data: existingProfile } = await supabase
@@ -28,10 +28,17 @@ export async function ensureUserProfile(
     avatar_url: null,
     bio: null,
     phone: null,
+    address: null,
+    unit: null,
+    move_in_year: null,
+    children: null,
+    pets: null,
   });
 
   if (profileError) {
-    logger.error("Error creating user profile", profileError, { userId: user.id });
+    logger.error("Error creating user profile", profileError, {
+      userId: user.id,
+    });
     return { success: false, error: profileError.message };
   }
 

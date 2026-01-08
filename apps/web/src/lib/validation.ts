@@ -4,19 +4,22 @@ export const MAX_LENGTHS = {
   // User fields
   userName: 100,
   userBio: 500,
-  
+
   // Neighborhood fields
   neighborhoodName: 100,
   neighborhoodDescription: 500,
   neighborhoodLocation: 200,
-  
+
   // Item fields
   itemName: 100,
   itemDescription: 1000,
-  
+
   // General
   address: 200,
   phone: 20,
+  unit: 20,
+  children: 500,
+  pets: 500,
 } as const;
 
 /**
@@ -26,7 +29,7 @@ export const MAX_LENGTHS = {
 export function validateLength(
   value: string,
   fieldName: string,
-  maxLength: number
+  maxLength: number,
 ): string | null {
   if (value.length > maxLength) {
     return `${fieldName} must be ${maxLength} characters or less (currently ${value.length})`;

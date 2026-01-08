@@ -12,7 +12,9 @@ export default async function MemberProfilePage({ params }: Props) {
   const { slug, id } = await params;
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     redirect("/signin");
   }
@@ -52,13 +54,10 @@ export default async function MemberProfilePage({ params }: Props) {
     notFound();
   }
 
-  // Fetch member's membership and household for this neighborhood
+  // Fetch member's membership for this neighborhood
   const { data: membership } = await supabase
     .from("memberships")
-    .select(`
-      *,
-      household:households(*)
-    `)
+    .select("*")
     .eq("neighborhood_id", neighborhood.id)
     .eq("user_id", id)
     .eq("status", "active")
@@ -85,8 +84,12 @@ export default async function MemberProfilePage({ params }: Props) {
   // Determine role change permissions
   // Can promote: super admin or neighborhood admin (if target is member)
   // Can demote: super admin only (if target is admin)
-  const canPromote = (userIsSuperAdmin || isNeighborhoodAdmin) && membership.role === "member" && !isOwnProfile;
-  const canDemote = userIsSuperAdmin && membership.role === "admin" && !isOwnProfile;
+  const canPromote =
+    (userIsSuperAdmin || isNeighborhoodAdmin) &&
+    membership.role === "member" &&
+    !isOwnProfile;
+  const canDemote =
+    userIsSuperAdmin && membership.role === "admin" && !isOwnProfile;
 
   return (
     <div style={styles.container}>
@@ -117,10 +120,16 @@ export default async function MemberProfilePage({ params }: Props) {
             )}
           </h1>
 
-          {membership.household && (
+          {member.address && (
             <p style={styles.address}>
-              {membership.household.address}
-              {membership.household.unit && `, ${membership.household.unit}`}
+              {member.address}
+              {member.unit && `, ${member.unit}`}
+              {member.move_in_year && (
+                <span style={styles.moveInYear}>
+                  {" "}
+                  - Moved in {member.move_in_year}
+                </span>
+              )}
             </p>
           )}
 
@@ -144,6 +153,32 @@ export default async function MemberProfilePage({ params }: Props) {
         </div>
       </div>
 
+      {(member.children || member.pets) && (
+        <div style={styles.familySection}>
+          <h2 style={styles.sectionTitle}>Family & Pets</h2>
+          <div style={styles.familyGrid}>
+            {member.children && (
+              <div style={styles.familyCard}>
+                <span style={styles.familyIcon}>👶</span>
+                <div style={styles.familyContent}>
+                  <span style={styles.familyLabel}>Children</span>
+                  <span style={styles.familyValue}>{member.children}</span>
+                </div>
+              </div>
+            )}
+            {member.pets && (
+              <div style={styles.familyCard}>
+                <span style={styles.familyIcon}>🐾</span>
+                <div style={styles.familyContent}>
+                  <span style={styles.familyLabel}>Pets</span>
+                  <span style={styles.familyValue}>{member.pets}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={styles.contactSection}>
         <h2 style={styles.sectionTitle}>Contact</h2>
         <div style={styles.contactGrid}>
@@ -156,15 +191,26 @@ export default async function MemberProfilePage({ params }: Props) {
           )}
           {/* Show multiple phones if available, otherwise fall back to legacy phone field */}
           {member.phones && member.phones.length > 0 ? (
-            member.phones.map((phone: { label: string; number: string }, index: number) => (
-              <a key={index} href={`tel:${phone.number}`} style={styles.contactCard}>
-                <span style={styles.contactIcon}>📱</span>
-                <span style={styles.contactLabel}>{phone.label || "Phone"}</span>
-                <span style={styles.contactValue}>
-                  {phone.number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
-                </span>
-              </a>
-            ))
+            member.phones.map(
+              (phone: { label: string; number: string }, index: number) => (
+                <a
+                  key={index}
+                  href={`tel:${phone.number}`}
+                  style={styles.contactCard}
+                >
+                  <span style={styles.contactIcon}>📱</span>
+                  <span style={styles.contactLabel}>
+                    {phone.label || "Phone"}
+                  </span>
+                  <span style={styles.contactValue}>
+                    {phone.number.replace(
+                      /(\d{3})(\d{3})(\d{4})/,
+                      "($1) $2-$3",
+                    )}
+                  </span>
+                </a>
+              ),
+            )
           ) : member.phone ? (
             <a href={`tel:${member.phone}`} style={styles.contactCard}>
               <span style={styles.contactIcon}>📱</span>
@@ -174,7 +220,10 @@ export default async function MemberProfilePage({ params }: Props) {
           ) : null}
           {/* Text link - use first phone number */}
           {(member.phones?.[0]?.number || member.phone) && (
-            <a href={`sms:${member.phones?.[0]?.number || member.phone}`} style={styles.contactCard}>
+            <a
+              href={`sms:${member.phones?.[0]?.number || member.phone}`}
+              style={styles.contactCard}
+            >
               <span style={styles.contactIcon}>💬</span>
               <span style={styles.contactLabel}>Text</span>
               <span style={styles.contactValue}>Send a message</span>
@@ -186,7 +235,9 @@ export default async function MemberProfilePage({ params }: Props) {
       {items && items.length > 0 && (
         <div style={styles.itemsSection}>
           <h2 style={styles.sectionTitle}>
-            {isOwnProfile ? "Your Items" : `${member.name.split(" ")[0]}'s Items`}
+            {isOwnProfile
+              ? "Your Items"
+              : `${member.name.split(" ")[0]}'s Items`}
           </h2>
           <div style={styles.itemGrid}>
             {items.map((item: any) => (
@@ -302,6 +353,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: "0 0 0.5rem 0",
     color: "#666",
   },
+  moveInYear: {
+    color: "#888",
+    fontSize: "0.875rem",
+  },
   bio: {
     margin: "0 0 1rem 0",
     color: "#444",
@@ -314,6 +369,41 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "6px",
     textDecoration: "none",
     fontSize: "0.875rem",
+  },
+  familySection: {
+    marginBottom: "2rem",
+  },
+  familyGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    gap: "0.75rem",
+  },
+  familyCard: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "0.75rem",
+    padding: "1rem",
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+  },
+  familyIcon: {
+    fontSize: "1.5rem",
+    flexShrink: 0,
+  },
+  familyContent: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.25rem",
+  },
+  familyLabel: {
+    fontSize: "0.75rem",
+    color: "#666",
+    textTransform: "uppercase",
+  },
+  familyValue: {
+    fontSize: "0.875rem",
+    color: "#333",
   },
   contactSection: {
     marginBottom: "2rem",

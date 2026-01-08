@@ -24,18 +24,27 @@ export type ItemCategory =
 
 export type ItemAvailability = "available" | "borrowed" | "unavailable";
 
-export type LoanStatus = "requested" | "approved" | "active" | "returned" | "cancelled";
+export type LoanStatus =
+  | "requested"
+  | "approved"
+  | "active"
+  | "returned"
+  | "cancelled";
 
 export type RsvpStatus = "yes" | "no" | "maybe";
 
-export type ChildcareRequestStatus = "pending" | "approved" | "declined" | "cancelled";
+export type ChildcareRequestStatus =
+  | "pending"
+  | "approved"
+  | "declined"
+  | "cancelled";
 
 // ============================================================================
 // CORE TABLES
 // ============================================================================
 
 export interface PhoneEntry {
-  label: string;  // e.g., "Mom", "Dad", "Home"
+  label: string; // e.g., "Mom", "Dad", "Home"
   number: string; // 10-digit phone number
 }
 
@@ -45,9 +54,14 @@ export interface User {
   name: string;
   avatar_url: string | null;
   bio: string | null;
-  phone: string | null;  // Legacy single phone (deprecated)
-  phones: PhoneEntry[] | null;  // Multiple labeled phone numbers
-  primary_neighborhood_id: string | null;  // User's preferred neighborhood for unified dashboard
+  phone: string | null; // Legacy single phone (deprecated)
+  phones: PhoneEntry[] | null; // Multiple labeled phone numbers
+  primary_neighborhood_id: string | null; // User's preferred neighborhood for unified dashboard
+  address: string | null;
+  unit: string | null;
+  move_in_year: number | null;
+  children: string | null;
+  pets: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -69,20 +83,10 @@ export interface Neighborhood {
   updated_at: string;
 }
 
-export interface Household {
-  id: string;
-  neighborhood_id: string;
-  address: string;
-  unit: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface Membership {
   id: string;
   user_id: string;
   neighborhood_id: string;
-  household_id: string | null;
   role: MembershipRole;
   status: MembershipStatus;
   joined_at: string;
@@ -185,10 +189,6 @@ export interface MembershipWithNeighborhood extends Membership {
   neighborhood: Neighborhood;
 }
 
-export interface MembershipWithHousehold extends Membership {
-  household: Household | null;
-}
-
 export interface ItemWithOwner extends Item {
   owner: User;
 }
@@ -222,34 +222,65 @@ export type UserInsert = {
   bio?: string | null;
   phone?: string | null;
 };
-export type UserUpdate = Partial<Omit<User, "id" | "created_at" | "updated_at">>;
+export type UserUpdate = Partial<
+  Omit<User, "id" | "created_at" | "updated_at">
+>;
 
-export type NeighborhoodInsert = Omit<Neighborhood, "id" | "created_at" | "updated_at">;
-export type NeighborhoodUpdate = Partial<Omit<Neighborhood, "id" | "created_by" | "created_at" | "updated_at">>;
-
-export type HouseholdInsert = Omit<Household, "id" | "created_at" | "updated_at">;
-export type HouseholdUpdate = Partial<Omit<Household, "id" | "neighborhood_id" | "created_at" | "updated_at">>;
+export type NeighborhoodInsert = Omit<
+  Neighborhood,
+  "id" | "created_at" | "updated_at"
+>;
+export type NeighborhoodUpdate = Partial<
+  Omit<Neighborhood, "id" | "created_by" | "created_at" | "updated_at">
+>;
 
 export type MembershipInsert = Omit<Membership, "id" | "joined_at">;
-export type MembershipUpdate = Partial<Pick<Membership, "household_id" | "role" | "status">>;
+export type MembershipUpdate = Partial<Pick<Membership, "role" | "status">>;
 
 export type ItemInsert = Omit<Item, "id" | "created_at" | "updated_at">;
-export type ItemUpdate = Partial<Omit<Item, "id" | "neighborhood_id" | "owner_id" | "created_at" | "updated_at">>;
+export type ItemUpdate = Partial<
+  Omit<
+    Item,
+    "id" | "neighborhood_id" | "owner_id" | "created_at" | "updated_at"
+  >
+>;
 
 export type LoanInsert = Omit<Loan, "id" | "requested_at">;
-export type LoanUpdate = Partial<Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">>;
+export type LoanUpdate = Partial<
+  Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">
+>;
 
 export type EventInsert = Omit<Event, "id" | "created_at" | "updated_at">;
-export type EventUpdate = Partial<Omit<Event, "id" | "neighborhood_id" | "host_id" | "created_at" | "updated_at">>;
+export type EventUpdate = Partial<
+  Omit<
+    Event,
+    "id" | "neighborhood_id" | "host_id" | "created_at" | "updated_at"
+  >
+>;
 
 export type EventRsvpInsert = Omit<EventRsvp, "id" | "created_at">;
-export type EventRsvpUpdate = Partial<Pick<EventRsvp, "status" | "guest_count">>;
+export type EventRsvpUpdate = Partial<
+  Pick<EventRsvp, "status" | "guest_count">
+>;
 
-export type ChildcareAvailabilityInsert = Omit<ChildcareAvailability, "id" | "created_at" | "updated_at">;
-export type ChildcareAvailabilityUpdate = Partial<Omit<ChildcareAvailability, "id" | "user_id" | "neighborhood_id" | "created_at" | "updated_at">>;
+export type ChildcareAvailabilityInsert = Omit<
+  ChildcareAvailability,
+  "id" | "created_at" | "updated_at"
+>;
+export type ChildcareAvailabilityUpdate = Partial<
+  Omit<
+    ChildcareAvailability,
+    "id" | "user_id" | "neighborhood_id" | "created_at" | "updated_at"
+  >
+>;
 
-export type ChildcareRequestInsert = Omit<ChildcareRequest, "id" | "created_at">;
-export type ChildcareRequestUpdate = Partial<Pick<ChildcareRequest, "status" | "notes">>;
+export type ChildcareRequestInsert = Omit<
+  ChildcareRequest,
+  "id" | "created_at"
+>;
+export type ChildcareRequestUpdate = Partial<
+  Pick<ChildcareRequest, "status" | "notes">
+>;
 
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
@@ -267,11 +298,6 @@ export interface Database {
         Row: Neighborhood;
         Insert: NeighborhoodInsert;
         Update: NeighborhoodUpdate;
-      };
-      households: {
-        Row: Household;
-        Insert: HouseholdInsert;
-        Update: HouseholdUpdate;
       };
       memberships: {
         Row: Membership;

@@ -43,6 +43,11 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [phones, setPhones] = useState<PhoneEntry[]>([]);
+  const [address, setAddress] = useState("");
+  const [unit, setUnit] = useState("");
+  const [moveInYear, setMoveInYear] = useState("");
+  const [children, setChildren] = useState("");
+  const [pets, setPets] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -50,7 +55,9 @@ export default function ProfilePage() {
     async function loadProfile() {
       const supabase = createClient();
 
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
       if (!authUser) {
         router.push("/signin");
         return;
@@ -67,16 +74,27 @@ export default function ProfilePage() {
       if (profileData) {
         setName(profileData.name || "");
         setBio(profileData.bio || "");
-        
+        setAddress(profileData.address || "");
+        setUnit(profileData.unit || "");
+        setMoveInYear(
+          profileData.move_in_year ? String(profileData.move_in_year) : "",
+        );
+        setChildren(profileData.children || "");
+        setPets(profileData.pets || "");
+
         // Load phones array, or migrate from legacy phone field
         if (profileData.phones && profileData.phones.length > 0) {
           // Format existing phone numbers for display
-          setPhones(profileData.phones.map((p: PhoneEntry) => ({
-            ...p,
-            number: formatPhoneInput(p.number)
-          })));
+          setPhones(
+            profileData.phones.map((p: PhoneEntry) => ({
+              ...p,
+              number: formatPhoneInput(p.number),
+            })),
+          );
         } else if (profileData.phone) {
-          setPhones([{ label: "Primary", number: formatPhoneInput(profileData.phone) }]);
+          setPhones([
+            { label: "Primary", number: formatPhoneInput(profileData.phone) },
+          ]);
         } else {
           setPhones([]);
         }
@@ -96,7 +114,11 @@ export default function ProfilePage() {
     setPhones(phones.filter((_, i) => i !== index));
   };
 
-  const updatePhone = (index: number, field: "label" | "number", value: string) => {
+  const updatePhone = (
+    index: number,
+    field: "label" | "number",
+    value: string,
+  ) => {
     const updated = [...phones];
     if (field === "number") {
       // Auto-format phone number as user types
@@ -112,17 +134,36 @@ export default function ProfilePage() {
     setError(null);
     setSuccess(false);
 
+    // Validate address is required
+    if (!address.trim()) {
+      setError("Address is required");
+      return;
+    }
+
     // Validate all phone numbers
-    const invalidPhone = phones.find(p => p.number && !isValidPhone(p.number));
+    const invalidPhone = phones.find(
+      (p) => p.number && !isValidPhone(p.number),
+    );
     if (invalidPhone) {
       setError("Phone numbers must be 10 digits");
       return;
     }
 
+    // Validate move-in year if provided
+    const currentYear = new Date().getFullYear();
+    const moveInYearNum = moveInYear ? parseInt(moveInYear, 10) : null;
+    if (
+      moveInYearNum !== null &&
+      (moveInYearNum < 1900 || moveInYearNum > currentYear)
+    ) {
+      setError(`Move-in year must be between 1900 and ${currentYear}`);
+      return;
+    }
+
     // Filter out empty entries and normalize numbers
     const cleanedPhones = phones
-      .filter(p => p.number.trim())
-      .map(p => ({
+      .filter((p) => p.number.trim())
+      .map((p) => ({
         label: p.label.trim() || "Primary",
         number: normalizePhone(p.number),
       }));
@@ -139,6 +180,11 @@ export default function ProfilePage() {
         phones: cleanedPhones,
         // Also update legacy phone field for backward compatibility
         phone: cleanedPhones.length > 0 ? cleanedPhones[0].number : null,
+        address: address.trim(),
+        unit: unit.trim() || null,
+        move_in_year: moveInYearNum,
+        children: children.trim() || null,
+        pets: pets.trim() || null,
       })
       .eq("id", user.id);
 
@@ -185,9 +231,7 @@ export default function ProfilePage() {
               disabled
               style={{ ...styles.input, ...styles.inputDisabled }}
             />
-            <span style={styles.hint}>
-              Email cannot be changed
-            </span>
+            <span style={styles.hint}>Email cannot be changed</span>
           </div>
 
           <div style={styles.inputGroup}>
@@ -207,27 +251,60 @@ export default function ProfilePage() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>
-              Phone Numbers
+            <label htmlFor="address" style={styles.label}>
+              Address *
             </label>
+            <input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              maxLength={MAX_LENGTHS.address}
+              style={styles.input}
+              placeholder="123 Main Street"
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="unit" style={styles.label}>
+              Unit
+            </label>
+            <input
+              id="unit"
+              type="text"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              maxLength={MAX_LENGTHS.unit}
+              style={styles.input}
+              placeholder="Apt 2B"
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Phone Numbers</label>
             <span style={styles.hint}>
               Add phone numbers for household members. Visible to neighbors.
             </span>
-            
+
             <div style={styles.phoneList}>
               {phones.map((phone, index) => (
                 <div key={index} className={profileStyles.phoneRow}>
                   <input
                     type="text"
                     value={phone.label}
-                    onChange={(e) => updatePhone(index, "label", e.target.value)}
+                    onChange={(e) =>
+                      updatePhone(index, "label", e.target.value)
+                    }
                     className={profileStyles.phoneLabelInput}
                     placeholder="Label (e.g., Mom)"
                   />
                   <input
                     type="tel"
                     value={phone.number}
-                    onChange={(e) => updatePhone(index, "number", e.target.value)}
+                    onChange={(e) =>
+                      updatePhone(index, "number", e.target.value)
+                    }
                     className={profileStyles.phoneNumberInput}
                     placeholder="555-555-5555"
                     maxLength={12}
@@ -242,7 +319,7 @@ export default function ProfilePage() {
                   </button>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 onClick={addPhone}
@@ -251,6 +328,56 @@ export default function ProfilePage() {
                 + Add Phone Number
               </button>
             </div>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="moveInYear" style={styles.label}>
+              Move-in Year
+            </label>
+            <input
+              id="moveInYear"
+              type="number"
+              value={moveInYear}
+              onChange={(e) => setMoveInYear(e.target.value)}
+              min={1900}
+              max={new Date().getFullYear()}
+              style={styles.input}
+              placeholder="2020"
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="children" style={styles.label}>
+              Children
+            </label>
+            <textarea
+              id="children"
+              value={children}
+              onChange={(e) => setChildren(e.target.value)}
+              maxLength={MAX_LENGTHS.children}
+              style={styles.textarea}
+              placeholder="e.g., Emma (8), Jack (5)"
+              rows={2}
+            />
+            <span style={styles.hint}>
+              Names and ages of children in your household
+            </span>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="pets" style={styles.label}>
+              Pets
+            </label>
+            <textarea
+              id="pets"
+              value={pets}
+              onChange={(e) => setPets(e.target.value)}
+              maxLength={MAX_LENGTHS.pets}
+              style={styles.textarea}
+              placeholder="e.g., Golden retriever named Max"
+              rows={2}
+            />
+            <span style={styles.hint}>Pets in your household</span>
           </div>
 
           <div style={styles.inputGroup}>
@@ -274,7 +401,9 @@ export default function ProfilePage() {
           </div>
 
           {error && <p style={styles.error}>{error}</p>}
-          {success && <p style={styles.success}>Profile updated successfully!</p>}
+          {success && (
+            <p style={styles.success}>Profile updated successfully!</p>
+          )}
 
           <button type="submit" disabled={saving} style={styles.button}>
             {saving ? "Saving..." : "Save Changes"}
