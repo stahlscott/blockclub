@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import responsive from "@/app/responsive.module.css";
+import { InviteButton } from "@/components/InviteButton";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -147,6 +148,7 @@ export default async function NeighborhoodPage({ params }: Props) {
           <span style={styles.navIcon}>📚</span>
           <span style={styles.navLabel}>Library</span>
         </Link>
+        <InviteButton slug={slug} />
         {/* Events and Childcare coming soon
         <Link href={`/neighborhoods/${slug}/events`} style={styles.navCard}>
           <span style={styles.navIcon}>📅</span>
@@ -217,9 +219,10 @@ export default async function NeighborhoodPage({ params }: Props) {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "900px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "2rem 1.5rem",
   },
   header: {
     display: "flex",

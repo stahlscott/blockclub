@@ -65,31 +65,55 @@ export default async function PendingMembersPage({ params }: Props) {
 
       {pendingMembers && pendingMembers.length > 0 ? (
         <div style={styles.list}>
-          {pendingMembers.map((member: any) => (
-            <div key={member.id} style={styles.card}>
-              <div style={styles.memberInfo}>
-                <div style={styles.avatar}>
-                  {member.user?.avatar_url ? (
-                    <img
-                      src={member.user.avatar_url}
-                      alt={member.user.name}
-                      style={styles.avatarImage}
-                    />
-                  ) : (
-                    <span>{member.user?.name?.charAt(0).toUpperCase() || "?"}</span>
-                  )}
+          {pendingMembers.map((member: any) => {
+            const userName = member.user?.name;
+            const userEmail = member.user?.email;
+            const hasProfile = !!member.user;
+            const initial = userName?.charAt(0)?.toUpperCase() || userEmail?.charAt(0)?.toUpperCase() || "?";
+            
+            return (
+              <div key={member.id} style={styles.card}>
+                <div style={styles.memberInfo}>
+                  <div style={styles.avatar}>
+                    {member.user?.avatar_url ? (
+                      <img
+                        src={member.user.avatar_url}
+                        alt={userName || "User"}
+                        style={styles.avatarImage}
+                      />
+                    ) : (
+                      <span>{initial}</span>
+                    )}
+                  </div>
+                  <div style={styles.details}>
+                    {hasProfile ? (
+                      <>
+                        <h3 style={styles.name}>
+                          {userName || <span style={styles.noName}>No name set</span>}
+                        </h3>
+                        <p style={styles.email}>{userEmail}</p>
+                      </>
+                    ) : (
+                      <>
+                        <h3 style={styles.name}>
+                          <span style={styles.noName}>Profile not found</span>
+                        </h3>
+                        <p style={styles.userId}>User ID: {member.user_id.slice(0, 8)}...</p>
+                      </>
+                    )}
+                    <p style={styles.date}>
+                      Requested {new Date(member.joined_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
                 </div>
-                <div style={styles.details}>
-                  <h3 style={styles.name}>{member.user?.name || "Unknown"}</h3>
-                  <p style={styles.email}>{member.user?.email}</p>
-                  <p style={styles.date}>
-                    Requested {new Date(member.joined_at).toLocaleDateString()}
-                  </p>
-                </div>
+                <MembershipActions membershipId={member.id} slug={slug} />
               </div>
-              <MembershipActions membershipId={member.id} slug={slug} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div style={styles.empty}>
@@ -105,9 +129,10 @@ export default async function PendingMembersPage({ params }: Props) {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "700px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "2rem 1.5rem",
   },
   header: {
     marginBottom: "2rem",
@@ -174,12 +199,23 @@ const styles: { [key: string]: React.CSSProperties } = {
   name: {
     margin: 0,
     fontSize: "1rem",
-    fontWeight: "500",
+    fontWeight: "600",
+  },
+  noName: {
+    color: "#999",
+    fontStyle: "italic",
+    fontWeight: "400",
   },
   email: {
     margin: 0,
     fontSize: "0.875rem",
-    color: "#666",
+    color: "#2563eb",
+  },
+  userId: {
+    margin: 0,
+    fontSize: "0.75rem",
+    color: "#999",
+    fontFamily: "monospace",
   },
   date: {
     margin: 0,

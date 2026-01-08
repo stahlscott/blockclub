@@ -7,6 +7,12 @@ import dashboardStyles from "./dashboard.module.css";
 // Only these emails can create new neighborhoods
 const ADMIN_EMAILS = ["stahl@hey.com"];
 
+// Helper to parse YYYY-MM-DD string as local date (not UTC)
+function parseDateLocal(dateStr: string) {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -70,6 +76,21 @@ export default async function DashboardPage() {
     pendingLoanRequests = loans || [];
   }
 
+  // Fetch user's active borrowed items
+  const { data: borrowedItems, error: borrowedError } = await supabase
+    .from("loans")
+    .select(`
+      *,
+      item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users(id, name))
+    `)
+    .eq("borrower_id", authUser.id)
+    .eq("status", "active")
+    .order("start_date", { ascending: false });
+  
+  if (borrowedError) {
+    console.error("Error fetching borrowed items:", borrowedError);
+  }
+
   return (
     <div className={dashboardStyles.container}>
       <h1 style={styles.title}>
@@ -103,6 +124,84 @@ export default async function DashboardPage() {
           </div>
         </section>
       )}
+
+      {borrowedItems && borrowedItems.length > 0 && (() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const overdueItems = borrowedItems.filter((loan: any) => 
+          loan.due_date && parseDateLocal(loan.due_date) < today
+        );
+        const currentItems = borrowedItems.filter((loan: any) => 
+          !loan.due_date || parseDateLocal(loan.due_date) >= today
+        );
+        
+        return (
+          <>
+            {overdueItems.length > 0 && (
+              <section style={styles.section}>
+                <div style={styles.overdueBanner}>
+                  <div style={styles.overdueHeader}>
+                    <span style={styles.pendingIcon}>⚠️</span>
+                    <strong>{overdueItems.length} Overdue Item{overdueItems.length > 1 ? "s" : ""}</strong>
+                  </div>
+                  <div style={styles.overdueList}>
+                    {overdueItems.map((loan: any) => (
+                      <Link
+                        key={loan.id}
+                        href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
+                        style={styles.overdueItem}
+                      >
+                        <div style={styles.borrowedItemInfo}>
+                          <span style={styles.overdueItemName}>{loan.item?.name}</span>
+                          <span style={styles.overdueItemDue}>
+                            Was due {parseDateLocal(loan.due_date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })} - please return to {loan.item?.owner?.name || "owner"}
+                          </span>
+                        </div>
+                        <span style={styles.overdueArrow}>&rarr;</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+            
+            {currentItems.length > 0 && (
+              <section style={styles.section}>
+                <div style={styles.borrowedBanner}>
+                  <div style={styles.borrowedHeader}>
+                    <span style={styles.pendingIcon}>📦</span>
+                    <strong>You&apos;re Borrowing {currentItems.length} Item{currentItems.length > 1 ? "s" : ""}</strong>
+                  </div>
+                  <div style={styles.borrowedList}>
+                    {currentItems.map((loan: any) => (
+                      <Link
+                        key={loan.id}
+                        href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
+                        style={styles.borrowedItem}
+                      >
+                        <div style={styles.borrowedItemInfo}>
+                          <span style={styles.borrowedItemName}>{loan.item?.name}</span>
+                          <span style={styles.borrowedItemOwner}>
+                            from {loan.item?.owner?.name || "Unknown"}
+                            {loan.due_date && ` · Due ${parseDateLocal(loan.due_date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}`}
+                          </span>
+                        </div>
+                        <span style={styles.loanRequestArrow}>&rarr;</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+          </>
+        );
+      })()}
 
       {pendingMemberships && pendingMemberships.length > 0 && (
         <section style={styles.section}>
@@ -160,7 +259,7 @@ export default async function DashboardPage() {
           <div style={styles.emptyState}>
             <h2 style={styles.emptyTitle}>No neighborhoods yet</h2>
             <p style={styles.emptyText}>
-              You haven&apos;t joined any neighborhoods yet. Ask a neighbor for an invite link!
+              You haven&apos;t joined any neighborhoods yet. Ask a neighbor to share their invite link with you!
             </p>
             {canCreateNeighborhood && (
               <Link href="/neighborhoods/new" style={styles.primaryButton}>
@@ -210,9 +309,10 @@ export default async function DashboardPage() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "1000px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "2rem 1.5rem",
   },
   title: {
     fontSize: "1.75rem",
@@ -383,5 +483,83 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "0.75rem 1.25rem",
     fontSize: "0.875rem",
     color: "#1e40af",
+  },
+  borrowedBanner: {
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #86efac",
+    borderRadius: "8px",
+    overflow: "hidden",
+  },
+  borrowedHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+    padding: "1rem 1.25rem",
+    borderBottom: "1px solid #86efac",
+  },
+  borrowedList: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  borrowedItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.875rem 1.25rem",
+    fontSize: "0.875rem",
+    color: "#166534",
+    textDecoration: "none",
+    borderBottom: "1px solid #bbf7d0",
+  },
+  borrowedItemInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.125rem",
+  },
+  borrowedItemName: {
+    fontWeight: "600",
+  },
+  borrowedItemOwner: {
+    fontSize: "0.75rem",
+    color: "#15803d",
+  },
+  overdueBanner: {
+    backgroundColor: "#fef2f2",
+    border: "1px solid #fca5a5",
+    borderRadius: "8px",
+    overflow: "hidden",
+  },
+  overdueHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+    padding: "1rem 1.25rem",
+    borderBottom: "1px solid #fca5a5",
+    color: "#991b1b",
+  },
+  overdueList: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  overdueItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.875rem 1.25rem",
+    fontSize: "0.875rem",
+    color: "#991b1b",
+    textDecoration: "none",
+    borderBottom: "1px solid #fecaca",
+  },
+  overdueItemName: {
+    fontWeight: "600",
+  },
+  overdueItemDue: {
+    fontSize: "0.75rem",
+    color: "#b91c1c",
+  },
+  overdueArrow: {
+    fontSize: "1.25rem",
+    color: "#dc2626",
   },
 };

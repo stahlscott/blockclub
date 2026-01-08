@@ -8,10 +8,10 @@ interface Props {
   itemId: string;
   slug: string;
   isAvailable: boolean;
-  hasExistingRequest: boolean;
+  userLoan: any | null;
 }
 
-export function BorrowButton({ itemId, slug, isAvailable, hasExistingRequest }: Props) {
+export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,10 +56,54 @@ export function BorrowButton({ itemId, slug, isAvailable, hasExistingRequest }: 
     }
   }
 
-  if (hasExistingRequest) {
+  // Helper to parse YYYY-MM-DD string as local date (not UTC)
+  const parseDateLocal = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // User has an active loan on this item
+  if (userLoan?.status === "active") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isOverdue = userLoan.due_date && parseDateLocal(userLoan.due_date) < today;
+    
+    return (
+      <div style={isOverdue ? styles.overdueBadge : styles.borrowedBadge}>
+        <div style={isOverdue ? styles.overdueTitle : styles.borrowedTitle}>
+          {isOverdue ? "Overdue" : "You're borrowing this item"}
+        </div>
+        {userLoan.due_date && (
+          <div style={isOverdue ? styles.overdueDue : styles.borrowedDue}>
+            {isOverdue ? "Was due" : "Due"}: {parseDateLocal(userLoan.due_date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </div>
+        )}
+        {isOverdue && (
+          <div style={styles.overdueHint}>
+            Please return this item to the owner
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // User has a pending or approved request
+  if (userLoan?.status === "requested") {
     return (
       <div style={styles.requestedBadge}>
         Request pending
+      </div>
+    );
+  }
+
+  if (userLoan?.status === "approved") {
+    return (
+      <div style={styles.approvedBadge}>
+        Request approved - contact the owner to arrange pickup
       </div>
     );
   }
@@ -140,6 +184,54 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: "center",
     fontSize: "0.875rem",
     fontWeight: "500",
+  },
+  approvedBadge: {
+    padding: "0.875rem 1.5rem",
+    backgroundColor: "#dbeafe",
+    color: "#1e40af",
+    borderRadius: "6px",
+    textAlign: "center",
+    fontSize: "0.875rem",
+    fontWeight: "500",
+  },
+  borrowedBadge: {
+    padding: "1rem 1.5rem",
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #86efac",
+    color: "#166534",
+    borderRadius: "6px",
+    textAlign: "center",
+  },
+  borrowedTitle: {
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    marginBottom: "0.25rem",
+  },
+  borrowedDue: {
+    fontSize: "0.75rem",
+    color: "#15803d",
+  },
+  overdueBadge: {
+    padding: "1rem 1.5rem",
+    backgroundColor: "#fef2f2",
+    border: "1px solid #fca5a5",
+    color: "#991b1b",
+    borderRadius: "6px",
+    textAlign: "center",
+  },
+  overdueTitle: {
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    marginBottom: "0.25rem",
+  },
+  overdueDue: {
+    fontSize: "0.75rem",
+    color: "#b91c1c",
+  },
+  overdueHint: {
+    fontSize: "0.75rem",
+    color: "#dc2626",
+    marginTop: "0.5rem",
   },
   form: {
     display: "flex",

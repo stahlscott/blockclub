@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import "@/app/globals.css";
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -63,9 +66,12 @@ export default function SignUpPage() {
 
       if (data.session) {
         // User is signed in (no email confirmation required)
-        router.push("/dashboard");
+        router.push(redirectTo);
       } else {
-        // Email confirmation required
+        // Email confirmation required - store redirect in localStorage for after confirmation
+        if (redirectTo !== "/dashboard") {
+          localStorage.setItem("authRedirect", redirectTo);
+        }
         setSuccess(true);
       }
     }
@@ -75,7 +81,7 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div style={styles.container}>
+      <div className="fullPageContainer">
         <div style={styles.card}>
           <h1 style={styles.title}>Check your email</h1>
           <p style={styles.text}>
@@ -93,7 +99,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="fullPageContainer">
       <div style={styles.card}>
         <h1 style={styles.title}>Create your account</h1>
         <p style={styles.subtitle}>Join your neighborhood on Front Porch</p>
@@ -163,15 +169,21 @@ export default function SignUpPage() {
   );
 }
 
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="fullPageContainer">
+        <div style={styles.card}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignUpForm />
+    </Suspense>
+  );
+}
+
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1rem",
-    backgroundColor: "#f5f5f5",
-  },
   card: {
     backgroundColor: "white",
     padding: "2rem",

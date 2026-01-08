@@ -216,9 +216,10 @@ export default async function MemberProfilePage({ params }: Props) {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "700px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "2rem 1.5rem",
   },
   backLink: {
     color: "#666",

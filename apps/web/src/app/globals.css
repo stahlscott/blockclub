@@ -91,3 +91,33 @@ html, body {
     font-size: 16px; /* Prevents zoom on iOS */
   }
 }
+
+/* Full page container that fills available space below header */
+.fullPageContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--color-background);
+}
+
+/* Standard page container with responsive width */
+.pageContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .pageContainer {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pageContainer {
+    padding: 2rem 2rem;
+  }
+}

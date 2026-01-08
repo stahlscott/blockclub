@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import "@/app/globals.css";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,12 +33,12 @@ export default function SignInPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(redirectTo);
     router.refresh();
   };
 
   return (
-    <div style={styles.container}>
+    <div className="fullPageContainer">
       <div style={styles.card}>
         <h1 style={styles.title}>Welcome back</h1>
         <p style={styles.subtitle}>Sign in to Front Porch</p>
@@ -89,15 +92,21 @@ export default function SignInPage() {
   );
 }
 
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="fullPageContainer">
+        <div style={styles.card}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
+  );
+}
+
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1rem",
-    backgroundColor: "#f5f5f5",
-  },
   card: {
     backgroundColor: "white",
     padding: "2rem",

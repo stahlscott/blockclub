@@ -139,18 +139,10 @@ export default async function ItemDetailPage({ params }: Props) {
             </Link>
           </div>
 
-          {/* Show active loan info */}
-          {activeLoan && !isOwner && (
+          {/* Show info when someone else has this item */}
+          {activeLoan && !isOwner && activeLoan.borrower_id !== user.id && (
             <div style={styles.loanInfo}>
-              {activeLoan.borrower_id === user.id ? (
-                <p>
-                  {activeLoan.status === "requested" && "You have requested to borrow this item."}
-                  {activeLoan.status === "approved" && "Your request has been approved! Contact the owner to arrange pickup."}
-                  {activeLoan.status === "active" && `You are currently borrowing this item. Due: ${activeLoan.due_date ? new Date(activeLoan.due_date).toLocaleDateString() : "No due date"}`}
-                </p>
-              ) : (
-                <p>This item is currently {activeLoan.status === "active" ? "borrowed" : "pending"}.</p>
-              )}
+              <p>This item is currently {activeLoan.status === "active" ? "borrowed by another member" : "reserved"}.</p>
             </div>
           )}
 
@@ -166,7 +158,7 @@ export default async function ItemDetailPage({ params }: Props) {
               itemId={id}
               slug={slug}
               isAvailable={item.availability === "available"}
-              hasExistingRequest={!!userRequest}
+              userLoan={userRequest}
             />
           )}
         </div>
@@ -177,9 +169,10 @@ export default async function ItemDetailPage({ params }: Props) {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "900px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "2rem 1.5rem",
   },
   backLink: {
     color: "#666",

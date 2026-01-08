@@ -26,16 +26,6 @@ export default async function Home() {
             <p>Borrow tools, games, and more from neighbors</p>
           </div>
           <div style={styles.feature}>
-            <span style={styles.featureIcon}>📅</span>
-            <h3>Events</h3>
-            <p>Organize and join neighborhood gatherings</p>
-          </div>
-          <div style={styles.feature}>
-            <span style={styles.featureIcon}>👶</span>
-            <h3>Childcare</h3>
-            <p>Coordinate childcare with trusted neighbors</p>
-          </div>
-          <div style={styles.feature}>
             <span style={styles.featureIcon}>👥</span>
             <h3>Directory</h3>
             <p>Find and connect with people nearby</p>
@@ -61,9 +51,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "#f5f5f5",
   },
   hero: {
-    maxWidth: "900px",
+    width: "100%",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "4rem 1rem",
+    padding: "4rem 1.5rem",
     textAlign: "center",
   },
   title: {

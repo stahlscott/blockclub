@@ -15,6 +15,36 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // Helper to format date as YYYY-MM-DD in local timezone
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  
+  // Helper to parse YYYY-MM-DD string as local date (not UTC)
+  const parseDateLocal = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+  
+  // Helper to display a date string in local timezone
+  const displayDate = (dateStr: string) => {
+    return parseDateLocal(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+  
+  // Default due date is 2 weeks from today, or use existing due date for active loans
+  const twoWeeksFromNow = new Date();
+  twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
+  const defaultDueDate = activeLoan?.due_date || formatDateLocal(twoWeeksFromNow);
+  const [dueDate, setDueDate] = useState(defaultDueDate);
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
 
   async function handleLoanAction(action: "approve" | "decline" | "mark_returned") {
     setError("");
@@ -24,15 +54,13 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       const supabase = createClient();
 
       if (action === "approve") {
-        // Approve the loan request
+        // Approve the loan request with selected due date
         const { error: loanError } = await supabase
           .from("loans")
           .update({
             status: "active",
-            start_date: new Date().toISOString().split("T")[0],
-            due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0], // 2 weeks default
+            start_date: formatDateLocal(new Date()),
+            due_date: dueDate,
           })
           .eq("id", activeLoan.id);
 
@@ -77,6 +105,30 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       router.refresh();
     } catch (err: any) {
       console.error("Error updating loan:", err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleUpdateDueDate() {
+    setError("");
+    setLoading(true);
+
+    try {
+      const supabase = createClient();
+      
+      const { error: updateError } = await supabase
+        .from("loans")
+        .update({ due_date: dueDate })
+        .eq("id", activeLoan.id);
+
+      if (updateError) throw updateError;
+
+      setIsEditingDueDate(false);
+      router.refresh();
+    } catch (err: any) {
+      console.error("Error updating due date:", err);
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -147,6 +199,19 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
           {activeLoan.notes && (
             <p style={styles.requestNotes}>"{activeLoan.notes}"</p>
           )}
+          <div style={styles.dueDateSection}>
+            <label htmlFor="dueDate" style={styles.dueDateLabel}>
+              Due date
+            </label>
+            <input
+              type="date"
+              id="dueDate"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              min={formatDateLocal(new Date())}
+              style={styles.dueDateInput}
+            />
+          </div>
           <div style={styles.requestActions}>
             <button
               onClick={() => handleLoanAction("decline")}
@@ -174,11 +239,58 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             Borrowed by <strong>{activeLoan.borrower?.name}</strong>
           </p>
           <p style={styles.loanDates}>
-            Since: {new Date(activeLoan.start_date).toLocaleDateString()}
-            {activeLoan.due_date && (
-              <> | Due: {new Date(activeLoan.due_date).toLocaleDateString()}</>
-            )}
+            Since: {displayDate(activeLoan.start_date)}
           </p>
+          
+          {isEditingDueDate ? (
+            <div style={styles.editDueDateSection}>
+              <label htmlFor="editDueDate" style={styles.dueDateLabel}>
+                Due date
+              </label>
+              <input
+                type="date"
+                id="editDueDate"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                min={formatDateLocal(new Date())}
+                style={styles.dueDateInput}
+              />
+              <div style={styles.editDueDateActions}>
+                <button
+                  onClick={() => {
+                    setDueDate(activeLoan.due_date || defaultDueDate);
+                    setIsEditingDueDate(false);
+                  }}
+                  style={styles.cancelButton}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateDueDate}
+                  style={styles.saveDueDateButton}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={styles.dueDateDisplay}>
+              <span style={styles.dueDateText}>
+                Due: {activeLoan.due_date 
+                  ? displayDate(activeLoan.due_date)
+                  : "No due date set"}
+              </span>
+              <button
+                onClick={() => setIsEditingDueDate(true)}
+                style={styles.editDueDateButton}
+              >
+                Edit
+              </button>
+            </div>
+          )}
+          
           <button
             onClick={() => handleLoanAction("mark_returned")}
             style={styles.returnButton}
@@ -255,10 +367,81 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontStyle: "italic",
     color: "#666",
   },
-  loanDates: {
-    margin: "0 0 1rem 0",
-    fontSize: "0.875rem",
+  dueDateSection: {
+    marginBottom: "1rem",
+  },
+  dueDateLabel: {
+    display: "block",
+    fontSize: "0.75rem",
+    fontWeight: "500",
     color: "#666",
+    marginBottom: "0.375rem",
+  },
+  dueDateInput: {
+    width: "100%",
+    padding: "0.625rem 0.75rem",
+    fontSize: "0.875rem",
+    border: "1px solid #d1d5db",
+    borderRadius: "6px",
+    backgroundColor: "white",
+  },
+  loanDates: {
+    margin: "0 0 0.75rem 0",
+    fontSize: "0.875rem",
+    color: "#1e40af",
+  },
+  dueDateDisplay: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0.75rem",
+    backgroundColor: "rgba(255,255,255,0.5)",
+    borderRadius: "6px",
+    marginBottom: "1rem",
+  },
+  dueDateText: {
+    fontSize: "0.875rem",
+    fontWeight: "500",
+    color: "#1e40af",
+  },
+  editDueDateButton: {
+    padding: "0.375rem 0.75rem",
+    backgroundColor: "white",
+    color: "#2563eb",
+    border: "1px solid #93c5fd",
+    borderRadius: "4px",
+    fontSize: "0.75rem",
+    fontWeight: "500",
+    cursor: "pointer",
+  },
+  editDueDateSection: {
+    marginBottom: "1rem",
+  },
+  editDueDateActions: {
+    display: "flex",
+    gap: "0.5rem",
+    marginTop: "0.5rem",
+  },
+  cancelButton: {
+    flex: 1,
+    padding: "0.5rem 0.75rem",
+    backgroundColor: "white",
+    color: "#666",
+    border: "1px solid #d1d5db",
+    borderRadius: "6px",
+    fontSize: "0.75rem",
+    cursor: "pointer",
+  },
+  saveDueDateButton: {
+    flex: 1,
+    padding: "0.5rem 0.75rem",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "0.75rem",
+    fontWeight: "500",
+    cursor: "pointer",
   },
   requestActions: {
     display: "flex",

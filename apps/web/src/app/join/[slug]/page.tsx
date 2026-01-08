@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import "@/app/globals.css";
 
-export default function JoinNeighborhoodPage() {
+export default function PublicJoinPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const slug = params.slug as string;
   const router = useRouter();
+  
   const [neighborhood, setNeighborhood] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
   const [existingMembership, setExistingMembership] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -20,57 +24,53 @@ export default function JoinNeighborhoodPage() {
     async function loadData() {
       const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      // Fetch neighborhood
+      // Fetch neighborhood (public query)
       const { data: neighborhoodData } = await supabase
         .from("neighborhoods")
-        .select("*")
+        .select("id, name, slug, description, location, settings")
         .eq("slug", slug)
         .single();
 
       if (!neighborhoodData) {
-        router.push("/dashboard");
+        setLoading(false);
         return;
       }
 
       setNeighborhood(neighborhoodData);
 
-      // Check for existing membership
-      const { data: membershipData } = await supabase
-        .from("memberships")
-        .select("*")
-        .eq("neighborhood_id", neighborhoodData.id)
-        .eq("user_id", user.id)
-        .single();
+      // Check if user is logged in
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      if (authUser) {
+        setUser(authUser);
 
-      if (membershipData) {
-        setExistingMembership(membershipData);
+        // Check for existing membership
+        const { data: membershipData } = await supabase
+          .from("memberships")
+          .select("*")
+          .eq("neighborhood_id", neighborhoodData.id)
+          .eq("user_id", authUser.id)
+          .single();
+
+        if (membershipData) {
+          setExistingMembership(membershipData);
+        }
       }
 
       setLoading(false);
     }
 
     loadData();
-  }, [slug, router]);
+  }, [slug]);
 
   const handleJoinRequest = async () => {
+    if (!user || !neighborhood) return;
+    
     setSubmitting(true);
     setError(null);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      setError("You must be logged in");
-      setSubmitting(false);
-      return;
-    }
-
+    
     // Ensure user profile exists (might not if email confirmation happened on different device)
     const { data: existingProfile } = await supabase
       .from("users")
@@ -96,7 +96,7 @@ export default function JoinNeighborhoodPage() {
         return;
       }
     }
-
+    
     const requiresApproval = neighborhood.settings?.require_approval !== false;
 
     const { error: joinError } = await supabase
@@ -125,7 +125,7 @@ export default function JoinNeighborhoodPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
+      <div className="fullPageContainer">
         <div style={styles.card}>
           <p>Loading...</p>
         </div>
@@ -133,9 +133,70 @@ export default function JoinNeighborhoodPage() {
     );
   }
 
+  // Neighborhood not found
+  if (!neighborhood) {
+    return (
+      <div className="fullPageContainer">
+        <div style={styles.card}>
+          <h1 style={styles.title}>Neighborhood Not Found</h1>
+          <p style={styles.message}>
+            This invite link may be invalid or the neighborhood no longer exists.
+          </p>
+          <Link href="/" style={styles.secondaryButton}>
+            Go to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // User not logged in - show sign up / sign in options
+  if (!user) {
+    return (
+      <div className="fullPageContainer">
+        <div style={styles.card}>
+          <div style={styles.inviteHeader}>
+            <span style={styles.inviteIcon}>🏘️</span>
+            <p style={styles.inviteText}>You&apos;ve been invited to join</p>
+          </div>
+          
+          <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
+          
+          {neighborhood.description && (
+            <p style={styles.description}>{neighborhood.description}</p>
+          )}
+          
+          {neighborhood.location && (
+            <p style={styles.location}>{neighborhood.location}</p>
+          )}
+
+          <div style={styles.divider} />
+
+          <p style={styles.ctaText}>Create an account or sign in to join this neighborhood.</p>
+
+          <div style={styles.buttonGroup}>
+            <Link 
+              href={`/signup?redirect=/join/${slug}`} 
+              style={styles.primaryButton}
+            >
+              Sign Up
+            </Link>
+            <Link 
+              href={`/signin?redirect=/join/${slug}`} 
+              style={styles.secondaryButton}
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // User is already a member
   if (existingMembership) {
     return (
-      <div style={styles.container}>
+      <div className="fullPageContainer">
         <div style={styles.card}>
           <h1 style={styles.title}>{neighborhood.name}</h1>
           
@@ -153,7 +214,7 @@ export default function JoinNeighborhoodPage() {
                 Your request to join this neighborhood is pending approval from an admin.
               </p>
               <Link href="/dashboard" style={styles.secondaryButton}>
-                Back to Dashboard
+                Go to Dashboard
               </Link>
             </>
           ) : (
@@ -162,7 +223,7 @@ export default function JoinNeighborhoodPage() {
                 Your membership status is: {existingMembership.status}
               </p>
               <Link href="/dashboard" style={styles.secondaryButton}>
-                Back to Dashboard
+                Go to Dashboard
               </Link>
             </>
           )}
@@ -171,9 +232,10 @@ export default function JoinNeighborhoodPage() {
     );
   }
 
+  // Success state after requesting to join
   if (success) {
     return (
-      <div style={styles.container}>
+      <div className="fullPageContainer">
         <div style={styles.card}>
           <div style={styles.successIcon}>✓</div>
           <h1 style={styles.title}>Request Sent!</h1>
@@ -182,21 +244,23 @@ export default function JoinNeighborhoodPage() {
             An admin will review your request and you&apos;ll be notified when approved.
           </p>
           <Link href="/dashboard" style={styles.primaryButton}>
-            Back to Dashboard
+            Go to Dashboard
           </Link>
         </div>
       </div>
     );
   }
 
+  // Logged in user can request to join
   return (
-    <div style={styles.container}>
+    <div className="fullPageContainer">
       <div style={styles.card}>
-        <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-          &larr; Back
-        </Link>
-
-        <h1 style={styles.title}>Join {neighborhood.name}</h1>
+        <div style={styles.inviteHeader}>
+          <span style={styles.inviteIcon}>🏘️</span>
+          <p style={styles.inviteText}>You&apos;ve been invited to join</p>
+        </div>
+        
+        <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
         
         {neighborhood.description && (
           <p style={styles.description}>{neighborhood.description}</p>
@@ -238,26 +302,35 @@ export default function JoinNeighborhoodPage() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "500px",
-    margin: "0 auto",
-    padding: "2rem 1rem",
-  },
   card: {
     backgroundColor: "white",
     padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+    width: "100%",
+    maxWidth: "420px",
     textAlign: "center",
   },
-  backLink: {
+  inviteHeader: {
+    marginBottom: "0.5rem",
+  },
+  inviteIcon: {
+    fontSize: "3rem",
+    display: "block",
+    marginBottom: "0.5rem",
+  },
+  inviteText: {
     color: "#666",
-    textDecoration: "none",
     fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1.5rem",
-    textAlign: "left",
-    width: "100%",
+    margin: 0,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  },
+  neighborhoodName: {
+    margin: "0.5rem 0",
+    fontSize: "1.75rem",
+    fontWeight: "700",
+    color: "#111",
   },
   title: {
     margin: "0 0 1rem 0",
@@ -267,41 +340,62 @@ const styles: { [key: string]: React.CSSProperties } = {
   description: {
     color: "#444",
     marginBottom: "0.5rem",
+    fontSize: "1rem",
   },
   location: {
     color: "#666",
     fontSize: "0.875rem",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
-  infoBox: {
-    backgroundColor: "#f0f9ff",
-    border: "1px solid #bae6fd",
-    borderRadius: "6px",
-    padding: "1rem",
+  divider: {
+    height: "1px",
+    backgroundColor: "#e5e7eb",
+    margin: "1.5rem 0",
+  },
+  ctaText: {
+    color: "#444",
     marginBottom: "1.5rem",
-    fontSize: "0.875rem",
-    color: "#0369a1",
+    fontSize: "0.95rem",
+  },
+  buttonGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
   },
   primaryButton: {
-    display: "inline-block",
+    display: "block",
     backgroundColor: "#2563eb",
     color: "white",
-    padding: "0.75rem 2rem",
-    borderRadius: "6px",
+    padding: "0.875rem 2rem",
+    borderRadius: "8px",
+    textDecoration: "none",
+    fontWeight: "600",
+    border: "none",
+    fontSize: "1rem",
+    cursor: "pointer",
+    transition: "background-color 0.15s ease",
+  },
+  secondaryButton: {
+    display: "block",
+    backgroundColor: "#f3f4f6",
+    color: "#374151",
+    padding: "0.875rem 2rem",
+    borderRadius: "8px",
     textDecoration: "none",
     fontWeight: "500",
     border: "none",
     fontSize: "1rem",
     cursor: "pointer",
   },
-  secondaryButton: {
-    display: "inline-block",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    padding: "0.75rem 2rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
+  infoBox: {
+    backgroundColor: "#f0f9ff",
+    border: "1px solid #bae6fd",
+    borderRadius: "8px",
+    padding: "1rem",
+    marginBottom: "1.5rem",
+    fontSize: "0.875rem",
+    color: "#0369a1",
+    textAlign: "left",
   },
   message: {
     color: "#444",

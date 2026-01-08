@@ -21,6 +21,7 @@ export default function NeighborhoodSettingsPage() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -202,6 +203,35 @@ export default function NeighborhoodSettingsPage() {
 
           <div style={styles.divider} />
 
+          <h2 style={styles.sectionTitle}>Invite Link</h2>
+          
+          <div style={styles.inviteSection}>
+            <p style={styles.inviteHint}>
+              Share this link to invite neighbors to join:
+            </p>
+            <div style={styles.inviteRow}>
+              <input
+                type="text"
+                readOnly
+                value={typeof window !== "undefined" ? `${window.location.origin}/join/${slug}` : `/join/${slug}`}
+                style={styles.inviteInput}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/join/${slug}`);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                style={styles.copyButton}
+              >
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.divider} />
+
           <h2 style={styles.sectionTitle}>Admin Actions</h2>
 
           <Link href={`/neighborhoods/${slug}/members/pending`} style={styles.adminLink}>
@@ -324,6 +354,40 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#2563eb",
     textDecoration: "none",
     fontSize: "0.875rem",
+  },
+  inviteSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+  },
+  inviteHint: {
+    margin: 0,
+    fontSize: "0.875rem",
+    color: "#666",
+  },
+  inviteRow: {
+    display: "flex",
+    gap: "0.5rem",
+  },
+  inviteInput: {
+    flex: 1,
+    padding: "0.75rem 1rem",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    fontSize: "0.875rem",
+    backgroundColor: "#f9fafb",
+    color: "#333",
+  },
+  copyButton: {
+    padding: "0.75rem 1.25rem",
+    backgroundColor: "#e0e7ff",
+    color: "#3730a3",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "0.875rem",
+    fontWeight: "500",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
   },
   actions: {
     marginTop: "0.5rem",
