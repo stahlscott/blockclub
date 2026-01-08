@@ -1,0 +1,312 @@
+/**
+ * Core types for Front Porch neighborhood app
+ * These types match the Supabase database schema exactly
+ */
+
+// ============================================================================
+// ENUMS (matching database enums)
+// ============================================================================
+
+export type MembershipRole = "admin" | "member";
+export type MembershipStatus = "pending" | "active" | "inactive";
+
+export type ItemCategory =
+  | "tools"
+  | "kitchen"
+  | "outdoor"
+  | "sports"
+  | "games"
+  | "electronics"
+  | "books"
+  | "baby"
+  | "travel"
+  | "other";
+
+export type ItemAvailability = "available" | "borrowed" | "unavailable";
+
+export type LoanStatus = "requested" | "approved" | "active" | "returned" | "cancelled";
+
+export type RsvpStatus = "yes" | "no" | "maybe";
+
+export type ChildcareRequestStatus = "pending" | "approved" | "declined" | "cancelled";
+
+// ============================================================================
+// CORE TABLES
+// ============================================================================
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  phone: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NeighborhoodSettings {
+  require_approval: boolean;
+  allow_public_directory: boolean;
+}
+
+export interface Neighborhood {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
+  settings: NeighborhoodSettings;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Household {
+  id: string;
+  neighborhood_id: string;
+  address: string;
+  unit: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Membership {
+  id: string;
+  user_id: string;
+  neighborhood_id: string;
+  household_id: string | null;
+  role: MembershipRole;
+  status: MembershipStatus;
+  joined_at: string;
+}
+
+// ============================================================================
+// LENDING LIBRARY
+// ============================================================================
+
+export interface Item {
+  id: string;
+  neighborhood_id: string;
+  owner_id: string;
+  name: string;
+  description: string | null;
+  category: ItemCategory;
+  photo_urls: string[];
+  availability: ItemAvailability;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Loan {
+  id: string;
+  item_id: string;
+  borrower_id: string;
+  status: LoanStatus;
+  requested_at: string;
+  start_date: string | null;
+  due_date: string | null;
+  returned_at: string | null;
+  notes: string | null;
+}
+
+// ============================================================================
+// EVENTS
+// ============================================================================
+
+export interface Event {
+  id: string;
+  neighborhood_id: string;
+  host_id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventRsvp {
+  id: string;
+  event_id: string;
+  user_id: string;
+  status: RsvpStatus;
+  guest_count: number;
+  created_at: string;
+}
+
+// ============================================================================
+// CHILDCARE
+// ============================================================================
+
+export interface ChildcareAvailability {
+  id: string;
+  user_id: string;
+  neighborhood_id: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChildcareRequest {
+  id: string;
+  availability_id: string;
+  requester_id: string;
+  status: ChildcareRequestStatus;
+  children_count: number;
+  notes: string | null;
+  created_at: string;
+}
+
+// ============================================================================
+// JOINED TYPES (for queries with relations)
+// ============================================================================
+
+export interface MembershipWithUser extends Membership {
+  user: User;
+}
+
+export interface MembershipWithNeighborhood extends Membership {
+  neighborhood: Neighborhood;
+}
+
+export interface MembershipWithHousehold extends Membership {
+  household: Household | null;
+}
+
+export interface ItemWithOwner extends Item {
+  owner: User;
+}
+
+export interface LoanWithDetails extends Loan {
+  item: Item;
+  borrower: User;
+}
+
+export interface EventWithHost extends Event {
+  host: User;
+}
+
+export interface EventRsvpWithUser extends EventRsvp {
+  user: User;
+}
+
+export interface ChildcareAvailabilityWithUser extends ChildcareAvailability {
+  user: User;
+}
+
+// ============================================================================
+// INSERT/UPDATE TYPES (for mutations)
+// ============================================================================
+
+export type UserInsert = {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string | null;
+  bio?: string | null;
+  phone?: string | null;
+};
+export type UserUpdate = Partial<Omit<User, "id" | "created_at" | "updated_at">>;
+
+export type NeighborhoodInsert = Omit<Neighborhood, "id" | "created_at" | "updated_at">;
+export type NeighborhoodUpdate = Partial<Omit<Neighborhood, "id" | "created_by" | "created_at" | "updated_at">>;
+
+export type HouseholdInsert = Omit<Household, "id" | "created_at" | "updated_at">;
+export type HouseholdUpdate = Partial<Omit<Household, "id" | "neighborhood_id" | "created_at" | "updated_at">>;
+
+export type MembershipInsert = Omit<Membership, "id" | "joined_at">;
+export type MembershipUpdate = Partial<Pick<Membership, "household_id" | "role" | "status">>;
+
+export type ItemInsert = Omit<Item, "id" | "created_at" | "updated_at">;
+export type ItemUpdate = Partial<Omit<Item, "id" | "neighborhood_id" | "owner_id" | "created_at" | "updated_at">>;
+
+export type LoanInsert = Omit<Loan, "id" | "requested_at">;
+export type LoanUpdate = Partial<Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">>;
+
+export type EventInsert = Omit<Event, "id" | "created_at" | "updated_at">;
+export type EventUpdate = Partial<Omit<Event, "id" | "neighborhood_id" | "host_id" | "created_at" | "updated_at">>;
+
+export type EventRsvpInsert = Omit<EventRsvp, "id" | "created_at">;
+export type EventRsvpUpdate = Partial<Pick<EventRsvp, "status" | "guest_count">>;
+
+export type ChildcareAvailabilityInsert = Omit<ChildcareAvailability, "id" | "created_at" | "updated_at">;
+export type ChildcareAvailabilityUpdate = Partial<Omit<ChildcareAvailability, "id" | "user_id" | "neighborhood_id" | "created_at" | "updated_at">>;
+
+export type ChildcareRequestInsert = Omit<ChildcareRequest, "id" | "created_at">;
+export type ChildcareRequestUpdate = Partial<Pick<ChildcareRequest, "status" | "notes">>;
+
+// ============================================================================
+// DATABASE SCHEMA TYPE (for Supabase client)
+// ============================================================================
+
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: User;
+        Insert: UserInsert;
+        Update: UserUpdate;
+      };
+      neighborhoods: {
+        Row: Neighborhood;
+        Insert: NeighborhoodInsert;
+        Update: NeighborhoodUpdate;
+      };
+      households: {
+        Row: Household;
+        Insert: HouseholdInsert;
+        Update: HouseholdUpdate;
+      };
+      memberships: {
+        Row: Membership;
+        Insert: MembershipInsert;
+        Update: MembershipUpdate;
+      };
+      items: {
+        Row: Item;
+        Insert: ItemInsert;
+        Update: ItemUpdate;
+      };
+      loans: {
+        Row: Loan;
+        Insert: LoanInsert;
+        Update: LoanUpdate;
+      };
+      events: {
+        Row: Event;
+        Insert: EventInsert;
+        Update: EventUpdate;
+      };
+      event_rsvps: {
+        Row: EventRsvp;
+        Insert: EventRsvpInsert;
+        Update: EventRsvpUpdate;
+      };
+      childcare_availability: {
+        Row: ChildcareAvailability;
+        Insert: ChildcareAvailabilityInsert;
+        Update: ChildcareAvailabilityUpdate;
+      };
+      childcare_requests: {
+        Row: ChildcareRequest;
+        Insert: ChildcareRequestInsert;
+        Update: ChildcareRequestUpdate;
+      };
+    };
+    Enums: {
+      membership_role: MembershipRole;
+      membership_status: MembershipStatus;
+      item_category: ItemCategory;
+      item_availability: ItemAvailability;
+      loan_status: LoanStatus;
+      rsvp_status: RsvpStatus;
+      childcare_request_status: ChildcareRequestStatus;
+    };
+  };
+}
