@@ -1,3 +1,9 @@
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Admins can update neighborhoods" ON public.neighborhoods;
+DROP POLICY IF EXISTS "Admins can update memberships" ON public.memberships;
+DROP POLICY IF EXISTS "Admins can delete memberships" ON public.memberships;
+DROP POLICY IF EXISTS "Users can delete own membership" ON public.memberships;
+
 -- Allow admins to update neighborhoods
 CREATE POLICY "Admins can update neighborhoods"
     ON public.neighborhoods FOR UPDATE

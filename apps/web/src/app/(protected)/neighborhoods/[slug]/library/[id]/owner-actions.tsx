@@ -124,6 +124,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       if (deleteError) throw deleteError;
 
       router.push(`/neighborhoods/${slug}/library`);
+      router.refresh();
     } catch (err: any) {
       console.error("Error deleting item:", err);
       setError(err.message || "Something went wrong");
