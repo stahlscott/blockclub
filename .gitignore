@@ -50,3 +50,7 @@ android/app/debug.keystore
 # Expo
 .expo
 web-build
+
+# Supabase
+supabase/.branches
+supabase/.temp
