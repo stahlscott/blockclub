@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface Props {
   itemId: string;
@@ -42,14 +43,14 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
       });
 
       if (insertError) {
-        console.error("Loan request error:", insertError);
+        logger.error("Loan request error", insertError, { itemId });
         setError(insertError.message);
         return;
       }
 
       router.refresh();
     } catch (err) {
-      console.error("Error requesting loan:", err);
+      logger.error("Error requesting loan", err, { itemId });
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

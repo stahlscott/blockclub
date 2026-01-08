@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import "@/app/globals.css";
 
 export default function PublicJoinPage() {
@@ -90,7 +91,7 @@ export default function PublicJoinPage() {
       });
       
       if (profileError) {
-        console.error("Error creating profile:", profileError);
+        logger.error("Error creating profile", profileError);
         setError("Failed to create your profile. Please try again.");
         setSubmitting(false);
         return;

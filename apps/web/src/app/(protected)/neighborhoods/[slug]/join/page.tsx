@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 export default function JoinNeighborhoodPage() {
   const params = useParams();
@@ -90,7 +91,7 @@ export default function JoinNeighborhoodPage() {
       });
       
       if (profileError) {
-        console.error("Error creating profile:", profileError);
+        logger.error("Error creating profile", profileError);
         setError("Failed to create your profile. Please try again.");
         setSubmitting(false);
         return;

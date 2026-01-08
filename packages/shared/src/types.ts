@@ -86,6 +86,7 @@ export interface Membership {
   role: MembershipRole;
   status: MembershipStatus;
   joined_at: string;
+  deleted_at: string | null;
 }
 
 // ============================================================================
@@ -103,6 +104,7 @@ export interface Item {
   availability: ItemAvailability;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
 export interface Loan {
@@ -115,6 +117,7 @@ export interface Loan {
   due_date: string | null;
   returned_at: string | null;
   notes: string | null;
+  deleted_at: string | null;
 }
 
 // ============================================================================

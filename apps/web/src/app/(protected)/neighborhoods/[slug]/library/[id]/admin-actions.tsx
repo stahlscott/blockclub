@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface AdminActionsProps {
   itemId: string;
@@ -28,9 +29,10 @@ export function AdminActions({ itemId, itemName, slug }: AdminActionsProps) {
     try {
       const supabase = createClient();
       
+      // Soft delete: set deleted_at instead of actually deleting
       const { error: deleteError } = await supabase
         .from("items")
-        .delete()
+        .update({ deleted_at: new Date().toISOString(), availability: "unavailable" })
         .eq("id", itemId);
 
       if (deleteError) {
@@ -40,7 +42,7 @@ export function AdminActions({ itemId, itemName, slug }: AdminActionsProps) {
       // Redirect to library after deletion
       router.push(`/neighborhoods/${slug}/library`);
     } catch (err) {
-      console.error("Error removing item:", err);
+      logger.error("Error removing item", err, { itemId });
       setError(err instanceof Error ? err.message : "Failed to remove item");
       setLoading(false);
     }

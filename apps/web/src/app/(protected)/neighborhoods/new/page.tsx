@@ -6,6 +6,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { isSuperAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
+import { MAX_LENGTHS, validateLength } from "@/lib/validation";
 
 export default function NewNeighborhoodPage() {
   const router = useRouter();
@@ -116,7 +118,7 @@ export default function NewNeighborhoodPage() {
       });
 
     if (memberError) {
-      console.error("Error creating membership:", memberError);
+      logger.error("Error creating membership", memberError);
       // Don't block - neighborhood was created
     }
 
@@ -156,9 +158,15 @@ export default function NewNeighborhoodPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              maxLength={MAX_LENGTHS.neighborhoodName}
               style={styles.input}
               placeholder="e.g., Maplewood Heights"
             />
+            {name.length > MAX_LENGTHS.neighborhoodName * 0.8 && (
+              <span style={styles.charCount}>
+                {name.length}/{MAX_LENGTHS.neighborhoodName}
+              </span>
+            )}
             {name && (
               <span style={styles.slug}>
                 URL: /neighborhoods/{generateSlug(name)}
@@ -174,10 +182,16 @@ export default function NewNeighborhoodPage() {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              maxLength={MAX_LENGTHS.neighborhoodDescription}
               style={styles.textarea}
               placeholder="Tell potential members about your neighborhood..."
               rows={3}
             />
+            {description.length > MAX_LENGTHS.neighborhoodDescription * 0.8 && (
+              <span style={styles.charCount}>
+                {description.length}/{MAX_LENGTHS.neighborhoodDescription}
+              </span>
+            )}
           </div>
 
           <div style={styles.inputGroup}>
@@ -189,6 +203,7 @@ export default function NewNeighborhoodPage() {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              maxLength={MAX_LENGTHS.neighborhoodLocation}
               style={styles.input}
               placeholder="e.g., Downtown Portland"
             />
@@ -316,5 +331,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#dc2626",
     fontSize: "0.875rem",
     margin: 0,
+  },
+  charCount: {
+    fontSize: "0.75rem",
+    color: "#888",
+    textAlign: "right",
+    marginTop: "0.25rem",
   },
 };

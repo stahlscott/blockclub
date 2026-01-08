@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import "@/app/globals.css";
 
 function SignUpForm() {
@@ -53,7 +54,7 @@ function SignUpForm() {
       });
 
       if (profileError) {
-        console.error("Error creating profile:", profileError);
+        logger.error("Error creating profile", profileError);
         // Don't block signup if profile creation fails - can be retried
       }
 

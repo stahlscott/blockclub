@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -90,7 +91,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     .single();
 
   if (updateError) {
-    console.error("Error updating membership role:", updateError);
+    logger.error("Error updating membership role", updateError, { membershipId });
     return NextResponse.json(
       { error: "Failed to update role" },
       { status: 500 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { MAX_LENGTHS } from "@/lib/validation";
 import profileStyles from "./profile.module.css";
 
 interface PhoneEntry {
@@ -199,6 +200,7 @@ export default function ProfilePage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              maxLength={MAX_LENGTHS.userName}
               style={styles.input}
               placeholder="e.g., The Smith Family"
             />
@@ -259,10 +261,16 @@ export default function ProfilePage() {
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
+              maxLength={MAX_LENGTHS.userBio}
               style={styles.textarea}
               placeholder="Tell your neighbors a bit about yourselves..."
               rows={4}
             />
+            {bio.length > MAX_LENGTHS.userBio * 0.8 && (
+              <span style={styles.charCount}>
+                {bio.length}/{MAX_LENGTHS.userBio}
+              </span>
+            )}
           </div>
 
           {error && <p style={styles.error}>{error}</p>}
@@ -409,5 +417,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#059669",
     fontSize: "0.875rem",
     margin: 0,
+  },
+  charCount: {
+    fontSize: "0.75rem",
+    color: "#888",
+    textAlign: "right" as const,
   },
 };

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface Props {
   membershipId: string;
@@ -26,18 +27,19 @@ export function MembershipActions({ membershipId, slug }: Props) {
           .eq("id", membershipId);
 
         if (error) {
-          console.error("Error approving:", error);
+          logger.error("Error approving", error, { membershipId });
           alert("Failed to approve membership");
           return;
         }
       } else {
+        // Soft delete: set deleted_at instead of actually deleting
         const { error } = await supabase
           .from("memberships")
-          .delete()
+          .update({ deleted_at: new Date().toISOString(), status: "inactive" })
           .eq("id", membershipId);
 
         if (error) {
-          console.error("Error rejecting:", error);
+          logger.error("Error rejecting", error, { membershipId });
           alert("Failed to reject membership");
           return;
         }
@@ -45,7 +47,7 @@ export function MembershipActions({ membershipId, slug }: Props) {
 
       router.refresh();
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error", err, { membershipId });
       alert("Something went wrong");
     } finally {
       setLoading(false);

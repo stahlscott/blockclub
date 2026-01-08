@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface Neighborhood {
   id: string;
@@ -59,7 +60,7 @@ export function NeighborhoodSwitcher({
       .eq("id", userId);
 
     if (error) {
-      console.error("Failed to update primary neighborhood:", error);
+      logger.error("Failed to update primary neighborhood", error);
       setIsUpdating(false);
       return;
     }

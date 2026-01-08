@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
+import { MAX_LENGTHS } from "@/lib/validation";
 import type { ItemCategory } from "@frontporch/shared";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
@@ -85,7 +87,7 @@ export default function NewItemPage() {
       });
 
       if (insertError) {
-        console.error("Insert error:", insertError);
+        logger.error("Insert error", insertError);
         setError(insertError.message);
         return;
       }
@@ -93,7 +95,7 @@ export default function NewItemPage() {
       router.push(`/neighborhoods/${slug}/library`);
       router.refresh();
     } catch (err) {
-      console.error("Error adding item:", err);
+      logger.error("Error adding item", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -126,6 +128,7 @@ export default function NewItemPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Circular Saw, Dutch Oven, Camping Tent"
               required
+              maxLength={MAX_LENGTHS.itemName}
               style={styles.input}
             />
           </div>
@@ -159,8 +162,14 @@ export default function NewItemPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details about the item, condition, or any borrowing notes..."
               rows={4}
+              maxLength={MAX_LENGTHS.itemDescription}
               style={styles.textarea}
             />
+            {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
+              <span style={styles.charCount}>
+                {description.length}/{MAX_LENGTHS.itemDescription}
+              </span>
+            )}
           </div>
 
           <div style={styles.actions}>
@@ -271,5 +280,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "0.875rem",
     fontWeight: "500",
     cursor: "pointer",
+  },
+  charCount: {
+    fontSize: "0.75rem",
+    color: "#888",
+    textAlign: "right",
   },
 };

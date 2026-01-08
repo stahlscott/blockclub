@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
+import { MAX_LENGTHS } from "@/lib/validation";
 import type { ItemCategory } from "@frontporch/shared";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
@@ -90,7 +92,7 @@ export default function EditItemPage() {
         .eq("id", id);
 
       if (updateError) {
-        console.error("Update error:", updateError);
+        logger.error("Update error", updateError, { itemId: id });
         setError(updateError.message);
         return;
       }
@@ -98,7 +100,7 @@ export default function EditItemPage() {
       router.push(`/neighborhoods/${slug}/library/${id}`);
       router.refresh();
     } catch (err) {
-      console.error("Error updating item:", err);
+      logger.error("Error updating item", err, { itemId: id });
       setError("Something went wrong. Please try again.");
     } finally {
       setSaving(false);
@@ -135,6 +137,7 @@ export default function EditItemPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              maxLength={MAX_LENGTHS.itemName}
               style={styles.input}
             />
           </div>
@@ -168,8 +171,14 @@ export default function EditItemPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details about the item..."
               rows={4}
+              maxLength={MAX_LENGTHS.itemDescription}
               style={styles.textarea}
             />
+            {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
+              <span style={styles.charCount}>
+                {description.length}/{MAX_LENGTHS.itemDescription}
+              </span>
+            )}
           </div>
 
           <div style={styles.actions}>
@@ -275,5 +284,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "0.875rem",
     fontWeight: "500",
     cursor: "pointer",
+  },
+  charCount: {
+    fontSize: "0.75rem",
+    color: "#888",
+    textAlign: "right" as const,
   },
 };

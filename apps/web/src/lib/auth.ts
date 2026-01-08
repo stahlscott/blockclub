@@ -5,8 +5,8 @@
 // - Ability to promote members to admin in any neighborhood
 // - Ability to demote admins to member in any neighborhood
 
-export const SUPER_ADMIN_EMAILS = ["stahl@hey.com"];
+import { env } from "./env";
 
 export function isSuperAdmin(email: string | null | undefined): boolean {
-  return SUPER_ADMIN_EMAILS.includes(email || "");
+  return env.SUPER_ADMIN_EMAILS.includes(email || "");
 }

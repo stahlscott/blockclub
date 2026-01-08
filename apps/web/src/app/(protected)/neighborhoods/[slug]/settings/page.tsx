@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isSuperAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
+import { MAX_LENGTHS } from "@/lib/validation";
 
 export default function NeighborhoodSettingsPage() {
   const router = useRouter();
@@ -110,7 +112,7 @@ export default function NeighborhoodSettingsPage() {
       router.refresh();
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      console.error("Error saving:", err);
+      logger.error("Error saving", err, { slug });
       setError("Something went wrong");
     } finally {
       setSaving(false);
@@ -150,6 +152,7 @@ export default function NeighborhoodSettingsPage() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
+              maxLength={MAX_LENGTHS.neighborhoodName}
               style={styles.input}
             />
           </div>
@@ -164,6 +167,7 @@ export default function NeighborhoodSettingsPage() {
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               placeholder="e.g., Austin, TX"
+              maxLength={MAX_LENGTHS.neighborhoodLocation}
               style={styles.input}
             />
           </div>
@@ -178,8 +182,14 @@ export default function NeighborhoodSettingsPage() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Tell people about your neighborhood..."
               rows={4}
+              maxLength={MAX_LENGTHS.neighborhoodDescription}
               style={styles.textarea}
             />
+            {form.description.length > MAX_LENGTHS.neighborhoodDescription * 0.8 && (
+              <span style={styles.charCount}>
+                {form.description.length}/{MAX_LENGTHS.neighborhoodDescription}
+              </span>
+            )}
           </div>
 
           <div style={styles.divider} />
@@ -405,5 +415,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "1rem",
     fontWeight: "500",
     cursor: "pointer",
+  },
+  charCount: {
+    fontSize: "0.75rem",
+    color: "#888",
+    textAlign: "right" as const,
   },
 };

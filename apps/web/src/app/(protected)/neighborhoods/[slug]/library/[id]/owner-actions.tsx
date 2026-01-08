@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface Props {
   item: any;
@@ -104,7 +105,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
 
       router.refresh();
     } catch (err: any) {
-      console.error("Error updating loan:", err);
+      logger.error("Error updating loan", err, { itemId: item.id });
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -128,7 +129,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       setIsEditingDueDate(false);
       router.refresh();
     } catch (err: any) {
-      console.error("Error updating due date:", err);
+      logger.error("Error updating due date", err, { itemId: item.id });
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -152,7 +153,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
 
       router.refresh();
     } catch (err: any) {
-      console.error("Error updating availability:", err);
+      logger.error("Error updating availability", err, { itemId: item.id });
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -168,9 +169,10 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
     try {
       const supabase = createClient();
 
+      // Soft delete: set deleted_at instead of actually deleting
       const { error: deleteError } = await supabase
         .from("items")
-        .delete()
+        .update({ deleted_at: new Date().toISOString(), availability: "unavailable" })
         .eq("id", item.id);
 
       if (deleteError) throw deleteError;
@@ -178,7 +180,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       router.push(`/neighborhoods/${slug}/library`);
       router.refresh();
     } catch (err: any) {
-      console.error("Error deleting item:", err);
+      logger.error("Error deleting item", err, { itemId: item.id });
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);

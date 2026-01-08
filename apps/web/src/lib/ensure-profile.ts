@@ -1,4 +1,5 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
+import { logger } from "./logger";
 
 /**
  * Ensures a user profile exists in the public.users table.
@@ -30,7 +31,7 @@ export async function ensureUserProfile(
   });
 
   if (profileError) {
-    console.error("Error creating user profile:", profileError);
+    logger.error("Error creating user profile", profileError, { userId: user.id });
     return { success: false, error: profileError.message };
   }
 

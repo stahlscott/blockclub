@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
 import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
@@ -97,7 +98,7 @@ export default async function DashboardPage() {
     .order("start_date", { ascending: false });
   
   if (borrowedError) {
-    console.error("Error fetching borrowed items:", borrowedError);
+    logger.error("Error fetching borrowed items", borrowedError);
   }
 
   // Determine the primary neighborhood
