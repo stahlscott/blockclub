@@ -71,6 +71,7 @@ export default function ProfilePage() {
       setError(updateError.message);
     } else {
       setSuccess(true);
+      router.refresh(); // Refresh server data so other pages show updated profile
       setTimeout(() => setSuccess(false), 3000);
     }
 

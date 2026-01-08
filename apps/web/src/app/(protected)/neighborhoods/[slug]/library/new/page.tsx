@@ -91,6 +91,7 @@ export default function NewItemPage() {
       }
 
       router.push(`/neighborhoods/${slug}/library`);
+      router.refresh();
     } catch (err) {
       console.error("Error adding item:", err);
       setError("Something went wrong. Please try again.");

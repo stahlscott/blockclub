@@ -96,6 +96,7 @@ export default function EditItemPage() {
       }
 
       router.push(`/neighborhoods/${slug}/library/${id}`);
+      router.refresh();
     } catch (err) {
       console.error("Error updating item:", err);
       setError("Something went wrong. Please try again.");

@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-interface Props {
-  params: Promise<{ slug: string }>;
-}
-
-export default function JoinNeighborhoodPage({ params }: Props) {
-  const { slug } = use(params);
+export default function JoinNeighborhoodPage() {
+  const params = useParams();
+  const slug = params.slug as string;
   const router = useRouter();
   const [neighborhood, setNeighborhood] = useState<any>(null);
   const [existingMembership, setExistingMembership] = useState<any>(null);
