@@ -57,8 +57,8 @@ export default async function DirectoryPage({ params }: Props) {
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-            &larr; Back to {neighborhood.name}
+          <Link href="/dashboard" style={styles.backLink}>
+            &larr; Dashboard
           </Link>
           <h1 style={styles.title}>Neighborhood Directory</h1>
           <p style={styles.subtitle}>

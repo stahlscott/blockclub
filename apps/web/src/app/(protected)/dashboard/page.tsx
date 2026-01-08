@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
+import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
+import { InviteButton } from "@/components/InviteButton";
 
 // Only these emails can create new neighborhoods
 const ADMIN_EMAILS = ["stahl@hey.com"];
@@ -11,6 +13,15 @@ const ADMIN_EMAILS = ["stahl@hey.com"];
 function parseDateLocal(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
   return new Date(year, month - 1, day);
+}
+
+// Check if a date is within the last N days
+function isWithinDays(dateStr: string, days: number) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  return diffDays <= days;
 }
 
 export default async function DashboardPage() {
@@ -43,7 +54,7 @@ export default async function DashboardPage() {
     .eq("user_id", authUser.id)
     .eq("status", "active");
 
-  // Fetch pending membership requests
+  // Fetch pending membership requests (user's own pending requests to join)
   const { data: pendingMemberships } = await supabase
     .from("memberships")
     .select(`
@@ -53,7 +64,7 @@ export default async function DashboardPage() {
     .eq("user_id", authUser.id)
     .eq("status", "pending");
 
-  // Fetch user's items
+  // Fetch user's items (for loan request notifications)
   const { data: userItems } = await supabase
     .from("items")
     .select("id")
@@ -91,12 +102,120 @@ export default async function DashboardPage() {
     console.error("Error fetching borrowed items:", borrowedError);
   }
 
+  // Determine the primary neighborhood
+  const activeMemberships = memberships || [];
+  let primaryNeighborhood: any = null;
+  let primaryMembership: any = null;
+
+  if (activeMemberships.length > 0) {
+    // First try to use the user's saved primary neighborhood
+    if (profile?.primary_neighborhood_id) {
+      primaryMembership = activeMemberships.find(
+        (m: any) => m.neighborhood.id === profile.primary_neighborhood_id
+      );
+    }
+    // Fall back to first membership if primary not found
+    if (!primaryMembership) {
+      primaryMembership = activeMemberships[0];
+    }
+    primaryNeighborhood = primaryMembership?.neighborhood;
+  }
+
+  // Fetch neighborhood-specific data if user has a primary neighborhood
+  let memberCount = 0;
+  let itemsAvailable = 0;
+  let recentItems: any[] = [];
+  let recentMembers: any[] = [];
+  let pendingMemberRequests = 0;
+  const isAdmin = primaryMembership?.role === "admin";
+
+  if (primaryNeighborhood) {
+    // Fetch member count
+    const { count: mCount } = await supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", primaryNeighborhood.id)
+      .eq("status", "active");
+    memberCount = mCount || 0;
+
+    // Fetch items available count
+    const { count: iCount } = await supabase
+      .from("items")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", primaryNeighborhood.id)
+      .eq("availability", "available");
+    itemsAvailable = iCount || 0;
+
+    // Fetch recently added items (last 14 days)
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    
+    const { data: items } = await supabase
+      .from("items")
+      .select("*, owner:users(name)")
+      .eq("neighborhood_id", primaryNeighborhood.id)
+      .eq("availability", "available")
+      .order("created_at", { ascending: false })
+      .limit(8);
+    recentItems = items || [];
+
+    // Fetch recently joined members (last 14 days)
+    const { data: members } = await supabase
+      .from("memberships")
+      .select(`
+        *,
+        user:users(id, name, avatar_url)
+      `)
+      .eq("neighborhood_id", primaryNeighborhood.id)
+      .eq("status", "active")
+      .order("joined_at", { ascending: false })
+      .limit(6);
+    recentMembers = members || [];
+
+    // Fetch pending membership requests count (admin only)
+    if (isAdmin) {
+      const { count } = await supabase
+        .from("memberships")
+        .select("*", { count: "exact", head: true })
+        .eq("neighborhood_id", primaryNeighborhood.id)
+        .eq("status", "pending");
+      pendingMemberRequests = count || 0;
+    }
+  }
+
+  // Build neighborhoods list for switcher
+  const neighborhoodsForSwitcher = activeMemberships.map((m: any) => ({
+    id: m.neighborhood.id,
+    name: m.neighborhood.name,
+    slug: m.neighborhood.slug,
+  }));
+
   return (
     <div className={dashboardStyles.container}>
-      <h1 style={styles.title}>
-        Welcome, {profile?.name || authUser.email}!
-      </h1>
+      <div style={styles.headerRow}>
+        <div>
+          <h1 style={styles.title}>
+            Welcome, {profile?.name || authUser.email}!
+          </h1>
+          {primaryNeighborhood && activeMemberships.length > 1 && (
+            <NeighborhoodSwitcher
+              neighborhoods={neighborhoodsForSwitcher}
+              currentNeighborhoodId={primaryNeighborhood.id}
+              userId={authUser.id}
+            />
+          )}
+          {primaryNeighborhood && activeMemberships.length === 1 && (
+            <p style={styles.subtitle}>{primaryNeighborhood.name}</p>
+          )}
+        </div>
+        {primaryNeighborhood && isAdmin && (
+          <Link href={`/neighborhoods/${primaryNeighborhood.slug}/settings`} style={styles.settingsLink}>
+            Settings
+          </Link>
+        )}
+      </div>
 
+      {/* Borrow Requests Banner */}
       {pendingLoanRequests.length > 0 && (
         <section style={styles.section}>
           <div style={styles.loanRequestsBanner}>
@@ -125,6 +244,7 @@ export default async function DashboardPage() {
         </section>
       )}
 
+      {/* Borrowed Items / Overdue Items Banners */}
       {borrowedItems && borrowedItems.length > 0 && (() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -203,6 +323,7 @@ export default async function DashboardPage() {
         );
       })()}
 
+      {/* Pending Memberships Banner (user's own pending requests to join neighborhoods) */}
       {pendingMemberships && pendingMemberships.length > 0 && (
         <section style={styles.section}>
           <div style={styles.pendingBanner}>
@@ -217,43 +338,130 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {memberships && memberships.length > 0 ? (
-        <section style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>Your Neighborhoods</h2>
-            {canCreateNeighborhood && (
-              <Link href="/neighborhoods/new" style={styles.addButton}>
-                + New
+      {/* Main Content: Unified Neighborhood View OR Empty State */}
+      {primaryNeighborhood ? (
+        <>
+          {/* Admin Banner for Pending Membership Requests */}
+          {isAdmin && pendingMemberRequests > 0 && (
+            <Link href={`/neighborhoods/${primaryNeighborhood.slug}/members/pending`} style={styles.adminBanner}>
+              <span>{pendingMemberRequests} pending membership request{pendingMemberRequests > 1 ? "s" : ""}</span>
+              <span style={styles.adminBannerArrow}>&rarr;</span>
+            </Link>
+          )}
+
+          {/* Quick Actions */}
+          <section style={styles.section}>
+            <h2 className={dashboardStyles.sectionTitle}>Quick Actions</h2>
+            <div className={responsive.grid4}>
+              <Link href={`/neighborhoods/${primaryNeighborhood.slug}/directory`} style={styles.actionCard}>
+                <span style={styles.actionIcon}>👥</span>
+                <span>Directory</span>
               </Link>
-            )}
-          </div>
-          <div style={styles.cardGrid}>
-            {memberships.map((membership: any) => (
-              <Link
-                key={membership.id}
-                href={`/neighborhoods/${membership.neighborhood.slug}`}
-                style={styles.card}
-              >
-                <h3 style={styles.cardTitle}>
-                  {membership.neighborhood.name}
-                </h3>
-                <p style={styles.cardDescription}>
-                  {membership.neighborhood.description || "No description"}
-                </p>
-                <div style={styles.cardFooter}>
-                  <span style={styles.roleBadge}>
-                    {membership.role}
-                  </span>
-                  {membership.neighborhood.location && (
-                    <span style={styles.location}>
-                      {membership.neighborhood.location}
-                    </span>
-                  )}
-                </div>
+              <Link href={`/neighborhoods/${primaryNeighborhood.slug}/library`} style={styles.actionCard}>
+                <span style={styles.actionIcon}>📚</span>
+                <span>Library</span>
               </Link>
-            ))}
-          </div>
-        </section>
+              <InviteButton slug={primaryNeighborhood.slug} />
+              <Link href="/profile" style={styles.actionCard}>
+                <span style={styles.actionIcon}>👤</span>
+                <span>Edit Profile</span>
+              </Link>
+            </div>
+          </section>
+
+          {/* Recently Added Items */}
+          {recentItems.length > 0 && (
+            <section style={styles.section}>
+              <div style={styles.sectionHeader}>
+                <h2 className={dashboardStyles.sectionTitle}>Recently Added Items</h2>
+                <Link href={`/neighborhoods/${primaryNeighborhood.slug}/library`} style={styles.seeAllLink}>
+                  See all &rarr;
+                </Link>
+              </div>
+              <div style={styles.itemGrid}>
+                {recentItems.slice(0, 4).map((item: any) => {
+                  const isNew = isWithinDays(item.created_at, 14);
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
+                      style={styles.itemCard}
+                    >
+                      {item.image_url ? (
+                        <div style={styles.itemImageContainer}>
+                          <img src={item.image_url} alt={item.name} style={styles.itemImage} />
+                          {isNew && <span style={styles.newBadge}>New</span>}
+                        </div>
+                      ) : (
+                        <div style={styles.itemPlaceholder}>
+                          <span style={styles.itemPlaceholderIcon}>📦</span>
+                          {isNew && <span style={styles.newBadge}>New</span>}
+                        </div>
+                      )}
+                      <div style={styles.itemInfo}>
+                        <span style={styles.itemName}>{item.name}</span>
+                        <span style={styles.itemOwner}>{item.owner?.name || "Unknown"}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Recently Joined Members */}
+          {recentMembers.length > 0 && (
+            <section style={styles.section}>
+              <div style={styles.sectionHeader}>
+                <h2 className={dashboardStyles.sectionTitle}>Recently Joined</h2>
+                <Link href={`/neighborhoods/${primaryNeighborhood.slug}/directory`} style={styles.seeAllLink}>
+                  See all &rarr;
+                </Link>
+              </div>
+              <div style={styles.memberList}>
+                {recentMembers.slice(0, 5).map((membership: any) => {
+                  const isNew = membership.joined_at && isWithinDays(membership.joined_at, 14);
+                  return (
+                    <Link
+                      key={membership.id}
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
+                      style={styles.memberRow}
+                    >
+                      <div style={styles.memberInfo}>
+                        {membership.user?.avatar_url ? (
+                          <img
+                            src={membership.user.avatar_url}
+                            alt={membership.user.name}
+                            style={styles.memberAvatar}
+                          />
+                        ) : (
+                          <div style={styles.memberAvatarPlaceholder}>
+                            {membership.user?.name?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                        )}
+                        <div style={styles.memberDetails}>
+                          <span style={styles.memberName}>
+                            {membership.user?.name || "Unknown"}
+                            {isNew && <span style={styles.newBadgeInline}>New</span>}
+                          </span>
+                          {membership.joined_at && (
+                            <span style={styles.memberJoinDate}>
+                              Joined {new Date(membership.joined_at).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <span style={styles.memberArrow}>&rarr;</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </>
       ) : (
         <section style={styles.section}>
           <div style={styles.emptyState}>
@@ -270,29 +478,33 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      <section style={styles.section}>
-        <h2 className={dashboardStyles.sectionTitle}>Quick Actions</h2>
-        <div className={responsive.grid4}>
-          <Link href="/profile" style={styles.actionCard}>
-            <span style={styles.actionIcon}>👤</span>
-            <span>Edit Profile</span>
-          </Link>
-          {memberships && memberships.length > 0 && (
-            <>
-              <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/directory`} style={styles.actionCard}>
-                <span style={styles.actionIcon}>👥</span>
-                <span>Directory</span>
+      {/* Admin Section */}
+      {isAdmin && primaryNeighborhood && (
+        <section style={styles.section}>
+          <h2 className={dashboardStyles.sectionTitle}>Admin</h2>
+          <div className={responsive.statsRow} style={{ marginBottom: "1rem" }}>
+            <div style={styles.stat}>
+              <span style={styles.statValue}>{memberCount}</span>
+              <span style={styles.statLabel}>Members</span>
+            </div>
+            <div style={styles.stat}>
+              <span style={styles.statValue}>{itemsAvailable}</span>
+              <span style={styles.statLabel}>Items Available</span>
+            </div>
+          </div>
+          {canCreateNeighborhood && (
+            <div className={responsive.grid4}>
+              <Link href="/neighborhoods/new" style={styles.actionCard}>
+                <span style={styles.actionIcon}>🏘️</span>
+                <span>New Neighborhood</span>
               </Link>
-              <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/library`} style={styles.actionCard}>
-                <span style={styles.actionIcon}>📚</span>
-                <span>Library</span>
-              </Link>
-            </>
+            </div>
           )}
-        </div>
-      </section>
+        </section>
+      )}
 
-      {canCreateNeighborhood && (
+      {/* New Neighborhood (for super admins without neighborhood admin role) */}
+      {canCreateNeighborhood && !isAdmin && (
         <section style={styles.section}>
           <h2 className={dashboardStyles.sectionTitle}>Admin</h2>
           <div className={responsive.grid4}>
@@ -308,16 +520,30 @@ export default async function DashboardPage() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    width: "100%",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "2rem 1.5rem",
+  headerRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "1.5rem",
+    gap: "1rem",
   },
   title: {
     fontSize: "1.75rem",
     fontWeight: "600",
-    marginBottom: "2rem",
+    marginBottom: "0.5rem",
+    margin: 0,
+  },
+  subtitle: {
+    fontSize: "1rem",
+    color: "#666",
+    margin: "0.5rem 0 0 0",
+    fontWeight: "500",
+  },
+  settingsLink: {
+    color: "#2563eb",
+    textDecoration: "none",
+    fontSize: "0.875rem",
+    fontWeight: "500",
   },
   section: {
     marginBottom: "2rem",
@@ -328,60 +554,186 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     marginBottom: "1rem",
   },
-  sectionTitle: {
-    fontSize: "1.25rem",
-    fontWeight: "600",
-    margin: 0,
-  },
-  addButton: {
+  seeAllLink: {
     color: "#2563eb",
     textDecoration: "none",
     fontSize: "0.875rem",
     fontWeight: "500",
   },
-  cardGrid: {
+  // Stats
+  stat: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: "1.5rem",
+    fontWeight: "700",
+    color: "#111",
+  },
+  statLabel: {
+    fontSize: "0.875rem",
+    color: "#666",
+  },
+  // Admin banner
+  adminBanner: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#dbeafe",
+    border: "1px solid #93c5fd",
+    padding: "0.875rem 1.25rem",
+    borderRadius: "8px",
+    marginBottom: "1.5rem",
+    color: "#1e40af",
+    textDecoration: "none",
+    fontSize: "0.875rem",
+    fontWeight: "500",
+  },
+  adminBannerArrow: {
+    fontSize: "1.25rem",
+  },
+  // Items grid
+  itemGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
     gap: "1rem",
   },
-  card: {
+  itemCard: {
     backgroundColor: "white",
     borderRadius: "8px",
-    padding: "1.5rem",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    overflow: "hidden",
     textDecoration: "none",
     color: "inherit",
     transition: "box-shadow 0.15s ease",
   },
-  cardTitle: {
-    fontSize: "1.125rem",
+  itemImageContainer: {
+    position: "relative",
+    width: "100%",
+    aspectRatio: "1",
+    backgroundColor: "#f3f4f6",
+  },
+  itemImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  itemPlaceholder: {
+    position: "relative",
+    width: "100%",
+    aspectRatio: "1",
+    backgroundColor: "#f3f4f6",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  itemPlaceholderIcon: {
+    fontSize: "2rem",
+    opacity: 0.5,
+  },
+  newBadge: {
+    position: "absolute",
+    top: "8px",
+    right: "8px",
+    backgroundColor: "#22c55e",
+    color: "white",
+    fontSize: "0.625rem",
     fontWeight: "600",
-    margin: "0 0 0.5rem 0",
+    padding: "0.25rem 0.5rem",
+    borderRadius: "4px",
+    textTransform: "uppercase",
+    letterSpacing: "0.025em",
   },
-  cardDescription: {
-    color: "#666",
+  itemInfo: {
+    padding: "0.75rem",
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.25rem",
+  },
+  itemName: {
     fontSize: "0.875rem",
-    margin: "0 0 1rem 0",
+    fontWeight: "600",
+    color: "#111",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
-  cardFooter: {
+  itemOwner: {
+    fontSize: "0.75rem",
+    color: "#666",
+  },
+  // Members list
+  memberList: {
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    overflow: "hidden",
+  },
+  memberRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    padding: "0.875rem 1rem",
+    borderBottom: "1px solid #f0f0f0",
+    textDecoration: "none",
+    color: "inherit",
   },
-  roleBadge: {
-    display: "inline-block",
+  memberInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+  },
+  memberAvatar: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    objectFit: "cover",
+  },
+  memberAvatarPlaceholder: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
     backgroundColor: "#e0e7ff",
     color: "#3730a3",
-    padding: "0.25rem 0.75rem",
-    borderRadius: "9999px",
-    fontSize: "0.75rem",
-    fontWeight: "500",
-    textTransform: "capitalize",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "1rem",
+    fontWeight: "600",
   },
-  location: {
-    fontSize: "0.75rem",
-    color: "#888",
+  memberDetails: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.125rem",
   },
+  memberName: {
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    color: "#111",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  },
+  memberJoinDate: {
+    fontSize: "0.75rem",
+    color: "#666",
+  },
+  newBadgeInline: {
+    backgroundColor: "#22c55e",
+    color: "white",
+    fontSize: "0.625rem",
+    fontWeight: "600",
+    padding: "0.125rem 0.375rem",
+    borderRadius: "4px",
+    textTransform: "uppercase",
+    letterSpacing: "0.025em",
+  },
+  memberArrow: {
+    color: "#999",
+    fontSize: "1rem",
+  },
+  // Empty state
   emptyState: {
     backgroundColor: "white",
     borderRadius: "8px",
@@ -408,6 +760,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: "500",
     textDecoration: "none",
   },
+  // Banners
   pendingBanner: {
     display: "flex",
     alignItems: "center",
@@ -424,11 +777,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: "0.25rem 0 0 0",
     fontSize: "0.875rem",
     color: "#92400e",
-  },
-  actionGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: "1rem",
   },
   actionCard: {
     backgroundColor: "white",

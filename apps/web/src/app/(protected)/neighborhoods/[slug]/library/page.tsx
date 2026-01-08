@@ -86,8 +86,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-            &larr; {neighborhood.name}
+          <Link href="/dashboard" style={styles.backLink}>
+            &larr; Dashboard
           </Link>
           <h1 style={styles.title}>Lending Library</h1>
           <p style={styles.subtitle}>
