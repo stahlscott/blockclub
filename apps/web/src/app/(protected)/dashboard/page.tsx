@@ -40,11 +40,62 @@ export default async function DashboardPage() {
     .eq("user_id", authUser.id)
     .eq("status", "pending");
 
+  // Fetch user's items
+  const { data: userItems } = await supabase
+    .from("items")
+    .select("id")
+    .eq("owner_id", authUser.id);
+
+  // Fetch pending loan requests for user's items
+  const itemIds = userItems?.map((i) => i.id) || [];
+  let pendingLoanRequests: any[] = [];
+  if (itemIds.length > 0) {
+    const { data: loans } = await supabase
+      .from("loans")
+      .select(`
+        *,
+        item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
+        borrower:users(id, name)
+      `)
+      .in("item_id", itemIds)
+      .eq("status", "requested")
+      .order("requested_at", { ascending: true });
+    pendingLoanRequests = loans || [];
+  }
+
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>
         Welcome, {profile?.name || authUser.email}!
       </h1>
+
+      {pendingLoanRequests.length > 0 && (
+        <section style={styles.section}>
+          <div style={styles.loanRequestsBanner}>
+            <div style={styles.loanRequestsHeader}>
+              <span style={styles.pendingIcon}>📬</span>
+              <strong>{pendingLoanRequests.length} Borrow Request{pendingLoanRequests.length > 1 ? "s" : ""}</strong>
+            </div>
+            <div style={styles.loanRequestsList}>
+              {pendingLoanRequests.slice(0, 3).map((loan: any) => (
+                <Link
+                  key={loan.id}
+                  href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
+                  style={styles.loanRequestItem}
+                >
+                  <span><strong>{loan.borrower?.name}</strong> wants to borrow <strong>{loan.item?.name}</strong></span>
+                  <span style={styles.loanRequestArrow}>&rarr;</span>
+                </Link>
+              ))}
+              {pendingLoanRequests.length > 3 && (
+                <p style={styles.moreRequests}>
+                  +{pendingLoanRequests.length - 3} more request{pendingLoanRequests.length - 3 > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {pendingMemberships && pendingMemberships.length > 0 && (
         <section style={styles.section}>
@@ -276,5 +327,42 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   actionIcon: {
     fontSize: "1.5rem",
+  },
+  loanRequestsBanner: {
+    backgroundColor: "#dbeafe",
+    border: "1px solid #93c5fd",
+    borderRadius: "8px",
+    overflow: "hidden",
+  },
+  loanRequestsHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+    padding: "1rem 1.25rem",
+    borderBottom: "1px solid #93c5fd",
+  },
+  loanRequestsList: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  loanRequestItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.875rem 1.25rem",
+    fontSize: "0.875rem",
+    color: "#1e40af",
+    textDecoration: "none",
+    borderBottom: "1px solid #bfdbfe",
+  },
+  loanRequestArrow: {
+    fontSize: "1.25rem",
+    color: "#3b82f6",
+  },
+  moreRequests: {
+    margin: 0,
+    padding: "0.75rem 1.25rem",
+    fontSize: "0.875rem",
+    color: "#1e40af",
   },
 };

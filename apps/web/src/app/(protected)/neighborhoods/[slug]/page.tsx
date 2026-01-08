@@ -85,6 +85,17 @@ export default async function NeighborhoodPage({ params }: Props) {
 
   const isAdmin = membership.role === "admin";
 
+  // Fetch pending member count (admin only)
+  let pendingCount = 0;
+  if (isAdmin) {
+    const { count } = await supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "pending");
+    pendingCount = count || 0;
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -122,6 +133,13 @@ export default async function NeighborhoodPage({ params }: Props) {
           <span style={styles.statLabel}>Upcoming Events</span>
         </div>
       </div>
+
+      {isAdmin && pendingCount > 0 && (
+        <Link href={`/neighborhoods/${slug}/members/pending`} style={styles.adminBanner}>
+          <span>{pendingCount} pending membership request{pendingCount > 1 ? "s" : ""}</span>
+          <span style={styles.adminBannerArrow}>&rarr;</span>
+        </Link>
+      )}
 
       <nav style={styles.nav}>
         <Link href={`/neighborhoods/${slug}/directory`} style={styles.navCard}>
@@ -386,5 +404,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     fontWeight: "500",
     marginTop: "1rem",
+  },
+  adminBanner: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "1rem 1.25rem",
+    backgroundColor: "#fef3c7",
+    color: "#92400e",
+    borderRadius: "8px",
+    marginBottom: "1.5rem",
+    textDecoration: "none",
+    fontWeight: "500",
+    fontSize: "0.875rem",
+  },
+  adminBannerArrow: {
+    fontSize: "1.25rem",
   },
 };

@@ -21,6 +21,9 @@ export function Header() {
               <Link href="/dashboard" style={styles.navLink}>
                 Dashboard
               </Link>
+              <Link href="/profile" style={styles.navLink}>
+                Profile
+              </Link>
               <button onClick={signOut} style={styles.signOutButton}>
                 Sign out
               </button>
