@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import responsive from "@/app/responsive.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -141,7 +142,7 @@ export default async function NeighborhoodPage({ params }: Props) {
         </Link>
       )}
 
-      <nav style={styles.nav}>
+      <nav className={responsive.grid4} style={{ marginBottom: "2rem" }}>
         <Link href={`/neighborhoods/${slug}/directory`} style={styles.navCard}>
           <span style={styles.navIcon}>👥</span>
           <span style={styles.navLabel}>Directory</span>

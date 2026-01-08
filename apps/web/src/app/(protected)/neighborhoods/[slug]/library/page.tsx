@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { ItemCategory } from "@frontporch/shared";
+import responsive from "@/app/responsive.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -145,7 +146,7 @@ export default async function LibraryPage({ params, searchParams }: Props) {
       </div>
 
       {items && items.length > 0 ? (
-        <div style={styles.grid}>
+        <div className={responsive.gridAuto}>
           {items.map((item: any) => (
             <Link
               key={item.id}

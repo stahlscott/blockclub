@@ -1,0 +1,142 @@
+/* Responsive grid patterns */
+
+/* 4-column grid that becomes 2-column on mobile */
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .grid4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Auto-fill grid */
+.gridAuto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .gridAuto {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stats row */
+.statsRow {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: space-between;
+  }
+}
+
+/* Item detail layout */
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Container with responsive padding */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+/* Card container with responsive padding */
+.card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.25rem;
+  }
+}
+
+/* Form container */
+.formContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 480px) {
+  .formContainer {
+    padding: 1rem;
+  }
+}
+
+/* Two column header with title and action */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Action buttons row */
+.actionRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .actionRow {
+    flex-direction: column;
+  }
+  
+  .actionRow > * {
+    width: 100%;
+    text-align: center;
+  }
+}

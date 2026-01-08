@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
+import responsive from "@/app/responsive.module.css";
 
 interface Props {
   params: Promise<{ slug: string; id: string }>;
@@ -80,7 +81,7 @@ export default async function ItemDetailPage({ params }: Props) {
         &larr; Back to Library
       </Link>
 
-      <div style={styles.main}>
+      <div className={responsive.detailGrid}>
         <div style={styles.imageSection}>
           {item.photo_urls && item.photo_urls.length > 0 ? (
             <img src={item.photo_urls[0]} alt={item.name} style={styles.image} />
