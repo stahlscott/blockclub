@@ -404,6 +404,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   familyValue: {
     fontSize: "0.875rem",
     color: "#333",
+    whiteSpace: "pre-line",
   },
   contactSection: {
     marginBottom: "2rem",

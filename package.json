@@ -8,6 +8,10 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@frontporch/web",
+    "dev:mobile": "turbo dev --filter=@frontporch/mobile",
+    "build:web": "turbo build --filter=@frontporch/web",
+    "build:mobile": "turbo build --filter=@frontporch/mobile",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules"
