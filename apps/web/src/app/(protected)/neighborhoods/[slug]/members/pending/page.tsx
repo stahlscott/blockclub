@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
 
 interface Props {
@@ -29,17 +30,19 @@ export default async function PendingMembersPage({ params }: Props) {
     notFound();
   }
 
-  // Check if user is admin
+  // Check if user is admin (neighborhood admin or super admin)
   const { data: membership } = await supabase
     .from("memberships")
     .select("*")
     .eq("neighborhood_id", neighborhood.id)
     .eq("user_id", user.id)
     .eq("status", "active")
-    .eq("role", "admin")
     .single();
 
-  if (!membership) {
+  const isNeighborhoodAdmin = membership?.role === "admin";
+  const userIsSuperAdmin = isSuperAdmin(user.email);
+
+  if (!isNeighborhoodAdmin && !userIsSuperAdmin) {
     redirect(`/neighborhoods/${slug}`);
   }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { isSuperAdmin } from "@/lib/auth";
 
 export default function NeighborhoodSettingsPage() {
   const router = useRouter();
@@ -48,17 +49,19 @@ export default function NeighborhoodSettingsPage() {
         return;
       }
 
-      // Check if user is admin
+      // Check if user is admin (neighborhood admin or super admin)
       const { data: membership } = await supabase
         .from("memberships")
         .select("*")
         .eq("neighborhood_id", neighborhoodData.id)
         .eq("user_id", user.id)
         .eq("status", "active")
-        .eq("role", "admin")
         .single();
 
-      if (!membership) {
+      const isNeighborhoodAdmin = membership?.role === "admin";
+      const userIsSuperAdmin = isSuperAdmin(user.email);
+
+      if (!isNeighborhoodAdmin && !userIsSuperAdmin) {
         router.push(`/neighborhoods/${slug}`);
         return;
       }

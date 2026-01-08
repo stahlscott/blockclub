@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/auth";
 import responsive from "@/app/responsive.module.css";
 import { InviteButton } from "@/components/InviteButton";
 
@@ -85,7 +86,8 @@ export default async function NeighborhoodPage({ params }: Props) {
     .order("starts_at", { ascending: true })
     .limit(3);
 
-  const isAdmin = membership.role === "admin";
+  // Super admins have admin privileges in all neighborhoods
+  const isAdmin = membership.role === "admin" || isSuperAdmin(user.email);
 
   // Fetch pending member count (admin only)
   let pendingCount = 0;

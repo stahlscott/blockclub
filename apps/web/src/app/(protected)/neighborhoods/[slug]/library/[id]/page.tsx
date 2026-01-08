@@ -1,8 +1,10 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/auth";
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
+import { AdminActions } from "./admin-actions";
 import responsive from "@/app/responsive.module.css";
 
 interface Props {
@@ -57,6 +59,12 @@ export default async function ItemDetailPage({ params }: Props) {
   }
 
   const isOwner = item.owner_id === user.id;
+  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const isNeighborhoodAdmin = membership.role === "admin";
+  const isAdmin = isNeighborhoodAdmin || userIsSuperAdmin;
+
+  // Admin can remove items they don't own
+  const canRemoveItem = isAdmin && !isOwner;
 
   // Fetch active loan for this item
   const { data: activeLoan } = await supabase
@@ -159,6 +167,15 @@ export default async function ItemDetailPage({ params }: Props) {
               slug={slug}
               isAvailable={item.availability === "available"}
               userLoan={userRequest}
+            />
+          )}
+
+          {/* Admin actions for non-owners */}
+          {canRemoveItem && (
+            <AdminActions
+              itemId={id}
+              itemName={item.name}
+              slug={slug}
             />
           )}
         </div>

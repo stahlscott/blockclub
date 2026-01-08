@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
-
-// Only these emails can create new neighborhoods
-const ADMIN_EMAILS = ["stahl@hey.com"];
+import { isSuperAdmin } from "@/lib/auth";
 
 export default function NewNeighborhoodPage() {
   const router = useRouter();
@@ -29,7 +27,7 @@ export default function NewNeighborhoodPage() {
         return;
       }
 
-      if (!ADMIN_EMAILS.includes(user.email || "")) {
+      if (!isSuperAdmin(user.email)) {
         router.push("/dashboard");
         return;
       }

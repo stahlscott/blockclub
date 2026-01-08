@@ -1,6 +1,8 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/auth";
+import { RoleActions } from "./role-actions";
 
 interface Props {
   params: Promise<{ slug: string; id: string }>;
@@ -76,7 +78,15 @@ export default async function MemberProfilePage({ params }: Props) {
     .limit(6);
 
   const isOwnProfile = user.id === id;
-  const isAdmin = currentMembership.role === "admin";
+  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const isNeighborhoodAdmin = currentMembership.role === "admin";
+  const isAdmin = isNeighborhoodAdmin || userIsSuperAdmin;
+
+  // Determine role change permissions
+  // Can promote: super admin or neighborhood admin (if target is member)
+  // Can demote: super admin only (if target is admin)
+  const canPromote = (userIsSuperAdmin || isNeighborhoodAdmin) && membership.role === "member" && !isOwnProfile;
+  const canDemote = userIsSuperAdmin && membership.role === "admin" && !isOwnProfile;
 
   return (
     <div style={styles.container}>
@@ -120,6 +130,16 @@ export default async function MemberProfilePage({ params }: Props) {
             <Link href="/profile" style={styles.editButton}>
               Edit Profile
             </Link>
+          )}
+
+          {!isOwnProfile && (canPromote || canDemote) && (
+            <RoleActions
+              membershipId={membership.id}
+              currentRole={membership.role}
+              canPromote={canPromote}
+              canDemote={canDemote}
+              memberName={member.name}
+            />
           )}
         </div>
       </div>

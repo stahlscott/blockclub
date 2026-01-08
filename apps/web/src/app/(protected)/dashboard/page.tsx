@@ -1,13 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/auth";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
 import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
 import { InviteButton } from "@/components/InviteButton";
-
-// Only these emails can create new neighborhoods
-const ADMIN_EMAILS = ["stahl@hey.com"];
 
 // Helper to parse YYYY-MM-DD string as local date (not UTC)
 function parseDateLocal(dateStr: string) {
@@ -35,7 +33,7 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  const canCreateNeighborhood = ADMIN_EMAILS.includes(authUser.email || "");
+  const canCreateNeighborhood = isSuperAdmin(authUser.email);
 
   // Fetch user profile
   const { data: profile } = await supabase
@@ -127,7 +125,8 @@ export default async function DashboardPage() {
   let recentItems: any[] = [];
   let recentMembers: any[] = [];
   let pendingMemberRequests = 0;
-  const isAdmin = primaryMembership?.role === "admin";
+  // Super admins have admin privileges in all neighborhoods
+  const isAdmin = primaryMembership?.role === "admin" || isSuperAdmin(authUser.email);
 
   if (primaryNeighborhood) {
     // Fetch member count
