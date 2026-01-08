@@ -1,0 +1,50 @@
+.categoryFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.categorySelect {
+  display: none;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 0.875rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .categoryFilter {
+    display: none;
+  }
+  
+  .categorySelect {
+    display: block;
+  }
+}
+
+.categoryChip {
+  padding: 0.5rem 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  text-decoration: none;
+  color: #666;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.categoryChip:hover {
+  background-color: #e5e5e5;
+}
+
+.categoryChipActive {
+  background-color: #2563eb;
+  color: white;
+}
+
+.categoryChipActive:hover {
+  background-color: #1d4ed8;
+}

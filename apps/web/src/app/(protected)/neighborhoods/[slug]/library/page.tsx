@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { ItemCategory } from "@frontporch/shared";
 import responsive from "@/app/responsive.module.css";
+import libraryStyles from "./library.module.css";
+import { CategoryFilter } from "./category-filter";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -112,28 +114,12 @@ export default async function LibraryPage({ params, searchParams }: Props) {
           </button>
         </form>
 
-        <div style={styles.categoryFilter}>
-          {CATEGORIES.map((cat) => {
-            const isActive = category === cat.value || (!category && cat.value === "all");
-            const href =
-              cat.value === "all"
-                ? `/neighborhoods/${slug}/library${search ? `?search=${search}` : ""}`
-                : `/neighborhoods/${slug}/library?category=${cat.value}${search ? `&search=${search}` : ""}`;
-
-            return (
-              <Link
-                key={cat.value}
-                href={href}
-                style={{
-                  ...styles.categoryChip,
-                  ...(isActive ? styles.categoryChipActive : {}),
-                }}
-              >
-                {cat.label}
-              </Link>
-            );
-          })}
-        </div>
+        <CategoryFilter
+          categories={CATEGORIES}
+          currentCategory={category}
+          search={search}
+          slug={slug}
+        />
       </div>
 
       <div style={styles.actions}>
@@ -322,7 +308,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   imagePlaceholder: {
     width: "100%",
     height: "140px",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#e0e7ff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

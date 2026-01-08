@@ -178,12 +178,6 @@ export default async function DashboardPage() {
             <span style={styles.actionIcon}>👤</span>
             <span>Edit Profile</span>
           </Link>
-          {canCreateNeighborhood && (
-            <Link href="/neighborhoods/new" style={styles.actionCard}>
-              <span style={styles.actionIcon}>🏘️</span>
-              <span>New Neighborhood</span>
-            </Link>
-          )}
           {memberships && memberships.length > 0 && (
             <>
               <Link href={`/neighborhoods/${memberships[0].neighborhood.slug}/directory`} style={styles.actionCard}>
@@ -198,6 +192,18 @@ export default async function DashboardPage() {
           )}
         </div>
       </section>
+
+      {canCreateNeighborhood && (
+        <section style={styles.section}>
+          <h2 className={dashboardStyles.sectionTitle}>Admin</h2>
+          <div className={responsive.grid4}>
+            <Link href="/neighborhoods/new" style={styles.actionCard}>
+              <span style={styles.actionIcon}>🏘️</span>
+              <span>New Neighborhood</span>
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
