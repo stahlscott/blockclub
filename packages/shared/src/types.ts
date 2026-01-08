@@ -34,13 +34,19 @@ export type ChildcareRequestStatus = "pending" | "approved" | "declined" | "canc
 // CORE TABLES
 // ============================================================================
 
+export interface PhoneEntry {
+  label: string;  // e.g., "Mom", "Dad", "Home"
+  number: string; // 10-digit phone number
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
   avatar_url: string | null;
   bio: string | null;
-  phone: string | null;
+  phone: string | null;  // Legacy single phone (deprecated)
+  phones: PhoneEntry[] | null;  // Multiple labeled phone numbers
   created_at: string;
   updated_at: string;
 }

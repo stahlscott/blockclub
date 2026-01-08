@@ -5,16 +5,39 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+interface PhoneEntry {
+  label: string;
+  number: string;
+}
+
+// Format phone for display: 5551234567 -> (555) 123-4567
+function formatPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
+
+// Validate phone is 10 digits
+function isValidPhone(phone: string): boolean {
+  const digits = phone.replace(/\D/g, "");
+  return digits.length === 0 || digits.length === 10;
+}
+
+// Strip to digits only
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState({
-    name: "",
-    bio: "",
-    phone: "",
-  });
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [phones, setPhones] = useState<PhoneEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -37,11 +60,17 @@ export default function ProfilePage() {
         .single();
 
       if (profileData) {
-        setProfile({
-          name: profileData.name || "",
-          bio: profileData.bio || "",
-          phone: profileData.phone || "",
-        });
+        setName(profileData.name || "");
+        setBio(profileData.bio || "");
+        
+        // Load phones array, or migrate from legacy phone field
+        if (profileData.phones && profileData.phones.length > 0) {
+          setPhones(profileData.phones);
+        } else if (profileData.phone) {
+          setPhones([{ label: "Primary", number: normalizePhone(profileData.phone) }]);
+        } else {
+          setPhones([]);
+        }
       }
 
       setLoading(false);
@@ -50,10 +79,40 @@ export default function ProfilePage() {
     loadProfile();
   }, [router]);
 
+  const addPhone = () => {
+    setPhones([...phones, { label: "", number: "" }]);
+  };
+
+  const removePhone = (index: number) => {
+    setPhones(phones.filter((_, i) => i !== index));
+  };
+
+  const updatePhone = (index: number, field: "label" | "number", value: string) => {
+    const updated = [...phones];
+    updated[index] = { ...updated[index], [field]: value };
+    setPhones(updated);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+
+    // Validate all phone numbers
+    const invalidPhone = phones.find(p => p.number && !isValidPhone(p.number));
+    if (invalidPhone) {
+      setError("Phone numbers must be 10 digits");
+      return;
+    }
+
+    // Filter out empty entries and normalize numbers
+    const cleanedPhones = phones
+      .filter(p => p.number.trim())
+      .map(p => ({
+        label: p.label.trim() || "Primary",
+        number: normalizePhone(p.number),
+      }));
+
     setSaving(true);
 
     const supabase = createClient();
@@ -61,9 +120,11 @@ export default function ProfilePage() {
     const { error: updateError } = await supabase
       .from("users")
       .update({
-        name: profile.name,
-        bio: profile.bio || null,
-        phone: profile.phone || null,
+        name,
+        bio: bio || null,
+        phones: cleanedPhones,
+        // Also update legacy phone field for backward compatibility
+        phone: cleanedPhones.length > 0 ? cleanedPhones[0].number : null,
       })
       .eq("id", user.id);
 
@@ -71,7 +132,8 @@ export default function ProfilePage() {
       setError(updateError.message);
     } else {
       setSuccess(true);
-      router.refresh(); // Refresh server data so other pages show updated profile
+      setPhones(cleanedPhones.length > 0 ? cleanedPhones : []);
+      router.refresh();
       setTimeout(() => setSuccess(false), 3000);
     }
 
@@ -116,46 +178,76 @@ export default function ProfilePage() {
 
           <div style={styles.inputGroup}>
             <label htmlFor="name" style={styles.label}>
-              Full Name *
+              Household Name *
             </label>
             <input
               id="name"
               type="text"
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
               style={styles.input}
-              placeholder="Your name"
+              placeholder="e.g., The Smith Family"
             />
           </div>
 
           <div style={styles.inputGroup}>
-            <label htmlFor="phone" style={styles.label}>
-              Phone Number
+            <label style={styles.label}>
+              Phone Numbers
             </label>
-            <input
-              id="phone"
-              type="tel"
-              value={profile.phone}
-              onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-              style={styles.input}
-              placeholder="555-123-4567"
-            />
             <span style={styles.hint}>
-              Visible to members of your neighborhoods
+              Add phone numbers for household members. Visible to neighbors.
             </span>
+            
+            <div style={styles.phoneList}>
+              {phones.map((phone, index) => (
+                <div key={index} style={styles.phoneRow}>
+                  <input
+                    type="text"
+                    value={phone.label}
+                    onChange={(e) => updatePhone(index, "label", e.target.value)}
+                    style={styles.phoneLabelInput}
+                    placeholder="Label (e.g., Mom)"
+                  />
+                  <input
+                    type="tel"
+                    value={phone.number}
+                    onChange={(e) => updatePhone(index, "number", e.target.value)}
+                    style={styles.phoneNumberInput}
+                    placeholder="Phone number"
+                    maxLength={14}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhone(index)}
+                    style={styles.removeButton}
+                    aria-label="Remove phone"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+              
+              <button
+                type="button"
+                onClick={addPhone}
+                style={styles.addPhoneButton}
+              >
+                + Add Phone Number
+              </button>
+            </div>
           </div>
 
           <div style={styles.inputGroup}>
             <label htmlFor="bio" style={styles.label}>
-              About You
+              About Your Household
             </label>
             <textarea
               id="bio"
-              value={profile.bio}
-              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
               style={styles.textarea}
-              placeholder="Tell your neighbors a bit about yourself..."
+              placeholder="Tell your neighbors a bit about yourselves..."
               rows={4}
             />
           </div>
@@ -232,6 +324,56 @@ const styles: { [key: string]: React.CSSProperties } = {
   hint: {
     fontSize: "0.75rem",
     color: "#888",
+    marginTop: "0.25rem",
+    marginBottom: "0.5rem",
+  },
+  phoneList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    marginTop: "0.5rem",
+  },
+  phoneRow: {
+    display: "flex",
+    gap: "0.5rem",
+    alignItems: "center",
+  },
+  phoneLabelInput: {
+    flex: "0 0 100px",
+    padding: "0.625rem",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    fontSize: "0.875rem",
+  },
+  phoneNumberInput: {
+    flex: 1,
+    padding: "0.625rem",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    fontSize: "0.875rem",
+  },
+  removeButton: {
+    width: "32px",
+    height: "32px",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    backgroundColor: "white",
+    color: "#999",
+    fontSize: "1.25rem",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    lineHeight: 1,
+  },
+  addPhoneButton: {
+    padding: "0.625rem",
+    borderRadius: "6px",
+    border: "1px dashed #ddd",
+    backgroundColor: "transparent",
+    color: "#666",
+    fontSize: "0.875rem",
+    cursor: "pointer",
     marginTop: "0.25rem",
   },
   button: {

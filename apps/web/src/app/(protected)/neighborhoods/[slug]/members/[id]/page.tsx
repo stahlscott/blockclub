@@ -134,15 +134,27 @@ export default async function MemberProfilePage({ params }: Props) {
               <span style={styles.contactValue}>{member.email}</span>
             </a>
           )}
-          {member.phone && (
+          {/* Show multiple phones if available, otherwise fall back to legacy phone field */}
+          {member.phones && member.phones.length > 0 ? (
+            member.phones.map((phone: { label: string; number: string }, index: number) => (
+              <a key={index} href={`tel:${phone.number}`} style={styles.contactCard}>
+                <span style={styles.contactIcon}>📱</span>
+                <span style={styles.contactLabel}>{phone.label || "Phone"}</span>
+                <span style={styles.contactValue}>
+                  {phone.number.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
+                </span>
+              </a>
+            ))
+          ) : member.phone ? (
             <a href={`tel:${member.phone}`} style={styles.contactCard}>
               <span style={styles.contactIcon}>📱</span>
               <span style={styles.contactLabel}>Phone</span>
               <span style={styles.contactValue}>{member.phone}</span>
             </a>
-          )}
-          {member.phone && (
-            <a href={`sms:${member.phone}`} style={styles.contactCard}>
+          ) : null}
+          {/* Text link - use first phone number */}
+          {(member.phones?.[0]?.number || member.phone) && (
+            <a href={`sms:${member.phones?.[0]?.number || member.phone}`} style={styles.contactCard}>
               <span style={styles.contactIcon}>💬</span>
               <span style={styles.contactLabel}>Text</span>
               <span style={styles.contactValue}>Send a message</span>

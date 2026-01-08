@@ -129,10 +129,6 @@ export default async function NeighborhoodPage({ params }: Props) {
           <span style={styles.statValue}>{recentItems?.length || 0}</span>
           <span style={styles.statLabel}>Items Available</span>
         </div>
-        <div style={styles.stat}>
-          <span style={styles.statValue}>{upcomingEvents?.length || 0}</span>
-          <span style={styles.statLabel}>Upcoming Events</span>
-        </div>
       </div>
 
       {isAdmin && pendingCount > 0 && (
@@ -142,7 +138,7 @@ export default async function NeighborhoodPage({ params }: Props) {
         </Link>
       )}
 
-      <nav className={responsive.grid4} style={{ marginBottom: "2rem" }}>
+      <nav style={styles.navGrid}>
         <Link href={`/neighborhoods/${slug}/directory`} style={styles.navCard}>
           <span style={styles.navIcon}>👥</span>
           <span style={styles.navLabel}>Directory</span>
@@ -151,6 +147,7 @@ export default async function NeighborhoodPage({ params }: Props) {
           <span style={styles.navIcon}>📚</span>
           <span style={styles.navLabel}>Library</span>
         </Link>
+        {/* Events and Childcare coming soon
         <Link href={`/neighborhoods/${slug}/events`} style={styles.navCard}>
           <span style={styles.navIcon}>📅</span>
           <span style={styles.navLabel}>Events</span>
@@ -159,8 +156,10 @@ export default async function NeighborhoodPage({ params }: Props) {
           <span style={styles.navIcon}>👶</span>
           <span style={styles.navLabel}>Childcare</span>
         </Link>
+        */}
       </nav>
 
+      {/* Events section - coming soon
       {upcomingEvents && upcomingEvents.length > 0 && (
         <section style={styles.section}>
           <div style={styles.sectionHeader}>
@@ -189,6 +188,7 @@ export default async function NeighborhoodPage({ params }: Props) {
           </div>
         </section>
       )}
+      */}
 
       {recentItems && recentItems.length > 0 && (
         <section style={styles.section}>
@@ -280,6 +280,12 @@ const styles: { [key: string]: React.CSSProperties } = {
   nav: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "1rem",
+    marginBottom: "2rem",
+  },
+  navGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
     gap: "1rem",
     marginBottom: "2rem",
   },

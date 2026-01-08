@@ -172,7 +172,7 @@ export default async function DashboardPage() {
 
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Quick Actions</h2>
-        <div className={responsive.grid4} style={{ marginBottom: 0 }}>
+        <div className={responsive.grid4}>
           <Link href="/profile" style={styles.actionCard}>
             <span style={styles.actionIcon}>👤</span>
             <span>Edit Profile</span>
