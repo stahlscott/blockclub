@@ -13,14 +13,14 @@ interface Props {
 
 const CATEGORIES: { value: ItemCategory | "all"; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "tools", label: "Tools" },
+  { value: "baby", label: "Baby" },
+  { value: "books", label: "Books" },
+  { value: "electronics", label: "Electronics" },
+  { value: "games", label: "Games" },
   { value: "kitchen", label: "Kitchen" },
   { value: "outdoor", label: "Outdoor" },
   { value: "sports", label: "Sports" },
-  { value: "games", label: "Games" },
-  { value: "electronics", label: "Electronics" },
-  { value: "books", label: "Books" },
-  { value: "baby", label: "Baby" },
+  { value: "tools", label: "Tools" },
   { value: "travel", label: "Travel" },
   { value: "other", label: "Other" },
 ];
@@ -72,11 +72,19 @@ export default async function LibraryPage({ params, searchParams }: Props) {
     query = query.eq("category", category);
   }
 
-  if (search) {
-    query = query.ilike("name", `%${search}%`);
-  }
+  let { data: items } = await query;
 
-  const { data: items } = await query;
+  // Filter by search term (name, category, description, or owner name)
+  if (search && items) {
+    const searchLower = search.toLowerCase();
+    items = items.filter(
+      (item: any) =>
+        item.name?.toLowerCase().includes(searchLower) ||
+        item.category?.toLowerCase().includes(searchLower) ||
+        item.description?.toLowerCase().includes(searchLower) ||
+        item.owner?.name?.toLowerCase().includes(searchLower),
+    );
+  }
 
   // Count items by availability
   const availableCount =
