@@ -45,6 +45,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
   twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
   const defaultDueDate = activeLoan?.due_date || formatDateLocal(twoWeeksFromNow);
   const [dueDate, setDueDate] = useState(defaultDueDate);
+  const [noDueDate, setNoDueDate] = useState(activeLoan?.status === "active" && !activeLoan?.due_date);
   const [isEditingDueDate, setIsEditingDueDate] = useState(false);
 
   async function handleLoanAction(action: "approve" | "decline" | "mark_returned") {
@@ -55,13 +56,13 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       const supabase = createClient();
 
       if (action === "approve") {
-        // Approve the loan request with selected due date
+        // Approve the loan request with selected due date (or null if no due date)
         const { error: loanError } = await supabase
           .from("loans")
           .update({
             status: "active",
             start_date: formatDateLocal(new Date()),
-            due_date: dueDate,
+            due_date: noDueDate ? null : dueDate,
           })
           .eq("id", activeLoan.id);
 
@@ -118,10 +119,10 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
 
     try {
       const supabase = createClient();
-      
+
       const { error: updateError } = await supabase
         .from("loans")
-        .update({ due_date: dueDate })
+        .update({ due_date: noDueDate ? null : dueDate })
         .eq("id", activeLoan.id);
 
       if (updateError) throw updateError;
@@ -210,8 +211,21 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               min={formatDateLocal(new Date())}
-              style={styles.dueDateInput}
+              style={{
+                ...styles.dueDateInput,
+                opacity: noDueDate ? 0.5 : 1,
+              }}
+              disabled={noDueDate}
             />
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={noDueDate}
+                onChange={(e) => setNoDueDate(e.target.checked)}
+                style={styles.checkbox}
+              />
+              No due date (return when done)
+            </label>
           </div>
           <div style={styles.requestActions}>
             <button
@@ -254,12 +268,26 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 min={formatDateLocal(new Date())}
-                style={styles.dueDateInput}
+                style={{
+                  ...styles.dueDateInput,
+                  opacity: noDueDate ? 0.5 : 1,
+                }}
+                disabled={noDueDate}
               />
+              <label style={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={noDueDate}
+                  onChange={(e) => setNoDueDate(e.target.checked)}
+                  style={styles.checkbox}
+                />
+                No due date (return when done)
+              </label>
               <div style={styles.editDueDateActions}>
                 <button
                   onClick={() => {
                     setDueDate(activeLoan.due_date || defaultDueDate);
+                    setNoDueDate(!activeLoan.due_date);
                     setIsEditingDueDate(false);
                   }}
                   style={styles.cancelButton}
@@ -385,6 +413,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid #d1d5db",
     borderRadius: "6px",
     backgroundColor: "white",
+  },
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    marginTop: "0.5rem",
+    fontSize: "0.875rem",
+    color: "#666",
+    cursor: "pointer",
+  },
+  checkbox: {
+    width: "1rem",
+    height: "1rem",
+    cursor: "pointer",
   },
   loanDates: {
     margin: "0 0 0.75rem 0",

@@ -19,6 +19,95 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ---
 
+## Prioritized Features
+
+### FP-1: Bulletin Board
+
+Neighborhood links page for shared resources.
+
+- [ ] Create links table (neighborhood_id, title, url, order, created_by)
+- [ ] Build links list view on neighborhood page
+- [ ] Add admin UI to add/edit/remove/reorder links
+- Use cases: Facebook group, HOA website, local resources, etc.
+
+### FP-2: Job Availability
+
+Allow neighbors to post availability for services.
+
+- [ ] Design job availability model (user, type, description, availability)
+- [ ] Build UI for posting availability
+- [ ] Create browsable list by category
+- Categories: childcare, pet sitting, snow shoveling, lawn mowing, etc.
+
+### FP-3: Events & Gatherings
+
+Neighborhood events with RSVPs.
+
+- [ ] Build event creation form
+- [ ] Create event list and calendar views
+- [ ] Implement RSVP system with headcount
+- [ ] Add event reminders/notifications
+- _Note: Database schema exists, UI not implemented_
+
+### FP-4: Email Notifications
+
+Set up transactional emails and user notification preferences.
+
+- [ ] Create Resend account and verify domain
+- [ ] Configure Supabase SMTP settings to use Resend
+- [ ] Re-enable email confirmation for signup
+- [ ] Build user notification settings UI
+- [ ] Loan requested notification (to owner)
+- [ ] Loan approved/rejected notification (to borrower)
+- [ ] Item returned notification (to owner)
+- [ ] Due date reminders
+
+### FP-5: Mobile App
+
+Native mobile app with push notifications.
+
+- [ ] Build and submit iOS app to App Store
+- [ ] Build and submit Android app to Play Store
+- [ ] Set up push notifications (Expo)
+- [ ] Implement in-app notification center
+- [ ] Add mobile-specific notification settings
+
+---
+
+## Small Improvements
+
+Grouped for tackling in batches.
+
+### User Account Management
+
+- [ ] Allow users to delete their own account
+- [ ] Allow users to remove themselves from a neighborhood (e.g., moved away)
+
+### Performance & Scalability
+
+- [ ] Add pagination for large neighborhoods
+
+### User Experience
+
+- [ ] Implement proper loading skeletons
+- [ ] Add onboarding flow for new users
+- [ ] Dark mode support
+
+### Technical Debt
+
+- [ ] Add error boundaries around critical components
+- [ ] Add environment variable validation at startup
+- [ ] Activity/audit log
+
+---
+
+## Ideas to Consider
+
+- Permissions for borrowing?
+- Simple direct messaging between neighbors
+
+---
+
 ## Completed
 
 ### Phase 1: Project Setup & Architecture
@@ -69,7 +158,9 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Add loan status views (pending requests, active loans)
 - [x] Add due date tracking and overdue highlighting
 - [x] Add photo upload for items
-- [ ] Implement return reminders/notifications
+- [x] Add image upload for items and avatars (Supabase Storage)
+- [x] Handle missing/broken images gracefully
+- [x] Use Next.js `<Image>` component for optimized images
 
 ### Phase 9: Admin & Moderation
 
@@ -81,24 +172,13 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Add ability to promote/demote members
 - [x] Hide super admin from neighborhood member lists and counts
 
----
-
-## Pre-Deployment Tasks (Completed)
-
-### Critical (Must Fix)
+### Pre-Deployment
 
 - [x] Fix middleware protection for all authenticated routes
 - [x] Move super admin emails to environment variable
-- [ ] Add environment variable validation at startup
-
-### Recommended (Should Fix)
-
 - [x] Abstract error logging into a module (prep for Sentry)
 - [x] Add input validation with max lengths and error messages
 - [x] Implement soft deletes for loans and members (items use hard delete)
-
-### Deployment
-
 - [x] Configure Vercel project
 - [x] Set environment variables in Vercel
 - [x] Configure Supabase for production (allowed redirect URLs)
@@ -107,75 +187,9 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ---
 
-## Next Priority
+## Future Features (Post-MVP)
 
-- [x] Add image upload for items and avatars (Supabase Storage)
-  - [x] Handle missing/broken images gracefully
-  - [x] Use Next.js `<Image>` component for optimized images
-- [ ] Neighborhood Links Page / Bulletin Board
-  - [ ] Create links table (neighborhood_id, title, url, order, created_by)
-  - [ ] Build links list view on neighborhood page
-  - [ ] Add admin UI to add/edit/remove/reorder links
-  - [ ] Use cases: Facebook group, HOA website, local resources, etc.
-- [ ] Set up Resend for transactional emails (requires custom domain)
-  - [ ] Create Resend account and verify domain
-  - [ ] Configure Supabase SMTP settings to use Resend
-  - [ ] Re-enable email confirmation for signup
-  - [ ] Loan requested notification (to owner)
-  - [ ] Loan approved/rejected notification (to borrower)
-  - [ ] Item returned notification (to owner)
-  - [ ] Due date reminders
-
-## Post-Launch Improvements
-
-### High Priority
-
-- [ ] Add pagination for large neighborhoods
-- [ ] Allow users to delete their own account
-- [ ] Allow users to remove themselves from a neighborhood (e.g., moved away)
-
-### Medium Priority
-
-- [ ] Add error boundaries around critical components
-- [ ] Implement proper loading skeletons
-- [ ] Add onboarding flow for new users
-
-### Lower Priority
-
-- [ ] Dark mode support
-- [ ] Activity/audit log
-
----
-
-## Future Features (Deferred)
-
-### Phase 6: Childcare Availability Feature
-
-- [ ] Build calendar view for posting availability
-- [ ] Create request/booking system for childcare
-- [ ] Add messaging between parents for coordination
-      _Note: Database schema exists, UI not implemented_
-
-### Phase 7: Events & Gatherings Feature
-
-- [ ] Build event creation form
-- [ ] Create event list and calendar views
-- [ ] Implement RSVP system with headcount
-- [ ] Add event reminders/notifications
-      _Note: Database schema exists, UI not implemented_
-
-### Phase 8: Notifications & Messaging
-
-- [ ] Set up push notifications (Expo for mobile)
-- [ ] Implement in-app notification center
-- [ ] Consider simple direct messaging between neighbors
-
-### Phase 10: Mobile App
-
-- [ ] Build and submit iOS app to App Store
-- [ ] Build and submit Android app to Play Store
-
-### Phase 11: Open Source Preparation
+### Open Source Preparation
 
 - [ ] Write comprehensive README with features and screenshots
 - [ ] Create CONTRIBUTING.md with development guidelines

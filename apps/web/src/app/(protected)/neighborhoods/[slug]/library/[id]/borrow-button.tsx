@@ -120,7 +120,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
   if (!showForm) {
     return (
       <button onClick={() => setShowForm(true)} style={styles.button}>
-        Request to Borrow
+        Request to Borrow...
       </button>
     );
   }
