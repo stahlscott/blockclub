@@ -4,17 +4,19 @@ A neighborhood community app for building stronger local connections.
 
 ## Features
 
-- **Resident Directory** - Find and connect with neighbors, with search and sorting
-- **Lending Library** - Share tools, kitchen items, and more with neighbors
-- **Multi-Neighborhood Support** - Join multiple neighborhoods with a single account
-- **Member Profiles** - Address, move-in year, children, pets, and contact info
+- **Resident Directory** - Find and connect with neighbors, with search and multiple sort options (address, name, move-in year, join date)
+- **Lending Library** - Share tools, kitchen items, and more with neighbors across 10 categories
+- **Multi-Neighborhood Support** - Join multiple neighborhoods with a single account, set a primary neighborhood
+- **Member Profiles** - Address, unit, move-in year, children, pets, bio, multiple phone numbers and emails with labels
+- **Invite System** - Share invite links to bring neighbors into your community
 - **Admin Controls** - Approve new members, manage roles, moderate content
+- **Account Settings** - Change password, copy invite links
 
 ## Tech Stack
 
 - **Monorepo**: Turborepo
 - **Web**: Next.js 15 (React)
-- **Mobile**: Expo (React Native) - planned
+- **Mobile**: Expo (React Native) - scaffold only
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Language**: TypeScript
 
@@ -24,9 +26,13 @@ A neighborhood community app for building stronger local connections.
 frontporch/
 ├── apps/
 │   ├── web/              # Next.js web application
-│   └── mobile/           # Expo mobile application (planned)
+│   │   └── src/
+│   │       ├── app/      # App router pages and layouts
+│   │       ├── components/  # Shared React components
+│   │       └── lib/      # Utilities, Supabase client
+│   └── mobile/           # Expo mobile application (scaffold)
 ├── packages/
-│   └── shared/           # Shared types and utilities
+│   └── shared/           # Shared types and Supabase client
 ├── supabase/
 │   └── migrations/       # Database schema migrations
 ├── turbo.json            # Turborepo configuration
@@ -117,10 +123,12 @@ The app uses a multi-tenant architecture where all data is scoped to neighborhoo
 │ id              │       │ id              │
 │ name            │       │ email           │
 │ slug            │       │ name            │
-│ description     │       │ address         │
-│ location        │       │ move_in_year    │
-│ settings        │       │ children        │
-└────────┬────────┘       │ pets            │
+│ description     │       │ bio             │
+│ location        │       │ address / unit  │
+│ settings        │       │ phones[]        │
+└────────┬────────┘       │ emails[]        │
+         │                │ move_in_year    │
+         │                │ children / pets │
          │                └────────┬────────┘
          │    ┌─────────────────┐  │
          └───►│   memberships   │◄─┘
