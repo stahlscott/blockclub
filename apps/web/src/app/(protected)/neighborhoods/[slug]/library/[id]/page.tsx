@@ -7,6 +7,12 @@ import { OwnerActions } from "./owner-actions";
 import { AdminActions } from "./admin-actions";
 import responsive from "@/app/responsive.module.css";
 
+function getInitial(name: string | null | undefined): string {
+  if (!name) return "?";
+  const stripped = name.replace(/^the\s+/i, "");
+  return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
 interface Props {
   params: Promise<{ slug: string; id: string }>;
 }
@@ -141,7 +147,7 @@ export default async function ItemDetailPage({ params }: Props) {
                     style={styles.avatarImage}
                   />
                 ) : (
-                  <span>{item.owner?.name?.charAt(0).toUpperCase()}</span>
+                  <span>{getInitial(item.owner?.name)}</span>
                 )}
               </div>
               <div>

@@ -8,6 +8,12 @@ import dashboardStyles from "./dashboard.module.css";
 import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
 import { InviteButton } from "@/components/InviteButton";
 
+function getInitial(name: string | null | undefined): string {
+  if (!name) return "?";
+  const stripped = name.replace(/^the\s+/i, "");
+  return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
 // Helper to parse YYYY-MM-DD string as local date (not UTC)
 function parseDateLocal(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -509,8 +515,7 @@ export default async function DashboardPage() {
                           />
                         ) : (
                           <div style={styles.memberAvatarPlaceholder}>
-                            {membership.user?.name?.charAt(0)?.toUpperCase() ||
-                              "?"}
+                            {getInitial(membership.user?.name)}
                           </div>
                         )}
                         <div style={styles.memberDetails}>

@@ -5,6 +5,12 @@ import { isSuperAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
 import pendingStyles from "./pending.module.css";
 
+function getInitial(name: string | null | undefined, fallback?: string): string {
+  if (!name) return fallback?.charAt(0)?.toUpperCase() || "?";
+  const stripped = name.replace(/^the\s+/i, "");
+  return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -73,10 +79,7 @@ export default async function PendingMembersPage({ params }: Props) {
             const userName = member.user?.name;
             const userEmail = member.user?.email;
             const hasProfile = !!member.user;
-            const initial =
-              userName?.charAt(0)?.toUpperCase() ||
-              userEmail?.charAt(0)?.toUpperCase() ||
-              "?";
+            const initial = getInitial(userName, userEmail);
 
             return (
               <div key={member.id} className={pendingStyles.card}>

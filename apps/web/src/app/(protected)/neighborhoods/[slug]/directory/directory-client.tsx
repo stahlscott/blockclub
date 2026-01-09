@@ -65,6 +65,16 @@ function extractStreetNumber(address: string | null): number {
   return match ? parseInt(match[0], 10) : Infinity;
 }
 
+function stripThePrefix(name: string | null | undefined): string {
+  if (!name) return "";
+  return name.replace(/^the\s+/i, "");
+}
+
+function getInitial(name: string | null | undefined): string {
+  const stripped = stripThePrefix(name);
+  return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
 export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -145,9 +155,9 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
           return (b.user.address || "").localeCompare(a.user.address || "");
         }
         case "name-asc":
-          return (a.user.name || "").localeCompare(b.user.name || "");
+          return stripThePrefix(a.user.name).localeCompare(stripThePrefix(b.user.name));
         case "name-desc":
-          return (b.user.name || "").localeCompare(a.user.name || "");
+          return stripThePrefix(b.user.name).localeCompare(stripThePrefix(a.user.name));
         case "move-in-newest":
           return (b.user.move_in_year || 0) - (a.user.move_in_year || 0);
         case "move-in-oldest":
@@ -223,7 +233,7 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
                   />
                 ) : (
                   <span style={styles.avatarInitial}>
-                    {member.user.name?.charAt(0)?.toUpperCase() || "?"}
+                    {getInitial(member.user.name)}
                   </span>
                 )}
               </div>

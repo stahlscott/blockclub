@@ -5,6 +5,12 @@ import { isSuperAdmin } from "@/lib/auth";
 import { RoleActions } from "./role-actions";
 import profileStyles from "./member-profile.module.css";
 
+function getInitial(name: string | null | undefined): string {
+  if (!name) return "?";
+  const stripped = name.replace(/^the\s+/i, "");
+  return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
 interface Props {
   params: Promise<{ slug: string; id: string }>;
 }
@@ -108,7 +114,7 @@ export default async function MemberProfilePage({ params }: Props) {
             />
           ) : (
             <span style={styles.avatarInitial}>
-              {member.name?.charAt(0)?.toUpperCase() || "?"}
+              {getInitial(member.name)}
             </span>
           )}
         </div>
