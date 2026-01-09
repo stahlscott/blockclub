@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { BorrowButton } from "./borrow-button";
@@ -98,10 +99,13 @@ export default async function ItemDetailPage({ params }: Props) {
       <div className={responsive.detailGrid}>
         <div style={styles.imageSection}>
           {item.photo_urls && item.photo_urls.length > 0 ? (
-            <img
+            <Image
               src={item.photo_urls[0]}
               alt={item.name}
+              width={400}
+              height={300}
               style={styles.image}
+              priority
             />
           ) : (
             <div style={styles.imagePlaceholder}>
@@ -141,9 +145,11 @@ export default async function ItemDetailPage({ params }: Props) {
             >
               <div style={styles.avatar}>
                 {item.owner?.avatar_url ? (
-                  <img
+                  <Image
                     src={item.owner.avatar_url}
-                    alt={item.owner.name}
+                    alt={item.owner.name || "Owner"}
+                    width={48}
+                    height={48}
                     style={styles.avatarImage}
                   />
                 ) : (

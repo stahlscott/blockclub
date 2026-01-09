@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import profileStyles from "./profile.module.css";
 
 interface PhoneEntry {
@@ -60,6 +61,7 @@ export default function ProfilePage() {
   const [moveInYear, setMoveInYear] = useState("");
   const [children, setChildren] = useState("");
   const [pets, setPets] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -86,6 +88,7 @@ export default function ProfilePage() {
       if (profileData) {
         setName(profileData.name || "");
         setBio(profileData.bio || "");
+        setAvatarUrl(profileData.avatar_url || null);
         setAddress(profileData.address || "");
         setUnit(profileData.unit || "");
         setMoveInYear(
@@ -229,6 +232,7 @@ export default function ProfilePage() {
       .update({
         name,
         bio: bio || null,
+        avatar_url: avatarUrl,
         phones: cleanedPhones,
         // Also update legacy phone field for backward compatibility
         phone: cleanedPhones.length > 0 ? cleanedPhones[0].number : null,
@@ -274,6 +278,14 @@ export default function ProfilePage() {
         <h1 style={styles.title}>Edit Profile</h1>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          <AvatarUpload
+            userId={user.id}
+            currentAvatarUrl={avatarUrl}
+            name={name || "User"}
+            onUploadComplete={(url) => setAvatarUrl(url)}
+            onError={(msg) => setError(msg)}
+          />
+
           <div style={styles.inputGroup}>
             <label htmlFor="name" style={styles.label}>
               Household Name *

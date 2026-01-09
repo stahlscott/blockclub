@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
@@ -86,9 +87,11 @@ export default async function PendingMembersPage({ params }: Props) {
                 <div style={styles.memberInfo}>
                   <div style={styles.avatar}>
                     {member.user?.avatar_url ? (
-                      <img
+                      <Image
                         src={member.user.avatar_url}
                         alt={userName || "User"}
+                        width={48}
+                        height={48}
                         style={styles.avatarImage}
                       />
                     ) : (

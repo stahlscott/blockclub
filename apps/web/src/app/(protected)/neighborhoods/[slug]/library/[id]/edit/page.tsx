@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
 import type { ItemCategory } from "@frontporch/shared";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
@@ -30,6 +31,8 @@ export default function EditItemPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ItemCategory>("other");
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -68,6 +71,8 @@ export default function EditItemPage() {
       setName(item.name);
       setDescription(item.description || "");
       setCategory(item.category as ItemCategory);
+      setPhotoUrls(item.photo_urls || []);
+      setUserId(user.id);
       setLoading(false);
     }
 
@@ -88,6 +93,7 @@ export default function EditItemPage() {
           name: name.trim(),
           description: description.trim() || null,
           category,
+          photo_urls: photoUrls,
         })
         .eq("id", id);
 
@@ -183,6 +189,15 @@ export default function EditItemPage() {
               </span>
             )}
           </div>
+
+          {userId && (
+            <ItemPhotoUpload
+              userId={userId}
+              photos={photoUrls}
+              onPhotosChange={setPhotoUrls}
+              onError={setError}
+            />
+          )}
 
           <div style={styles.actions}>
             <Link

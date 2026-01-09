@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
@@ -447,11 +448,13 @@ export default async function DashboardPage() {
                       href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
                       style={styles.itemCard}
                     >
-                      {item.image_url ? (
+                      {item.photo_urls && item.photo_urls.length > 0 ? (
                         <div style={styles.itemImageContainer}>
-                          <img
-                            src={item.image_url}
+                          <Image
+                            src={item.photo_urls[0]}
                             alt={item.name}
+                            width={160}
+                            height={120}
                             style={styles.itemImage}
                           />
                           {isNew && <span style={styles.newBadge}>New</span>}
@@ -502,9 +505,11 @@ export default async function DashboardPage() {
                     >
                       <div style={styles.memberInfo}>
                         {membership.user?.avatar_url ? (
-                          <img
+                          <Image
                             src={membership.user.avatar_url}
-                            alt={membership.user.name}
+                            alt={membership.user.name || "Member"}
+                            width={40}
+                            height={40}
                             style={styles.memberAvatar}
                           />
                         ) : (

@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { ItemCategory } from "@frontporch/shared";
 import responsive from "@/app/responsive.module.css";
@@ -154,9 +155,11 @@ export default async function LibraryPage({ params, searchParams }: Props) {
             >
               {item.photo_urls && item.photo_urls.length > 0 ? (
                 <div style={styles.imageContainer}>
-                  <img
+                  <Image
                     src={item.photo_urls[0]}
                     alt={item.name}
+                    width={200}
+                    height={140}
                     style={styles.image}
                   />
                 </div>

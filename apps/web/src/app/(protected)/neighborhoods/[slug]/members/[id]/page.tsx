@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { RoleActions } from "./role-actions";
@@ -107,9 +108,11 @@ export default async function MemberProfilePage({ params }: Props) {
       <div className={profileStyles.profileHeader}>
         <div style={styles.avatar}>
           {member.avatar_url ? (
-            <img
+            <Image
               src={member.avatar_url}
               alt={member.name}
+              width={100}
+              height={100}
               style={styles.avatarImg}
             />
           ) : (

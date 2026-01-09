@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 interface Props {
@@ -99,9 +100,11 @@ export default async function MyItemsPage({ params }: Props) {
               >
                 <div style={styles.itemImageContainer}>
                   {item.photo_urls && item.photo_urls.length > 0 ? (
-                    <img
+                    <Image
                       src={item.photo_urls[0]}
                       alt={item.name}
+                      width={80}
+                      height={80}
                       style={styles.itemImage}
                     />
                   ) : (

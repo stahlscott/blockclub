@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 interface Props {
@@ -141,9 +142,11 @@ function LoanCard({ loan, slug }: { loan: any; slug: string }) {
     >
       <div style={styles.cardImageContainer}>
         {loan.item?.photo_urls && loan.item.photo_urls.length > 0 ? (
-          <img
+          <Image
             src={loan.item.photo_urls[0]}
             alt={loan.item.name}
+            width={64}
+            height={64}
             style={styles.cardImage}
           />
         ) : (

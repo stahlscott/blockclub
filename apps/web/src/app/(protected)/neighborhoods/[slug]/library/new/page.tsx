@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
 import type { ItemCategory } from "@frontporch/shared";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
@@ -29,8 +30,24 @@ export default function NewItemPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ItemCategory>("other");
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Load user ID on mount for photo uploads
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    }
+    loadUser();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,7 +99,7 @@ export default function NewItemPage() {
         name: name.trim(),
         description: description.trim() || null,
         category,
-        photo_urls: [],
+        photo_urls: photoUrls,
         availability: "available",
       });
 
@@ -171,6 +188,15 @@ export default function NewItemPage() {
               </span>
             )}
           </div>
+
+          {userId && (
+            <ItemPhotoUpload
+              userId={userId}
+              photos={photoUrls}
+              onPhotosChange={setPhotoUrls}
+              onError={setError}
+            />
+          )}
 
           <div style={styles.actions}>
             <Link

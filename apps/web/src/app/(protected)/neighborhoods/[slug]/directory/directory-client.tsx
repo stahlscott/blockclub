@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PhoneEntry {
   label: string;
@@ -236,9 +237,11 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
             >
               <div style={styles.avatar}>
                 {member.user.avatar_url ? (
-                  <img
+                  <Image
                     src={member.user.avatar_url}
                     alt={member.user.name}
+                    width={56}
+                    height={56}
                     style={styles.avatarImg}
                   />
                 ) : (

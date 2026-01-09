@@ -38,7 +38,7 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Configure Row Level Security policies scoped to neighborhood membership
 - [x] Create database migration scripts
 - [x] Auto-create user profile on signup via database trigger
-- [ ] Set up storage buckets for profile photos and item images
+- [x] Set up storage buckets for profile photos and item images
 
 ### Phase 3: Authentication & User Management
 
@@ -47,7 +47,6 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Create user profile model (name, photo, bio, contact info)
 - [x] Build neighborhood selection/switching UI for users in multiple neighborhoods
 - [x] Build profile editing UI
-- [ ] Add privacy controls to profile
 
 ### Phase 4: Resident Directory Feature
 
@@ -69,7 +68,7 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Build request/approve loan workflow
 - [x] Add loan status views (pending requests, active loans)
 - [x] Add due date tracking and overdue highlighting
-- [ ] Add photo upload for items
+- [x] Add photo upload for items
 - [ ] Implement return reminders/notifications
 
 ### Phase 9: Admin & Moderation
@@ -110,13 +109,14 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ## Next Priority
 
-- [ ] Neighborhood Links Page
+- [x] Add image upload for items and avatars (Supabase Storage)
+  - [x] Handle missing/broken images gracefully
+  - [x] Use Next.js `<Image>` component for optimized images
+- [ ] Neighborhood Links Page / Bulletin Board
   - [ ] Create links table (neighborhood_id, title, url, order, created_by)
   - [ ] Build links list view on neighborhood page
   - [ ] Add admin UI to add/edit/remove/reorder links
   - [ ] Use cases: Facebook group, HOA website, local resources, etc.
-- [ ] Add image upload for items and avatars (Supabase Storage)
-- [ ] Handle missing/broken images gracefully
 - [ ] Set up Resend for transactional emails (requires custom domain)
   - [ ] Create Resend account and verify domain
   - [ ] Configure Supabase SMTP settings to use Resend
@@ -136,7 +136,6 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ### Medium Priority
 
-- [ ] Use Next.js `<Image>` component for optimized images
 - [ ] Add error boundaries around critical components
 - [ ] Implement proper loading skeletons
 - [ ] Add onboarding flow for new users
