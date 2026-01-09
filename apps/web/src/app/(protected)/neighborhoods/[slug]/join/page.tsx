@@ -148,11 +148,8 @@ export default function JoinNeighborhoodPage() {
               <p style={styles.message}>
                 You&apos;re already a member of this neighborhood!
               </p>
-              <Link
-                href={`/neighborhoods/${slug}`}
-                style={styles.primaryButton}
-              >
-                Go to Neighborhood
+              <Link href="/dashboard" style={styles.primaryButton}>
+                Go to Dashboard
               </Link>
             </>
           ) : existingMembership.status === "pending" ? (
@@ -203,8 +200,8 @@ export default function JoinNeighborhoodPage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-          &larr; Back
+        <Link href="/dashboard" style={styles.backLink}>
+          &larr; Back to Dashboard
         </Link>
 
         <h1 style={styles.title}>Join {neighborhood.name}</h1>

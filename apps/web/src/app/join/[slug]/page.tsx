@@ -12,7 +12,7 @@ export default function PublicJoinPage() {
   const searchParams = useSearchParams();
   const slug = params.slug as string;
   const router = useRouter();
-  
+
   const [neighborhood, setNeighborhood] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [existingMembership, setExistingMembership] = useState<any>(null);
@@ -40,8 +40,10 @@ export default function PublicJoinPage() {
       setNeighborhood(neighborhoodData);
 
       // Check if user is logged in
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+
       if (authUser) {
         setUser(authUser);
 
@@ -66,30 +68,31 @@ export default function PublicJoinPage() {
 
   const handleJoinRequest = async () => {
     if (!user || !neighborhood) return;
-    
+
     setSubmitting(true);
     setError(null);
 
     const supabase = createClient();
-    
+
     // Ensure user profile exists (might not if email confirmation happened on different device)
     const { data: existingProfile } = await supabase
       .from("users")
       .select("id")
       .eq("id", user.id)
       .single();
-    
+
     if (!existingProfile) {
       // Create the user profile
       const { error: profileError } = await supabase.from("users").insert({
         id: user.id,
         email: user.email!,
-        name: user.user_metadata?.name || user.email?.split("@")[0] || "New User",
+        name:
+          user.user_metadata?.name || user.email?.split("@")[0] || "New User",
         avatar_url: null,
         bio: null,
         phone: null,
       });
-      
+
       if (profileError) {
         logger.error("Error creating profile", profileError);
         setError("Failed to create your profile. Please try again.");
@@ -97,17 +100,15 @@ export default function PublicJoinPage() {
         return;
       }
     }
-    
+
     const requiresApproval = neighborhood.settings?.require_approval !== false;
 
-    const { error: joinError } = await supabase
-      .from("memberships")
-      .insert({
-        user_id: user.id,
-        neighborhood_id: neighborhood.id,
-        role: "member",
-        status: requiresApproval ? "pending" : "active",
-      });
+    const { error: joinError } = await supabase.from("memberships").insert({
+      user_id: user.id,
+      neighborhood_id: neighborhood.id,
+      role: "member",
+      status: requiresApproval ? "pending" : "active",
+    });
 
     if (joinError) {
       setError(joinError.message);
@@ -141,7 +142,8 @@ export default function PublicJoinPage() {
         <div style={styles.card}>
           <h1 style={styles.title}>Neighborhood Not Found</h1>
           <p style={styles.message}>
-            This invite link may be invalid or the neighborhood no longer exists.
+            This invite link may be invalid or the neighborhood no longer
+            exists.
           </p>
           <Link href="/" style={styles.secondaryButton}>
             Go to Home
@@ -160,30 +162,32 @@ export default function PublicJoinPage() {
             <span style={styles.inviteIcon}>🏘️</span>
             <p style={styles.inviteText}>You&apos;ve been invited to join</p>
           </div>
-          
+
           <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
-          
+
           {neighborhood.description && (
             <p style={styles.description}>{neighborhood.description}</p>
           )}
-          
+
           {neighborhood.location && (
             <p style={styles.location}>{neighborhood.location}</p>
           )}
 
           <div style={styles.divider} />
 
-          <p style={styles.ctaText}>Create an account or sign in to join this neighborhood.</p>
+          <p style={styles.ctaText}>
+            Create an account or sign in to join this neighborhood.
+          </p>
 
           <div style={styles.buttonGroup}>
-            <Link 
-              href={`/signup?redirect=/join/${slug}`} 
+            <Link
+              href={`/signup?redirect=/join/${slug}`}
               style={styles.primaryButton}
             >
               Sign Up
             </Link>
-            <Link 
-              href={`/signin?redirect=/join/${slug}`} 
+            <Link
+              href={`/signin?redirect=/join/${slug}`}
               style={styles.secondaryButton}
             >
               Sign In
@@ -200,19 +204,22 @@ export default function PublicJoinPage() {
       <div className="fullPageContainer">
         <div style={styles.card}>
           <h1 style={styles.title}>{neighborhood.name}</h1>
-          
+
           {existingMembership.status === "active" ? (
             <>
-              <p style={styles.message}>You&apos;re already a member of this neighborhood!</p>
-              <Link href={`/neighborhoods/${slug}`} style={styles.primaryButton}>
-                Go to Neighborhood
+              <p style={styles.message}>
+                You&apos;re already a member of this neighborhood!
+              </p>
+              <Link href="/dashboard" style={styles.primaryButton}>
+                Go to Dashboard
               </Link>
             </>
           ) : existingMembership.status === "pending" ? (
             <>
               <div style={styles.pendingBadge}>Pending Approval</div>
               <p style={styles.message}>
-                Your request to join this neighborhood is pending approval from an admin.
+                Your request to join this neighborhood is pending approval from
+                an admin.
               </p>
               <Link href="/dashboard" style={styles.secondaryButton}>
                 Go to Dashboard
@@ -241,8 +248,9 @@ export default function PublicJoinPage() {
           <div style={styles.successIcon}>✓</div>
           <h1 style={styles.title}>Request Sent!</h1>
           <p style={styles.message}>
-            Your request to join <strong>{neighborhood.name}</strong> has been sent.
-            An admin will review your request and you&apos;ll be notified when approved.
+            Your request to join <strong>{neighborhood.name}</strong> has been
+            sent. An admin will review your request and you&apos;ll be notified
+            when approved.
           </p>
           <Link href="/dashboard" style={styles.primaryButton}>
             Go to Dashboard
@@ -260,13 +268,13 @@ export default function PublicJoinPage() {
           <span style={styles.inviteIcon}>🏘️</span>
           <p style={styles.inviteText}>You&apos;ve been invited to join</p>
         </div>
-        
+
         <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
-        
+
         {neighborhood.description && (
           <p style={styles.description}>{neighborhood.description}</p>
         )}
-        
+
         {neighborhood.location && (
           <p style={styles.location}>{neighborhood.location}</p>
         )}
@@ -274,12 +282,13 @@ export default function PublicJoinPage() {
         <div style={styles.infoBox}>
           {neighborhood.settings?.require_approval !== false ? (
             <p>
-              This neighborhood requires admin approval. After you request to join,
-              an admin will review and approve your membership.
+              This neighborhood requires admin approval. After you request to
+              join, an admin will review and approve your membership.
             </p>
           ) : (
             <p>
-              This neighborhood allows anyone to join. You&apos;ll become a member immediately.
+              This neighborhood allows anyone to join. You&apos;ll become a
+              member immediately.
             </p>
           )}
         </div>
@@ -294,8 +303,8 @@ export default function PublicJoinPage() {
           {submitting
             ? "Sending..."
             : neighborhood.settings?.require_approval !== false
-            ? "Request to Join"
-            : "Join Neighborhood"}
+              ? "Request to Join"
+              : "Join Neighborhood"}
         </button>
       </div>
     </div>

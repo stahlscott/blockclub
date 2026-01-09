@@ -58,8 +58,8 @@ export default async function PendingMembersPage({ params }: Props) {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-          &larr; {neighborhood.name}
+        <Link href="/dashboard" style={styles.backLink}>
+          &larr; Dashboard
         </Link>
         <h1 style={styles.title}>Pending Requests</h1>
         <p style={styles.subtitle}>

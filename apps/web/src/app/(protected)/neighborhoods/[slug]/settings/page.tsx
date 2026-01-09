@@ -131,8 +131,8 @@ export default function NeighborhoodSettingsPage() {
 
   return (
     <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}`} style={styles.backLink}>
-        &larr; Back to {neighborhood.name}
+      <Link href="/dashboard" style={styles.backLink}>
+        &larr; Back to Dashboard
       </Link>
 
       <div style={styles.card}>

@@ -46,20 +46,24 @@ export default async function DashboardPage() {
   // Fetch user's memberships with neighborhood details
   const { data: memberships } = await supabase
     .from("memberships")
-    .select(`
+    .select(
+      `
       *,
       neighborhood:neighborhoods(*)
-    `)
+    `,
+    )
     .eq("user_id", authUser.id)
     .eq("status", "active");
 
   // Fetch pending membership requests (user's own pending requests to join)
   const { data: pendingMemberships } = await supabase
     .from("memberships")
-    .select(`
+    .select(
+      `
       *,
       neighborhood:neighborhoods(*)
-    `)
+    `,
+    )
     .eq("user_id", authUser.id)
     .eq("status", "pending");
 
@@ -75,11 +79,13 @@ export default async function DashboardPage() {
   if (itemIds.length > 0) {
     const { data: loans } = await supabase
       .from("loans")
-      .select(`
+      .select(
+        `
         *,
         item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
         borrower:users(id, name)
-      `)
+      `,
+      )
       .in("item_id", itemIds)
       .eq("status", "requested")
       .order("requested_at", { ascending: true });
@@ -89,14 +95,16 @@ export default async function DashboardPage() {
   // Fetch user's active borrowed items
   const { data: borrowedItems, error: borrowedError } = await supabase
     .from("loans")
-    .select(`
+    .select(
+      `
       *,
       item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users(id, name))
-    `)
+    `,
+    )
     .eq("borrower_id", authUser.id)
     .eq("status", "active")
     .order("start_date", { ascending: false });
-  
+
   if (borrowedError) {
     logger.error("Error fetching borrowed items", borrowedError);
   }
@@ -110,7 +118,7 @@ export default async function DashboardPage() {
     // First try to use the user's saved primary neighborhood
     if (profile?.primary_neighborhood_id) {
       primaryMembership = activeMemberships.find(
-        (m: any) => m.neighborhood.id === profile.primary_neighborhood_id
+        (m: any) => m.neighborhood.id === profile.primary_neighborhood_id,
       );
     }
     // Fall back to first membership if primary not found
@@ -127,7 +135,8 @@ export default async function DashboardPage() {
   let recentMembers: any[] = [];
   let pendingMemberRequests = 0;
   // Super admins have admin privileges in all neighborhoods
-  const isAdmin = primaryMembership?.role === "admin" || isSuperAdmin(authUser.email);
+  const isAdmin =
+    primaryMembership?.role === "admin" || isSuperAdmin(authUser.email);
 
   if (primaryNeighborhood) {
     // Fetch member count
@@ -149,7 +158,7 @@ export default async function DashboardPage() {
     // Fetch recently added items (last 14 days)
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-    
+
     const { data: items } = await supabase
       .from("items")
       .select("*, owner:users(name)")
@@ -162,10 +171,12 @@ export default async function DashboardPage() {
     // Fetch recently joined members (last 14 days)
     const { data: members } = await supabase
       .from("memberships")
-      .select(`
+      .select(
+        `
         *,
         user:users(id, name, avatar_url)
-      `)
+      `,
+      )
       .eq("neighborhood_id", primaryNeighborhood.id)
       .eq("status", "active")
       .order("joined_at", { ascending: false })
@@ -192,28 +203,29 @@ export default async function DashboardPage() {
 
   return (
     <div className={dashboardStyles.container}>
-      <div style={styles.headerRow}>
-        <div>
-          <h1 style={styles.title}>
-            Welcome, {profile?.name || authUser.email}!
-          </h1>
-          {primaryNeighborhood && activeMemberships.length > 1 && (
-            <NeighborhoodSwitcher
-              neighborhoods={neighborhoodsForSwitcher}
-              currentNeighborhoodId={primaryNeighborhood.id}
-              userId={authUser.id}
-            />
-          )}
-          {primaryNeighborhood && activeMemberships.length === 1 && (
-            <p style={styles.subtitle}>{primaryNeighborhood.name}</p>
+      {primaryNeighborhood && (
+        <div style={styles.headerRow}>
+          <div>
+            {activeMemberships.length > 1 ? (
+              <NeighborhoodSwitcher
+                neighborhoods={neighborhoodsForSwitcher}
+                currentNeighborhoodId={primaryNeighborhood.id}
+                userId={authUser.id}
+              />
+            ) : (
+              <h1 style={styles.title}>{primaryNeighborhood.name}</h1>
+            )}
+          </div>
+          {isAdmin && (
+            <Link
+              href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
+              style={styles.settingsLink}
+            >
+              Settings
+            </Link>
           )}
         </div>
-        {primaryNeighborhood && isAdmin && (
-          <Link href={`/neighborhoods/${primaryNeighborhood.slug}/settings`} style={styles.settingsLink}>
-            Settings
-          </Link>
-        )}
-      </div>
+      )}
 
       {/* Borrow Requests Banner */}
       {pendingLoanRequests.length > 0 && (
@@ -221,7 +233,10 @@ export default async function DashboardPage() {
           <div style={styles.loanRequestsBanner}>
             <div style={styles.loanRequestsHeader}>
               <span style={styles.pendingIcon}>📬</span>
-              <strong>{pendingLoanRequests.length} Borrow Request{pendingLoanRequests.length > 1 ? "s" : ""}</strong>
+              <strong>
+                {pendingLoanRequests.length} Borrow Request
+                {pendingLoanRequests.length > 1 ? "s" : ""}
+              </strong>
             </div>
             <div style={styles.loanRequestsList}>
               {pendingLoanRequests.slice(0, 3).map((loan: any) => (
@@ -230,13 +245,17 @@ export default async function DashboardPage() {
                   href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
                   style={styles.loanRequestItem}
                 >
-                  <span><strong>{loan.borrower?.name}</strong> wants to borrow <strong>{loan.item?.name}</strong></span>
+                  <span>
+                    <strong>{loan.borrower?.name}</strong> wants to borrow{" "}
+                    <strong>{loan.item?.name}</strong>
+                  </span>
                   <span style={styles.loanRequestArrow}>&rarr;</span>
                 </Link>
               ))}
               {pendingLoanRequests.length > 3 && (
                 <p style={styles.moreRequests}>
-                  +{pendingLoanRequests.length - 3} more request{pendingLoanRequests.length - 3 > 1 ? "s" : ""}
+                  +{pendingLoanRequests.length - 3} more request
+                  {pendingLoanRequests.length - 3 > 1 ? "s" : ""}
                 </p>
               )}
             </div>
@@ -245,83 +264,106 @@ export default async function DashboardPage() {
       )}
 
       {/* Borrowed Items / Overdue Items Banners */}
-      {borrowedItems && borrowedItems.length > 0 && (() => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const overdueItems = borrowedItems.filter((loan: any) => 
-          loan.due_date && parseDateLocal(loan.due_date) < today
-        );
-        const currentItems = borrowedItems.filter((loan: any) => 
-          !loan.due_date || parseDateLocal(loan.due_date) >= today
-        );
-        
-        return (
-          <>
-            {overdueItems.length > 0 && (
-              <section style={styles.section}>
-                <div style={styles.overdueBanner}>
-                  <div style={styles.overdueHeader}>
-                    <span style={styles.pendingIcon}>⚠️</span>
-                    <strong>{overdueItems.length} Overdue Item{overdueItems.length > 1 ? "s" : ""}</strong>
+      {borrowedItems &&
+        borrowedItems.length > 0 &&
+        (() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const overdueItems = borrowedItems.filter(
+            (loan: any) =>
+              loan.due_date && parseDateLocal(loan.due_date) < today,
+          );
+          const currentItems = borrowedItems.filter(
+            (loan: any) =>
+              !loan.due_date || parseDateLocal(loan.due_date) >= today,
+          );
+
+          return (
+            <>
+              {overdueItems.length > 0 && (
+                <section style={styles.section}>
+                  <div style={styles.overdueBanner}>
+                    <div style={styles.overdueHeader}>
+                      <span style={styles.pendingIcon}>⚠️</span>
+                      <strong>
+                        {overdueItems.length} Overdue Item
+                        {overdueItems.length > 1 ? "s" : ""}
+                      </strong>
+                    </div>
+                    <div style={styles.overdueList}>
+                      {overdueItems.map((loan: any) => (
+                        <Link
+                          key={loan.id}
+                          href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
+                          style={styles.overdueItem}
+                        >
+                          <div style={styles.borrowedItemInfo}>
+                            <span style={styles.overdueItemName}>
+                              {loan.item?.name}
+                            </span>
+                            <span style={styles.overdueItemDue}>
+                              Was due{" "}
+                              {parseDateLocal(loan.due_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                },
+                              )}{" "}
+                              - please return to{" "}
+                              {loan.item?.owner?.name || "owner"}
+                            </span>
+                          </div>
+                          <span style={styles.overdueArrow}>&rarr;</span>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                  <div style={styles.overdueList}>
-                    {overdueItems.map((loan: any) => (
-                      <Link
-                        key={loan.id}
-                        href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
-                        style={styles.overdueItem}
-                      >
-                        <div style={styles.borrowedItemInfo}>
-                          <span style={styles.overdueItemName}>{loan.item?.name}</span>
-                          <span style={styles.overdueItemDue}>
-                            Was due {parseDateLocal(loan.due_date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })} - please return to {loan.item?.owner?.name || "owner"}
-                          </span>
-                        </div>
-                        <span style={styles.overdueArrow}>&rarr;</span>
-                      </Link>
-                    ))}
+                </section>
+              )}
+
+              {currentItems.length > 0 && (
+                <section style={styles.section}>
+                  <div style={styles.borrowedBanner}>
+                    <div style={styles.borrowedHeader}>
+                      <span style={styles.pendingIcon}>📦</span>
+                      <strong>
+                        You&apos;re Borrowing {currentItems.length} Item
+                        {currentItems.length > 1 ? "s" : ""}
+                      </strong>
+                    </div>
+                    <div style={styles.borrowedList}>
+                      {currentItems.map((loan: any) => (
+                        <Link
+                          key={loan.id}
+                          href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
+                          style={styles.borrowedItem}
+                        >
+                          <div style={styles.borrowedItemInfo}>
+                            <span style={styles.borrowedItemName}>
+                              {loan.item?.name}
+                            </span>
+                            <span style={styles.borrowedItemOwner}>
+                              from {loan.item?.owner?.name || "Unknown"}
+                              {loan.due_date &&
+                                ` · Due ${parseDateLocal(
+                                  loan.due_date,
+                                ).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                })}`}
+                            </span>
+                          </div>
+                          <span style={styles.loanRequestArrow}>&rarr;</span>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
-            
-            {currentItems.length > 0 && (
-              <section style={styles.section}>
-                <div style={styles.borrowedBanner}>
-                  <div style={styles.borrowedHeader}>
-                    <span style={styles.pendingIcon}>📦</span>
-                    <strong>You&apos;re Borrowing {currentItems.length} Item{currentItems.length > 1 ? "s" : ""}</strong>
-                  </div>
-                  <div style={styles.borrowedList}>
-                    {currentItems.map((loan: any) => (
-                      <Link
-                        key={loan.id}
-                        href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
-                        style={styles.borrowedItem}
-                      >
-                        <div style={styles.borrowedItemInfo}>
-                          <span style={styles.borrowedItemName}>{loan.item?.name}</span>
-                          <span style={styles.borrowedItemOwner}>
-                            from {loan.item?.owner?.name || "Unknown"}
-                            {loan.due_date && ` · Due ${parseDateLocal(loan.due_date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}`}
-                          </span>
-                        </div>
-                        <span style={styles.loanRequestArrow}>&rarr;</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
-          </>
-        );
-      })()}
+                </section>
+              )}
+            </>
+          );
+        })()}
 
       {/* Pending Memberships Banner (user's own pending requests to join neighborhoods) */}
       {pendingMemberships && pendingMemberships.length > 0 && (
@@ -331,7 +373,9 @@ export default async function DashboardPage() {
             <div>
               <strong>Pending Requests</strong>
               <p style={styles.pendingText}>
-                {pendingMemberships.map((m: any) => m.neighborhood.name).join(", ")}
+                {pendingMemberships
+                  .map((m: any) => m.neighborhood.name)
+                  .join(", ")}
               </p>
             </div>
           </div>
@@ -343,21 +387,32 @@ export default async function DashboardPage() {
         <>
           {/* Admin Banner for Pending Membership Requests */}
           {isAdmin && pendingMemberRequests > 0 && (
-            <Link href={`/neighborhoods/${primaryNeighborhood.slug}/members/pending`} style={styles.adminBanner}>
-              <span>{pendingMemberRequests} pending membership request{pendingMemberRequests > 1 ? "s" : ""}</span>
+            <Link
+              href={`/neighborhoods/${primaryNeighborhood.slug}/members/pending`}
+              style={styles.adminBanner}
+            >
+              <span>
+                {pendingMemberRequests} pending membership request
+                {pendingMemberRequests > 1 ? "s" : ""}
+              </span>
               <span style={styles.adminBannerArrow}>&rarr;</span>
             </Link>
           )}
 
           {/* Quick Actions */}
           <section style={styles.section}>
-            <h2 className={dashboardStyles.sectionTitle}>Quick Actions</h2>
             <div className={responsive.grid4}>
-              <Link href={`/neighborhoods/${primaryNeighborhood.slug}/directory`} style={styles.actionCard}>
+              <Link
+                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                style={styles.actionCard}
+              >
                 <span style={styles.actionIcon}>👥</span>
                 <span>Directory</span>
               </Link>
-              <Link href={`/neighborhoods/${primaryNeighborhood.slug}/library`} style={styles.actionCard}>
+              <Link
+                href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
+                style={styles.actionCard}
+              >
                 <span style={styles.actionIcon}>📚</span>
                 <span>Library</span>
               </Link>
@@ -373,8 +428,13 @@ export default async function DashboardPage() {
           {recentItems.length > 0 && (
             <section style={styles.section}>
               <div style={styles.sectionHeader}>
-                <h2 className={dashboardStyles.sectionTitle}>Recently Added Items</h2>
-                <Link href={`/neighborhoods/${primaryNeighborhood.slug}/library`} style={styles.seeAllLink}>
+                <h2 className={dashboardStyles.sectionTitle}>
+                  Recently Added Items
+                </h2>
+                <Link
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
+                  style={styles.seeAllLink}
+                >
                   See all &rarr;
                 </Link>
               </div>
@@ -389,7 +449,11 @@ export default async function DashboardPage() {
                     >
                       {item.image_url ? (
                         <div style={styles.itemImageContainer}>
-                          <img src={item.image_url} alt={item.name} style={styles.itemImage} />
+                          <img
+                            src={item.image_url}
+                            alt={item.name}
+                            style={styles.itemImage}
+                          />
                           {isNew && <span style={styles.newBadge}>New</span>}
                         </div>
                       ) : (
@@ -400,7 +464,9 @@ export default async function DashboardPage() {
                       )}
                       <div style={styles.itemInfo}>
                         <span style={styles.itemName}>{item.name}</span>
-                        <span style={styles.itemOwner}>{item.owner?.name || "Unknown"}</span>
+                        <span style={styles.itemOwner}>
+                          {item.owner?.name || "Unknown"}
+                        </span>
                       </div>
                     </Link>
                   );
@@ -413,14 +479,21 @@ export default async function DashboardPage() {
           {recentMembers.length > 0 && (
             <section style={styles.section}>
               <div style={styles.sectionHeader}>
-                <h2 className={dashboardStyles.sectionTitle}>Recently Joined</h2>
-                <Link href={`/neighborhoods/${primaryNeighborhood.slug}/directory`} style={styles.seeAllLink}>
+                <h2 className={dashboardStyles.sectionTitle}>
+                  Recently Joined
+                </h2>
+                <Link
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                  style={styles.seeAllLink}
+                >
                   See all &rarr;
                 </Link>
               </div>
               <div style={styles.memberList}>
                 {recentMembers.slice(0, 5).map((membership: any) => {
-                  const isNew = membership.joined_at && isWithinDays(membership.joined_at, 14);
+                  const isNew =
+                    membership.joined_at &&
+                    isWithinDays(membership.joined_at, 14);
                   return (
                     <Link
                       key={membership.id}
@@ -436,17 +509,23 @@ export default async function DashboardPage() {
                           />
                         ) : (
                           <div style={styles.memberAvatarPlaceholder}>
-                            {membership.user?.name?.charAt(0)?.toUpperCase() || "?"}
+                            {membership.user?.name?.charAt(0)?.toUpperCase() ||
+                              "?"}
                           </div>
                         )}
                         <div style={styles.memberDetails}>
                           <span style={styles.memberName}>
                             {membership.user?.name || "Unknown"}
-                            {isNew && <span style={styles.newBadgeInline}>New</span>}
+                            {isNew && (
+                              <span style={styles.newBadgeInline}>New</span>
+                            )}
                           </span>
                           {membership.joined_at && (
                             <span style={styles.memberJoinDate}>
-                              Joined {new Date(membership.joined_at).toLocaleDateString("en-US", {
+                              Joined{" "}
+                              {new Date(
+                                membership.joined_at,
+                              ).toLocaleDateString("en-US", {
                                 month: "short",
                                 day: "numeric",
                               })}
@@ -467,7 +546,8 @@ export default async function DashboardPage() {
           <div style={styles.emptyState}>
             <h2 style={styles.emptyTitle}>No neighborhoods yet</h2>
             <p style={styles.emptyText}>
-              You haven&apos;t joined any neighborhoods yet. Ask a neighbor to share their invite link with you!
+              You haven&apos;t joined any neighborhoods yet. Ask a neighbor to
+              share their invite link with you!
             </p>
             {canCreateNeighborhood && (
               <Link href="/neighborhoods/new" style={styles.primaryButton}>
@@ -523,27 +603,22 @@ const styles: { [key: string]: React.CSSProperties } = {
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: "1.5rem",
     gap: "1rem",
   },
   title: {
     fontSize: "1.75rem",
     fontWeight: "600",
-    marginBottom: "0.5rem",
     margin: 0,
   },
-  subtitle: {
-    fontSize: "1rem",
-    color: "#666",
-    margin: "0.5rem 0 0 0",
-    fontWeight: "500",
-  },
   settingsLink: {
-    color: "#2563eb",
+    color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
-    fontWeight: "500",
+    padding: "0.5rem 1rem",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
   },
   section: {
     marginBottom: "2rem",
