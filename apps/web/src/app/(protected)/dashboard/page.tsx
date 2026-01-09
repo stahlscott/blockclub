@@ -6,7 +6,6 @@ import { logger } from "@/lib/logger";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
 import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
-import { InviteButton } from "@/components/InviteButton";
 
 function getInitial(name: string | null | undefined): string {
   if (!name) return "?";
@@ -222,16 +221,9 @@ export default async function DashboardPage() {
               <h1 style={styles.title}>{primaryNeighborhood.name}</h1>
             )}
           </div>
-          {isAdmin ? (
-            <Link
-              href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
-              style={styles.settingsLink}
-            >
-              Settings
-            </Link>
-          ) : (
-            <InviteButton slug={primaryNeighborhood.slug} variant="link" />
-          )}
+          <Link href="/settings" style={styles.settingsLink}>
+            Settings
+          </Link>
         </div>
       )}
 
@@ -574,14 +566,21 @@ export default async function DashboardPage() {
               <span style={styles.statLabel}>Items Available</span>
             </div>
           </div>
-          {canCreateNeighborhood && (
-            <div className={responsive.grid4}>
+          <div className={responsive.grid2}>
+            <Link
+              href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
+              style={styles.actionCard}
+            >
+              <span style={styles.actionIcon}>⚙️</span>
+              <span>Neighborhood Settings</span>
+            </Link>
+            {canCreateNeighborhood && (
               <Link href="/neighborhoods/new" style={styles.actionCard}>
                 <span style={styles.actionIcon}>🏘️</span>
                 <span>New Neighborhood</span>
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </section>
       )}
 
