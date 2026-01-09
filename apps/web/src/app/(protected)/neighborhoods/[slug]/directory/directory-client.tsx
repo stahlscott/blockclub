@@ -8,6 +8,11 @@ interface PhoneEntry {
   number: string;
 }
 
+interface EmailEntry {
+  label: string;
+  email: string;
+}
+
 interface User {
   id: string;
   name: string;
@@ -15,6 +20,7 @@ interface User {
   bio: string | null;
   phone: string | null;
   phones: PhoneEntry[] | null;
+  emails: EmailEntry[] | null;
   address: string | null;
   unit: string | null;
   move_in_year: number | null;
@@ -136,9 +142,8 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
         }
 
         // Search email addresses
-        if (user.emails?.some((e: { email: string }) =>
-          e.email.toLowerCase().includes(query)
-        )) return true;
+        if (user.emails?.some((e) => e.email.toLowerCase().includes(query)))
+          return true;
 
         return false;
       });
