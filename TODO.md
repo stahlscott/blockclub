@@ -120,8 +120,10 @@ The web app is functional with core features (Directory + Lending Library). Prep
 
 - [ ] Add image upload for items and avatars (Supabase Storage)
 - [ ] Handle missing/broken images gracefully
-- [ ] Email notifications via Resend
-  - [ ] Set up Resend account and verify domain
+- [ ] Set up Resend for transactional emails
+  - [ ] Create Resend account and verify domain
+  - [ ] Configure Supabase SMTP settings to use Resend
+  - [ ] Re-enable email confirmation for signup
   - [ ] Loan requested notification (to owner)
   - [ ] Loan approved/rejected notification (to borrower)
   - [ ] Item returned notification (to owner)

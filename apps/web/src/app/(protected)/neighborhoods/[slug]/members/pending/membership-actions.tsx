@@ -8,9 +8,10 @@ import { logger } from "@/lib/logger";
 interface Props {
   membershipId: string;
   slug: string;
+  className?: string;
 }
 
-export function MembershipActions({ membershipId, slug }: Props) {
+export function MembershipActions({ membershipId, slug, className }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +56,7 @@ export function MembershipActions({ membershipId, slug }: Props) {
   }
 
   return (
-    <div style={styles.actions}>
+    <div className={className} style={styles.actions}>
       <button
         onClick={() => handleAction("reject")}
         disabled={loading}

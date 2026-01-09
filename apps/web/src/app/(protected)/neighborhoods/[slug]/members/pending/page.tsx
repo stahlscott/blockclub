@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
+import pendingStyles from "./pending.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -78,7 +79,7 @@ export default async function PendingMembersPage({ params }: Props) {
               "?";
 
             return (
-              <div key={member.id} style={styles.card}>
+              <div key={member.id} className={pendingStyles.card}>
                 <div style={styles.memberInfo}>
                   <div style={styles.avatar}>
                     {member.user?.avatar_url ? (
@@ -121,7 +122,11 @@ export default async function PendingMembersPage({ params }: Props) {
                     </p>
                   </div>
                 </div>
-                <MembershipActions membershipId={member.id} slug={slug} />
+                <MembershipActions
+                  membershipId={member.id}
+                  slug={slug}
+                  className={pendingStyles.actions}
+                />
               </div>
             );
           })}
@@ -172,15 +177,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     gap: "1rem",
-  },
-  card: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "1.25rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   memberInfo: {
     display: "flex",
