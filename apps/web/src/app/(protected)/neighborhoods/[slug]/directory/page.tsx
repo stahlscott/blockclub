@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DirectoryClient } from "./directory-client";
+import { env } from "@/lib/env";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -54,11 +55,16 @@ export default async function DirectoryPage({ params }: Props) {
     .eq("status", "active")
     .order("joined_at", { ascending: true });
 
+  // Filter out superadmin users from the directory
+  const filteredMembers = (members || []).filter(
+    (m: any) => !env.SUPER_ADMIN_EMAILS.includes(m.user?.email || ""),
+  );
+
   return (
     <DirectoryClient
       slug={slug}
       neighborhoodName={neighborhood.name}
-      members={members || []}
+      members={filteredMembers}
     />
   );
 }

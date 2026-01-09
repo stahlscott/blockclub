@@ -107,12 +107,8 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ---
 
-## Post-Launch Improvements
+## Next Priority
 
-### High Priority
-
-- [ ] Add image upload for items and avatars (Supabase Storage)
-- [ ] Handle missing/broken images gracefully
 - [ ] Set up Resend for transactional emails
   - [ ] Create Resend account and verify domain
   - [ ] Configure Supabase SMTP settings to use Resend
@@ -121,7 +117,13 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
   - [ ] Loan approved/rejected notification (to borrower)
   - [ ] Item returned notification (to owner)
   - [ ] Due date reminders
-- [x] Add search/filter to directory
+- [ ] Add image upload for items and avatars (Supabase Storage)
+- [ ] Handle missing/broken images gracefully
+
+## Post-Launch Improvements
+
+### High Priority
+
 - [ ] Add pagination for large neighborhoods
 - [ ] Allow users to delete their own account
 - [ ] Allow users to remove themselves from a neighborhood (e.g., moved away)

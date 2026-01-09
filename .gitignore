@@ -9,6 +9,7 @@ build
 .next
 .expo
 out
+*.tsbuildinfo
 
 # Environment files
 .env

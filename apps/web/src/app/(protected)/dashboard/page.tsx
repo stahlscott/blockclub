@@ -144,13 +144,15 @@ export default async function DashboardPage() {
     primaryMembership?.role === "admin" || isSuperAdmin(authUser.email);
 
   if (primaryNeighborhood) {
-    // Fetch member count
-    const { count: mCount } = await supabase
+    // Fetch member count (excluding superadmins)
+    const { data: allMembers } = await supabase
       .from("memberships")
-      .select("*", { count: "exact", head: true })
+      .select("user:users(email)")
       .eq("neighborhood_id", primaryNeighborhood.id)
       .eq("status", "active");
-    memberCount = mCount || 0;
+    memberCount = (allMembers || []).filter(
+      (m: any) => !isSuperAdmin(m.user?.email),
+    ).length;
 
     // Fetch items available count
     const { count: iCount } = await supabase
@@ -179,14 +181,17 @@ export default async function DashboardPage() {
       .select(
         `
         *,
-        user:users(id, name, avatar_url)
+        user:users(id, name, email, avatar_url)
       `,
       )
       .eq("neighborhood_id", primaryNeighborhood.id)
       .eq("status", "active")
       .order("joined_at", { ascending: false })
       .limit(6);
-    recentMembers = members || [];
+    // Filter out superadmin users from the recent members list
+    recentMembers = (members || []).filter(
+      (m: any) => !isSuperAdmin(m.user?.email),
+    );
 
     // Fetch pending membership requests count (admin only)
     if (isAdmin) {
@@ -555,7 +560,12 @@ export default async function DashboardPage() {
       {/* Admin Section */}
       {isAdmin && primaryNeighborhood && (
         <section style={styles.section}>
-          <h2 className={dashboardStyles.sectionTitle}>Admin</h2>
+          <h2
+            className={dashboardStyles.sectionTitle}
+            style={{ marginBottom: "1rem" }}
+          >
+            Admin
+          </h2>
           <div className={responsive.statsRow} style={{ marginBottom: "1rem" }}>
             <div style={styles.stat}>
               <span style={styles.statValue}>{memberCount}</span>
@@ -587,7 +597,12 @@ export default async function DashboardPage() {
       {/* New Neighborhood (for super admins without neighborhood admin role) */}
       {canCreateNeighborhood && !isAdmin && (
         <section style={styles.section}>
-          <h2 className={dashboardStyles.sectionTitle}>Admin</h2>
+          <h2
+            className={dashboardStyles.sectionTitle}
+            style={{ marginBottom: "1rem" }}
+          >
+            Admin
+          </h2>
           <div className={responsive.grid4}>
             <Link href="/neighborhoods/new" style={styles.actionCard}>
               <span style={styles.actionIcon}>🏘️</span>
