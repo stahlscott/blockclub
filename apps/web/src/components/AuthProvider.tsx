@@ -43,13 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Skip refresh on initial load - only refresh on actual auth changes
-      if (initialLoadRef.current) {
-        initialLoadRef.current = false;
-        return;
-      }
-
-      // Handle redirect after email confirmation
+      // Handle redirect after email confirmation (check before skipping initial load)
       if (event === "SIGNED_IN") {
         const storedRedirect = localStorage.getItem("authRedirect");
         if (storedRedirect) {
@@ -57,6 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           router.push(storedRedirect);
           return;
         }
+      }
+
+      // Skip refresh on initial load - only refresh on actual auth changes
+      if (initialLoadRef.current) {
+        initialLoadRef.current = false;
+        return;
       }
 
       // Refresh router to update server components when auth state changes
