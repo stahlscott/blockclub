@@ -63,13 +63,6 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Password change state
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [changingPassword, setChangingPassword] = useState(false);
-
   useEffect(() => {
     async function loadProfile() {
       const supabase = createClient();
@@ -259,41 +252,6 @@ export default function ProfilePage() {
     }
 
     setSaving(false);
-  };
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError(null);
-    setPasswordSuccess(false);
-
-    if (newPassword.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match");
-      return;
-    }
-
-    setChangingPassword(true);
-
-    const supabase = createClient();
-
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-    if (updateError) {
-      setPasswordError(updateError.message);
-    } else {
-      setPasswordSuccess(true);
-      setNewPassword("");
-      setConfirmPassword("");
-      setTimeout(() => setPasswordSuccess(false), 3000);
-    }
-
-    setChangingPassword(false);
   };
 
   if (loading) {
@@ -540,52 +498,6 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
-
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>Change Password</h2>
-
-        <form onSubmit={handlePasswordChange} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label htmlFor="newPassword" style={styles.label}>
-              New Password
-            </label>
-            <input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              minLength={6}
-              style={styles.input}
-              placeholder="At least 6 characters"
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label htmlFor="confirmPassword" style={styles.label}>
-              Confirm New Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              style={styles.input}
-              placeholder="Re-enter new password"
-            />
-          </div>
-
-          {passwordError && <p style={styles.error}>{passwordError}</p>}
-          {passwordSuccess && (
-            <p style={styles.success}>Password changed successfully!</p>
-          )}
-
-          <button type="submit" disabled={changingPassword} style={styles.button}>
-            {changingPassword ? "Changing..." : "Change Password"}
-          </button>
-        </form>
-      </div>
     </div>
   );
 }
@@ -615,11 +527,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     margin: "0 0 1.5rem 0",
     fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  sectionTitle: {
-    margin: "0 0 1rem 0",
-    fontSize: "1.25rem",
     fontWeight: "600",
   },
   form: {
