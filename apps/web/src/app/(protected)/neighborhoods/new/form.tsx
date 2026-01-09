@@ -34,9 +34,11 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
     setLoading(true);
 
     const supabase = createClient();
-    
+
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
       setError("You must be logged in to create a neighborhood");
       setLoading(false);
@@ -46,9 +48,14 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
     const slug = generateSlug(name);
 
     // Ensure user profile exists
-    const { success, error: profileError } = await ensureUserProfile(supabase, user);
+    const { success, error: profileError } = await ensureUserProfile(
+      supabase,
+      user,
+    );
     if (!success) {
-      setError(profileError || "Failed to create user profile. Please try again.");
+      setError(
+        profileError || "Failed to create user profile. Please try again.",
+      );
       setLoading(false);
       return;
     }
@@ -61,7 +68,9 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
       .single();
 
     if (existing) {
-      setError("A neighborhood with this name already exists. Please choose a different name.");
+      setError(
+        "A neighborhood with this name already exists. Please choose a different name.",
+      );
       setLoading(false);
       return;
     }
@@ -90,14 +99,12 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
     }
 
     // Add creator as admin member
-    const { error: memberError } = await supabase
-      .from("memberships")
-      .insert({
-        user_id: user.id,
-        neighborhood_id: neighborhood.id,
-        role: "admin",
-        status: "active",
-      });
+    const { error: memberError } = await supabase.from("memberships").insert({
+      user_id: user.id,
+      neighborhood_id: neighborhood.id,
+      role: "admin",
+      status: "active",
+    });
 
     if (memberError) {
       logger.error("Error creating membership", memberError);
@@ -113,7 +120,7 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
         <Link href="/dashboard" style={styles.backLink}>
           &larr; Back to Dashboard
         </Link>
-        
+
         <h1 style={styles.title}>Create a Neighborhood</h1>
         <p style={styles.subtitle}>
           Start a community for your neighbors to connect and share.
@@ -192,7 +199,8 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
               <span>Require approval for new members</span>
             </label>
             <span style={styles.hint}>
-              When enabled, you&apos;ll need to approve each person who wants to join.
+              When enabled, you&apos;ll need to approve each person who wants to
+              join.
             </span>
           </div>
 
@@ -211,11 +219,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "600px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "1rem",
   },
   card: {
     backgroundColor: "white",
-    padding: "2rem",
+    padding: "1.5rem",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
@@ -224,7 +232,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0 0 0.5rem 0",

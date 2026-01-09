@@ -173,10 +173,17 @@ export default function NewItemPage() {
           </div>
 
           <div style={styles.actions}>
-            <Link href={`/neighborhoods/${slug}/library`} style={styles.cancelButton}>
+            <Link
+              href={`/neighborhoods/${slug}/library`}
+              style={styles.cancelButton}
+            >
               Cancel
             </Link>
-            <button type="submit" disabled={loading} style={styles.submitButton}>
+            <button
+              type="submit"
+              disabled={loading}
+              style={styles.submitButton}
+            >
               {loading ? "Adding..." : "Add Item"}
             </button>
           </div>
@@ -190,7 +197,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "600px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "1rem",
   },
   backLink: {
     color: "#666",
@@ -201,7 +208,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   card: {
     backgroundColor: "white",
-    padding: "2rem",
+    padding: "1.5rem",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },

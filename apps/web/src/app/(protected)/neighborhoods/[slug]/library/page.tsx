@@ -79,8 +79,10 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const { data: items } = await query;
 
   // Count items by availability
-  const availableCount = items?.filter((i) => i.availability === "available").length || 0;
-  const borrowedCount = items?.filter((i) => i.availability === "borrowed").length || 0;
+  const availableCount =
+    items?.filter((i) => i.availability === "available").length || 0;
+  const borrowedCount =
+    items?.filter((i) => i.availability === "borrowed").length || 0;
 
   return (
     <div style={styles.container}>
@@ -94,7 +96,10 @@ export default async function LibraryPage({ params, searchParams }: Props) {
             {availableCount} available, {borrowedCount} borrowed
           </p>
         </div>
-        <Link href={`/neighborhoods/${slug}/library/new`} style={styles.addButton}>
+        <Link
+          href={`/neighborhoods/${slug}/library/new`}
+          style={styles.addButton}
+        >
           + Add Item
         </Link>
       </div>
@@ -123,10 +128,16 @@ export default async function LibraryPage({ params, searchParams }: Props) {
       </div>
 
       <div style={styles.actions}>
-        <Link href={`/neighborhoods/${slug}/library/mine`} style={styles.secondaryLink}>
+        <Link
+          href={`/neighborhoods/${slug}/library/mine`}
+          style={styles.secondaryLink}
+        >
           My Items
         </Link>
-        <Link href={`/neighborhoods/${slug}/library/loans`} style={styles.secondaryLink}>
+        <Link
+          href={`/neighborhoods/${slug}/library/loans`}
+          style={styles.secondaryLink}
+        >
           My Loans
         </Link>
       </div>
@@ -155,7 +166,9 @@ export default async function LibraryPage({ params, searchParams }: Props) {
               <div style={styles.cardContent}>
                 <h3 style={styles.itemName}>{item.name}</h3>
                 <p style={styles.itemOwner}>
-                  {item.owner_id === user.id ? "Your item" : `by ${item.owner?.name || "Unknown"}`}
+                  {item.owner_id === user.id
+                    ? "Your item"
+                    : `by ${item.owner?.name || "Unknown"}`}
                 </p>
                 <div style={styles.cardFooter}>
                   <span style={styles.categoryTag}>{item.category}</span>
@@ -165,8 +178,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
                       ...(item.availability === "available"
                         ? styles.availableTag
                         : item.availability === "borrowed"
-                        ? styles.borrowedTag
-                        : styles.unavailableTag),
+                          ? styles.borrowedTag
+                          : styles.unavailableTag),
                     }}
                   >
                     {item.availability}
@@ -183,7 +196,10 @@ export default async function LibraryPage({ params, searchParams }: Props) {
               ? "No items match your search."
               : "No items in the library yet."}
           </p>
-          <Link href={`/neighborhoods/${slug}/library/new`} style={styles.emptyButton}>
+          <Link
+            href={`/neighborhoods/${slug}/library/new`}
+            style={styles.emptyButton}
+          >
             Add the first item
           </Link>
         </div>
@@ -197,20 +213,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",

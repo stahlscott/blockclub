@@ -21,7 +21,9 @@ export default function JoinNeighborhoodPage() {
     async function loadData() {
       const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.push("/signin");
         return;
@@ -64,7 +66,9 @@ export default function JoinNeighborhoodPage() {
     setError(null);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       setError("You must be logged in");
@@ -78,18 +82,19 @@ export default function JoinNeighborhoodPage() {
       .select("id")
       .eq("id", user.id)
       .single();
-    
+
     if (!existingProfile) {
       // Create the user profile
       const { error: profileError } = await supabase.from("users").insert({
         id: user.id,
         email: user.email!,
-        name: user.user_metadata?.name || user.email?.split("@")[0] || "New User",
+        name:
+          user.user_metadata?.name || user.email?.split("@")[0] || "New User",
         avatar_url: null,
         bio: null,
         phone: null,
       });
-      
+
       if (profileError) {
         logger.error("Error creating profile", profileError);
         setError("Failed to create your profile. Please try again.");
@@ -100,14 +105,12 @@ export default function JoinNeighborhoodPage() {
 
     const requiresApproval = neighborhood.settings?.require_approval !== false;
 
-    const { error: joinError } = await supabase
-      .from("memberships")
-      .insert({
-        user_id: user.id,
-        neighborhood_id: neighborhood.id,
-        role: "member",
-        status: requiresApproval ? "pending" : "active",
-      });
+    const { error: joinError } = await supabase.from("memberships").insert({
+      user_id: user.id,
+      neighborhood_id: neighborhood.id,
+      role: "member",
+      status: requiresApproval ? "pending" : "active",
+    });
 
     if (joinError) {
       setError(joinError.message);
@@ -139,11 +142,16 @@ export default function JoinNeighborhoodPage() {
       <div style={styles.container}>
         <div style={styles.card}>
           <h1 style={styles.title}>{neighborhood.name}</h1>
-          
+
           {existingMembership.status === "active" ? (
             <>
-              <p style={styles.message}>You&apos;re already a member of this neighborhood!</p>
-              <Link href={`/neighborhoods/${slug}`} style={styles.primaryButton}>
+              <p style={styles.message}>
+                You&apos;re already a member of this neighborhood!
+              </p>
+              <Link
+                href={`/neighborhoods/${slug}`}
+                style={styles.primaryButton}
+              >
                 Go to Neighborhood
               </Link>
             </>
@@ -151,7 +159,8 @@ export default function JoinNeighborhoodPage() {
             <>
               <div style={styles.pendingBadge}>Pending Approval</div>
               <p style={styles.message}>
-                Your request to join this neighborhood is pending approval from an admin.
+                Your request to join this neighborhood is pending approval from
+                an admin.
               </p>
               <Link href="/dashboard" style={styles.secondaryButton}>
                 Back to Dashboard
@@ -179,8 +188,9 @@ export default function JoinNeighborhoodPage() {
           <div style={styles.successIcon}>✓</div>
           <h1 style={styles.title}>Request Sent!</h1>
           <p style={styles.message}>
-            Your request to join <strong>{neighborhood.name}</strong> has been sent.
-            An admin will review your request and you&apos;ll be notified when approved.
+            Your request to join <strong>{neighborhood.name}</strong> has been
+            sent. An admin will review your request and you&apos;ll be notified
+            when approved.
           </p>
           <Link href="/dashboard" style={styles.primaryButton}>
             Back to Dashboard
@@ -198,11 +208,11 @@ export default function JoinNeighborhoodPage() {
         </Link>
 
         <h1 style={styles.title}>Join {neighborhood.name}</h1>
-        
+
         {neighborhood.description && (
           <p style={styles.description}>{neighborhood.description}</p>
         )}
-        
+
         {neighborhood.location && (
           <p style={styles.location}>{neighborhood.location}</p>
         )}
@@ -210,12 +220,13 @@ export default function JoinNeighborhoodPage() {
         <div style={styles.infoBox}>
           {neighborhood.settings?.require_approval !== false ? (
             <p>
-              This neighborhood requires admin approval. After you request to join,
-              an admin will review and approve your membership.
+              This neighborhood requires admin approval. After you request to
+              join, an admin will review and approve your membership.
             </p>
           ) : (
             <p>
-              This neighborhood allows anyone to join. You&apos;ll become a member immediately.
+              This neighborhood allows anyone to join. You&apos;ll become a
+              member immediately.
             </p>
           )}
         </div>
@@ -230,8 +241,8 @@ export default function JoinNeighborhoodPage() {
           {submitting
             ? "Sending..."
             : neighborhood.settings?.require_approval !== false
-            ? "Request to Join"
-            : "Join Neighborhood"}
+              ? "Request to Join"
+              : "Join Neighborhood"}
         </button>
       </div>
     </div>
@@ -242,11 +253,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "500px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "1rem",
   },
   card: {
     backgroundColor: "white",
-    padding: "2rem",
+    padding: "1.5rem",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
     textAlign: "center",
@@ -256,7 +267,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
     textAlign: "left",
     width: "100%",
   },

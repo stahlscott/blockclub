@@ -51,18 +51,20 @@ export default async function MyItemsPage({ params }: Props) {
 
   // Fetch pending requests for user's items
   const itemIds = items?.map((i) => i.id) || [];
-  const { data: pendingRequests } = itemIds.length > 0
-    ? await supabase
-        .from("loans")
-        .select("item_id")
-        .in("item_id", itemIds)
-        .eq("status", "requested")
-    : { data: [] };
+  const { data: pendingRequests } =
+    itemIds.length > 0
+      ? await supabase
+          .from("loans")
+          .select("item_id")
+          .in("item_id", itemIds)
+          .eq("status", "requested")
+      : { data: [] };
 
-  const requestCountByItem = pendingRequests?.reduce((acc: Record<string, number>, loan) => {
-    acc[loan.item_id] = (acc[loan.item_id] || 0) + 1;
-    return acc;
-  }, {}) || {};
+  const requestCountByItem =
+    pendingRequests?.reduce((acc: Record<string, number>, loan) => {
+      acc[loan.item_id] = (acc[loan.item_id] || 0) + 1;
+      return acc;
+    }, {}) || {};
 
   return (
     <div style={styles.container}>
@@ -73,10 +75,14 @@ export default async function MyItemsPage({ params }: Props) {
           </Link>
           <h1 style={styles.title}>My Items</h1>
           <p style={styles.subtitle}>
-            {items?.length || 0} item{items?.length !== 1 ? "s" : ""} you&apos;re sharing
+            {items?.length || 0} item{items?.length !== 1 ? "s" : ""}{" "}
+            you&apos;re sharing
           </p>
         </div>
-        <Link href={`/neighborhoods/${slug}/library/new`} style={styles.addButton}>
+        <Link
+          href={`/neighborhoods/${slug}/library/new`}
+          style={styles.addButton}
+        >
           + Add Item
         </Link>
       </div>
@@ -120,8 +126,8 @@ export default async function MyItemsPage({ params }: Props) {
                       ...(item.availability === "available"
                         ? styles.availableTag
                         : item.availability === "borrowed"
-                        ? styles.borrowedTag
-                        : styles.unavailableTag),
+                          ? styles.borrowedTag
+                          : styles.unavailableTag),
                     }}
                   >
                     {item.availability}
@@ -137,7 +143,10 @@ export default async function MyItemsPage({ params }: Props) {
           <p style={styles.emptyText}>
             You haven&apos;t added any items to the library yet.
           </p>
-          <Link href={`/neighborhoods/${slug}/library/new`} style={styles.emptyButton}>
+          <Link
+            href={`/neighborhoods/${slug}/library/new`}
+            style={styles.emptyButton}
+          >
             Add your first item
           </Link>
         </div>
@@ -151,20 +160,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",

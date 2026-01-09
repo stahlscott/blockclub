@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 import "@/app/globals.css";
 
 function SignUpForm() {
@@ -43,27 +42,15 @@ function SignUpForm() {
     }
 
     if (data.user) {
-      // Create user profile in our users table
-      const { error: profileError } = await supabase.from("users").insert({
-        id: data.user.id,
-        email: data.user.email!,
-        name,
-        avatar_url: null,
-        bio: null,
-        phone: null,
-      });
-
-      if (profileError) {
-        logger.error("Error creating profile", profileError);
-        // Don't block signup if profile creation fails - can be retried
-      }
-
       // Check if email confirmation is required
       if (data.user.identities?.length === 0) {
         setError("Email already registered. Please sign in instead.");
         setLoading(false);
         return;
       }
+
+      // User profile is automatically created by database trigger (handle_new_user)
+      // which fires on auth.users insert
 
       if (data.session) {
         // User is signed in (no email confirmation required)
@@ -172,13 +159,15 @@ function SignUpForm() {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={
-      <div className="fullPageContainer">
-        <div style={styles.card}>
-          <p>Loading...</p>
+    <Suspense
+      fallback={
+        <div className="fullPageContainer">
+          <div style={styles.card}>
+            <p>Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SignUpForm />
     </Suspense>
   );

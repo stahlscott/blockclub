@@ -269,17 +269,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",
@@ -370,6 +370,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     gap: "0.5rem",
+    flexWrap: "wrap" as const,
   },
   adminBadge: {
     fontSize: "0.625rem",
@@ -379,6 +380,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "0.125rem 0.375rem",
     borderRadius: "4px",
     textTransform: "uppercase",
+    whiteSpace: "nowrap" as const,
+    flexShrink: 0,
   },
   memberAddress: {
     margin: "0 0 0.25rem 0",

@@ -94,13 +94,15 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={
-      <div className="fullPageContainer">
-        <div style={styles.card}>
-          <p>Loading...</p>
+    <Suspense
+      fallback={
+        <div className="fullPageContainer">
+          <div style={styles.card}>
+            <p>Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SignInForm />
     </Suspense>
   );

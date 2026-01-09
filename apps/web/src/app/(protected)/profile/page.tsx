@@ -418,11 +418,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "500px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "1rem",
   },
   card: {
     backgroundColor: "white",
-    padding: "2rem",
+    padding: "1.5rem",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
@@ -431,7 +431,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0 0 1.5rem 0",

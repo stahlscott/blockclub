@@ -92,7 +92,11 @@ export default async function ItemDetailPage({ params }: Props) {
       <div className={responsive.detailGrid}>
         <div style={styles.imageSection}>
           {item.photo_urls && item.photo_urls.length > 0 ? (
-            <img src={item.photo_urls[0]} alt={item.name} style={styles.image} />
+            <img
+              src={item.photo_urls[0]}
+              alt={item.name}
+              style={styles.image}
+            />
           ) : (
             <div style={styles.imagePlaceholder}>
               <span style={styles.placeholderIcon}>📦</span>
@@ -109,8 +113,8 @@ export default async function ItemDetailPage({ params }: Props) {
                 ...(item.availability === "available"
                   ? styles.availableTag
                   : item.availability === "borrowed"
-                  ? styles.borrowedTag
-                  : styles.unavailableTag),
+                    ? styles.borrowedTag
+                    : styles.unavailableTag),
               }}
             >
               {item.availability}
@@ -150,17 +154,19 @@ export default async function ItemDetailPage({ params }: Props) {
           {/* Show info when someone else has this item */}
           {activeLoan && !isOwner && activeLoan.borrower_id !== user.id && (
             <div style={styles.loanInfo}>
-              <p>This item is currently {activeLoan.status === "active" ? "borrowed by another member" : "reserved"}.</p>
+              <p>
+                This item is currently{" "}
+                {activeLoan.status === "active"
+                  ? "borrowed by another member"
+                  : "reserved"}
+                .
+              </p>
             </div>
           )}
 
           {/* Actions based on role */}
           {isOwner ? (
-            <OwnerActions
-              item={item}
-              slug={slug}
-              activeLoan={activeLoan}
-            />
+            <OwnerActions item={item} slug={slug} activeLoan={activeLoan} />
           ) : (
             <BorrowButton
               itemId={id}
@@ -172,11 +178,7 @@ export default async function ItemDetailPage({ params }: Props) {
 
           {/* Admin actions for non-owners */}
           {canRemoveItem && (
-            <AdminActions
-              itemId={id}
-              itemName={item.name}
-              slug={slug}
-            />
+            <AdminActions itemId={id} itemName={item.name} slug={slug} />
           )}
         </div>
       </div>
@@ -189,7 +191,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   backLink: {
     color: "#666",

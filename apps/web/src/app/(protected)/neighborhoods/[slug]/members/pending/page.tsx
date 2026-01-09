@@ -72,8 +72,11 @@ export default async function PendingMembersPage({ params }: Props) {
             const userName = member.user?.name;
             const userEmail = member.user?.email;
             const hasProfile = !!member.user;
-            const initial = userName?.charAt(0)?.toUpperCase() || userEmail?.charAt(0)?.toUpperCase() || "?";
-            
+            const initial =
+              userName?.charAt(0)?.toUpperCase() ||
+              userEmail?.charAt(0)?.toUpperCase() ||
+              "?";
+
             return (
               <div key={member.id} style={styles.card}>
                 <div style={styles.memberInfo}>
@@ -92,7 +95,9 @@ export default async function PendingMembersPage({ params }: Props) {
                     {hasProfile ? (
                       <>
                         <h3 style={styles.name}>
-                          {userName || <span style={styles.noName}>No name set</span>}
+                          {userName || (
+                            <span style={styles.noName}>No name set</span>
+                          )}
                         </h3>
                         <p style={styles.email}>{userEmail}</p>
                       </>
@@ -101,11 +106,14 @@ export default async function PendingMembersPage({ params }: Props) {
                         <h3 style={styles.name}>
                           <span style={styles.noName}>Profile not found</span>
                         </h3>
-                        <p style={styles.userId}>User ID: {member.user_id.slice(0, 8)}...</p>
+                        <p style={styles.userId}>
+                          User ID: {member.user_id.slice(0, 8)}...
+                        </p>
                       </>
                     )}
                     <p style={styles.date}>
-                      Requested {new Date(member.joined_at).toLocaleDateString("en-US", {
+                      Requested{" "}
+                      {new Date(member.joined_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -121,7 +129,10 @@ export default async function PendingMembersPage({ params }: Props) {
       ) : (
         <div style={styles.empty}>
           <p style={styles.emptyText}>No pending requests</p>
-          <Link href={`/neighborhoods/${slug}/directory`} style={styles.emptyLink}>
+          <Link
+            href={`/neighborhoods/${slug}/directory`}
+            style={styles.emptyLink}
+          >
             View current members
           </Link>
         </div>
@@ -135,17 +146,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
-    marginBottom: "2rem",
+    marginBottom: "1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",

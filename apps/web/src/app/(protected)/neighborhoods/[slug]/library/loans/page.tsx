@@ -49,19 +49,18 @@ export default async function MyLoansPage({ params }: Props) {
     .order("requested_at", { ascending: false });
 
   // Filter to only items from this neighborhood
-  const neighborhoodLoans = borrowedLoans?.filter(
-    (loan: any) => loan.item?.owner
-  ) || [];
+  const neighborhoodLoans =
+    borrowedLoans?.filter((loan: any) => loan.item?.owner) || [];
 
   // Group by status
   const activeLoans = neighborhoodLoans.filter(
-    (l: any) => l.status === "active" || l.status === "approved"
+    (l: any) => l.status === "active" || l.status === "approved",
   );
   const pendingLoans = neighborhoodLoans.filter(
-    (l: any) => l.status === "requested"
+    (l: any) => l.status === "requested",
   );
   const pastLoans = neighborhoodLoans.filter(
-    (l: any) => l.status === "returned" || l.status === "cancelled"
+    (l: any) => l.status === "returned" || l.status === "cancelled",
   );
 
   return (
@@ -114,7 +113,10 @@ export default async function MyLoansPage({ params }: Props) {
           <p style={styles.emptyText}>
             You haven&apos;t borrowed any items yet.
           </p>
-          <Link href={`/neighborhoods/${slug}/library`} style={styles.emptyButton}>
+          <Link
+            href={`/neighborhoods/${slug}/library`}
+            style={styles.emptyButton}
+          >
             Browse the Library
           </Link>
         </div>
@@ -176,17 +178,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
-    marginBottom: "2rem",
+    marginBottom: "1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",

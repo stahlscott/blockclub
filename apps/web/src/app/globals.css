@@ -11,15 +11,15 @@
   --color-error: #dc2626;
   --color-success: #16a34a;
   --color-warning: #f59e0b;
-  
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-full: 9999px;
-  
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-lg: 0 4px 6px rgba(0,0,0,0.1);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -68,20 +68,19 @@ button {
 }
 
 /* Prevent horizontal scroll on mobile */
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
-/* Better tap targets on mobile */
+/* Better tap targets on mobile - only for interactive form elements */
 @media (max-width: 640px) {
-  button, 
-  a,
+  button:not(.compact),
   input[type="checkbox"],
   input[type="radio"] {
     min-height: 44px;
-    min-width: 44px;
   }
-  
+
   input[type="text"],
   input[type="email"],
   input[type="password"],

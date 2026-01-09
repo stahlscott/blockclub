@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { RoleActions } from "./role-actions";
+import profileStyles from "./member-profile.module.css";
 
 interface Props {
   params: Promise<{ slug: string; id: string }>;
@@ -97,7 +98,7 @@ export default async function MemberProfilePage({ params }: Props) {
         &larr; Back to Directory
       </Link>
 
-      <div style={styles.profileHeader}>
+      <div className={profileStyles.profileHeader}>
         <div style={styles.avatar}>
           {member.avatar_url ? (
             <img
@@ -112,20 +113,20 @@ export default async function MemberProfilePage({ params }: Props) {
           )}
         </div>
 
-        <div style={styles.profileInfo}>
-          <h1 style={styles.name}>
+        <div className={profileStyles.profileInfo}>
+          <h1 className={profileStyles.name}>
             {member.name}
             {membership.role === "admin" && (
-              <span style={styles.adminBadge}>Admin</span>
+              <span className={profileStyles.adminBadge}>Admin</span>
             )}
           </h1>
 
           {member.address && (
-            <p style={styles.address}>
+            <p className={profileStyles.address}>
               {member.address}
               {member.unit && `, ${member.unit}`}
               {member.move_in_year && (
-                <span style={styles.moveInYear}>
+                <span className={profileStyles.moveInYear}>
                   {" "}
                   - Since {member.move_in_year}
                 </span>
@@ -290,24 +291,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   backLink: {
     color: "#666",
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "1.5rem",
+    marginBottom: "1rem",
   },
-  profileHeader: {
-    display: "flex",
-    gap: "1.5rem",
-    marginBottom: "2rem",
-    padding: "1.5rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
+
   avatar: {
     width: "100px",
     height: "100px",
@@ -329,34 +322,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: "600",
     color: "#3730a3",
   },
-  profileInfo: {
-    flex: 1,
-  },
-  name: {
-    margin: "0 0 0.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-  },
-  adminBadge: {
-    fontSize: "0.625rem",
-    fontWeight: "500",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-  },
-  address: {
-    margin: "0 0 0.5rem 0",
-    color: "#666",
-  },
-  moveInYear: {
-    color: "#888",
-    fontSize: "0.875rem",
-  },
+
   bio: {
     margin: "0 0 1rem 0",
     color: "#444",

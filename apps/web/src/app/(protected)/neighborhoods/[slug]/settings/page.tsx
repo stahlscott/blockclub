@@ -179,13 +179,16 @@ export default function NeighborhoodSettingsPage() {
             <textarea
               id="description"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               placeholder="Tell people about your neighborhood..."
               rows={4}
               maxLength={MAX_LENGTHS.neighborhoodDescription}
               style={styles.textarea}
             />
-            {form.description.length > MAX_LENGTHS.neighborhoodDescription * 0.8 && (
+            {form.description.length >
+              MAX_LENGTHS.neighborhoodDescription * 0.8 && (
               <span style={styles.charCount}>
                 {form.description.length}/{MAX_LENGTHS.neighborhoodDescription}
               </span>
@@ -217,7 +220,7 @@ export default function NeighborhoodSettingsPage() {
           <div style={styles.divider} />
 
           <h2 style={styles.sectionTitle}>Invite Link</h2>
-          
+
           <div style={styles.inviteSection}>
             <p style={styles.inviteHint}>
               Share this link to invite neighbors to join:
@@ -226,13 +229,19 @@ export default function NeighborhoodSettingsPage() {
               <input
                 type="text"
                 readOnly
-                value={typeof window !== "undefined" ? `${window.location.origin}/join/${slug}` : `/join/${slug}`}
+                value={
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/join/${slug}`
+                    : `/join/${slug}`
+                }
                 style={styles.inviteInput}
               />
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/join/${slug}`);
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/join/${slug}`,
+                  );
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
@@ -247,7 +256,10 @@ export default function NeighborhoodSettingsPage() {
 
           <h2 style={styles.sectionTitle}>Admin Actions</h2>
 
-          <Link href={`/neighborhoods/${slug}/members/pending`} style={styles.adminLink}>
+          <Link
+            href={`/neighborhoods/${slug}/members/pending`}
+            style={styles.adminLink}
+          >
             Review pending requests
           </Link>
 
@@ -266,7 +278,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "600px",
     margin: "0 auto",
-    padding: "2rem 1rem",
+    padding: "1rem",
   },
   backLink: {
     color: "#666",
@@ -277,7 +289,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   card: {
     backgroundColor: "white",
-    padding: "2rem",
+    padding: "1.5rem",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },

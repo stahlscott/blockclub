@@ -13,7 +13,9 @@ export default async function NeighborhoodPage({ params }: Props) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     redirect("/signin");
   }
@@ -52,7 +54,10 @@ export default async function NeighborhoodPage({ params }: Props) {
           )}
           <div style={styles.joinSection}>
             <p>You&apos;re not a member of this neighborhood yet.</p>
-            <Link href={`/neighborhoods/${slug}/join`} style={styles.primaryButton}>
+            <Link
+              href={`/neighborhoods/${slug}/join`}
+              style={styles.primaryButton}
+            >
               Request to Join
             </Link>
           </div>
@@ -113,7 +118,10 @@ export default async function NeighborhoodPage({ params }: Props) {
           )}
         </div>
         {isAdmin && (
-          <Link href={`/neighborhoods/${slug}/settings`} style={styles.settingsLink}>
+          <Link
+            href={`/neighborhoods/${slug}/settings`}
+            style={styles.settingsLink}
+          >
             Settings
           </Link>
         )}
@@ -135,8 +143,14 @@ export default async function NeighborhoodPage({ params }: Props) {
       </div>
 
       {isAdmin && pendingCount > 0 && (
-        <Link href={`/neighborhoods/${slug}/members/pending`} style={styles.adminBanner}>
-          <span>{pendingCount} pending membership request{pendingCount > 1 ? "s" : ""}</span>
+        <Link
+          href={`/neighborhoods/${slug}/members/pending`}
+          style={styles.adminBanner}
+        >
+          <span>
+            {pendingCount} pending membership request
+            {pendingCount > 1 ? "s" : ""}
+          </span>
           <span style={styles.adminBannerArrow}>&rarr;</span>
         </Link>
       )}
@@ -198,7 +212,10 @@ export default async function NeighborhoodPage({ params }: Props) {
         <section style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Available to Borrow</h2>
-            <Link href={`/neighborhoods/${slug}/library`} style={styles.seeAllLink}>
+            <Link
+              href={`/neighborhoods/${slug}/library`}
+              style={styles.seeAllLink}
+            >
               See all
             </Link>
           </div>
@@ -224,7 +241,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     maxWidth: "1200px",
     margin: "0 auto",
-    padding: "2rem 1.5rem",
+    padding: "1.5rem 1rem",
   },
   header: {
     display: "flex",
@@ -237,7 +254,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     fontSize: "0.875rem",
     display: "inline-block",
-    marginBottom: "0.5rem",
+    marginBottom: "1rem",
   },
   title: {
     margin: "0",
