@@ -13,6 +13,7 @@ function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -30,7 +31,8 @@ function SignUpForm() {
       password,
       options: {
         data: {
-          name, // Store name in user metadata
+          name,
+          address,
         },
       },
     });
@@ -105,6 +107,21 @@ function SignUpForm() {
               required
               style={styles.input}
               placeholder="e.g., The Smith Family"
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="address" style={styles.label}>
+              Street Address
+            </label>
+            <input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              style={styles.input}
+              placeholder="e.g., 123 Main Street"
             />
           </div>
 

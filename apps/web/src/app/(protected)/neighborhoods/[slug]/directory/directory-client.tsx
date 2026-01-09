@@ -72,6 +72,12 @@ function extractStreetNumber(address: string | null): number {
   return match ? parseInt(match[0], 10) : Infinity;
 }
 
+function extractStreetName(address: string | null): string {
+  if (!address) return "";
+  // Remove leading number and whitespace to get street name
+  return address.replace(/^\d+\s*/, "").trim().toLowerCase();
+}
+
 function stripThePrefix(name: string | null | undefined): string {
   if (!name) return "";
   return name.replace(/^the\s+/i, "");
@@ -154,16 +160,20 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
     result.sort((a, b) => {
       switch (sortOption) {
         case "address-asc": {
-          const numA = extractStreetNumber(a.user.address);
-          const numB = extractStreetNumber(b.user.address);
-          if (numA !== numB) return numA - numB;
-          return (a.user.address || "").localeCompare(b.user.address || "");
+          // Sort by street name first, then by street number
+          const streetA = extractStreetName(a.user.address);
+          const streetB = extractStreetName(b.user.address);
+          const streetCompare = streetA.localeCompare(streetB);
+          if (streetCompare !== 0) return streetCompare;
+          return extractStreetNumber(a.user.address) - extractStreetNumber(b.user.address);
         }
         case "address-desc": {
-          const numA = extractStreetNumber(a.user.address);
-          const numB = extractStreetNumber(b.user.address);
-          if (numA !== numB) return numB - numA;
-          return (b.user.address || "").localeCompare(a.user.address || "");
+          // Sort by street name first (descending), then by street number (descending)
+          const streetA = extractStreetName(a.user.address);
+          const streetB = extractStreetName(b.user.address);
+          const streetCompare = streetB.localeCompare(streetA);
+          if (streetCompare !== 0) return streetCompare;
+          return extractStreetNumber(b.user.address) - extractStreetNumber(a.user.address);
         }
         case "name-asc":
           return stripThePrefix(a.user.name).localeCompare(stripThePrefix(b.user.name));

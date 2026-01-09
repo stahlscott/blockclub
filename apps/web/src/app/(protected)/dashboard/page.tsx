@@ -189,9 +189,9 @@ export default async function DashboardPage() {
       .eq("status", "active")
       .order("joined_at", { ascending: false })
       .limit(6);
-    // Filter out superadmin users from the recent members list
+    // Filter out superadmin users and current user from the recent members list
     recentMembers = (members || []).filter(
-      (m: any) => !isSuperAdmin(m.user?.email),
+      (m: any) => !isSuperAdmin(m.user?.email) && m.user_id !== authUser.id,
     );
 
     // Fetch pending membership requests count (admin only)

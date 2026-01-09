@@ -88,6 +88,7 @@ export default function PublicJoinPage() {
         email: user.email!,
         name:
           user.user_metadata?.name || user.email?.split("@")[0] || "New User",
+        address: user.user_metadata?.address || null,
         avatar_url: null,
         bio: null,
         phone: null,

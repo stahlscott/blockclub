@@ -57,7 +57,7 @@ export default async function PendingMembersPage({ params }: Props) {
   // Fetch pending memberships
   const { data: pendingMembers } = await supabase
     .from("memberships")
-    .select("*, user:users(id, name, email, avatar_url)")
+    .select("*, user:users(id, name, email, avatar_url, address)")
     .eq("neighborhood_id", neighborhood.id)
     .eq("status", "pending")
     .order("joined_at", { ascending: true });
@@ -106,6 +106,9 @@ export default async function PendingMembersPage({ params }: Props) {
                             <span style={styles.noName}>No name set</span>
                           )}
                         </h3>
+                        {member.user?.address && (
+                          <p style={styles.address}>{member.user.address}</p>
+                        )}
                         <p style={styles.email}>{userEmail}</p>
                       </>
                     ) : (
@@ -226,6 +229,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
     fontSize: "0.875rem",
     color: "#2563eb",
+  },
+  address: {
+    margin: 0,
+    fontSize: "0.875rem",
+    color: "#666",
   },
   userId: {
     margin: 0,
