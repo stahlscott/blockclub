@@ -256,11 +256,15 @@ export default async function MemberProfilePage({ params }: Props) {
           <h2 style={styles.sectionTitle}>
             {isOwnProfile
               ? "Your Items"
-              : `${member.name.split(" ")[0]}'s Items`}
+              : "Items"}
           </h2>
           <div style={styles.itemGrid}>
             {items.map((item: any) => (
-              <div key={item.id} style={styles.itemCard}>
+              <Link
+                key={item.id}
+                href={`/neighborhoods/${slug}/library/${item.id}`}
+                style={styles.itemCard}
+              >
                 <h3 style={styles.itemName}>{item.name}</h3>
                 {item.description && (
                   <p style={styles.itemDescription}>
@@ -287,7 +291,7 @@ export default async function MemberProfilePage({ params }: Props) {
                     {item.availability}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -472,10 +476,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "0.75rem",
   },
   itemCard: {
+    display: "block",
     padding: "1rem",
     backgroundColor: "white",
     borderRadius: "8px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    textDecoration: "none",
+    color: "inherit",
   },
   itemName: {
     margin: "0 0 0.25rem 0",

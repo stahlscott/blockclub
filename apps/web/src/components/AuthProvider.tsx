@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
@@ -23,8 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const initialLoadRef = useRef(true);
 
   useEffect(() => {
     // Get initial session
@@ -41,7 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
+      // Skip refresh on initial load - only refresh on actual auth changes
+      if (initialLoadRef.current) {
+        initialLoadRef.current = false;
+        return;
+      }
+
       // Handle redirect after email confirmation
       if (event === "SIGNED_IN") {
         const storedRedirect = localStorage.getItem("authRedirect");
@@ -51,15 +58,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      
+
       // Refresh router to update server components when auth state changes
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         router.refresh();
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth, router]);
+  }, [supabase, router]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
