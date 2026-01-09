@@ -104,12 +104,6 @@ export default async function LibraryPage({ params, searchParams }: Props) {
             {availableCount} available, {borrowedCount} borrowed
           </p>
         </div>
-        <Link
-          href={`/neighborhoods/${slug}/library/new`}
-          style={styles.addButton}
-        >
-          + Add Item
-        </Link>
       </div>
 
       <div style={styles.filters}>
@@ -244,15 +238,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   subtitle: {
     margin: "0.25rem 0 0 0",
     color: "#666",
-    fontSize: "0.875rem",
-  },
-  addButton: {
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.75rem 1.25rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
     fontSize: "0.875rem",
   },
   filters: {

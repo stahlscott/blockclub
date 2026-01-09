@@ -189,52 +189,56 @@ export default async function MemberProfilePage({ params }: Props) {
       <div style={styles.contactSection}>
         <h2 style={styles.sectionTitle}>Contact</h2>
         <div style={styles.contactGrid}>
+          {/* Show phones first, in the order they appear on the profile */}
+          {member.phones && member.phones.length > 0
+            ? member.phones.map(
+                  (phone: { label: string; number: string }, index: number) => (
+                    <div key={index} style={styles.phoneCard}>
+                      <span style={styles.contactIcon}>📱</span>
+                      <span style={styles.contactLabel}>
+                        {phone.label || "Phone"}
+                      </span>
+                      <span style={styles.phoneNumber}>
+                        {phone.number.replace(
+                          /(\d{3})(\d{3})(\d{4})/,
+                          "($1) $2-$3",
+                        )}
+                      </span>
+                      <div style={styles.phoneActions}>
+                        <a href={`tel:${phone.number}`} style={styles.phoneActionButton}>
+                          Call
+                        </a>
+                        <a href={`sms:${phone.number}`} style={styles.phoneActionButton}>
+                          Text
+                        </a>
+                      </div>
+                    </div>
+                  ),
+                )
+            : member.phone && (
+                <div style={styles.phoneCard}>
+                  <span style={styles.contactIcon}>📱</span>
+                  <span style={styles.contactLabel}>Phone</span>
+                  <span style={styles.phoneNumber}>{member.phone}</span>
+                  <div style={styles.phoneActions}>
+                    <a href={`tel:${member.phone}`} style={styles.phoneActionButton}>
+                      Call
+                    </a>
+                    <a href={`sms:${member.phone}`} style={styles.phoneActionButton}>
+                      Text
+                    </a>
+                  </div>
+                </div>
+              )}
+          {/* Email shown after phones */}
           {member.email && (
-            <a href={`mailto:${member.email}`} style={styles.contactCard}>
+            <div style={styles.phoneCard}>
               <span style={styles.contactIcon}>📧</span>
               <span style={styles.contactLabel}>Email</span>
-              <span style={styles.contactValue}>{member.email}</span>
-            </a>
-          )}
-          {/* Show multiple phones if available, otherwise fall back to legacy phone field */}
-          {member.phones && member.phones.length > 0 ? (
-            member.phones.map(
-              (phone: { label: string; number: string }, index: number) => (
-                <a
-                  key={index}
-                  href={`tel:${phone.number}`}
-                  style={styles.contactCard}
-                >
-                  <span style={styles.contactIcon}>📱</span>
-                  <span style={styles.contactLabel}>
-                    {phone.label || "Phone"}
-                  </span>
-                  <span style={styles.contactValue}>
-                    {phone.number.replace(
-                      /(\d{3})(\d{3})(\d{4})/,
-                      "($1) $2-$3",
-                    )}
-                  </span>
-                </a>
-              ),
-            )
-          ) : member.phone ? (
-            <a href={`tel:${member.phone}`} style={styles.contactCard}>
-              <span style={styles.contactIcon}>📱</span>
-              <span style={styles.contactLabel}>Phone</span>
-              <span style={styles.contactValue}>{member.phone}</span>
-            </a>
-          ) : null}
-          {/* Text link - use first phone number */}
-          {(member.phones?.[0]?.number || member.phone) && (
-            <a
-              href={`sms:${member.phones?.[0]?.number || member.phone}`}
-              style={styles.contactCard}
-            >
-              <span style={styles.contactIcon}>💬</span>
-              <span style={styles.contactLabel}>Text</span>
-              <span style={styles.contactValue}>Send a message</span>
-            </a>
+              <a href={`mailto:${member.email}`} style={styles.contactLink}>
+                {member.email}
+              </a>
+            </div>
           )}
         </div>
       </div>
@@ -415,6 +419,41 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "0.875rem",
     color: "#2563eb",
     textAlign: "center",
+  },
+  phoneCard: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "0.25rem",
+    padding: "1rem",
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+  },
+  phoneNumber: {
+    fontSize: "0.875rem",
+    color: "#333",
+    textAlign: "center",
+  },
+  contactLink: {
+    fontSize: "0.875rem",
+    color: "#2563eb",
+    textAlign: "center",
+    textDecoration: "none",
+  },
+  phoneActions: {
+    display: "flex",
+    gap: "0.5rem",
+    marginTop: "0.5rem",
+  },
+  phoneActionButton: {
+    padding: "0.375rem 0.75rem",
+    backgroundColor: "#e0e7ff",
+    color: "#3730a3",
+    borderRadius: "4px",
+    textDecoration: "none",
+    fontSize: "0.75rem",
+    fontWeight: "500",
   },
   itemsSection: {
     marginBottom: "2rem",
