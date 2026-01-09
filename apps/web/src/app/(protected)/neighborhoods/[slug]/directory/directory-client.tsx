@@ -135,6 +135,11 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
           if (phoneNumbers.some((p) => p.includes(queryDigits))) return true;
         }
 
+        // Search email addresses
+        if (user.emails?.some((e: { email: string }) =>
+          e.email.toLowerCase().includes(query)
+        )) return true;
+
         return false;
       });
     }

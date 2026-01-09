@@ -230,16 +230,21 @@ export default async function MemberProfilePage({ params }: Props) {
                   </div>
                 </div>
               )}
-          {/* Email shown after phones */}
-          {member.email && (
-            <div style={styles.phoneCard}>
-              <span style={styles.contactIcon}>📧</span>
-              <span style={styles.contactLabel}>Email</span>
-              <a href={`mailto:${member.email}`} style={styles.contactLink}>
-                {member.email}
-              </a>
-            </div>
-          )}
+          {/* Emails shown after phones */}
+          {member.emails && member.emails.length > 0 &&
+            member.emails.map(
+              (emailEntry: { label: string; email: string }, index: number) => (
+                <div key={`email-${index}`} style={styles.phoneCard}>
+                  <span style={styles.contactIcon}>📧</span>
+                  <span style={styles.contactLabel}>
+                    {emailEntry.label || "Email"}
+                  </span>
+                  <a href={`mailto:${emailEntry.email}`} style={styles.contactLink}>
+                    {emailEntry.email}
+                  </a>
+                </div>
+              ),
+            )}
         </div>
       </div>
 

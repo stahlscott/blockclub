@@ -33,13 +33,13 @@ export default async function Home() {
         </div>
 
         <div style={styles.cta}>
-          <Link href="/signup" style={styles.primaryButton}>
-            Get Started
-          </Link>
-          <Link href="/signin" style={styles.secondaryButton}>
+          <Link href="/signin" style={styles.primaryButton}>
             Sign In
           </Link>
         </div>
+        <p style={styles.inviteNote}>
+          Don&apos;t have an account? Ask a neighbor for an invite link.
+        </p>
       </div>
     </main>
   );
@@ -99,14 +99,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: "500",
     fontSize: "1rem",
   },
-  secondaryButton: {
-    backgroundColor: "white",
-    color: "#2563eb",
-    padding: "0.875rem 2rem",
-    borderRadius: "8px",
-    textDecoration: "none",
-    fontWeight: "500",
-    fontSize: "1rem",
-    border: "1px solid #2563eb",
+  inviteNote: {
+    marginTop: "1.5rem",
+    color: "#666",
+    fontSize: "0.875rem",
   },
 };

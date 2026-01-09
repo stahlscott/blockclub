@@ -12,6 +12,11 @@ interface PhoneEntry {
   number: string;
 }
 
+interface EmailEntry {
+  label: string;
+  email: string;
+}
+
 // Format phone as user types: 5551234567 -> 555-123-4567
 function formatPhoneInput(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -35,6 +40,12 @@ function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, "");
 }
 
+// Basic email validation
+function isValidEmail(email: string): boolean {
+  if (!email.trim()) return true; // Empty is OK
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -43,6 +54,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [phones, setPhones] = useState<PhoneEntry[]>([]);
+  const [emails, setEmails] = useState<EmailEntry[]>([]);
   const [address, setAddress] = useState("");
   const [unit, setUnit] = useState("");
   const [moveInYear, setMoveInYear] = useState("");
@@ -50,6 +62,13 @@ export default function ProfilePage() {
   const [pets, setPets] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -98,6 +117,13 @@ export default function ProfilePage() {
         } else {
           setPhones([]);
         }
+
+        // Load emails array
+        if (profileData.emails && profileData.emails.length > 0) {
+          setEmails(profileData.emails);
+        } else {
+          setEmails([]);
+        }
       }
 
       setLoading(false);
@@ -129,6 +155,24 @@ export default function ProfilePage() {
     setPhones(updated);
   };
 
+  const addEmail = () => {
+    setEmails([...emails, { label: "", email: "" }]);
+  };
+
+  const removeEmail = (index: number) => {
+    setEmails(emails.filter((_, i) => i !== index));
+  };
+
+  const updateEmail = (
+    index: number,
+    field: "label" | "email",
+    value: string,
+  ) => {
+    const updated = [...emails];
+    updated[index] = { ...updated[index], [field]: value };
+    setEmails(updated);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -146,6 +190,13 @@ export default function ProfilePage() {
     );
     if (invalidPhone) {
       setError("Phone numbers must be 10 digits");
+      return;
+    }
+
+    // Validate all email addresses
+    const invalidEmail = emails.find((e) => e.email && !isValidEmail(e.email));
+    if (invalidEmail) {
+      setError("Please enter valid email addresses");
       return;
     }
 
@@ -168,6 +219,14 @@ export default function ProfilePage() {
         number: normalizePhone(p.number),
       }));
 
+    // Filter out empty email entries
+    const cleanedEmails = emails
+      .filter((e) => e.email.trim())
+      .map((e) => ({
+        label: e.label.trim() || "Personal",
+        email: e.email.trim().toLowerCase(),
+      }));
+
     setSaving(true);
 
     const supabase = createClient();
@@ -180,6 +239,7 @@ export default function ProfilePage() {
         phones: cleanedPhones,
         // Also update legacy phone field for backward compatibility
         phone: cleanedPhones.length > 0 ? cleanedPhones[0].number : null,
+        emails: cleanedEmails,
         address: address.trim(),
         unit: unit.trim() || null,
         move_in_year: moveInYearNum,
@@ -193,11 +253,47 @@ export default function ProfilePage() {
     } else {
       setSuccess(true);
       setPhones(cleanedPhones.length > 0 ? cleanedPhones : []);
+      setEmails(cleanedEmails.length > 0 ? cleanedEmails : []);
       router.refresh();
       setTimeout(() => setSuccess(false), 3000);
     }
 
     setSaving(false);
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
+    setChangingPassword(true);
+
+    const supabase = createClient();
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      setPasswordError(updateError.message);
+    } else {
+      setPasswordSuccess(true);
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    }
+
+    setChangingPassword(false);
   };
 
   if (loading) {
@@ -220,20 +316,6 @@ export default function ProfilePage() {
         <h1 style={styles.title}>Edit Profile</h1>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label htmlFor="email" style={styles.label}>
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={user?.email || ""}
-              disabled
-              style={{ ...styles.input, ...styles.inputDisabled }}
-            />
-            <span style={styles.hint}>Email cannot be changed</span>
-          </div>
-
           <div style={styles.inputGroup}>
             <label htmlFor="name" style={styles.label}>
               Household Name *
@@ -331,6 +413,54 @@ export default function ProfilePage() {
           </div>
 
           <div style={styles.inputGroup}>
+            <label style={styles.label}>Email Addresses</label>
+            <span style={styles.hint}>
+              Add email addresses for your household. Visible to neighbors.
+            </span>
+
+            <div style={styles.phoneList}>
+              {emails.map((emailEntry, index) => (
+                <div key={index} className={profileStyles.phoneRow}>
+                  <input
+                    type="text"
+                    value={emailEntry.label}
+                    onChange={(e) =>
+                      updateEmail(index, "label", e.target.value)
+                    }
+                    className={profileStyles.phoneLabelInput}
+                    placeholder="Label (e.g., Personal)"
+                  />
+                  <input
+                    type="email"
+                    value={emailEntry.email}
+                    onChange={(e) =>
+                      updateEmail(index, "email", e.target.value)
+                    }
+                    className={profileStyles.phoneNumberInput}
+                    placeholder="email@example.com"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeEmail(index)}
+                    className={profileStyles.removeButton}
+                    aria-label="Remove email"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addEmail}
+                style={styles.addPhoneButton}
+              >
+                + Add Email Address
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.inputGroup}>
             <label htmlFor="moveInYear" style={styles.label}>
               Move-in Year
             </label>
@@ -410,6 +540,52 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+
+      <div style={styles.card}>
+        <h2 style={styles.sectionTitle}>Change Password</h2>
+
+        <form onSubmit={handlePasswordChange} style={styles.form}>
+          <div style={styles.inputGroup}>
+            <label htmlFor="newPassword" style={styles.label}>
+              New Password
+            </label>
+            <input
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={6}
+              style={styles.input}
+              placeholder="At least 6 characters"
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="confirmPassword" style={styles.label}>
+              Confirm New Password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              style={styles.input}
+              placeholder="Re-enter new password"
+            />
+          </div>
+
+          {passwordError && <p style={styles.error}>{passwordError}</p>}
+          {passwordSuccess && (
+            <p style={styles.success}>Password changed successfully!</p>
+          )}
+
+          <button type="submit" disabled={changingPassword} style={styles.button}>
+            {changingPassword ? "Changing..." : "Change Password"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -419,6 +595,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: "500px",
     margin: "0 auto",
     padding: "1rem",
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
   },
   card: {
     backgroundColor: "white",
@@ -436,6 +615,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     margin: "0 0 1.5rem 0",
     fontSize: "1.5rem",
+    fontWeight: "600",
+  },
+  sectionTitle: {
+    margin: "0 0 1rem 0",
+    fontSize: "1.25rem",
     fontWeight: "600",
   },
   form: {

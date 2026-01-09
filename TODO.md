@@ -80,6 +80,7 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 - [x] Add neighborhood creation flow (super admin only)
 - [x] Add ability to remove items (admin moderation)
 - [x] Add ability to promote/demote members
+- [x] Hide super admin from neighborhood member lists and counts
 
 ---
 
@@ -95,7 +96,7 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 - [x] Abstract error logging into a module (prep for Sentry)
 - [x] Add input validation with max lengths and error messages
-- [x] Implement soft deletes for items, loans, and members
+- [x] Implement soft deletes for loans and members (items use hard delete)
 
 ### Deployment
 
@@ -109,7 +110,14 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ## Next Priority
 
-- [ ] Set up Resend for transactional emails
+- [ ] Neighborhood Links Page
+  - [ ] Create links table (neighborhood_id, title, url, order, created_by)
+  - [ ] Build links list view on neighborhood page
+  - [ ] Add admin UI to add/edit/remove/reorder links
+  - [ ] Use cases: Facebook group, HOA website, local resources, etc.
+- [ ] Add image upload for items and avatars (Supabase Storage)
+- [ ] Handle missing/broken images gracefully
+- [ ] Set up Resend for transactional emails (requires custom domain)
   - [ ] Create Resend account and verify domain
   - [ ] Configure Supabase SMTP settings to use Resend
   - [ ] Re-enable email confirmation for signup
@@ -117,8 +125,6 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
   - [ ] Loan approved/rejected notification (to borrower)
   - [ ] Item returned notification (to owner)
   - [ ] Due date reminders
-- [ ] Add image upload for items and avatars (Supabase Storage)
-- [ ] Handle missing/broken images gracefully
 
 ## Post-Launch Improvements
 

@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import "@/app/globals.css";
 
@@ -82,10 +81,7 @@ function SignInForm() {
         </form>
 
         <p style={styles.footer}>
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" style={styles.link}>
-            Sign up
-          </Link>
+          Don&apos;t have an account? Ask a neighbor for an invite link.
         </p>
       </div>
     </div>
@@ -167,9 +163,5 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: "center",
     color: "#666",
     fontSize: "0.875rem",
-  },
-  link: {
-    color: "#2563eb",
-    textDecoration: "none",
   },
 };

@@ -48,6 +48,11 @@ export interface PhoneEntry {
   number: string; // 10-digit phone number
 }
 
+export interface EmailEntry {
+  label: string; // e.g., "Personal", "Work"
+  email: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -56,6 +61,7 @@ export interface User {
   bio: string | null;
   phone: string | null; // Legacy single phone (deprecated)
   phones: PhoneEntry[] | null; // Multiple labeled phone numbers
+  emails: EmailEntry[] | null; // Multiple labeled email addresses
   primary_neighborhood_id: string | null; // User's preferred neighborhood for unified dashboard
   address: string | null;
   unit: string | null;

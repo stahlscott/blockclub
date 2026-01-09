@@ -33,14 +33,9 @@ export function Header() {
               </button>
             </>
           ) : (
-            <>
-              <Link href="/signin" className={styles.navLink}>
-                Sign in
-              </Link>
-              <Link href="/signup" className={styles.signUpButton}>
-                Sign up
-              </Link>
-            </>
+            <Link href="/signin" className={styles.navLink}>
+              Sign in
+            </Link>
           )}
         </nav>
 
@@ -72,14 +67,9 @@ export function Header() {
               </button>
             </>
           ) : (
-            <>
-              <Link href="/signin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
-                Sign in
-              </Link>
-              <Link href="/signup" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
-                Sign up
-              </Link>
-            </>
+            <Link href="/signin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+              Sign in
+            </Link>
           )}
         </nav>
       )}
