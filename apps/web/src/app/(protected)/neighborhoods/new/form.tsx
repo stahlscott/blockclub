@@ -111,7 +111,7 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
       // Don't block - neighborhood was created
     }
 
-    router.push(`/neighborhoods/${slug}`);
+    router.push("/dashboard");
   };
 
   return (
