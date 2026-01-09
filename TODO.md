@@ -13,9 +13,9 @@ Neighborhood community app with directory + lending library.
 
 ---
 
-## Current Status: Preparing for Initial Deployment
+## Current Status: Deployed to Production
 
-The web app is functional with core features (Directory + Lending Library). Preparing for first deployment to Vercel with real users.
+The web app is live on Vercel with core features (Directory + Lending Library). Initial users are testing.
 
 ---
 
@@ -36,7 +36,8 @@ The web app is functional with core features (Directory + Lending Library). Prep
 - [x] Design membership model (user + neighborhood + role)
 - [x] Set up Supabase project with tables and relationships
 - [x] Configure Row Level Security policies scoped to neighborhood membership
-- [x] Create database migration scripts (00001-00008)
+- [x] Create database migration scripts
+- [x] Auto-create user profile on signup via database trigger
 - [ ] Set up storage buckets for profile photos and item images
 
 ### Phase 3: Authentication & User Management
@@ -55,6 +56,9 @@ The web app is functional with core features (Directory + Lending Library). Prep
 - [x] Create resident profile detail view
 - [x] Add contact buttons (call, text, email)
 - [x] Add search/filter to directory
+- [x] Add sorting to directory
+- [x] Add profile fields (address, move-in year, children, pets)
+- [x] Mobile responsive profile page
 
 ### Phase 5: Lending Library Feature
 
@@ -79,38 +83,27 @@ The web app is functional with core features (Directory + Lending Library). Prep
 
 ---
 
-## Pre-Deployment Tasks (Current Sprint)
+## Pre-Deployment Tasks (Completed)
 
 ### Critical (Must Fix)
 
-- [ ] Fix middleware protection for all authenticated routes
-- [ ] Move super admin emails to environment variable
+- [x] Fix middleware protection for all authenticated routes
+- [x] Move super admin emails to environment variable
 - [ ] Add environment variable validation at startup
 
 ### Recommended (Should Fix)
 
-- [ ] Abstract error logging into a module (prep for Sentry)
-- [ ] Add input validation with max lengths and error messages
-- [ ] Implement soft deletes for items, loans, and members
+- [x] Abstract error logging into a module (prep for Sentry)
+- [x] Add input validation with max lengths and error messages
+- [x] Implement soft deletes for items, loans, and members
 
 ### Deployment
 
-- [ ] Configure Vercel project
-- [ ] Set environment variables in Vercel
-- [ ] Configure Supabase for production (allowed redirect URLs)
-- [ ] Wipe/reset Supabase database for clean start
-- [ ] Test full user flow as non-admin
-
----
-
-## Next Up
-
-- [x] Add "Move-in Year" to member's profile (number only)
-- [x] Add optional "Children" field to member's profile
-- [x] Add optional "Pets" field to member's profile
-- [x] Add mandatory "Address" field to member's profile (number and street name)
-- [x] Add sorting to directory
-- [x] Add search to directory
+- [x] Configure Vercel project
+- [x] Set environment variables in Vercel
+- [x] Configure Supabase for production (allowed redirect URLs)
+- [x] Wipe/reset Supabase database for clean start
+- [x] Test full user flow as non-admin
 
 ---
 
