@@ -222,13 +222,15 @@ export default async function DashboardPage() {
               <h1 style={styles.title}>{primaryNeighborhood.name}</h1>
             )}
           </div>
-          {isAdmin && (
+          {isAdmin ? (
             <Link
               href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
               style={styles.settingsLink}
             >
               Settings
             </Link>
+          ) : (
+            <InviteButton slug={primaryNeighborhood.slug} variant="link" />
           )}
         </div>
       )}
@@ -407,7 +409,7 @@ export default async function DashboardPage() {
 
           {/* Quick Actions */}
           <section style={styles.section}>
-            <div className={responsive.grid4}>
+            <div className={responsive.grid2}>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
                 style={styles.actionCard}
@@ -421,11 +423,6 @@ export default async function DashboardPage() {
               >
                 <span style={styles.actionIcon}>📚</span>
                 <span>Library</span>
-              </Link>
-              <InviteButton slug={primaryNeighborhood.slug} />
-              <Link href="/profile" style={styles.actionCard}>
-                <span style={styles.actionIcon}>👤</span>
-                <span>Edit Profile</span>
               </Link>
             </div>
           </section>

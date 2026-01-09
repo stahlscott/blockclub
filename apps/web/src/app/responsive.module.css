@@ -1,5 +1,18 @@
 /* Responsive grid patterns */
 
+/* 2-column grid that stacks on mobile */
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 4-column grid that becomes 2-column on mobile */
 .grid4 {
   display: grid;

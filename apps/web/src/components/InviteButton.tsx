@@ -4,9 +4,10 @@ import { useState } from "react";
 
 interface InviteButtonProps {
   slug: string;
+  variant?: "card" | "link";
 }
 
-export function InviteButton({ slug }: InviteButtonProps) {
+export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -15,6 +16,14 @@ export function InviteButton({ slug }: InviteButtonProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (variant === "link") {
+    return (
+      <button onClick={handleCopy} style={styles.linkButton}>
+        {copied ? "Copied!" : "Invite"}
+      </button>
+    );
+  }
 
   return (
     <button onClick={handleCopy} style={styles.button}>
@@ -42,5 +51,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   icon: {
     fontSize: "1.5rem",
+  },
+  linkButton: {
+    color: "#666",
+    backgroundColor: "transparent",
+    fontSize: "0.875rem",
+    padding: "0.5rem 1rem",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    cursor: "pointer",
   },
 };
