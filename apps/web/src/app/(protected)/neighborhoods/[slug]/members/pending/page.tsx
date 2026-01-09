@@ -70,7 +70,7 @@ export default async function PendingMembersPage({ params }: Props) {
         </Link>
         <h1 style={styles.title}>Pending Requests</h1>
         <p style={styles.subtitle}>
-          {pendingMembers?.length || 0} people waiting to join
+          {pendingMembers?.length || 0} households waiting to join
         </p>
       </div>
 

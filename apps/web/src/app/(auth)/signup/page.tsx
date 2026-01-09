@@ -95,7 +95,7 @@ function SignUpForm() {
         <form onSubmit={handleSignUp} style={styles.form}>
           <div style={styles.inputGroup}>
             <label htmlFor="name" style={styles.label}>
-              Full Name
+              Household Name
             </label>
             <input
               id="name"
@@ -104,7 +104,7 @@ function SignUpForm() {
               onChange={(e) => setName(e.target.value)}
               required
               style={styles.input}
-              placeholder="Your name"
+              placeholder="e.g., The Smith Family"
             />
           </div>
 

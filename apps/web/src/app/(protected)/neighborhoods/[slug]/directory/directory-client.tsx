@@ -198,7 +198,7 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
           </Link>
           <h1 style={styles.title}>Neighborhood Directory</h1>
           <p style={styles.subtitle}>
-            {members.length} members in {neighborhoodName}
+            {members.length} households in {neighborhoodName}
           </p>
         </div>
       </div>

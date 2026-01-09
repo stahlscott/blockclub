@@ -478,12 +478,12 @@ export default async function DashboardPage() {
             </section>
           )}
 
-          {/* Recently Joined Members */}
+          {/* Recently Joined Households */}
           {recentMembers.length > 0 && (
             <section style={styles.section}>
               <div style={styles.sectionHeader}>
                 <h2 className={dashboardStyles.sectionTitle}>
-                  Recently Joined
+                  Recently Joined Households
                 </h2>
                 <Link
                   href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
@@ -574,7 +574,7 @@ export default async function DashboardPage() {
           <div className={responsive.statsRow} style={{ marginBottom: "1rem" }}>
             <div style={styles.stat}>
               <span style={styles.statValue}>{memberCount}</span>
-              <span style={styles.statLabel}>Members</span>
+              <span style={styles.statLabel}>Households</span>
             </div>
             <div style={styles.stat}>
               <span style={styles.statValue}>{itemsAvailable}</span>
