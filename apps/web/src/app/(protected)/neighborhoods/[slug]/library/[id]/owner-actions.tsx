@@ -169,10 +169,9 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
     try {
       const supabase = createClient();
 
-      // Soft delete: set deleted_at instead of actually deleting
       const { error: deleteError } = await supabase
         .from("items")
-        .update({ deleted_at: new Date().toISOString(), availability: "unavailable" })
+        .delete()
         .eq("id", item.id);
 
       if (deleteError) throw deleteError;

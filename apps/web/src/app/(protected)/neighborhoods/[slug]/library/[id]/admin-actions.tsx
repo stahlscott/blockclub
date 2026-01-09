@@ -28,11 +28,10 @@ export function AdminActions({ itemId, itemName, slug }: AdminActionsProps) {
 
     try {
       const supabase = createClient();
-      
-      // Soft delete: set deleted_at instead of actually deleting
+
       const { error: deleteError } = await supabase
         .from("items")
-        .update({ deleted_at: new Date().toISOString(), availability: "unavailable" })
+        .delete()
         .eq("id", itemId);
 
       if (deleteError) {
