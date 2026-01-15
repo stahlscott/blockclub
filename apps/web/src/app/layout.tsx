@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Block Club",
-  description: "A neighborhood community app for Lakewood's Block Club",
+  description: "A neighborhood community app for Lakewood, Ohio",
 };
 
 export const viewport: Viewport = {

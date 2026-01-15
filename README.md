@@ -1,6 +1,6 @@
 # Block Club
 
-A neighborhood community app for Lakewood's Block Club.
+A neighborhood community app for Block Clubs.
 
 ## Features
 
