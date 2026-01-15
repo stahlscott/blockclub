@@ -1,6 +1,6 @@
-# Front Porch
+# Block Club
 
-A neighborhood community app for building stronger local connections.
+A neighborhood community app for Lakewood's Block Club.
 
 ## Features
 
@@ -23,7 +23,7 @@ A neighborhood community app for building stronger local connections.
 ## Project Structure
 
 ```
-frontporch/
+blockclub/
 ├── apps/
 │   ├── web/              # Next.js web application
 │   │   └── src/

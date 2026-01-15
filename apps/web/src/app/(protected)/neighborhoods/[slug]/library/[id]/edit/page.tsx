@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
-import type { ItemCategory } from "@frontporch/shared";
+import type { ItemCategory } from "@blockclub/shared";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
   { value: "tools", label: "Tools" },

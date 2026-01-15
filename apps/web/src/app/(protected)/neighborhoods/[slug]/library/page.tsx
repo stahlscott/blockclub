@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import type { ItemCategory } from "@frontporch/shared";
+import type { ItemCategory } from "@blockclub/shared";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
 import { CategoryFilter } from "./category-filter";

@@ -5,7 +5,7 @@ export default function RootLayout() {
   return (
     <>
       <Stack>
-        <Stack.Screen name="index" options={{ title: "Front Porch" }} />
+        <Stack.Screen name="index" options={{ title: "Block Club" }} />
       </Stack>
       <StatusBar style="auto" />
     </>

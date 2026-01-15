@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <main style={styles.container}>
       <div style={styles.hero}>
-        <h1 style={styles.title}>Welcome to Front Porch</h1>
+        <h1 style={styles.title}>Welcome to Block Club</h1>
         <p style={styles.subtitle}>
           Connect with your neighbors. Share resources. Build community.
         </p>

@@ -1,5 +1,5 @@
 /**
- * Core types for Front Porch neighborhood app
+ * Core types for Block Club neighborhood app
  * These types match the Supabase database schema exactly
  */
 

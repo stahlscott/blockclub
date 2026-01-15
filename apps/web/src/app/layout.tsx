@@ -4,8 +4,8 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Front Porch",
-  description: "A neighborhood community app for directory and lending library",
+  title: "Block Club",
+  description: "A neighborhood community app for Lakewood's Block Club",
 };
 
 export const viewport: Viewport = {

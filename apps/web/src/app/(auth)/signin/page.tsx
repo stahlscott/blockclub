@@ -40,7 +40,7 @@ function SignInForm() {
     <div className="fullPageContainer">
       <div style={styles.card}>
         <h1 style={styles.title}>Welcome back</h1>
-        <p style={styles.subtitle}>Sign in to Front Porch</p>
+        <p style={styles.subtitle}>Sign in to Block Club</p>
 
         <form onSubmit={handleSignIn} style={styles.form}>
           <div style={styles.inputGroup}>

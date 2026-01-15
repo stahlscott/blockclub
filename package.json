@@ -1,5 +1,5 @@
 {
-  "name": "frontporch",
+  "name": "blockclub",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,10 +8,10 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:web": "turbo dev --filter=@frontporch/web",
-    "dev:mobile": "turbo dev --filter=@frontporch/mobile",
-    "build:web": "turbo build --filter=@frontporch/web",
-    "build:mobile": "turbo build --filter=@frontporch/mobile",
+    "dev:web": "turbo dev --filter=@blockclub/web",
+    "dev:mobile": "turbo dev --filter=@blockclub/mobile",
+    "build:web": "turbo build --filter=@blockclub/web",
+    "build:mobile": "turbo build --filter=@blockclub/mobile",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules"

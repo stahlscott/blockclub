@@ -1,3 +1,3 @@
--- Front Porch Seed Data
+-- Block Club Seed Data
 -- This file is intentionally empty for production deployment.
 -- Real users and data will be created through the app.

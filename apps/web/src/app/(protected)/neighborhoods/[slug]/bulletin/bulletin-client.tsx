@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
-import type { BulletinReactionType } from "@frontporch/shared";
+import type { BulletinReactionType } from "@blockclub/shared";
 
 interface User {
   id: string;

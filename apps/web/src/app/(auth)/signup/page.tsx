@@ -92,7 +92,7 @@ function SignUpForm() {
     <div className="fullPageContainer">
       <div style={styles.card}>
         <h1 style={styles.title}>Create your account</h1>
-        <p style={styles.subtitle}>Join your neighborhood on Front Porch</p>
+        <p style={styles.subtitle}>Join your neighborhood on Block Club</p>
 
         <form onSubmit={handleSignUp} style={styles.form}>
           <div style={styles.inputGroup}>

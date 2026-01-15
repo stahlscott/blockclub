@@ -38,7 +38,7 @@ In Supabase Dashboard → Settings → Auth → SMTP Settings:
 | Username | `resend` |
 | Password | Your Resend API key |
 | Sender email | `noreply@yourdomain.com` |
-| Sender name | `Front Porch` |
+| Sender name | `Block Club` |
 
 ### Step 4: Enable Email Confirmations
 
@@ -64,7 +64,7 @@ host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-sender_name = "Front Porch"
+sender_name = "Block Club"
 ```
 
 ### Step 6: Customize Email Templates (Optional)
@@ -73,7 +73,7 @@ In Supabase Dashboard → Auth → Email Templates, customize:
 
 **Confirm signup:**
 ```html
-<h2>Welcome to Front Porch!</h2>
+<h2>Welcome to Block Club!</h2>
 <p>Click below to confirm your email:</p>
 <a href="{{ .ConfirmationURL }}" style="background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
   Confirm Email

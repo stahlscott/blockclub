@@ -3,9 +3,9 @@ import { Text, View, StyleSheet } from "react-native";
 export default function Home() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Front Porch</Text>
+      <Text style={styles.title}>Block Club</Text>
       <Text style={styles.subtitle}>
-        A neighborhood community app for directory and lending library.
+        A neighborhood community app for Lakewood&apos;s Block Club.
       </Text>
     </View>
   );

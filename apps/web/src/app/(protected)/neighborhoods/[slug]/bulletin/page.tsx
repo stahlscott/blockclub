@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BulletinClient } from "./bulletin-client";
-import type { BulletinReactionType } from "@frontporch/shared";
+import type { BulletinReactionType } from "@blockclub/shared";
 
 interface Props {
   params: Promise<{ slug: string }>;

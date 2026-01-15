@@ -1,4 +1,4 @@
-# Front Porch Supabase Configuration
+# Block Club Supabase Configuration
 # See: https://supabase.com/docs/guides/cli/config
 
 [api]
@@ -10,7 +10,7 @@ max_rows = 1000
 
 [db]
 port = 54322
-major_version = 15
+major_version = 17
 
 [studio]
 enabled = true
@@ -20,7 +20,7 @@ api_url = "http://127.0.0.1"
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000", "frontporch://"]
+additional_redirect_urls = ["http://localhost:3000", "blockclub://"]
 jwt_expiry = 3600
 enable_signup = true
 

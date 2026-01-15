@@ -1,10 +1,10 @@
-# Front Porch - Project TODO
+# Block Club - Project TODO
 
 Neighborhood community app with directory + lending library.
 
 ## Key Decisions
 
-- **Name:** Front Porch
+- **Name:** Block Club
 - **Multi-neighborhood support:** Yes, from day one
 - **Tech stack:** Expo (mobile), Next.js (web), Supabase (backend), Turborepo (monorepo)
 - **License:** MIT (open source)

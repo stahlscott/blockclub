@@ -1,4 +1,4 @@
--- Front Porch Initial Schema
+-- Block Club Initial Schema
 -- Multi-neighborhood community app with directory and lending library
 
 -- Enable necessary extensions

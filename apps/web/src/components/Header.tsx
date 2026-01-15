@@ -13,7 +13,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          Front Porch
+          Block Club
         </Link>
 
         {/* Desktop nav */}

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Front Porch",
-    "slug": "frontporch",
+    "name": "Block Club",
+    "slug": "blockclub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "frontporch",
+    "scheme": "blockclub",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
@@ -15,14 +15,14 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.frontporch.app"
+      "bundleIdentifier": "com.blockclub.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.frontporch.app"
+      "package": "com.blockclub.app"
     },
     "web": {
       "bundler": "metro",
