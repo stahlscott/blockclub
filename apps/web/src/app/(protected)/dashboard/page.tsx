@@ -139,6 +139,7 @@ export default async function DashboardPage() {
   let itemsAvailable = 0;
   let recentItems: any[] = [];
   let recentMembers: any[] = [];
+  let recentPosts: any[] = [];
   let pendingMemberRequests = 0;
   // Super admins have admin privileges in all neighborhoods
   const isAdmin =
@@ -193,6 +194,16 @@ export default async function DashboardPage() {
     recentMembers = (members || []).filter(
       (m: any) => !isSuperAdmin(m.user?.email) && m.user_id !== authUser.id,
     );
+
+    // Fetch recent bulletin posts
+    const { data: postsData } = await supabase
+      .from("bulletin_posts")
+      .select("*, author:users!author_id(id, name, avatar_url)")
+      .eq("neighborhood_id", primaryNeighborhood.id)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    recentPosts = postsData || [];
 
     // Fetch pending membership requests count (admin only)
     if (isAdmin) {
@@ -407,13 +418,13 @@ export default async function DashboardPage() {
 
           {/* Quick Actions */}
           <section style={styles.section}>
-            <div className={responsive.grid2}>
+            <div className={responsive.grid3}>
               <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
                 style={styles.actionCard}
               >
-                <span style={styles.actionIcon}>👥</span>
-                <span>Directory</span>
+                <span style={styles.actionIcon}>📋</span>
+                <span>Bulletin</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
@@ -422,8 +433,75 @@ export default async function DashboardPage() {
                 <span style={styles.actionIcon}>📚</span>
                 <span>Library</span>
               </Link>
+              <Link
+                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                style={styles.actionCard}
+              >
+                <span style={styles.actionIcon}>👥</span>
+                <span>Directory</span>
+              </Link>
             </div>
           </section>
+
+          {/* Recently Posted (Bulletin) */}
+          {recentPosts.length > 0 && (
+            <section style={styles.section}>
+              <div style={styles.sectionHeader}>
+                <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
+                <Link
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
+                  style={styles.seeAllLink}
+                >
+                  See all &rarr;
+                </Link>
+              </div>
+              <div style={styles.memberList}>
+                {recentPosts.slice(0, 3).map((post: any) => {
+                  const isNew =
+                    post.created_at && isWithinDays(post.created_at, 3);
+                  return (
+                    <Link
+                      key={post.id}
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
+                      style={styles.postRow}
+                    >
+                      <div style={styles.memberInfo}>
+                        {post.author?.avatar_url ? (
+                          <Image
+                            src={post.author.avatar_url}
+                            alt={post.author.name || "Author"}
+                            width={40}
+                            height={40}
+                            style={styles.memberAvatar}
+                          />
+                        ) : (
+                          <div style={styles.memberAvatarPlaceholder}>
+                            {getInitial(post.author?.name)}
+                          </div>
+                        )}
+                        <div style={styles.memberDetails}>
+                          <span style={styles.memberName}>
+                            {post.author?.name || "Unknown"}
+                            {isNew && (
+                              <span style={styles.newBadgeInline}>New</span>
+                            )}
+                          </span>
+                          <span style={styles.postPreview}>
+                            {post.content.length > 80
+                              ? post.content.slice(0, 80) + "..."
+                              : post.content}
+                          </span>
+                        </div>
+                      </div>
+                      {post.is_pinned && (
+                        <span style={styles.pinnedBadge}>📌</span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* Recently Added Items */}
           {recentItems.length > 0 && (
@@ -828,6 +906,27 @@ const styles: { [key: string]: React.CSSProperties } = {
   memberArrow: {
     color: "#999",
     fontSize: "1rem",
+  },
+  // Post preview (bulletin)
+  postRow: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    padding: "0.875rem 1rem",
+    borderBottom: "1px solid #f0f0f0",
+    textDecoration: "none",
+    color: "inherit",
+  },
+  postPreview: {
+    fontSize: "0.8125rem",
+    color: "#666",
+    lineHeight: "1.4",
+    marginTop: "0.25rem",
+  },
+  pinnedBadge: {
+    fontSize: "0.875rem",
+    flexShrink: 0,
+    marginLeft: "0.5rem",
   },
   // Empty state
   emptyState: {

@@ -13,6 +13,19 @@
   }
 }
 
+/* 3-column grid that stacks on mobile */
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 4-column grid that becomes 2-column on mobile */
 .grid4 {
   display: grid;

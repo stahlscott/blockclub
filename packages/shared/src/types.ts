@@ -39,6 +39,8 @@ export type ChildcareRequestStatus =
   | "declined"
   | "cancelled";
 
+export type BulletinReactionType = "thumbs_up" | "heart" | "pray" | "celebrate";
+
 // ============================================================================
 // CORE TABLES
 // ============================================================================
@@ -184,6 +186,31 @@ export interface ChildcareRequest {
 }
 
 // ============================================================================
+// BULLETIN BOARD
+// ============================================================================
+
+export interface BulletinPost {
+  id: string;
+  neighborhood_id: string;
+  author_id: string;
+  content: string;
+  is_pinned: boolean;
+  expires_at: string | null;
+  edited_at: string | null;
+  edited_by: string | null;
+  created_at: string;
+  deleted_at: string | null;
+}
+
+export interface BulletinReaction {
+  id: string;
+  post_id: string;
+  user_id: string;
+  reaction: BulletinReactionType;
+  created_at: string;
+}
+
+// ============================================================================
 // JOINED TYPES (for queries with relations)
 // ============================================================================
 
@@ -214,6 +241,16 @@ export interface EventRsvpWithUser extends EventRsvp {
 
 export interface ChildcareAvailabilityWithUser extends ChildcareAvailability {
   user: User;
+}
+
+export interface BulletinPostWithAuthor extends BulletinPost {
+  author: User;
+  editor?: User | null;
+}
+
+export interface BulletinPostWithReactions extends BulletinPostWithAuthor {
+  reaction_counts: Record<BulletinReactionType, number>;
+  user_reactions: BulletinReactionType[];
 }
 
 // ============================================================================
@@ -288,6 +325,25 @@ export type ChildcareRequestUpdate = Partial<
   Pick<ChildcareRequest, "status" | "notes">
 >;
 
+export type BulletinPostInsert = {
+  neighborhood_id: string;
+  author_id: string;
+  content: string;
+  expires_at?: string | null;
+};
+export type BulletinPostUpdate = Partial<
+  Pick<
+    BulletinPost,
+    "content" | "is_pinned" | "expires_at" | "edited_at" | "edited_by" | "deleted_at"
+  >
+>;
+
+export type BulletinReactionInsert = {
+  post_id: string;
+  user_id: string;
+  reaction: BulletinReactionType;
+};
+
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
 // ============================================================================
@@ -340,6 +396,16 @@ export interface Database {
         Insert: ChildcareRequestInsert;
         Update: ChildcareRequestUpdate;
       };
+      bulletin_posts: {
+        Row: BulletinPost;
+        Insert: BulletinPostInsert;
+        Update: BulletinPostUpdate;
+      };
+      bulletin_reactions: {
+        Row: BulletinReaction;
+        Insert: BulletinReactionInsert;
+        Update: never;
+      };
     };
     Enums: {
       membership_role: MembershipRole;
@@ -349,6 +415,7 @@ export interface Database {
       loan_status: LoanStatus;
       rsvp_status: RsvpStatus;
       childcare_request_status: ChildcareRequestStatus;
+      bulletin_reaction_type: BulletinReactionType;
     };
   };
 }

@@ -21,15 +21,6 @@ The web app is live on Vercel with core features (Directory + Lending Library). 
 
 ## Prioritized Features
 
-### FP-1: Bulletin Board
-
-Neighborhood links page for shared resources.
-
-- [ ] Create links table (neighborhood_id, title, url, order, created_by)
-- [ ] Build links list view on neighborhood page
-- [ ] Add admin UI to add/edit/remove/reorder links
-- Use cases: Facebook group, HOA website, local resources, etc.
-
 ### FP-2: Job Availability
 
 Allow neighbors to post availability for services.
@@ -109,6 +100,20 @@ Grouped for tackling in batches.
 ---
 
 ## Completed
+
+### FP-1: Bulletin Board
+
+A place for neighborhood members to post messages (lost cat, party announcement, road closure, etc.).
+
+- [x] Create bulletin_posts table (neighborhood_id, author_id, content, is_pinned, expires_at, edited_at, edited_by)
+- [x] Create bulletin_reactions table for emoji reactions (thumbs_up, heart, pray, celebrate)
+- [x] Build bulletin list view with pinned posts at top
+- [x] Add post creation form with optional expiration date
+- [x] Implement emoji reactions (toggle on/off)
+- [x] Add edit/delete for post authors
+- [x] Add pin toggle and edit capability for admins
+- [x] Show "edited by [name] on [date]" when posts are edited
+- [x] Add bulletin board to dashboard with "Recently Posted" section
 
 ### Phase 1: Project Setup & Architecture
 
