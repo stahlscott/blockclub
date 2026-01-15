@@ -55,11 +55,25 @@ Transactional emails for lending library events.
 
 Native mobile app with push notifications.
 
-- [ ] Build and submit iOS app to App Store
-- [ ] Build and submit Android app to Play Store
+**Current state:** Scaffold only - Expo Router configured with a landing screen, no features implemented.
+
+**Core features to implement (matching web):**
+- [ ] Authentication (Supabase auth with secure token storage)
+- [ ] Dashboard with neighborhood switcher
+- [ ] Directory (member list, profiles, contact actions)
+- [ ] Lending Library (browse, add items, request/manage loans)
+- [ ] Bulletin Board (posts, reactions)
+- [ ] Profile editing (avatar, contact info, bio)
+- [ ] Neighborhood management (join flow, settings)
+
+**Mobile-specific:**
 - [ ] Set up push notifications (Expo)
 - [ ] Implement in-app notification center
 - [ ] Add mobile-specific notification settings
+
+**Release:**
+- [ ] Build and submit iOS app to App Store
+- [ ] Build and submit Android app to Play Store
 
 ---
 
