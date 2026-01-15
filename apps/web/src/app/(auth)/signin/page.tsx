@@ -13,10 +13,15 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setEmailNotConfirmed(false);
+    setResendSuccess(false);
     setLoading(true);
 
     const supabase = createClient();
@@ -27,13 +32,39 @@ function SignInForm() {
     });
 
     if (signInError) {
-      setError(signInError.message);
+      if (signInError.message.toLowerCase().includes("email not confirmed")) {
+        setEmailNotConfirmed(true);
+        setError("Please confirm your email address before signing in.");
+      } else {
+        setError(signInError.message);
+      }
       setLoading(false);
       return;
     }
 
     router.push(redirectTo);
     router.refresh();
+  };
+
+  const handleResendConfirmation = async () => {
+    setResendLoading(true);
+    setError(null);
+
+    const supabase = createClient();
+
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    });
+
+    setResendLoading(false);
+
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+
+    setResendSuccess(true);
   };
 
   return (
@@ -74,6 +105,23 @@ function SignInForm() {
           </div>
 
           {error && <p style={styles.error}>{error}</p>}
+
+          {emailNotConfirmed && !resendSuccess && (
+            <button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={resendLoading}
+              style={styles.resendButton}
+            >
+              {resendLoading ? "Sending..." : "Resend confirmation email"}
+            </button>
+          )}
+
+          {resendSuccess && (
+            <p style={styles.success}>
+              Confirmation email sent! Check your inbox.
+            </p>
+          )}
 
           <button type="submit" disabled={loading} style={styles.button}>
             {loading ? "Signing in..." : "Sign in"}
@@ -157,6 +205,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#dc2626",
     fontSize: "0.875rem",
     margin: 0,
+  },
+  success: {
+    color: "#16a34a",
+    fontSize: "0.875rem",
+    margin: 0,
+  },
+  resendButton: {
+    padding: "0.5rem 0.75rem",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    backgroundColor: "white",
+    color: "#2563eb",
+    fontSize: "0.875rem",
+    cursor: "pointer",
   },
   footer: {
     marginTop: "1.5rem",

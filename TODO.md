@@ -40,13 +40,11 @@ Neighborhood events with RSVPs.
 - [ ] Add event reminders/notifications
 - _Note: Database schema exists, UI not implemented_
 
-### FP-4: Email Notifications
+### FP-4: Loan Notifications
 
-Set up transactional emails and user notification preferences.
+Transactional emails for lending library events.
 
-- [ ] Create Resend account and verify domain
-- [ ] Configure Supabase SMTP settings to use Resend
-- [ ] Re-enable email confirmation for signup
+- [ ] Install Resend SDK and create email service
 - [ ] Build user notification settings UI
 - [ ] Loan requested notification (to owner)
 - [ ] Loan approved/rejected notification (to borrower)
@@ -100,6 +98,15 @@ Grouped for tackling in batches.
 ---
 
 ## Completed
+
+### Auth Email Setup
+
+Configured Resend and Supabase for authentication emails.
+
+- [x] Create Resend account and verify domain
+- [x] Configure Supabase SMTP settings to use Resend
+- [x] Re-enable email confirmation for signup
+- [x] Customize auth email templates (signup, password reset, email change)
 
 ### FP-1: Bulletin Board
 

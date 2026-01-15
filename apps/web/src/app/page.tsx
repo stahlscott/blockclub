@@ -14,32 +14,29 @@ export default async function Home() {
   return (
     <main style={styles.container}>
       <div style={styles.hero}>
-        <h1 style={styles.title}>Welcome to Block Club</h1>
+        <h1 style={styles.title}>Block Club</h1>
         <p style={styles.subtitle}>
           Connect with your neighbors. Share resources. Build community.
         </p>
-        
-        <div style={styles.features}>
-          <div style={styles.feature}>
-            <span style={styles.featureIcon}>📚</span>
-            <h3>Lending Library</h3>
-            <p>Borrow tools, games, and more from neighbors</p>
-          </div>
-          <div style={styles.feature}>
-            <span style={styles.featureIcon}>👥</span>
-            <h3>Directory</h3>
-            <p>Find and connect with people nearby</p>
-          </div>
-        </div>
+        <p style={styles.location}>Lakewood, Ohio</p>
 
         <div style={styles.cta}>
           <Link href="/signin" style={styles.primaryButton}>
             Sign In
           </Link>
         </div>
-        <p style={styles.inviteNote}>
-          Don&apos;t have an account? Ask a neighbor for an invite link.
-        </p>
+
+        <div style={styles.inviteSection}>
+          <p style={styles.inviteNote}>
+            Block Club is invite-only. If your neighborhood is already on Block Club, ask a neighbor for an invite link.
+          </p>
+          <p style={styles.contactNote}>
+            Want to start a Block Club on your Lakewood street?{" "}
+            <a href="mailto:hello@lakewoodblock.club" style={styles.contactLink}>
+              Get in touch
+            </a>
+          </p>
+        </div>
       </div>
     </main>
   );
@@ -52,7 +49,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   hero: {
     width: "100%",
-    maxWidth: "1200px",
+    maxWidth: "480px",
     margin: "0 auto",
     padding: "4rem 1.5rem",
     textAlign: "center",
@@ -60,35 +57,27 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     fontSize: "2.5rem",
     fontWeight: "700",
-    marginBottom: "1rem",
+    marginBottom: "0.5rem",
     color: "#111",
   },
   subtitle: {
-    fontSize: "1.25rem",
+    fontSize: "1.125rem",
     color: "#666",
-    marginBottom: "3rem",
-  },
-  features: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "1.5rem",
-    marginBottom: "3rem",
-  },
-  feature: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  featureIcon: {
-    fontSize: "2rem",
     marginBottom: "0.5rem",
-    display: "block",
+  },
+  location: {
+    fontSize: "0.875rem",
+    color: "#999",
+    marginBottom: "2rem",
+    fontWeight: "500",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em",
   },
   cta: {
     display: "flex",
     gap: "1rem",
     justifyContent: "center",
+    marginBottom: "2.5rem",
   },
   primaryButton: {
     backgroundColor: "#2563eb",
@@ -99,9 +88,24 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: "500",
     fontSize: "1rem",
   },
+  inviteSection: {
+    borderTop: "1px solid #e5e5e5",
+    paddingTop: "1.5rem",
+  },
   inviteNote: {
-    marginTop: "1.5rem",
+    margin: "0 0 1rem",
     color: "#666",
     fontSize: "0.875rem",
+    lineHeight: "1.5",
+  },
+  contactNote: {
+    margin: 0,
+    color: "#666",
+    fontSize: "0.875rem",
+    lineHeight: "1.5",
+  },
+  contactLink: {
+    color: "#2563eb",
+    textDecoration: "none",
   },
 };

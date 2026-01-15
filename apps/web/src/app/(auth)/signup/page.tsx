@@ -58,9 +58,9 @@ function SignUpForm() {
         // User is signed in (no email confirmation required)
         router.push(redirectTo);
       } else {
-        // Email confirmation required - store redirect in localStorage for after confirmation
+        // Email confirmation required - store redirect in cookie for after confirmation
         if (redirectTo !== "/dashboard") {
-          localStorage.setItem("authRedirect", redirectTo);
+          document.cookie = `authRedirect=${encodeURIComponent(redirectTo)}; path=/; max-age=86400; SameSite=Lax`;
         }
         setSuccess(true);
       }
