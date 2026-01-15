@@ -161,6 +161,15 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                   |
 | `SUPER_ADMIN_EMAILS`                   | Comma-separated list of super admin emails |
 
+## Infrastructure
+
+| Service | Purpose | Notes |
+| ------- | ------- | ----- |
+| [Supabase](https://supabase.com) | Database, Auth, Storage | PostgreSQL with RLS, email/password auth, image storage |
+| [Vercel](https://vercel.com) | Hosting, DNS | Automatic deploys from main branch |
+| [Resend](https://resend.com) | Transactional email | Auth emails (confirmation, password reset) via Supabase SMTP |
+| [ImprovMX](https://improvmx.com) | Email forwarding | Forwards contact emails to personal address |
+
 ## Scripts
 
 ```bash
