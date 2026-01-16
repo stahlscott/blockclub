@@ -13,17 +13,20 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
+  // Enable Sentry Logs
+  enableLogs: true,
+
   // Session Replay configuration
   replaysOnErrorSampleRate: process.env.NODE_ENV === "production" ? 1.0 : 0,
   replaysSessionSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
 
-  // You can remove this option if you're not planning to use the Sentry Session Replay feature:
   integrations: [
     Sentry.replayIntegration({
-      // Additional Replay configuration goes here
       maskAllText: true,
       blockAllMedia: true,
     }),
+    // Automatically capture console.error as Sentry logs
+    Sentry.consoleLoggingIntegration({ levels: ["error"] }),
   ],
 
   // Filter out noisy errors

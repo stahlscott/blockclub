@@ -13,6 +13,14 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
+  // Enable Sentry Logs
+  enableLogs: true,
+
+  // Automatically capture console.error as Sentry logs
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ["error"] }),
+  ],
+
   // Only enable Sentry when DSN is configured
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
 });

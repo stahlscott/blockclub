@@ -104,7 +104,8 @@ Grouped for tackling in batches.
 
 ### Technical Debt
 
-- [ ] Add error boundaries around critical components
+- [x] Add error boundaries around critical components
+- [x] Integrate Sentry for error monitoring
 - [ ] Add environment variable validation at startup
 - [ ] Activity/audit log
 
@@ -118,6 +119,19 @@ Grouped for tackling in batches.
 ---
 
 ## Completed
+
+### Error Monitoring (Sentry)
+
+Integrated Sentry for production error tracking with full context.
+
+- [x] Install and configure @sentry/nextjs
+- [x] Add error boundaries (global, root, protected, neighborhood)
+- [x] Enrich errors with user context (ID, email)
+- [x] Enrich errors with neighborhood context (ID, slug)
+- [x] Configure source map uploads for readable stack traces
+- [x] Add session replay (10% sampling, 100% on errors)
+- [x] Filter noise (browser extensions, network errors, resize observer)
+- [x] Integrate with existing logger module
 
 ### Auth Email Setup
 
