@@ -133,7 +133,7 @@ const { data: items } = await supabase
 ### Super Admin Check
 ```typescript
 import { isSuperAdmin } from "@/lib/auth";
-const canCreateNeighborhood = isSuperAdmin(user.email);
+const isUserSuperAdmin = isSuperAdmin(user.email);
 ```
 
 ## Package Responsibilities

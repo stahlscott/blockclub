@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  const canCreateNeighborhood = isSuperAdmin(authUser.email);
+  const isUserStaffAdmin = isStaffAdmin(authUser.email);
 
   // Fetch user profile
   const { data: profile } = await supabase
@@ -140,19 +140,19 @@ export default async function DashboardPage() {
   let recentMembers: any[] = [];
   let recentPosts: any[] = [];
   let pendingMemberRequests = 0;
-  // Super admins have admin privileges in all neighborhoods
+  // Staff admins have admin privileges in all neighborhoods
   const isAdmin =
-    primaryMembership?.role === "admin" || isSuperAdmin(authUser.email);
+    primaryMembership?.role === "admin" || isStaffAdmin(authUser.email);
 
   if (primaryNeighborhood) {
-    // Fetch member count (excluding superadmins)
+    // Fetch member count (excluding staff admins)
     const { data: allMembers } = await supabase
       .from("memberships")
       .select("user:users(email)")
       .eq("neighborhood_id", primaryNeighborhood.id)
       .eq("status", "active");
     memberCount = (allMembers || []).filter(
-      (m: any) => !isSuperAdmin(m.user?.email),
+      (m: any) => !isStaffAdmin(m.user?.email),
     ).length;
 
     // Fetch items available count
@@ -189,9 +189,9 @@ export default async function DashboardPage() {
       .eq("status", "active")
       .order("joined_at", { ascending: false })
       .limit(6);
-    // Filter out superadmin users and current user from the recent members list
+    // Filter out staff admin users and current user from the recent members list
     recentMembers = (members || []).filter(
-      (m: any) => !isSuperAdmin(m.user?.email) && m.user_id !== authUser.id,
+      (m: any) => !isStaffAdmin(m.user?.email) && m.user_id !== authUser.id,
     );
 
     // Fetch recent posts
@@ -608,7 +608,7 @@ export default async function DashboardPage() {
               You haven&apos;t joined any neighborhoods yet. Ask a neighbor to
               share their invite link with you!
             </p>
-            {canCreateNeighborhood && (
+            {isUserStaffAdmin && (
               <Link href="/neighborhoods/new" className={dashboardStyles.primaryButton}>
                 Create a Neighborhood
               </Link>
@@ -644,18 +644,18 @@ export default async function DashboardPage() {
               <span className={dashboardStyles.actionIcon}>⚙️</span>
               <span>Neighborhood Admin</span>
             </Link>
-            {canCreateNeighborhood && (
-              <Link href="/neighborhoods/new" className={dashboardStyles.actionCard}>
-                <span className={dashboardStyles.actionIcon}>🏘️</span>
-                <span>New Neighborhood</span>
+            {isUserStaffAdmin && (
+              <Link href="/admin" className={dashboardStyles.actionCard}>
+                <span className={dashboardStyles.actionIcon}>🔧</span>
+                <span>Staff Admin</span>
               </Link>
             )}
           </div>
         </section>
       )}
 
-      {/* New Neighborhood (for super admins without neighborhood admin role) */}
-      {canCreateNeighborhood && !isAdmin && (
+      {/* Staff Admin (for staff admins without neighborhood admin role) */}
+      {isUserStaffAdmin && !isAdmin && (
         <section className={dashboardStyles.section}>
           <h2
             className={dashboardStyles.sectionTitle}
@@ -664,9 +664,9 @@ export default async function DashboardPage() {
             Admin
           </h2>
           <div className={responsive.grid4}>
-            <Link href="/neighborhoods/new" className={dashboardStyles.actionCard}>
-              <span className={dashboardStyles.actionIcon}>🏘️</span>
-              <span>New Neighborhood</span>
+            <Link href="/admin" className={dashboardStyles.actionCard}>
+              <span className={dashboardStyles.actionIcon}>🔧</span>
+              <span>Staff Admin</span>
             </Link>
           </div>
         </section>

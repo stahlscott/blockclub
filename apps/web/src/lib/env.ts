@@ -6,7 +6,8 @@
 export const env = {
   SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "",
-  
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+
   // Optional env vars with defaults
-  SUPER_ADMIN_EMAILS: (process.env.SUPER_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean),
+  STAFF_ADMIN_EMAILS: (process.env.STAFF_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean),
 } as const;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const neighborhoodId = targetMembership.neighborhood_id;
   const targetUserId = targetMembership.user_id;
   const isOwnMembership = targetUserId === user.id;
-  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const userIsStaffAdmin = isStaffAdmin(user.email);
 
   // Check if current user is a neighborhood admin
   const { data: userMembership } = await supabase
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const isNeighborhoodAdmin = userMembership?.role === "admin";
 
   // Permission check: user can mark their own membership OR admin can mark any member
-  if (!isOwnMembership && !isNeighborhoodAdmin && !userIsSuperAdmin) {
+  if (!isOwnMembership && !isNeighborhoodAdmin && !userIsStaffAdmin) {
     return NextResponse.json(
       { error: "You don't have permission to perform this action" },
       { status: 403 }

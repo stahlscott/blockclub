@@ -57,7 +57,7 @@ export default async function DirectoryPage({ params }: Props) {
 
   // Filter out superadmin users from the directory
   const filteredMembers = (members || []).filter(
-    (m: any) => !env.SUPER_ADMIN_EMAILS.includes(m.user?.email || ""),
+    (m: any) => !env.STAFF_ADMIN_EMAILS.includes(m.user?.email || ""),
   );
 
   return (

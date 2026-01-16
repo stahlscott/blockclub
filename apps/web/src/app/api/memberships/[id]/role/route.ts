@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -47,7 +47,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   const neighborhoodId = targetMembership.neighborhood_id;
   const currentRole = targetMembership.role;
-  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const userIsStaffAdmin = isStaffAdmin(user.email);
 
   // Check if user is a neighborhood admin
   const { data: userMembership } = await supabase
@@ -62,18 +62,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   // Permission checks
   if (role === "admin" && currentRole === "member") {
-    // Promoting: super admin or neighborhood admin can do this
-    if (!userIsSuperAdmin && !isNeighborhoodAdmin) {
+    // Promoting: staff admin or neighborhood admin can do this
+    if (!userIsStaffAdmin && !isNeighborhoodAdmin) {
       return NextResponse.json(
         { error: "Only admins can promote members" },
         { status: 403 }
       );
     }
   } else if (role === "member" && currentRole === "admin") {
-    // Demoting: only super admin can do this
-    if (!userIsSuperAdmin) {
+    // Demoting: only staff admin can do this
+    if (!userIsStaffAdmin) {
       return NextResponse.json(
-        { error: "Only super admins can demote admins" },
+        { error: "Only staff admins can demote admins" },
         { status: 403 }
       );
     }
