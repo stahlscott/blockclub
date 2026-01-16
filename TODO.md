@@ -62,7 +62,7 @@ Native mobile app with push notifications.
 - [ ] Dashboard with neighborhood switcher
 - [ ] Directory (member list, profiles, contact actions)
 - [ ] Lending Library (browse, add items, request/manage loans)
-- [ ] Bulletin Board (posts, reactions)
+- [ ] Posts (posts, reactions)
 - [ ] Profile editing (avatar, contact info, bio)
 - [ ] Neighborhood management (join flow, settings)
 
@@ -122,19 +122,19 @@ Configured Resend and Supabase for authentication emails.
 - [x] Re-enable email confirmation for signup
 - [x] Customize auth email templates (signup, password reset, email change)
 
-### FP-1: Bulletin Board
+### FP-1: Posts
 
 A place for neighborhood members to post messages (lost cat, party announcement, road closure, etc.).
 
-- [x] Create bulletin_posts table (neighborhood_id, author_id, content, is_pinned, expires_at, edited_at, edited_by)
-- [x] Create bulletin_reactions table for emoji reactions (thumbs_up, heart, pray, celebrate)
-- [x] Build bulletin list view with pinned posts at top
+- [x] Create posts table (neighborhood_id, author_id, content, is_pinned, expires_at, edited_at, edited_by)
+- [x] Create post_reactions table for emoji reactions (thumbs_up, heart, pray, celebrate)
+- [x] Build posts list view with pinned posts at top
 - [x] Add post creation form with optional expiration date
 - [x] Implement emoji reactions (toggle on/off)
 - [x] Add edit/delete for post authors
 - [x] Add pin toggle and edit capability for admins
 - [x] Show "edited by [name] on [date]" when posts are edited
-- [x] Add bulletin board to dashboard with "Recently Posted" section
+- [x] Add posts to dashboard with "Recently Posted" section
 
 ### Phase 1: Project Setup & Architecture
 

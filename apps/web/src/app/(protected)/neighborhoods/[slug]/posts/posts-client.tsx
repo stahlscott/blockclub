@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
-import type { BulletinReactionType } from "@blockclub/shared";
+import type { PostReactionType } from "@blockclub/shared";
 
 interface User {
   id: string;
@@ -26,8 +26,8 @@ interface Post {
   created_at: string;
   author: User;
   editor?: User | null;
-  reaction_counts: Record<BulletinReactionType, number>;
-  user_reactions: BulletinReactionType[];
+  reaction_counts: Record<PostReactionType, number>;
+  user_reactions: PostReactionType[];
 }
 
 interface Props {
@@ -38,7 +38,7 @@ interface Props {
   neighborhoodId: string;
 }
 
-const REACTIONS: { type: BulletinReactionType; emoji: string; label: string }[] = [
+const REACTIONS: { type: PostReactionType; emoji: string; label: string }[] = [
   { type: "thumbs_up", emoji: "\uD83D\uDC4D", label: "Like" },
   { type: "heart", emoji: "\u2764\uFE0F", label: "Love" },
   { type: "pray", emoji: "\uD83D\uDE4F", label: "Thanks" },
@@ -77,7 +77,7 @@ function getInitial(name: string | null | undefined): string {
   return name.replace(/^the\s+/i, "").charAt(0).toUpperCase() || "?";
 }
 
-export function BulletinClient({
+export function PostsClient({
   posts,
   currentUserId,
   isAdmin,
@@ -88,7 +88,7 @@ export function BulletinClient({
   const [deletingPost, setDeletingPost] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  async function toggleReaction(postId: string, reactionType: BulletinReactionType) {
+  async function toggleReaction(postId: string, reactionType: PostReactionType) {
     const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
@@ -102,7 +102,7 @@ export function BulletinClient({
       if (hasReacted) {
         // Remove reaction
         const { error: deleteError } = await supabase
-          .from("bulletin_reactions")
+          .from("post_reactions")
           .delete()
           .eq("post_id", postId)
           .eq("user_id", currentUserId)
@@ -112,7 +112,7 @@ export function BulletinClient({
       } else {
         // Add reaction
         const { error: insertError } = await supabase
-          .from("bulletin_reactions")
+          .from("post_reactions")
           .insert({
             post_id: postId,
             user_id: currentUserId,
@@ -142,7 +142,7 @@ export function BulletinClient({
 
       // Hard delete (soft delete via UPDATE was failing due to RLS issues)
       const { error: deleteError } = await supabase
-        .from("bulletin_posts")
+        .from("posts")
         .delete()
         .eq("id", postId);
 
@@ -164,7 +164,7 @@ export function BulletinClient({
       const supabase = createClient();
 
       const { error: updateError } = await supabase
-        .from("bulletin_posts")
+        .from("posts")
         .update({ is_pinned: !currentlyPinned })
         .eq("id", postId);
 
@@ -181,7 +181,7 @@ export function BulletinClient({
     return (
       <div style={styles.empty}>
         <p style={styles.emptyText}>No posts yet. Be the first to share something!</p>
-        <Link href={`/neighborhoods/${slug}/bulletin/new`} style={styles.emptyButton}>
+        <Link href={`/neighborhoods/${slug}/posts/new`} style={styles.emptyButton}>
           Create a Post
         </Link>
       </div>
@@ -244,7 +244,7 @@ interface PostCardProps {
   slug: string;
   loadingReaction: string | null;
   deletingPost: string | null;
-  onToggleReaction: (postId: string, reactionType: BulletinReactionType) => void;
+  onToggleReaction: (postId: string, reactionType: PostReactionType) => void;
   onDelete: (postId: string) => void;
   onTogglePin: (postId: string, currentlyPinned: boolean) => void;
 }
@@ -341,7 +341,7 @@ function PostCard({
           )}
           {canEdit && (
             <Link
-              href={`/neighborhoods/${slug}/bulletin/${post.id}/edit`}
+              href={`/neighborhoods/${slug}/posts/${post.id}/edit`}
               style={styles.actionLink}
             >
               Edit

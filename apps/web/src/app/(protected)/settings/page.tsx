@@ -215,6 +215,7 @@ export default function SettingsPage() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
+    width: "100%",
     maxWidth: "600px",
     margin: "0 auto",
     padding: "1rem",
