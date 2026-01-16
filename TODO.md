@@ -57,12 +57,6 @@ Native mobile app with push notifications.
 
 **Current state:** Scaffold only - Expo Router configured with a landing screen, no features implemented.
 
-**Testing (not yet implemented):**
-- [ ] Set up testing infrastructure (Jest/React Native Testing Library)
-- [ ] Add unit tests for core components and hooks
-- [ ] Add E2E tests with Detox or Maestro
-- [ ] Fix build issue with jimp-compact (CRC error on PNG processing)
-
 **Core features to implement (matching web):**
 - [ ] Authentication (Supabase auth with secure token storage)
 - [ ] Dashboard with neighborhood switcher
@@ -71,6 +65,12 @@ Native mobile app with push notifications.
 - [ ] Posts (posts, reactions)
 - [ ] Profile editing (avatar, contact info, bio)
 - [ ] Neighborhood management (join flow, settings)
+
+**Testing (not yet implemented):**
+- [ ] Set up testing infrastructure (Jest/React Native Testing Library)
+- [ ] Add unit tests for core components and hooks
+- [ ] Add E2E tests with Detox or Maestro
+- [ ] Fix build issue with jimp-compact (CRC error on PNG processing)
 
 **Mobile-specific:**
 - [ ] Set up push notifications (Expo)
@@ -90,7 +90,7 @@ Grouped for tackling in batches.
 ### User Account Management
 
 - [ ] Allow users to delete their own account
-- [ ] Allow users to remove themselves from a neighborhood (e.g., moved away)
+- [x] Allow users to remove themselves from a neighborhood (e.g., moved away)
 
 ### Performance & Scalability
 
@@ -104,7 +104,8 @@ Grouped for tackling in batches.
 
 ### Technical Debt
 
-- [ ] Add error boundaries around critical components
+- [x] Add error boundaries around critical components
+- [x] Integrate Sentry for error monitoring
 - [ ] Add environment variable validation at startup
 - [ ] Activity/audit log
 
@@ -118,6 +119,19 @@ Grouped for tackling in batches.
 ---
 
 ## Completed
+
+### Error Monitoring (Sentry)
+
+Integrated Sentry for production error tracking with full context.
+
+- [x] Install and configure @sentry/nextjs
+- [x] Add error boundaries (global, root, protected, neighborhood)
+- [x] Enrich errors with user context (ID, email)
+- [x] Enrich errors with neighborhood context (ID, slug)
+- [x] Configure source map uploads for readable stack traces
+- [x] Add session replay (10% sampling, 100% on errors)
+- [x] Filter noise (browser extensions, network errors, resize observer)
+- [x] Integrate with existing logger module
 
 ### Auth Email Setup
 

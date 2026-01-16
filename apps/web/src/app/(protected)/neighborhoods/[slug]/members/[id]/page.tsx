@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { RoleActions } from "./role-actions";
 import { MoveOutActions } from "./move-out-actions";
 import profileStyles from "./member-profile.module.css";
@@ -86,23 +86,23 @@ export default async function MemberProfilePage({ params }: Props) {
     .limit(6);
 
   const isOwnProfile = user.id === id;
-  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const userIsStaffAdmin = isStaffAdmin(user.email);
   const isNeighborhoodAdmin = currentMembership.role === "admin";
-  const isAdmin = isNeighborhoodAdmin || userIsSuperAdmin;
+  const isAdmin = isNeighborhoodAdmin || userIsStaffAdmin;
 
   // Determine role change permissions
-  // Can promote: super admin or neighborhood admin (if target is member)
-  // Can demote: super admin only (if target is admin)
+  // Can promote: staff admin or neighborhood admin (if target is member)
+  // Can demote: staff admin only (if target is admin)
   const canPromote =
-    (userIsSuperAdmin || isNeighborhoodAdmin) &&
+    (userIsStaffAdmin || isNeighborhoodAdmin) &&
     membership.role === "member" &&
     !isOwnProfile;
   const canDemote =
-    userIsSuperAdmin && membership.role === "admin" && !isOwnProfile;
+    userIsStaffAdmin && membership.role === "admin" && !isOwnProfile;
 
   // Admins can mark any active member as moved out (except themselves)
   const canMarkMovedOut =
-    (userIsSuperAdmin || isNeighborhoodAdmin) && !isOwnProfile;
+    (userIsStaffAdmin || isNeighborhoodAdmin) && !isOwnProfile;
 
   return (
     <div className={profileStyles.container}>

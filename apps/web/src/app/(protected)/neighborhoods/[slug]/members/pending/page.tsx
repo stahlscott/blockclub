@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
 import pendingStyles from "./pending.module.css";
 
@@ -38,7 +38,7 @@ export default async function PendingMembersPage({ params }: Props) {
     notFound();
   }
 
-  // Check if user is admin (neighborhood admin or super admin)
+  // Check if user is admin (neighborhood admin or staff admin)
   const { data: membership } = await supabase
     .from("memberships")
     .select("*")
@@ -48,9 +48,9 @@ export default async function PendingMembersPage({ params }: Props) {
     .single();
 
   const isNeighborhoodAdmin = membership?.role === "admin";
-  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const userIsStaffAdmin = isStaffAdmin(user.email);
 
-  if (!isNeighborhoodAdmin && !userIsSuperAdmin) {
+  if (!isNeighborhoodAdmin && !userIsStaffAdmin) {
     redirect(`/neighborhoods/${slug}`);
   }
 

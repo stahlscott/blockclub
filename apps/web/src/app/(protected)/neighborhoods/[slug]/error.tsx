@@ -2,16 +2,16 @@
 
 import { useEffect } from "react";
 import { captureErrorBoundary } from "@/lib/sentry";
-import styles from "./error-pages.module.css";
+import styles from "../../../error-pages.module.css";
 
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function NeighborhoodError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    captureErrorBoundary(error, "root");
+    captureErrorBoundary(error, "neighborhood");
   }, [error]);
 
   return (
@@ -20,7 +20,7 @@ export default function Error({ error, reset }: ErrorProps) {
         <h1 className={styles.icon}>!</h1>
         <h2 className={styles.title}>Something went wrong</h2>
         <p className={styles.message}>
-          We encountered an unexpected error. Please try again.
+          We encountered an error loading this neighborhood. Please try again.
         </p>
         <div className={styles.actions}>
           <button onClick={reset} className={styles.primaryButton}>

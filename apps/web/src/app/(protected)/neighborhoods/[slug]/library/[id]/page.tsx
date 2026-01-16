@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
 import { AdminActions } from "./admin-actions";
@@ -67,9 +67,9 @@ export default async function ItemDetailPage({ params }: Props) {
   }
 
   const isOwner = item.owner_id === user.id;
-  const userIsSuperAdmin = isSuperAdmin(user.email);
+  const userIsStaffAdmin = isStaffAdmin(user.email);
   const isNeighborhoodAdmin = membership.role === "admin";
-  const isAdmin = isNeighborhoodAdmin || userIsSuperAdmin;
+  const isAdmin = isNeighborhoodAdmin || userIsStaffAdmin;
 
   // Admin can remove items they don't own
   const canRemoveItem = isAdmin && !isOwner;

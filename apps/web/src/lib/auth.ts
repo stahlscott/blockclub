@@ -1,5 +1,5 @@
-// Super admin configuration
-// Super admins have system-wide privileges including:
+// Staff admin configuration
+// Staff admins have system-wide privileges including:
 // - Creating new neighborhoods
 // - Automatic admin access to all neighborhoods
 // - Ability to promote members to admin in any neighborhood
@@ -7,6 +7,6 @@
 
 import { env } from "./env";
 
-export function isSuperAdmin(email: string | null | undefined): boolean {
-  return env.SUPER_ADMIN_EMAILS.includes(email || "");
+export function isStaffAdmin(email: string | null | undefined): boolean {
+  return env.STAFF_ADMIN_EMAILS.includes(email || "");
 }
