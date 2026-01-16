@@ -1,7 +1,8 @@
 /* Library item form styles (new/edit) */
 
 .container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 680px;
   margin: 0 auto;
   padding: var(--space-4);
 }
