@@ -6,7 +6,6 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src",
     "test": "vitest",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage"
