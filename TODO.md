@@ -57,6 +57,12 @@ Native mobile app with push notifications.
 
 **Current state:** Scaffold only - Expo Router configured with a landing screen, no features implemented.
 
+**Testing (not yet implemented):**
+- [ ] Set up testing infrastructure (Jest/React Native Testing Library)
+- [ ] Add unit tests for core components and hooks
+- [ ] Add E2E tests with Detox or Maestro
+- [ ] Fix build issue with jimp-compact (CRC error on PNG processing)
+
 **Core features to implement (matching web):**
 - [ ] Authentication (Supabase auth with secure token storage)
 - [ ] Dashboard with neighborhood switcher
