@@ -15,7 +15,7 @@
   text-decoration: none;
   font-size: var(--font-size-sm);
   display: inline-block;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .backLink:hover {
