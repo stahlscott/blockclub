@@ -2,16 +2,16 @@
 
 import { useEffect } from "react";
 import { captureErrorBoundary } from "@/lib/sentry";
-import styles from "./error-pages.module.css";
+import styles from "../error-pages.module.css";
 
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function ProtectedError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    captureErrorBoundary(error, "root");
+    captureErrorBoundary(error, "protected");
   }, [error]);
 
   return (

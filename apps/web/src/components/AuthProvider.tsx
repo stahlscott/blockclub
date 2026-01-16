@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef, useMemo } from 
 import { useRouter } from "next/navigation";
 import { User, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { setSentryUser, addBreadcrumb } from "@/lib/sentry";
 
 type AuthContextType = {
   user: User | null;
@@ -33,6 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Set Sentry user context on initial load
+      if (session?.user) {
+        setSentryUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name,
+        });
+      }
     });
 
     // Listen for auth changes
@@ -42,6 +52,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Update Sentry user context on auth state change
+      if (session?.user) {
+        setSentryUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name,
+        });
+        addBreadcrumb("User signed in", "auth", { userId: session.user.id });
+      } else {
+        setSentryUser(null);
+        addBreadcrumb("User signed out", "auth");
+      }
 
       // Handle redirect after email confirmation (check before skipping initial load)
       if (event === "SIGNED_IN") {

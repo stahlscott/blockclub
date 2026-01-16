@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@blockclub/shared": "*",
+    "@sentry/nextjs": "^10.34.0",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.39.0",
     "next": "^14.1.0",

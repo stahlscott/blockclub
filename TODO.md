@@ -90,7 +90,7 @@ Grouped for tackling in batches.
 ### User Account Management
 
 - [ ] Allow users to delete their own account
-- [ ] Allow users to remove themselves from a neighborhood (e.g., moved away)
+- [x] Allow users to remove themselves from a neighborhood (e.g., moved away)
 
 ### Performance & Scalability
 

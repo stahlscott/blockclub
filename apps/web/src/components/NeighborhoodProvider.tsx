@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { logger } from "@/lib/logger";
+import { setSentryNeighborhood, addBreadcrumb } from "@/lib/sentry";
 
 interface Neighborhood {
   id: string;
@@ -41,6 +42,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
       setPrimaryNeighborhood(null);
       setIsAdmin(false);
       setLoading(false);
+      setSentryNeighborhood(null);
       return;
     }
 
@@ -89,6 +91,9 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
       }
       setPrimaryNeighborhood(primary);
 
+      // Set Sentry neighborhood context
+      setSentryNeighborhood(primary);
+
       // Check if user is admin in primary neighborhood
       if (primary) {
         const membership = memberships?.find(
@@ -109,6 +114,11 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
     if (!user || neighborhoodId === primaryNeighborhood?.id) {
       return;
     }
+
+    addBreadcrumb("Switching neighborhood", "action", {
+      fromNeighborhoodId: primaryNeighborhood?.id,
+      toNeighborhoodId: neighborhoodId,
+    });
 
     const { error } = await supabase
       .from("users")
