@@ -1,3 +1,103 @@
+/* Profile page container */
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.card {
+  background-color: var(--color-surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.backLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+.title {
+  margin: 0 0 var(--space-6) 0;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.input {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.charCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+/* Phone/Email list */
+.phoneList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
 .phoneRow {
   display: flex;
   gap: var(--space-2);
@@ -13,6 +113,11 @@
   min-width: 0;
 }
 
+.phoneLabelInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 .phoneNumberInput {
   flex: 1;
   padding: 0.625rem;
@@ -20,6 +125,11 @@
   border: 1px solid var(--color-border);
   font-size: var(--font-size-sm);
   min-width: 0;
+}
+
+.phoneNumberInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }
 
 .removeButton {
@@ -38,21 +148,76 @@
   line-height: 1;
 }
 
+.removeButton:hover {
+  background-color: var(--color-background);
+  color: var(--color-text-secondary);
+}
+
+.addPhoneButton {
+  padding: 0.625rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  margin-top: var(--space-1);
+}
+
+.addPhoneButton:hover {
+  background-color: var(--color-background);
+}
+
+/* Submit button */
+.button {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  margin-top: var(--space-2);
+}
+
+.button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error and success */
+.error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.success {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
 @media (max-width: 480px) {
   .phoneRow {
     flex-wrap: wrap;
   }
-  
+
   .phoneLabelInput {
     flex: 1 1 80px;
     min-width: 80px;
   }
-  
+
   .phoneNumberInput {
     flex: 2 1 120px;
     min-width: 120px;
   }
-  
+
   .removeButton {
     flex: 0 0 32px;
   }

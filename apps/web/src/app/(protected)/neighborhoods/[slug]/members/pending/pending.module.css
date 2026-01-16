@@ -1,18 +1,194 @@
+/* Page container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+
+.header {
+  margin-bottom: var(--space-4);
+}
+
+.backLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.subtitle {
+  margin: var(--space-1) 0 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* Member list */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  gap: 1rem;
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  gap: var(--space-4);
 }
 
+/* Member info */
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background-color: #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-semibold);
+  color: #3730a3;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.noName {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-weight: var(--font-weight-normal);
+}
+
+.email {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+
+.address {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.userId {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.date {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Actions */
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   flex-shrink: 0;
+}
+
+.rejectButton {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.rejectButton:hover {
+  background-color: var(--color-background);
+}
+
+.rejectButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.approveButton {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-success);
+  color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.approveButton:hover {
+  opacity: 0.9;
+}
+
+.approveButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.emptyText {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.emptyLink {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.emptyLink:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 480px) {

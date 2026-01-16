@@ -105,23 +105,23 @@ export default async function MemberProfilePage({ params }: Props) {
     (userIsSuperAdmin || isNeighborhoodAdmin) && !isOwnProfile;
 
   return (
-    <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}/directory`} style={styles.backLink}>
+    <div className={profileStyles.container}>
+      <Link href={`/neighborhoods/${slug}/directory`} className={profileStyles.backLink}>
         &larr; Back to Directory
       </Link>
 
       <div className={profileStyles.profileHeader}>
-        <div style={styles.avatar}>
+        <div className={profileStyles.avatar}>
           {member.avatar_url ? (
             <Image
               src={member.avatar_url}
               alt={member.name}
               width={100}
               height={100}
-              style={styles.avatarImg}
+              className={profileStyles.avatarImg}
             />
           ) : (
-            <span style={styles.avatarInitial}>
+            <span className={profileStyles.avatarInitial}>
               {getInitial(member.name)}
             </span>
           )}
@@ -148,10 +148,10 @@ export default async function MemberProfilePage({ params }: Props) {
             </p>
           )}
 
-          {member.bio && <p style={styles.bio}>{member.bio}</p>}
+          {member.bio && <p className={profileStyles.bio}>{member.bio}</p>}
 
           {isOwnProfile && (
-            <Link href="/profile" style={styles.editButton}>
+            <Link href="/profile" className={profileStyles.editButton}>
               Edit Profile
             </Link>
           )}
@@ -159,24 +159,24 @@ export default async function MemberProfilePage({ params }: Props) {
       </div>
 
       {(member.children || member.pets) && (
-        <div style={styles.familySection}>
-          <h2 style={styles.sectionTitle}>Family & Pets</h2>
-          <div style={styles.familyGrid}>
+        <div className={profileStyles.familySection}>
+          <h2 className={profileStyles.sectionTitle}>Family & Pets</h2>
+          <div className={profileStyles.familyGrid}>
             {member.children && (
-              <div style={styles.familyCard}>
-                <span style={styles.familyIcon}>👶</span>
-                <div style={styles.familyContent}>
-                  <span style={styles.familyLabel}>Children</span>
-                  <span style={styles.familyValue}>{member.children}</span>
+              <div className={profileStyles.familyCard}>
+                <span className={profileStyles.familyIcon}>👶</span>
+                <div className={profileStyles.familyContent}>
+                  <span className={profileStyles.familyLabel}>Children</span>
+                  <span className={profileStyles.familyValue}>{member.children}</span>
                 </div>
               </div>
             )}
             {member.pets && (
-              <div style={styles.familyCard}>
-                <span style={styles.familyIcon}>🐾</span>
-                <div style={styles.familyContent}>
-                  <span style={styles.familyLabel}>Pets</span>
-                  <span style={styles.familyValue}>{member.pets}</span>
+              <div className={profileStyles.familyCard}>
+                <span className={profileStyles.familyIcon}>🐾</span>
+                <div className={profileStyles.familyContent}>
+                  <span className={profileStyles.familyLabel}>Pets</span>
+                  <span className={profileStyles.familyValue}>{member.pets}</span>
                 </div>
               </div>
             )}
@@ -184,29 +184,29 @@ export default async function MemberProfilePage({ params }: Props) {
         </div>
       )}
 
-      <div style={styles.contactSection}>
-        <h2 style={styles.sectionTitle}>Contact</h2>
-        <div style={styles.contactGrid}>
+      <div className={profileStyles.contactSection}>
+        <h2 className={profileStyles.sectionTitle}>Contact</h2>
+        <div className={profileStyles.contactGrid}>
           {/* Show phones first, in the order they appear on the profile */}
           {member.phones && member.phones.length > 0
             ? member.phones.map(
                   (phone: { label: string; number: string }, index: number) => (
-                    <div key={index} style={styles.phoneCard}>
-                      <span style={styles.contactIcon}>📱</span>
-                      <span style={styles.contactLabel}>
+                    <div key={index} className={profileStyles.phoneCard}>
+                      <span className={profileStyles.contactIcon}>📱</span>
+                      <span className={profileStyles.contactLabel}>
                         {phone.label || "Phone"}
                       </span>
-                      <span style={styles.phoneNumber}>
+                      <span className={profileStyles.phoneNumber}>
                         {phone.number.replace(
                           /(\d{3})(\d{3})(\d{4})/,
                           "($1) $2-$3",
                         )}
                       </span>
-                      <div style={styles.phoneActions}>
-                        <a href={`tel:${phone.number}`} style={styles.phoneActionButton}>
+                      <div className={profileStyles.phoneActions}>
+                        <a href={`tel:${phone.number}`} className={profileStyles.phoneActionButton}>
                           Call
                         </a>
-                        <a href={`sms:${phone.number}`} style={styles.phoneActionButton}>
+                        <a href={`sms:${phone.number}`} className={profileStyles.phoneActionButton}>
                           Text
                         </a>
                       </div>
@@ -214,15 +214,15 @@ export default async function MemberProfilePage({ params }: Props) {
                   ),
                 )
             : member.phone && (
-                <div style={styles.phoneCard}>
-                  <span style={styles.contactIcon}>📱</span>
-                  <span style={styles.contactLabel}>Phone</span>
-                  <span style={styles.phoneNumber}>{member.phone}</span>
-                  <div style={styles.phoneActions}>
-                    <a href={`tel:${member.phone}`} style={styles.phoneActionButton}>
+                <div className={profileStyles.phoneCard}>
+                  <span className={profileStyles.contactIcon}>📱</span>
+                  <span className={profileStyles.contactLabel}>Phone</span>
+                  <span className={profileStyles.phoneNumber}>{member.phone}</span>
+                  <div className={profileStyles.phoneActions}>
+                    <a href={`tel:${member.phone}`} className={profileStyles.phoneActionButton}>
                       Call
                     </a>
-                    <a href={`sms:${member.phone}`} style={styles.phoneActionButton}>
+                    <a href={`sms:${member.phone}`} className={profileStyles.phoneActionButton}>
                       Text
                     </a>
                   </div>
@@ -232,12 +232,12 @@ export default async function MemberProfilePage({ params }: Props) {
           {member.emails && member.emails.length > 0 &&
             member.emails.map(
               (emailEntry: { label: string; email: string }, index: number) => (
-                <div key={`email-${index}`} style={styles.phoneCard}>
-                  <span style={styles.contactIcon}>📧</span>
-                  <span style={styles.contactLabel}>
+                <div key={`email-${index}`} className={profileStyles.phoneCard}>
+                  <span className={profileStyles.contactIcon}>📧</span>
+                  <span className={profileStyles.contactLabel}>
                     {emailEntry.label || "Email"}
                   </span>
-                  <a href={`mailto:${emailEntry.email}`} style={styles.contactLink}>
+                  <a href={`mailto:${emailEntry.email}`} className={profileStyles.contactLink}>
                     {emailEntry.email}
                   </a>
                 </div>
@@ -247,41 +247,35 @@ export default async function MemberProfilePage({ params }: Props) {
       </div>
 
       {items && items.length > 0 && (
-        <div style={styles.itemsSection}>
-          <h2 style={styles.sectionTitle}>
+        <div className={profileStyles.itemsSection}>
+          <h2 className={profileStyles.sectionTitle}>
             {isOwnProfile
               ? "Your Items"
               : "Items"}
           </h2>
-          <div style={styles.itemGrid}>
+          <div className={profileStyles.itemGrid}>
             {items.map((item: any) => (
               <Link
                 key={item.id}
                 href={`/neighborhoods/${slug}/library/${item.id}`}
-                style={styles.itemCard}
+                className={profileStyles.itemCard}
               >
-                <h3 style={styles.itemName}>{item.name}</h3>
+                <h3 className={profileStyles.itemName}>{item.name}</h3>
                 {item.description && (
-                  <p style={styles.itemDescription}>
+                  <p className={profileStyles.itemDescription}>
                     {item.description.length > 60
                       ? `${item.description.substring(0, 60)}...`
                       : item.description}
                   </p>
                 )}
-                <div style={styles.itemFooter}>
-                  <span style={styles.itemCategory}>{item.category}</span>
+                <div className={profileStyles.itemFooter}>
+                  <span className={profileStyles.itemCategory}>{item.category}</span>
                   <span
-                    style={{
-                      ...styles.itemStatus,
-                      backgroundColor:
-                        item.availability === "available"
-                          ? "#d1fae5"
-                          : "#fee2e2",
-                      color:
-                        item.availability === "available"
-                          ? "#065f46"
-                          : "#991b1b",
-                    }}
+                    className={`${profileStyles.itemStatus} ${
+                      item.availability === "available"
+                        ? profileStyles.itemStatusAvailable
+                        : profileStyles.itemStatusUnavailable
+                    }`}
                   >
                     {item.availability}
                   </span>
@@ -292,7 +286,7 @@ export default async function MemberProfilePage({ params }: Props) {
         </div>
       )}
 
-      <div style={styles.memberSince}>
+      <div className={profileStyles.memberSince}>
         Member since{" "}
         {new Date(membership.joined_at).toLocaleDateString("en-US", {
           month: "long",
@@ -301,8 +295,8 @@ export default async function MemberProfilePage({ params }: Props) {
       </div>
 
       {!isOwnProfile && (canPromote || canDemote || canMarkMovedOut) && (
-        <div style={styles.adminActionsSection}>
-          <div style={styles.adminActionsRow}>
+        <div className={profileStyles.adminActionsSection}>
+          <div className={profileStyles.adminActionsRow}>
             {(canPromote || canDemote) && (
               <RoleActions
                 membershipId={membership.id}
@@ -326,226 +320,3 @@ export default async function MemberProfilePage({ params }: Props) {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    width: "100%",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "1.5rem 1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-
-  avatar: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    backgroundColor: "#e0e7ff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    overflow: "hidden",
-  },
-  avatarImg: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  avatarInitial: {
-    fontSize: "2.5rem",
-    fontWeight: "600",
-    color: "#3730a3",
-  },
-
-  bio: {
-    margin: "0 0 1rem 0",
-    color: "#444",
-  },
-  editButton: {
-    display: "inline-block",
-    padding: "0.5rem 1rem",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-  },
-  familySection: {
-    marginBottom: "2rem",
-  },
-  familyGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "0.75rem",
-  },
-  familyCard: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "0.75rem",
-    padding: "1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  familyIcon: {
-    fontSize: "1.5rem",
-    flexShrink: 0,
-  },
-  familyContent: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  familyLabel: {
-    fontSize: "0.75rem",
-    color: "#666",
-    textTransform: "uppercase",
-  },
-  familyValue: {
-    fontSize: "0.875rem",
-    color: "#333",
-    whiteSpace: "pre-line",
-  },
-  contactSection: {
-    marginBottom: "2rem",
-  },
-  sectionTitle: {
-    margin: "0 0 1rem 0",
-    fontSize: "1.125rem",
-    fontWeight: "600",
-  },
-  contactGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-    gap: "0.75rem",
-  },
-  contactCard: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  contactIcon: {
-    fontSize: "1.5rem",
-  },
-  contactLabel: {
-    fontSize: "0.75rem",
-    color: "#666",
-    textTransform: "uppercase",
-  },
-  contactValue: {
-    fontSize: "0.875rem",
-    color: "#2563eb",
-    textAlign: "center",
-  },
-  phoneCard: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  phoneNumber: {
-    fontSize: "0.875rem",
-    color: "#333",
-    textAlign: "center",
-  },
-  contactLink: {
-    fontSize: "0.875rem",
-    color: "#2563eb",
-    textAlign: "center",
-    textDecoration: "none",
-  },
-  phoneActions: {
-    display: "flex",
-    gap: "0.5rem",
-    marginTop: "0.5rem",
-  },
-  phoneActionButton: {
-    padding: "0.375rem 0.75rem",
-    backgroundColor: "#e0e7ff",
-    color: "#3730a3",
-    borderRadius: "4px",
-    textDecoration: "none",
-    fontSize: "0.75rem",
-    fontWeight: "500",
-  },
-  itemsSection: {
-    marginBottom: "2rem",
-  },
-  itemGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-    gap: "0.75rem",
-  },
-  itemCard: {
-    display: "block",
-    padding: "1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  itemName: {
-    margin: "0 0 0.25rem 0",
-    fontSize: "0.9375rem",
-    fontWeight: "500",
-  },
-  itemDescription: {
-    margin: "0 0 0.5rem 0",
-    fontSize: "0.8125rem",
-    color: "#666",
-  },
-  itemFooter: {
-    display: "flex",
-    gap: "0.5rem",
-    flexWrap: "wrap",
-  },
-  itemCategory: {
-    fontSize: "0.6875rem",
-    backgroundColor: "#e0e7ff",
-    color: "#3730a3",
-    padding: "0.125rem 0.375rem",
-    borderRadius: "4px",
-    textTransform: "capitalize",
-  },
-  itemStatus: {
-    fontSize: "0.6875rem",
-    padding: "0.125rem 0.375rem",
-    borderRadius: "4px",
-    textTransform: "capitalize",
-  },
-  memberSince: {
-    textAlign: "center",
-    color: "#888",
-    fontSize: "0.875rem",
-  },
-  adminActionsSection: {
-    marginTop: "2rem",
-    paddingTop: "1rem",
-    borderTop: "1px solid #eee",
-  },
-  adminActionsRow: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "1.5rem",
-    flexWrap: "wrap",
-  },
-};

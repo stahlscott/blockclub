@@ -7,6 +7,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { PostReactionType } from "@blockclub/shared";
+import styles from "./posts.module.css";
 
 interface User {
   id: string;
@@ -179,9 +180,9 @@ export function PostsClient({
 
   if (posts.length === 0) {
     return (
-      <div style={styles.empty}>
-        <p style={styles.emptyText}>No posts yet. Be the first to share something!</p>
-        <Link href={`/neighborhoods/${slug}/posts/new`} style={styles.emptyButton}>
+      <div className={styles.empty}>
+        <p className={styles.emptyText}>No posts yet. Be the first to share something!</p>
+        <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
           Create a Post
         </Link>
       </div>
@@ -193,14 +194,14 @@ export function PostsClient({
   const regularPosts = posts.filter((p) => !p.is_pinned);
 
   return (
-    <div style={styles.postList}>
-      {error && <div style={styles.error}>{error}</div>}
+    <div className={styles.postList}>
+      {error && <div className={styles.error}>{error}</div>}
 
       {pinnedPosts.length > 0 && (
-        <div style={styles.pinnedSection}>
-          <div style={styles.pinnedHeader}>
-            <span style={styles.pinnedIcon}>{"\uD83D\uDCCC"}</span>
-            <span style={styles.pinnedLabel}>Pinned</span>
+        <div className={styles.pinnedSection}>
+          <div className={styles.pinnedHeader}>
+            <span className={styles.pinnedIcon}>{"\uD83D\uDCCC"}</span>
+            <span>Pinned</span>
           </div>
           {pinnedPosts.map((post) => (
             <PostCard
@@ -265,12 +266,19 @@ function PostCard({
   const canDelete = isAuthor || isAdmin;
   const canPin = isAdmin;
 
+  const getReactionClassName = (hasReacted: boolean, isLoading: boolean) => {
+    let className = styles.reactionButton;
+    if (hasReacted) className += ` ${styles.reactionActive}`;
+    if (isLoading) className += ` ${styles.reactionLoading}`;
+    return className;
+  };
+
   return (
-    <article style={styles.postCard}>
-      <div style={styles.postHeader}>
+    <article className={styles.postCard}>
+      <div className={styles.postHeader}>
         <Link
           href={`/neighborhoods/${slug}/members/${post.author.id}`}
-          style={styles.authorLink}
+          className={styles.authorLink}
         >
           {post.author.avatar_url ? (
             <Image
@@ -278,28 +286,28 @@ function PostCard({
               alt={post.author.name}
               width={40}
               height={40}
-              style={styles.avatar}
+              className={styles.avatar}
             />
           ) : (
-            <div style={styles.avatarPlaceholder}>
+            <div className={styles.avatarPlaceholder}>
               {getInitial(post.author.name)}
             </div>
           )}
-          <span style={styles.authorName}>{post.author.name}</span>
+          <span className={styles.authorName}>{post.author.name}</span>
         </Link>
-        <span style={styles.timestamp}>{formatRelativeTime(post.created_at)}</span>
+        <span className={styles.timestamp}>{formatRelativeTime(post.created_at)}</span>
       </div>
 
       {post.edited_at && (
-        <p style={styles.editedNote}>
+        <p className={styles.editedNote}>
           Edited by {post.editor?.name || "Unknown"} on {formatDate(post.edited_at)}
         </p>
       )}
 
-      <p style={styles.content}>{post.content}</p>
+      <p className={styles.content}>{post.content}</p>
 
-      <div style={styles.postFooter}>
-        <div style={styles.reactions}>
+      <div className={styles.postFooter}>
+        <div className={styles.reactions}>
           {REACTIONS.map((r) => {
             const count = post.reaction_counts[r.type] || 0;
             const hasReacted = post.user_reactions.includes(r.type);
@@ -311,30 +319,26 @@ function PostCard({
                 onClick={() => onToggleReaction(post.id, r.type)}
                 disabled={isLoading}
                 title={r.label}
-                style={{
-                  ...styles.reactionButton,
-                  ...(hasReacted ? styles.reactionActive : {}),
-                  ...(isLoading ? styles.reactionLoading : {}),
-                }}
+                className={getReactionClassName(hasReacted, isLoading)}
               >
-                <span style={styles.reactionEmoji}>{r.emoji}</span>
-                <span style={styles.reactionCount}>{count}</span>
+                <span className={styles.reactionEmoji}>{r.emoji}</span>
+                <span className={styles.reactionCount}>{count}</span>
               </button>
             );
           })}
         </div>
 
         {post.expires_at && (
-          <span style={styles.expiresTag}>Expires: {formatDate(post.expires_at)}</span>
+          <span className={styles.expiresTag}>Expires: {formatDate(post.expires_at)}</span>
         )}
       </div>
 
       {(canEdit || canDelete || canPin) && (
-        <div style={styles.actions}>
+        <div className={styles.actions}>
           {canPin && (
             <button
               onClick={() => onTogglePin(post.id, post.is_pinned)}
-              style={styles.actionButton}
+              className={styles.actionButton}
             >
               {post.is_pinned ? "Unpin" : "Pin"}
             </button>
@@ -342,7 +346,7 @@ function PostCard({
           {canEdit && (
             <Link
               href={`/neighborhoods/${slug}/posts/${post.id}/edit`}
-              style={styles.actionLink}
+              className={styles.actionLink}
             >
               Edit
             </Link>
@@ -351,7 +355,7 @@ function PostCard({
             <button
               onClick={() => onDelete(post.id)}
               disabled={deletingPost === post.id}
-              style={styles.deleteButton}
+              className={styles.deleteButton}
             >
               {deletingPost === post.id ? "Deleting..." : "Delete"}
             </button>
@@ -361,195 +365,3 @@ function PostCard({
     </article>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  postList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  },
-  error: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  pinnedSection: {
-    backgroundColor: "#fef3c7",
-    borderRadius: "8px",
-    padding: "0.75rem",
-    marginBottom: "0.5rem",
-  },
-  pinnedHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.375rem",
-    marginBottom: "0.75rem",
-    fontSize: "0.75rem",
-    fontWeight: "600",
-    color: "#92400e",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-  },
-  pinnedIcon: {
-    fontSize: "0.875rem",
-  },
-  pinnedLabel: {},
-  postCard: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "1rem",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  postHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "0.75rem",
-  },
-  authorLink: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  avatar: {
-    borderRadius: "50%",
-    objectFit: "cover",
-  },
-  avatarPlaceholder: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#e0e7ff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "600",
-    color: "#3730a3",
-    fontSize: "1rem",
-  },
-  authorName: {
-    fontWeight: "500",
-    fontSize: "0.9375rem",
-  },
-  timestamp: {
-    fontSize: "0.8125rem",
-    color: "#666",
-  },
-  editedNote: {
-    margin: "0 0 0.75rem 0",
-    fontSize: "0.75rem",
-    color: "#666",
-    fontStyle: "italic",
-  },
-  content: {
-    margin: "0 0 1rem 0",
-    fontSize: "0.9375rem",
-    lineHeight: "1.5",
-    whiteSpace: "pre-wrap",
-    wordBreak: "break-word",
-  },
-  postFooter: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: "0.75rem",
-  },
-  reactions: {
-    display: "flex",
-    gap: "0.375rem",
-  },
-  reactionButton: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "0.375rem 0.625rem",
-    backgroundColor: "#f5f5f5",
-    border: "none",
-    borderRadius: "20px",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    transition: "background-color 0.15s",
-  },
-  reactionActive: {
-    backgroundColor: "#dbeafe",
-    boxShadow: "inset 0 0 0 1px #93c5fd",
-  },
-  reactionLoading: {
-    opacity: 0.6,
-    cursor: "not-allowed",
-  },
-  reactionEmoji: {
-    fontSize: "1rem",
-    lineHeight: 1,
-  },
-  reactionCount: {
-    fontSize: "0.8125rem",
-    fontWeight: "500",
-    color: "#333",
-  },
-  expiresTag: {
-    fontSize: "0.75rem",
-    color: "#666",
-    backgroundColor: "#f5f5f5",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-  },
-  actions: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    marginTop: "0.75rem",
-    paddingTop: "0.75rem",
-    borderTop: "1px solid #eee",
-  },
-  actionButton: {
-    padding: "0.375rem 0.75rem",
-    backgroundColor: "transparent",
-    border: "none",
-    color: "#2563eb",
-    fontSize: "0.8125rem",
-    cursor: "pointer",
-    fontWeight: "500",
-  },
-  actionLink: {
-    padding: "0.375rem 0.75rem",
-    color: "#2563eb",
-    fontSize: "0.8125rem",
-    textDecoration: "none",
-    fontWeight: "500",
-  },
-  deleteButton: {
-    padding: "0.375rem 0.75rem",
-    backgroundColor: "transparent",
-    border: "none",
-    color: "#dc2626",
-    fontSize: "0.8125rem",
-    cursor: "pointer",
-    fontWeight: "500",
-  },
-  empty: {
-    textAlign: "center",
-    padding: "3rem 1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  emptyText: {
-    color: "#666",
-    marginBottom: "1rem",
-  },
-  emptyButton: {
-    display: "inline-block",
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.75rem 1.5rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
-  },
-};

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import styles from "./member-profile.module.css";
 
 interface RoleActionsProps {
   membershipId: string;
@@ -58,14 +59,14 @@ export function RoleActions({
   }
 
   return (
-    <div style={styles.container}>
-      {error && <p style={styles.error}>{error}</p>}
+    <div className={styles.actionContainer}>
+      {error && <p className={styles.actionError}>{error}</p>}
 
       {currentRole === "member" && canPromote && (
         <button
           onClick={() => handleRoleChange("admin")}
           disabled={loading}
-          style={styles.actionLink}
+          className={styles.actionLink}
         >
           {loading ? "Updating..." : "Promote to admin"}
         </button>
@@ -75,7 +76,7 @@ export function RoleActions({
         <button
           onClick={() => handleRoleChange("member")}
           disabled={loading}
-          style={styles.actionLink}
+          className={styles.actionLink}
         >
           {loading ? "Updating..." : "Demote to member"}
         </button>
@@ -83,23 +84,3 @@ export function RoleActions({
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: "inline-block",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.75rem",
-    margin: "0 0 0.25rem 0",
-  },
-  actionLink: {
-    padding: "0",
-    backgroundColor: "transparent",
-    color: "#666",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "0.75rem",
-    textDecoration: "underline",
-  },
-};

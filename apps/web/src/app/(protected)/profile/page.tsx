@@ -260,8 +260,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
+      <div className={profileStyles.container}>
+        <div className={profileStyles.card}>
           <p>Loading...</p>
         </div>
       </div>
@@ -269,15 +269,15 @@ export default function ProfilePage() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <Link href="/dashboard" style={styles.backLink}>
+    <div className={profileStyles.container}>
+      <div className={profileStyles.card}>
+        <Link href="/dashboard" className={profileStyles.backLink}>
           &larr; Back to Dashboard
         </Link>
 
-        <h1 style={styles.title}>Edit Profile</h1>
+        <h1 className={profileStyles.title}>Edit Profile</h1>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} className={profileStyles.form}>
           <AvatarUpload
             userId={user.id}
             currentAvatarUrl={avatarUrl}
@@ -286,8 +286,8 @@ export default function ProfilePage() {
             onError={(msg) => setError(msg)}
           />
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="name" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="name" className={profileStyles.label}>
               Household Name *
             </label>
             <input
@@ -297,13 +297,13 @@ export default function ProfilePage() {
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={MAX_LENGTHS.userName}
-              style={styles.input}
+              className={profileStyles.input}
               placeholder="e.g., The Smith Family"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="address" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="address" className={profileStyles.label}>
               Address *
             </label>
             <input
@@ -313,13 +313,13 @@ export default function ProfilePage() {
               onChange={(e) => setAddress(e.target.value)}
               required
               maxLength={MAX_LENGTHS.address}
-              style={styles.input}
+              className={profileStyles.input}
               placeholder="123 Main Street"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="unit" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="unit" className={profileStyles.label}>
               Unit
             </label>
             <input
@@ -328,18 +328,18 @@ export default function ProfilePage() {
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               maxLength={MAX_LENGTHS.unit}
-              style={styles.input}
+              className={profileStyles.input}
               placeholder="Apt 2B"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Phone Numbers</label>
-            <span style={styles.hint}>
+          <div className={profileStyles.inputGroup}>
+            <label className={profileStyles.label}>Phone Numbers</label>
+            <span className={profileStyles.hint}>
               Add phone numbers for household members. Visible to neighbors.
             </span>
 
-            <div style={styles.phoneList}>
+            <div className={profileStyles.phoneList}>
               {phones.map((phone, index) => (
                 <div key={index} className={profileStyles.phoneRow}>
                   <input
@@ -375,20 +375,20 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={addPhone}
-                style={styles.addPhoneButton}
+                className={profileStyles.addPhoneButton}
               >
                 + Add Phone Number
               </button>
             </div>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email Addresses</label>
-            <span style={styles.hint}>
+          <div className={profileStyles.inputGroup}>
+            <label className={profileStyles.label}>Email Addresses</label>
+            <span className={profileStyles.hint}>
               Add email addresses for your household. Visible to neighbors.
             </span>
 
-            <div style={styles.phoneList}>
+            <div className={profileStyles.phoneList}>
               {emails.map((emailEntry, index) => (
                 <div key={index} className={profileStyles.phoneRow}>
                   <input
@@ -423,15 +423,15 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={addEmail}
-                style={styles.addPhoneButton}
+                className={profileStyles.addPhoneButton}
               >
                 + Add Email Address
               </button>
             </div>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="moveInYear" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="moveInYear" className={profileStyles.label}>
               Move-in Year
             </label>
             <input
@@ -441,13 +441,13 @@ export default function ProfilePage() {
               onChange={(e) => setMoveInYear(e.target.value)}
               min={1900}
               max={new Date().getFullYear()}
-              style={styles.input}
+              className={profileStyles.input}
               placeholder="2020"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="children" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="children" className={profileStyles.label}>
               Children
             </label>
             <textarea
@@ -455,17 +455,17 @@ export default function ProfilePage() {
               value={children}
               onChange={(e) => setChildren(e.target.value)}
               maxLength={MAX_LENGTHS.children}
-              style={styles.textarea}
+              className={profileStyles.textarea}
               placeholder="e.g., Emma (8), Jack (5)"
               rows={2}
             />
-            <span style={styles.hint}>
+            <span className={profileStyles.hint}>
               Names and ages of children in your household
             </span>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="pets" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="pets" className={profileStyles.label}>
               Pets
             </label>
             <textarea
@@ -473,15 +473,15 @@ export default function ProfilePage() {
               value={pets}
               onChange={(e) => setPets(e.target.value)}
               maxLength={MAX_LENGTHS.pets}
-              style={styles.textarea}
+              className={profileStyles.textarea}
               placeholder="e.g., Golden retriever named Max"
               rows={2}
             />
-            <span style={styles.hint}>Pets in your household</span>
+            <span className={profileStyles.hint}>Pets in your household</span>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="bio" style={styles.label}>
+          <div className={profileStyles.inputGroup}>
+            <label htmlFor="bio" className={profileStyles.label}>
               About Your Household
             </label>
             <textarea
@@ -489,23 +489,23 @@ export default function ProfilePage() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={MAX_LENGTHS.userBio}
-              style={styles.textarea}
+              className={profileStyles.textarea}
               placeholder="Tell your neighbors a bit about yourselves..."
               rows={4}
             />
             {bio.length > MAX_LENGTHS.userBio * 0.8 && (
-              <span style={styles.charCount}>
+              <span className={profileStyles.charCount}>
                 {bio.length}/{MAX_LENGTHS.userBio}
               </span>
             )}
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && <p className={profileStyles.error}>{error}</p>}
           {success && (
-            <p style={styles.success}>Profile updated successfully!</p>
+            <p className={profileStyles.success}>Profile updated successfully!</p>
           )}
 
-          <button type="submit" disabled={saving} style={styles.button}>
+          <button type="submit" disabled={saving} className={profileStyles.button}>
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </form>
@@ -513,146 +513,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "500px",
-    margin: "0 auto",
-    padding: "1rem",
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.5rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  title: {
-    margin: "0 0 1.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  input: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  inputDisabled: {
-    backgroundColor: "#f3f4f6",
-    color: "#6b7280",
-    cursor: "not-allowed",
-  },
-  textarea: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    resize: "vertical" as const,
-    fontFamily: "inherit",
-  },
-  hint: {
-    fontSize: "0.75rem",
-    color: "#888",
-    marginTop: "0.25rem",
-    marginBottom: "0.5rem",
-  },
-  phoneList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-    marginTop: "0.5rem",
-  },
-  phoneRow: {
-    display: "flex",
-    gap: "0.5rem",
-    alignItems: "center",
-  },
-  phoneLabelInput: {
-    flex: "0 0 100px",
-    padding: "0.625rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "0.875rem",
-  },
-  phoneNumberInput: {
-    flex: 1,
-    padding: "0.625rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "0.875rem",
-  },
-  removeButton: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    backgroundColor: "white",
-    color: "#999",
-    fontSize: "1.25rem",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    lineHeight: 1,
-  },
-  addPhoneButton: {
-    padding: "0.625rem",
-    borderRadius: "6px",
-    border: "1px dashed #ddd",
-    backgroundColor: "transparent",
-    color: "#666",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-    marginTop: "0.25rem",
-  },
-  button: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#2563eb",
-    color: "white",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: "pointer",
-    marginTop: "0.5rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  success: {
-    color: "#059669",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  charCount: {
-    fontSize: "0.75rem",
-    color: "#888",
-    textAlign: "right" as const,
-  },
-};

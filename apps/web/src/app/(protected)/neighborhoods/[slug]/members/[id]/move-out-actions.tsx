@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import styles from "./member-profile.module.css";
 
 interface MoveOutActionsProps {
   membershipId: string;
@@ -56,35 +57,15 @@ export function MoveOutActions({
   }
 
   return (
-    <div style={styles.container}>
-      {error && <p style={styles.error}>{error}</p>}
+    <div className={styles.actionContainer}>
+      {error && <p className={styles.actionError}>{error}</p>}
       <button
         onClick={handleMoveOut}
         disabled={loading}
-        style={styles.actionLink}
+        className={styles.actionLink}
       >
         {loading ? "Updating..." : "Mark as moved out"}
       </button>
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: "inline-block",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.75rem",
-    margin: "0 0 0.25rem 0",
-  },
-  actionLink: {
-    padding: "0",
-    backgroundColor: "transparent",
-    color: "#666",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "0.75rem",
-    textDecoration: "underline",
-  },
-};

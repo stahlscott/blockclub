@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import styles from "../../post-form.module.css";
 
 interface Post {
   id: string;
@@ -194,9 +195,9 @@ export default function EditPostPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <p style={styles.loadingText}>Loading...</p>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <p className={styles.loadingText}>Loading...</p>
         </div>
       </div>
     );
@@ -204,31 +205,31 @@ export default function EditPostPage() {
 
   if (error && !post) {
     return (
-      <div style={styles.container}>
-        <Link href={`/neighborhoods/${slug}/posts`} style={styles.backLink}>
+      <div className={styles.container}>
+        <Link href={`/neighborhoods/${slug}/posts`} className={styles.backLink}>
           &larr; Back to Posts
         </Link>
-        <div style={styles.card}>
-          <p style={styles.error}>{error}</p>
+        <div className={styles.card}>
+          <p className={styles.error}>{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}/posts`} style={styles.backLink}>
+    <div className={styles.container}>
+      <Link href={`/neighborhoods/${slug}/posts`} className={styles.backLink}>
         &larr; Back to Posts
       </Link>
 
-      <div style={styles.card}>
-        <h1 style={styles.title}>Edit Post</h1>
+      <div className={styles.card}>
+        <h1 className={styles.titleNoSubtitle}>Edit Post</h1>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {error && <div style={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && <div className={styles.error}>{error}</div>}
 
-          <div style={styles.field}>
-            <label htmlFor="content" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="content" className={styles.label}>
               Message *
             </label>
             <textarea
@@ -238,15 +239,15 @@ export default function EditPostPage() {
               rows={6}
               required
               maxLength={MAX_LENGTHS.postContent}
-              style={styles.textarea}
+              className={styles.textarea}
             />
-            <span style={styles.charCount}>
+            <span className={styles.charCount}>
               {content.length}/{MAX_LENGTHS.postContent}
             </span>
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="expiresAt" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="expiresAt" className={styles.label}>
               Expiration Date (optional)
             </label>
             <input
@@ -255,44 +256,41 @@ export default function EditPostPage() {
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
               min={minDate}
-              style={styles.input}
+              className={styles.input}
             />
-            <span style={styles.hint}>
+            <span className={styles.hint}>
               Post will be automatically hidden after this date
             </span>
           </div>
 
           {isAdmin && (
-            <div style={styles.field}>
-              <label style={styles.checkboxLabel}>
+            <div className={styles.field}>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   checked={isPinned}
                   onChange={(e) => setIsPinned(e.target.checked)}
-                  style={styles.checkbox}
+                  className={styles.checkbox}
                 />
                 Pin this post to the top
               </label>
-              <span style={styles.hint}>
+              <span className={styles.hint}>
                 Pinned posts appear at the top of the posts list
               </span>
             </div>
           )}
 
-          <div style={styles.actions}>
+          <div className={styles.actions}>
             <Link
               href={`/neighborhoods/${slug}/posts`}
-              style={styles.cancelButton}
+              className={styles.cancelButton}
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={saving || !content.trim()}
-              style={{
-                ...styles.submitButton,
-                ...(saving || !content.trim() ? styles.submitButtonDisabled : {}),
-              }}
+              className={styles.submitButton}
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>
@@ -302,121 +300,3 @@ export default function EditPostPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  title: {
-    margin: "0 0 1.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  error: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  loadingText: {
-    color: "#666",
-    textAlign: "center",
-    padding: "2rem",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#333",
-  },
-  input: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  textarea: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    resize: "vertical",
-    fontFamily: "inherit",
-    lineHeight: "1.5",
-  },
-  charCount: {
-    fontSize: "0.75rem",
-    color: "#888",
-    textAlign: "right",
-  },
-  hint: {
-    fontSize: "0.75rem",
-    color: "#888",
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#333",
-    cursor: "pointer",
-  },
-  checkbox: {
-    width: "1rem",
-    height: "1rem",
-    cursor: "pointer",
-  },
-  actions: {
-    display: "flex",
-    gap: "1rem",
-    justifyContent: "flex-end",
-    marginTop: "0.5rem",
-  },
-  cancelButton: {
-    padding: "0.75rem 1.5rem",
-    color: "#666",
-    textDecoration: "none",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  submitButton: {
-    padding: "0.75rem 1.5rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  submitButtonDisabled: {
-    backgroundColor: "#93c5fd",
-    cursor: "not-allowed",
-  },
-};

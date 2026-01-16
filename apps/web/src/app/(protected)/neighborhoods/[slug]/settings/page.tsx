@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isSuperAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import styles from "@/app/(protected)/settings/settings.module.css";
 
 export default function NeighborhoodSettingsPage() {
   const router = useRouter();
@@ -121,8 +122,8 @@ export default function NeighborhoodSettingsPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
+      <div className={styles.container}>
+        <div className={styles.card}>
           <p>Loading...</p>
         </div>
       </div>
@@ -130,20 +131,20 @@ export default function NeighborhoodSettingsPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <Link href="/dashboard" style={styles.backLink}>
+    <div className={styles.container}>
+      <Link href="/dashboard" className={styles.backLink}>
         &larr; Back to Dashboard
       </Link>
 
-      <div style={styles.card}>
-        <h1 style={styles.title}>Neighborhood Settings</h1>
+      <div className={styles.card}>
+        <h1 className={styles.title}>Neighborhood Settings</h1>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {error && <div style={styles.error}>{error}</div>}
-          {success && <div style={styles.success}>Settings saved!</div>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && <div className={styles.error}>{error}</div>}
+          {success && <div className={styles.success}>Settings saved!</div>}
 
-          <div style={styles.field}>
-            <label htmlFor="name" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="name" className={styles.label}>
               Neighborhood Name *
             </label>
             <input
@@ -153,12 +154,12 @@ export default function NeighborhoodSettingsPage() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
               maxLength={MAX_LENGTHS.neighborhoodName}
-              style={styles.input}
+              className={styles.input}
             />
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="location" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="location" className={styles.label}>
               Location
             </label>
             <input
@@ -168,12 +169,12 @@ export default function NeighborhoodSettingsPage() {
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               placeholder="e.g., Austin, TX"
               maxLength={MAX_LENGTHS.neighborhoodLocation}
-              style={styles.input}
+              className={styles.input}
             />
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="description" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="description" className={styles.label}>
               Description
             </label>
             <textarea
@@ -185,21 +186,21 @@ export default function NeighborhoodSettingsPage() {
               placeholder="Tell people about your neighborhood..."
               rows={4}
               maxLength={MAX_LENGTHS.neighborhoodDescription}
-              style={styles.textarea}
+              className={styles.textarea}
             />
             {form.description.length >
               MAX_LENGTHS.neighborhoodDescription * 0.8 && (
-              <span style={styles.charCount}>
+              <span className={styles.charCount}>
                 {form.description.length}/{MAX_LENGTHS.neighborhoodDescription}
               </span>
             )}
           </div>
 
-          <div style={styles.divider} />
+          <div className={styles.divider} />
 
-          <h2 style={styles.sectionTitle}>Membership</h2>
+          <h2 className={styles.sectionTitle}>Membership</h2>
 
-          <div style={styles.checkboxField}>
+          <div className={styles.checkboxField}>
             <input
               id="require_approval"
               type="checkbox"
@@ -207,25 +208,25 @@ export default function NeighborhoodSettingsPage() {
               onChange={(e) =>
                 setForm({ ...form, require_approval: e.target.checked })
               }
-              style={styles.checkbox}
+              className={styles.checkbox}
             />
-            <label htmlFor="require_approval" style={styles.checkboxLabel}>
-              <span style={styles.checkboxTitle}>Require admin approval</span>
-              <span style={styles.checkboxHint}>
+            <label htmlFor="require_approval" className={styles.checkboxLabel}>
+              <span className={styles.checkboxTitle}>Require admin approval</span>
+              <span className={styles.checkboxHint}>
                 New members must be approved by an admin before joining
               </span>
             </label>
           </div>
 
-          <div style={styles.divider} />
+          <div className={styles.divider} />
 
-          <h2 style={styles.sectionTitle}>Invite Link</h2>
+          <h2 className={styles.sectionTitle}>Invite Link</h2>
 
-          <div style={styles.inviteSection}>
-            <p style={styles.inviteHint}>
+          <div className={styles.inviteSection}>
+            <p className={styles.inviteHint}>
               Share this link to invite neighbors to join:
             </p>
-            <div style={styles.inviteRow}>
+            <div className={styles.inviteRow}>
               <input
                 type="text"
                 readOnly
@@ -234,7 +235,7 @@ export default function NeighborhoodSettingsPage() {
                     ? `${window.location.origin}/join/${slug}`
                     : `/join/${slug}`
                 }
-                style={styles.inviteInput}
+                className={styles.inviteInput}
               />
               <button
                 type="button"
@@ -245,26 +246,26 @@ export default function NeighborhoodSettingsPage() {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                style={styles.copyButton}
+                className={styles.copyButton}
               >
                 {copied ? "Copied!" : "Copy"}
               </button>
             </div>
           </div>
 
-          <div style={styles.divider} />
+          <div className={styles.divider} />
 
-          <h2 style={styles.sectionTitle}>Admin Actions</h2>
+          <h2 className={styles.sectionTitle}>Admin Actions</h2>
 
           <Link
             href={`/neighborhoods/${slug}/members/pending`}
-            style={styles.adminLink}
+            className={styles.adminLink}
           >
             Review pending requests
           </Link>
 
-          <div style={styles.actions}>
-            <button type="submit" disabled={saving} style={styles.submitButton}>
+          <div className={styles.actions}>
+            <button type="submit" disabled={saving} className={styles.submitButton}>
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
@@ -273,164 +274,3 @@ export default function NeighborhoodSettingsPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  title: {
-    margin: "0 0 1.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  error: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  success: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#dcfce7",
-    color: "#166534",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#333",
-  },
-  input: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  textarea: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    resize: "vertical",
-    fontFamily: "inherit",
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: "#eee",
-    margin: "0.5rem 0",
-  },
-  sectionTitle: {
-    margin: "0",
-    fontSize: "1rem",
-    fontWeight: "600",
-    color: "#333",
-  },
-  checkboxField: {
-    display: "flex",
-    gap: "0.75rem",
-    alignItems: "flex-start",
-  },
-  checkbox: {
-    width: "18px",
-    height: "18px",
-    marginTop: "2px",
-  },
-  checkboxLabel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  checkboxTitle: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  checkboxHint: {
-    fontSize: "0.75rem",
-    color: "#666",
-  },
-  adminLink: {
-    color: "#2563eb",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-  },
-  inviteSection: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  inviteHint: {
-    margin: 0,
-    fontSize: "0.875rem",
-    color: "#666",
-  },
-  inviteRow: {
-    display: "flex",
-    gap: "0.5rem",
-  },
-  inviteInput: {
-    flex: 1,
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "0.875rem",
-    backgroundColor: "#f9fafb",
-    color: "#333",
-  },
-  copyButton: {
-    padding: "0.75rem 1.25rem",
-    backgroundColor: "#e0e7ff",
-    color: "#3730a3",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-  actions: {
-    marginTop: "0.5rem",
-  },
-  submitButton: {
-    width: "100%",
-    padding: "0.75rem 1.5rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  charCount: {
-    fontSize: "0.75rem",
-    color: "#888",
-    textAlign: "right" as const,
-  },
-};
