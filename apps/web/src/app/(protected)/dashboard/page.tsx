@@ -195,9 +195,9 @@ export default async function DashboardPage() {
       (m: any) => !isSuperAdmin(m.user?.email) && m.user_id !== authUser.id,
     );
 
-    // Fetch recent bulletin posts
+    // Fetch recent posts
     const { data: postsData } = await supabase
-      .from("bulletin_posts")
+      .from("posts")
       .select("*, author:users!author_id(id, name, avatar_url)")
       .eq("neighborhood_id", primaryNeighborhood.id)
       .is("deleted_at", null)
@@ -420,11 +420,11 @@ export default async function DashboardPage() {
           <section style={styles.section}>
             <div className={responsive.grid3}>
               <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
+                href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
                 style={styles.actionCard}
               >
-                <span style={styles.actionIcon}>📋</span>
-                <span>Bulletin</span>
+                <span style={styles.actionIcon}>📝</span>
+                <span>Posts</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
@@ -443,13 +443,13 @@ export default async function DashboardPage() {
             </div>
           </section>
 
-          {/* Recently Posted (Bulletin) */}
+          {/* Recently Posted */}
           {recentPosts.length > 0 && (
             <section style={styles.section}>
               <div style={styles.sectionHeader}>
                 <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
                 <Link
-                  href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
                   style={styles.seeAllLink}
                 >
                   See all &rarr;
@@ -462,7 +462,7 @@ export default async function DashboardPage() {
                   return (
                     <Link
                       key={post.id}
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/bulletin`}
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
                       style={styles.postRow}
                     >
                       <div style={styles.memberInfo}>
@@ -907,7 +907,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#999",
     fontSize: "1rem",
   },
-  // Post preview (bulletin)
+  // Post preview
   postRow: {
     display: "flex",
     alignItems: "flex-start",

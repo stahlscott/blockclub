@@ -1,14 +1,14 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { BulletinClient } from "./bulletin-client";
-import type { BulletinReactionType } from "@blockclub/shared";
+import { PostsClient } from "./posts-client";
+import type { PostReactionType } from "@blockclub/shared";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export default async function BulletinPage({ params }: Props) {
+export default async function PostsPage({ params }: Props) {
   const { slug } = await params;
   const supabase = await createClient();
 
@@ -49,7 +49,7 @@ export default async function BulletinPage({ params }: Props) {
   // Fetch posts with author info
   // Note: RLS handles filtering deleted/expired posts
   const { data: posts } = await supabase
-    .from("bulletin_posts")
+    .from("posts")
     .select(
       `
       *,
@@ -65,7 +65,7 @@ export default async function BulletinPage({ params }: Props) {
   const postIds = posts?.map((p) => p.id) || [];
   const { data: reactions } = postIds.length
     ? await supabase
-        .from("bulletin_reactions")
+        .from("post_reactions")
         .select("*")
         .in("post_id", postIds)
     : { data: [] };
@@ -76,7 +76,7 @@ export default async function BulletinPage({ params }: Props) {
       const postReactions = reactions?.filter((r) => r.post_id === post.id) || [];
 
       // Count reactions by type
-      const reactionTypes: BulletinReactionType[] = [
+      const reactionTypes: PostReactionType[] = [
         "thumbs_up",
         "heart",
         "pray",
@@ -87,7 +87,7 @@ export default async function BulletinPage({ params }: Props) {
           acc[type] = postReactions.filter((r) => r.reaction === type).length;
           return acc;
         },
-        {} as Record<BulletinReactionType, number>
+        {} as Record<PostReactionType, number>
       );
 
       // Get current user's reactions
@@ -109,18 +109,18 @@ export default async function BulletinPage({ params }: Props) {
           <Link href="/dashboard" style={styles.backLink}>
             &larr; Dashboard
           </Link>
-          <h1 style={styles.title}>Bulletin Board</h1>
+          <h1 style={styles.title}>Posts</h1>
           <p style={styles.subtitle}>
             {postsWithReactions.length} post
             {postsWithReactions.length !== 1 ? "s" : ""} in {neighborhood.name}
           </p>
         </div>
-        <Link href={`/neighborhoods/${slug}/bulletin/new`} style={styles.newButton}>
+        <Link href={`/neighborhoods/${slug}/posts/new`} style={styles.newButton}>
           + New Post
         </Link>
       </div>
 
-      <BulletinClient
+      <PostsClient
         posts={postsWithReactions}
         currentUserId={user.id}
         isAdmin={isAdmin}

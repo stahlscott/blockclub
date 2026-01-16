@@ -99,7 +99,7 @@ export default function EditPostPage() {
 
         // Get post
         const { data: postData, error: postError } = await supabase
-          .from("bulletin_posts")
+          .from("posts")
           .select("*")
           .eq("id", postId)
           .single();
@@ -172,7 +172,7 @@ export default function EditPostPage() {
       }
 
       const { error: updateError } = await supabase
-        .from("bulletin_posts")
+        .from("posts")
         .update(updateData)
         .eq("id", postId);
 
@@ -182,7 +182,7 @@ export default function EditPostPage() {
         return;
       }
 
-      router.push(`/neighborhoods/${slug}/bulletin`);
+      router.push(`/neighborhoods/${slug}/posts`);
       router.refresh();
     } catch (err) {
       logger.error("Error updating post", err);
@@ -205,8 +205,8 @@ export default function EditPostPage() {
   if (error && !post) {
     return (
       <div style={styles.container}>
-        <Link href={`/neighborhoods/${slug}/bulletin`} style={styles.backLink}>
-          &larr; Back to Bulletin Board
+        <Link href={`/neighborhoods/${slug}/posts`} style={styles.backLink}>
+          &larr; Back to Posts
         </Link>
         <div style={styles.card}>
           <p style={styles.error}>{error}</p>
@@ -217,8 +217,8 @@ export default function EditPostPage() {
 
   return (
     <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}/bulletin`} style={styles.backLink}>
-        &larr; Back to Bulletin Board
+      <Link href={`/neighborhoods/${slug}/posts`} style={styles.backLink}>
+        &larr; Back to Posts
       </Link>
 
       <div style={styles.card}>
@@ -237,11 +237,11 @@ export default function EditPostPage() {
               onChange={(e) => setContent(e.target.value)}
               rows={6}
               required
-              maxLength={MAX_LENGTHS.bulletinContent}
+              maxLength={MAX_LENGTHS.postContent}
               style={styles.textarea}
             />
             <span style={styles.charCount}>
-              {content.length}/{MAX_LENGTHS.bulletinContent}
+              {content.length}/{MAX_LENGTHS.postContent}
             </span>
           </div>
 
@@ -274,14 +274,14 @@ export default function EditPostPage() {
                 Pin this post to the top
               </label>
               <span style={styles.hint}>
-                Pinned posts appear at the top of the bulletin board
+                Pinned posts appear at the top of the posts list
               </span>
             </div>
           )}
 
           <div style={styles.actions}>
             <Link
-              href={`/neighborhoods/${slug}/bulletin`}
+              href={`/neighborhoods/${slug}/posts`}
               style={styles.cancelButton}
             >
               Cancel

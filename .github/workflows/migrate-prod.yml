@@ -1,16 +1,13 @@
 name: Migrate Production Database
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type "migrate" to confirm'
-        required: true
+  pull_request:
+    branches: [prod]
 
 jobs:
   migrate:
-    if: github.ref == 'refs/heads/prod' && github.event.inputs.confirm == 'migrate'
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
 

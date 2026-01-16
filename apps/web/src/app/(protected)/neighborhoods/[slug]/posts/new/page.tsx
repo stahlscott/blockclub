@@ -75,7 +75,7 @@ export default function NewPostPage() {
       }
 
       // Create post
-      const { error: insertError } = await supabase.from("bulletin_posts").insert({
+      const { error: insertError } = await supabase.from("posts").insert({
         neighborhood_id: neighborhood.id,
         author_id: user.id,
         content: content.trim(),
@@ -88,7 +88,7 @@ export default function NewPostPage() {
         return;
       }
 
-      router.push(`/neighborhoods/${slug}/bulletin`);
+      router.push(`/neighborhoods/${slug}/posts`);
       router.refresh();
     } catch (err) {
       logger.error("Error creating post", err);
@@ -100,8 +100,8 @@ export default function NewPostPage() {
 
   return (
     <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}/bulletin`} style={styles.backLink}>
-        &larr; Back to Bulletin Board
+      <Link href={`/neighborhoods/${slug}/posts`} style={styles.backLink}>
+        &larr; Back to Posts
       </Link>
 
       <div style={styles.card}>
@@ -124,11 +124,11 @@ export default function NewPostPage() {
               placeholder="Lost cat, block party announcement, road closure notice..."
               rows={6}
               required
-              maxLength={MAX_LENGTHS.bulletinContent}
+              maxLength={MAX_LENGTHS.postContent}
               style={styles.textarea}
             />
             <span style={styles.charCount}>
-              {content.length}/{MAX_LENGTHS.bulletinContent}
+              {content.length}/{MAX_LENGTHS.postContent}
             </span>
           </div>
 
@@ -151,7 +151,7 @@ export default function NewPostPage() {
 
           <div style={styles.actions}>
             <Link
-              href={`/neighborhoods/${slug}/bulletin`}
+              href={`/neighborhoods/${slug}/posts`}
               style={styles.cancelButton}
             >
               Cancel
@@ -175,9 +175,10 @@ export default function NewPostPage() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    maxWidth: "720px",
+    width: "100%",
+    maxWidth: "600px",
     margin: "0 auto",
-    padding: "1rem",
+    padding: "1.5rem 1rem",
   },
   backLink: {
     color: "#666",

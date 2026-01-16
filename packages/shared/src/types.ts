@@ -39,7 +39,7 @@ export type ChildcareRequestStatus =
   | "declined"
   | "cancelled";
 
-export type BulletinReactionType = "thumbs_up" | "heart" | "pray" | "celebrate";
+export type PostReactionType = "thumbs_up" | "heart" | "pray" | "celebrate";
 
 // ============================================================================
 // CORE TABLES
@@ -186,10 +186,10 @@ export interface ChildcareRequest {
 }
 
 // ============================================================================
-// BULLETIN BOARD
+// POSTS
 // ============================================================================
 
-export interface BulletinPost {
+export interface Post {
   id: string;
   neighborhood_id: string;
   author_id: string;
@@ -202,11 +202,11 @@ export interface BulletinPost {
   deleted_at: string | null;
 }
 
-export interface BulletinReaction {
+export interface PostReaction {
   id: string;
   post_id: string;
   user_id: string;
-  reaction: BulletinReactionType;
+  reaction: PostReactionType;
   created_at: string;
 }
 
@@ -243,14 +243,14 @@ export interface ChildcareAvailabilityWithUser extends ChildcareAvailability {
   user: User;
 }
 
-export interface BulletinPostWithAuthor extends BulletinPost {
+export interface PostWithAuthor extends Post {
   author: User;
   editor?: User | null;
 }
 
-export interface BulletinPostWithReactions extends BulletinPostWithAuthor {
-  reaction_counts: Record<BulletinReactionType, number>;
-  user_reactions: BulletinReactionType[];
+export interface PostWithReactions extends PostWithAuthor {
+  reaction_counts: Record<PostReactionType, number>;
+  user_reactions: PostReactionType[];
 }
 
 // ============================================================================
@@ -325,23 +325,23 @@ export type ChildcareRequestUpdate = Partial<
   Pick<ChildcareRequest, "status" | "notes">
 >;
 
-export type BulletinPostInsert = {
+export type PostInsert = {
   neighborhood_id: string;
   author_id: string;
   content: string;
   expires_at?: string | null;
 };
-export type BulletinPostUpdate = Partial<
+export type PostUpdate = Partial<
   Pick<
-    BulletinPost,
+    Post,
     "content" | "is_pinned" | "expires_at" | "edited_at" | "edited_by" | "deleted_at"
   >
 >;
 
-export type BulletinReactionInsert = {
+export type PostReactionInsert = {
   post_id: string;
   user_id: string;
-  reaction: BulletinReactionType;
+  reaction: PostReactionType;
 };
 
 // ============================================================================
@@ -396,14 +396,14 @@ export interface Database {
         Insert: ChildcareRequestInsert;
         Update: ChildcareRequestUpdate;
       };
-      bulletin_posts: {
-        Row: BulletinPost;
-        Insert: BulletinPostInsert;
-        Update: BulletinPostUpdate;
+      posts: {
+        Row: Post;
+        Insert: PostInsert;
+        Update: PostUpdate;
       };
-      bulletin_reactions: {
-        Row: BulletinReaction;
-        Insert: BulletinReactionInsert;
+      post_reactions: {
+        Row: PostReaction;
+        Insert: PostReactionInsert;
         Update: never;
       };
     };
@@ -415,7 +415,7 @@ export interface Database {
       loan_status: LoanStatus;
       rsvp_status: RsvpStatus;
       childcare_request_status: ChildcareRequestStatus;
-      bulletin_reaction_type: BulletinReactionType;
+      post_reaction_type: PostReactionType;
     };
   };
 }

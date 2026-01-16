@@ -14,8 +14,8 @@ export const MAX_LENGTHS = {
   itemName: 100,
   itemDescription: 1000,
 
-  // Bulletin fields
-  bulletinContent: 2000,
+  // Post fields
+  postContent: 2000,
 
   // General
   address: 200,
