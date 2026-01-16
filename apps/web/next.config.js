@@ -21,9 +21,10 @@ module.exports = withSentryConfig(nextConfig, {
 
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  // Show upload logs (set to true to hide in production later)
+  silent: false,
 
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
