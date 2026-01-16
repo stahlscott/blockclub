@@ -199,7 +199,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             <strong>{activeLoan.borrower?.name}</strong> wants to borrow this item
           </p>
           {activeLoan.notes && (
-            <p style={styles.requestNotes}>"{activeLoan.notes}"</p>
+            <p style={styles.requestNotes}>&ldquo;{activeLoan.notes}&rdquo;</p>
           )}
           <div style={styles.dueDateSection}>
             <label htmlFor="dueDate" style={styles.dueDateLabel}>

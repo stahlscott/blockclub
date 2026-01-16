@@ -16,6 +16,21 @@ interface Post {
   expires_at: string | null;
 }
 
+// Helper to format date as YYYY-MM-DD in local timezone
+function formatDateLocal(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// Helper to parse ISO date to YYYY-MM-DD
+function isoToDateInput(isoString: string | null) {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  return formatDateLocal(date);
+}
+
 export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
@@ -31,21 +46,6 @@ export default function EditPostPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  // Helper to format date as YYYY-MM-DD in local timezone
-  const formatDateLocal = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  // Helper to parse ISO date to YYYY-MM-DD
-  const isoToDateInput = (isoString: string | null) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    return formatDateLocal(date);
-  };
 
   // Minimum date is tomorrow
   const tomorrow = new Date();

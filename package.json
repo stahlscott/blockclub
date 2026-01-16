@@ -13,6 +13,7 @@
     "build:web": "turbo build --filter=@blockclub/web",
     "build:mobile": "turbo build --filter=@blockclub/mobile",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules",
     "test": "turbo test",
