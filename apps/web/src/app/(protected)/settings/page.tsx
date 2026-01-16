@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { captureException } from "@/lib/sentry";
 import styles from "./settings.module.css";
 
 export default function SettingsPage() {
@@ -281,36 +280,6 @@ export default function SettingsPage() {
         <button type="button" onClick={signOut} className={styles.signOutButton}>
           Sign Out
         </button>
-      </div>
-
-      {/* Sentry Test Section - Remove after verifying Sentry works */}
-      <div className={styles.card}>
-        <h2 className={styles.sectionTitle}>Test Error Reporting</h2>
-        <p className={styles.signOutHint}>
-          Use these buttons to verify Sentry is working. Remove this section after testing.
-        </p>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
-          <button
-            type="button"
-            onClick={() => {
-              const testError = new Error("Test error from settings page");
-              captureException(testError, { test: true, location: "settings" });
-              alert("Test error sent to Sentry! Check your Sentry dashboard.");
-            }}
-            className={styles.button}
-          >
-            Send Test Error (Silent)
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              throw new Error("Test uncaught error - triggers error boundary");
-            }}
-            className={styles.leaveButton}
-          >
-            Trigger Error Boundary
-          </button>
-        </div>
       </div>
     </div>
   );

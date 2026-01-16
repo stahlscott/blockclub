@@ -160,6 +160,10 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                       |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                   |
 | `SUPER_ADMIN_EMAILS`                   | Comma-separated list of super admin emails |
+| `NEXT_PUBLIC_SENTRY_DSN`               | Sentry DSN for error reporting             |
+| `SENTRY_ORG`                           | Sentry organization slug (build-time)      |
+| `SENTRY_PROJECT`                       | Sentry project slug (build-time)           |
+| `SENTRY_AUTH_TOKEN`                    | Sentry auth token for source maps (build-time) |
 
 ## Infrastructure
 
@@ -167,6 +171,7 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | ------- | ------- | ----- |
 | [Supabase](https://supabase.com) | Database, Auth, Storage | PostgreSQL with RLS, email/password auth, image storage |
 | [Vercel](https://vercel.com) | Hosting, DNS | Automatic deploys from main branch |
+| [Sentry](https://sentry.io) | Error Monitoring | Error tracking with source maps, session replay |
 | [Resend](https://resend.com) | Transactional email | Auth emails (confirmation, password reset) via Supabase SMTP |
 | [ImprovMX](https://improvmx.com) | Email forwarding | Forwards contact emails to personal address |
 
