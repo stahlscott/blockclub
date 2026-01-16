@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import styles from "./item-detail.module.css";
 
 interface Props {
   itemId: string;
@@ -70,12 +71,12 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
     const isOverdue = userLoan.due_date && parseDateLocal(userLoan.due_date) < today;
     
     return (
-      <div style={isOverdue ? styles.overdueBadge : styles.borrowedBadge}>
-        <div style={isOverdue ? styles.overdueTitle : styles.borrowedTitle}>
+      <div className={isOverdue ? styles.overdueBadge : styles.borrowedBadge}>
+        <div className={isOverdue ? styles.overdueTitle : styles.borrowedTitle}>
           {isOverdue ? "Overdue" : "You're borrowing this item"}
         </div>
         {userLoan.due_date && (
-          <div style={isOverdue ? styles.overdueDue : styles.borrowedDue}>
+          <div className={isOverdue ? styles.overdueDue : styles.borrowedDue}>
             {isOverdue ? "Was due" : "Due"}: {parseDateLocal(userLoan.due_date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -84,7 +85,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
           </div>
         )}
         {isOverdue && (
-          <div style={styles.overdueHint}>
+          <div className={styles.overdueHint}>
             Please return this item to the owner
           </div>
         )}
@@ -95,7 +96,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
   // User has a pending or approved request
   if (userLoan?.status === "requested") {
     return (
-      <div style={styles.requestedBadge}>
+      <div className={styles.requestedBadge}>
         Request pending
       </div>
     );
@@ -103,7 +104,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
 
   if (userLoan?.status === "approved") {
     return (
-      <div style={styles.approvedBadge}>
+      <div className={styles.approvedBadge}>
         Request approved - contact the owner to arrange pickup
       </div>
     );
@@ -111,7 +112,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
 
   if (!isAvailable) {
     return (
-      <div style={styles.unavailable}>
+      <div className={styles.unavailable}>
         This item is not available for borrowing
       </div>
     );
@@ -119,35 +120,35 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
 
   if (!showForm) {
     return (
-      <button onClick={() => setShowForm(true)} style={styles.button}>
+      <button onClick={() => setShowForm(true)} className={styles.button}>
         Request to Borrow...
       </button>
     );
   }
 
   return (
-    <div style={styles.form}>
-      {error && <div style={styles.error}>{error}</div>}
+    <div className={styles.form}>
+      {error && <div className={styles.error}>{error}</div>}
 
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Add a note to the owner (optional)..."
         rows={3}
-        style={styles.textarea}
+        className={styles.textarea}
       />
 
-      <div style={styles.actions}>
+      <div className={styles.actions}>
         <button
           onClick={() => setShowForm(false)}
-          style={styles.cancelButton}
+          className={styles.formCancelButton}
           disabled={loading}
         >
           Cancel
         </button>
         <button
           onClick={handleRequest}
-          style={styles.button}
+          className={styles.button}
           disabled={loading}
         >
           {loading ? "Sending..." : "Send Request"}
@@ -156,116 +157,3 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  button: {
-    width: "100%",
-    padding: "0.875rem 1.5rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  unavailable: {
-    padding: "0.875rem 1.5rem",
-    backgroundColor: "#f5f5f5",
-    color: "#666",
-    borderRadius: "6px",
-    textAlign: "center",
-    fontSize: "0.875rem",
-  },
-  requestedBadge: {
-    padding: "0.875rem 1.5rem",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    borderRadius: "6px",
-    textAlign: "center",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  approvedBadge: {
-    padding: "0.875rem 1.5rem",
-    backgroundColor: "#dbeafe",
-    color: "#1e40af",
-    borderRadius: "6px",
-    textAlign: "center",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  borrowedBadge: {
-    padding: "1rem 1.5rem",
-    backgroundColor: "#f0fdf4",
-    border: "1px solid #86efac",
-    color: "#166534",
-    borderRadius: "6px",
-    textAlign: "center",
-  },
-  borrowedTitle: {
-    fontSize: "0.875rem",
-    fontWeight: "600",
-    marginBottom: "0.25rem",
-  },
-  borrowedDue: {
-    fontSize: "0.75rem",
-    color: "#15803d",
-  },
-  overdueBadge: {
-    padding: "1rem 1.5rem",
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fca5a5",
-    color: "#991b1b",
-    borderRadius: "6px",
-    textAlign: "center",
-  },
-  overdueTitle: {
-    fontSize: "0.875rem",
-    fontWeight: "600",
-    marginBottom: "0.25rem",
-  },
-  overdueDue: {
-    fontSize: "0.75rem",
-    color: "#b91c1c",
-  },
-  overdueHint: {
-    fontSize: "0.75rem",
-    color: "#dc2626",
-    marginTop: "0.5rem",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  },
-  error: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  textarea: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "0.875rem",
-    resize: "vertical",
-    fontFamily: "inherit",
-  },
-  actions: {
-    display: "flex",
-    gap: "0.75rem",
-  },
-  cancelButton: {
-    flex: 1,
-    padding: "0.75rem 1rem",
-    backgroundColor: "#f5f5f5",
-    color: "#333",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-  },
-};

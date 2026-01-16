@@ -1,0 +1,86 @@
+/* Shared styles for error and not-found pages */
+.container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.card {
+  background-color: var(--color-surface);
+  padding: var(--space-12);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  max-width: 400px;
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+}
+
+.code {
+  font-size: 4rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-border);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-3) 0;
+  color: var(--color-text);
+}
+
+.message {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-8);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  text-decoration: none;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.secondaryButton {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-border);
+}

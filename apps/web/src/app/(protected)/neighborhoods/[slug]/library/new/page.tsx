@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
 import type { ItemCategory } from "@blockclub/shared";
+import styles from "../library-forms.module.css";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
   { value: "tools", label: "Tools" },
@@ -120,22 +121,22 @@ export default function NewItemPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <Link href={`/neighborhoods/${slug}/library`} style={styles.backLink}>
+    <div className={styles.container}>
+      <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
         &larr; Back to Library
       </Link>
 
-      <div style={styles.card}>
-        <h1 style={styles.title}>Add Item to Library</h1>
-        <p style={styles.subtitle}>
+      <div className={styles.card}>
+        <h1 className={styles.title}>Add Item to Library</h1>
+        <p className={styles.subtitle}>
           Share something with your neighbors that they can borrow
         </p>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {error && <div style={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && <div className={styles.error}>{error}</div>}
 
-          <div style={styles.field}>
-            <label htmlFor="name" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="name" className={styles.label}>
               Item Name *
             </label>
             <input
@@ -146,12 +147,12 @@ export default function NewItemPage() {
               placeholder="e.g., Circular Saw, Dutch Oven, Camping Tent"
               required
               maxLength={MAX_LENGTHS.itemName}
-              style={styles.input}
+              className={styles.input}
             />
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="category" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="category" className={styles.label}>
               Category *
             </label>
             <select
@@ -159,7 +160,7 @@ export default function NewItemPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value as ItemCategory)}
               required
-              style={styles.select}
+              className={styles.select}
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -169,8 +170,8 @@ export default function NewItemPage() {
             </select>
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="description" style={styles.label}>
+          <div className={styles.field}>
+            <label htmlFor="description" className={styles.label}>
               Description
             </label>
             <textarea
@@ -180,10 +181,10 @@ export default function NewItemPage() {
               placeholder="Add details about the item, condition, or any borrowing notes..."
               rows={4}
               maxLength={MAX_LENGTHS.itemDescription}
-              style={styles.textarea}
+              className={styles.textarea}
             />
             {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
-              <span style={styles.charCount}>
+              <span className={styles.charCount}>
                 {description.length}/{MAX_LENGTHS.itemDescription}
               </span>
             )}
@@ -198,17 +199,17 @@ export default function NewItemPage() {
             />
           )}
 
-          <div style={styles.actions}>
+          <div className={styles.actions}>
             <Link
               href={`/neighborhoods/${slug}/library`}
-              style={styles.cancelButton}
+              className={styles.cancelButton}
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              style={styles.submitButton}
+              className={styles.submitButton}
             >
               {loading ? "Adding..." : "Add Item"}
             </button>
@@ -218,105 +219,3 @@ export default function NewItemPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  title: {
-    margin: "0 0 0.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0 0 1.5rem 0",
-    color: "#666",
-    fontSize: "0.875rem",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  error: {
-    padding: "0.75rem 1rem",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#333",
-  },
-  input: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  select: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    backgroundColor: "white",
-  },
-  textarea: {
-    padding: "0.75rem 1rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    resize: "vertical",
-    fontFamily: "inherit",
-  },
-  actions: {
-    display: "flex",
-    gap: "1rem",
-    justifyContent: "flex-end",
-    marginTop: "0.5rem",
-  },
-  cancelButton: {
-    padding: "0.75rem 1.5rem",
-    color: "#666",
-    textDecoration: "none",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-  },
-  submitButton: {
-    padding: "0.75rem 1.5rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  charCount: {
-    fontSize: "0.75rem",
-    color: "#888",
-    textAlign: "right",
-  },
-};

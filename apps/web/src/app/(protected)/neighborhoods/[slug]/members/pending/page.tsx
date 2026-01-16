@@ -63,19 +63,19 @@ export default async function PendingMembersPage({ params }: Props) {
     .order("joined_at", { ascending: true });
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <Link href="/dashboard" style={styles.backLink}>
+    <div className={pendingStyles.container}>
+      <div className={pendingStyles.header}>
+        <Link href="/dashboard" className={pendingStyles.backLink}>
           &larr; Dashboard
         </Link>
-        <h1 style={styles.title}>Pending Requests</h1>
-        <p style={styles.subtitle}>
+        <h1 className={pendingStyles.title}>Pending Requests</h1>
+        <p className={pendingStyles.subtitle}>
           {pendingMembers?.length || 0} households waiting to join
         </p>
       </div>
 
       {pendingMembers && pendingMembers.length > 0 ? (
-        <div style={styles.list}>
+        <div className={pendingStyles.list}>
           {pendingMembers.map((member: any) => {
             const userName = member.user?.name;
             const userEmail = member.user?.email;
@@ -84,44 +84,44 @@ export default async function PendingMembersPage({ params }: Props) {
 
             return (
               <div key={member.id} className={pendingStyles.card}>
-                <div style={styles.memberInfo}>
-                  <div style={styles.avatar}>
+                <div className={pendingStyles.memberInfo}>
+                  <div className={pendingStyles.avatar}>
                     {member.user?.avatar_url ? (
                       <Image
                         src={member.user.avatar_url}
                         alt={userName || "User"}
                         width={48}
                         height={48}
-                        style={styles.avatarImage}
+                        className={pendingStyles.avatarImage}
                       />
                     ) : (
                       <span>{initial}</span>
                     )}
                   </div>
-                  <div style={styles.details}>
+                  <div className={pendingStyles.details}>
                     {hasProfile ? (
                       <>
-                        <h3 style={styles.name}>
+                        <h3 className={pendingStyles.name}>
                           {userName || (
-                            <span style={styles.noName}>No name set</span>
+                            <span className={pendingStyles.noName}>No name set</span>
                           )}
                         </h3>
                         {member.user?.address && (
-                          <p style={styles.address}>{member.user.address}</p>
+                          <p className={pendingStyles.address}>{member.user.address}</p>
                         )}
-                        <p style={styles.email}>{userEmail}</p>
+                        <p className={pendingStyles.email}>{userEmail}</p>
                       </>
                     ) : (
                       <>
-                        <h3 style={styles.name}>
-                          <span style={styles.noName}>Profile not found</span>
+                        <h3 className={pendingStyles.name}>
+                          <span className={pendingStyles.noName}>Profile not found</span>
                         </h3>
-                        <p style={styles.userId}>
+                        <p className={pendingStyles.userId}>
                           User ID: {member.user_id.slice(0, 8)}...
                         </p>
                       </>
                     )}
-                    <p style={styles.date}>
+                    <p className={pendingStyles.date}>
                       Requested{" "}
                       {new Date(member.joined_at).toLocaleDateString("en-US", {
                         month: "short",
@@ -134,18 +134,17 @@ export default async function PendingMembersPage({ params }: Props) {
                 <MembershipActions
                   membershipId={member.id}
                   slug={slug}
-                  className={pendingStyles.actions}
                 />
               </div>
             );
           })}
         </div>
       ) : (
-        <div style={styles.empty}>
-          <p style={styles.emptyText}>No pending requests</p>
+        <div className={pendingStyles.empty}>
+          <p className={pendingStyles.emptyText}>No pending requests</p>
           <Link
             href={`/neighborhoods/${slug}/directory`}
-            style={styles.emptyLink}
+            className={pendingStyles.emptyLink}
           >
             View current members
           </Link>
@@ -154,111 +153,3 @@ export default async function PendingMembersPage({ params }: Props) {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    width: "100%",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "1.5rem 1rem",
-  },
-  header: {
-    marginBottom: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  title: {
-    margin: "0",
-    fontSize: "1.75rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0.25rem 0 0 0",
-    color: "#666",
-    fontSize: "0.875rem",
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  },
-  memberInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-  },
-  avatar: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "50%",
-    backgroundColor: "#e0e7ff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "600",
-    color: "#3730a3",
-    overflow: "hidden",
-    flexShrink: 0,
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  details: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.125rem",
-  },
-  name: {
-    margin: 0,
-    fontSize: "1rem",
-    fontWeight: "600",
-  },
-  noName: {
-    color: "#999",
-    fontStyle: "italic",
-    fontWeight: "400",
-  },
-  email: {
-    margin: 0,
-    fontSize: "0.875rem",
-    color: "#2563eb",
-  },
-  address: {
-    margin: 0,
-    fontSize: "0.875rem",
-    color: "#666",
-  },
-  userId: {
-    margin: 0,
-    fontSize: "0.75rem",
-    color: "#999",
-    fontFamily: "monospace",
-  },
-  date: {
-    margin: 0,
-    fontSize: "0.75rem",
-    color: "#999",
-  },
-  empty: {
-    textAlign: "center",
-    padding: "3rem 1rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  emptyText: {
-    color: "#666",
-    marginBottom: "1rem",
-  },
-  emptyLink: {
-    color: "#2563eb",
-    textDecoration: "none",
-  },
-};

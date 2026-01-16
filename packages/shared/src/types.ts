@@ -7,9 +7,26 @@
 // ENUMS (matching database enums)
 // ============================================================================
 
+/**
+ * User's role within a neighborhood.
+ * - `admin`: Can approve members, manage items, moderate content
+ * - `member`: Standard member with access to neighborhood features
+ */
 export type MembershipRole = "admin" | "member";
-export type MembershipStatus = "pending" | "active" | "inactive";
 
+/**
+ * Membership lifecycle status.
+ * - `pending`: Awaiting admin approval to join neighborhood
+ * - `active`: Full member with access to all neighborhood features
+ * - `inactive`: Temporarily disabled (e.g., by admin)
+ * - `moved_out`: Former resident, preserved for historical loan/post data
+ */
+export type MembershipStatus = "pending" | "active" | "inactive" | "moved_out";
+
+/**
+ * Categories for lending library items.
+ * Used for filtering and organization in the library view.
+ */
 export type ItemCategory =
   | "tools"
   | "kitchen"
@@ -22,8 +39,24 @@ export type ItemCategory =
   | "travel"
   | "other";
 
+/**
+ * Current availability status of a lending library item.
+ * - `available`: Can be borrowed by other members
+ * - `borrowed`: Currently on loan (has active loan record)
+ * - `unavailable`: Owner has marked as unavailable (e.g., broken, away)
+ */
 export type ItemAvailability = "available" | "borrowed" | "unavailable";
 
+/**
+ * Loan request and lifecycle status.
+ * Flow: requested → approved → active → returned
+ *       requested → cancelled (by borrower or owner)
+ * - `requested`: Borrower has requested the item
+ * - `approved`: Owner approved, awaiting pickup
+ * - `active`: Item is with borrower
+ * - `returned`: Item has been returned to owner
+ * - `cancelled`: Request was cancelled before becoming active
+ */
 export type LoanStatus =
   | "requested"
   | "approved"
@@ -31,14 +64,17 @@ export type LoanStatus =
   | "returned"
   | "cancelled";
 
+/** RSVP response for events */
 export type RsvpStatus = "yes" | "no" | "maybe";
 
+/** Status for childcare exchange requests */
 export type ChildcareRequestStatus =
   | "pending"
   | "approved"
   | "declined"
   | "cancelled";
 
+/** Available emoji reactions for posts */
 export type PostReactionType = "thumbs_up" | "heart" | "pray" | "celebrate";
 
 // ============================================================================
@@ -213,43 +249,59 @@ export interface PostReaction {
 // ============================================================================
 // JOINED TYPES (for queries with relations)
 // ============================================================================
+// These types represent the shape of data when fetching with Supabase joins.
+// Use them to type the results of queries like:
+//   .select("*, user:users(*)")
+//
+// Naming convention: {Table}With{RelatedTable}
 
+/** Membership with nested user profile data */
 export interface MembershipWithUser extends Membership {
   user: User;
 }
 
+/** Membership with nested neighborhood data */
 export interface MembershipWithNeighborhood extends Membership {
   neighborhood: Neighborhood;
 }
 
+/** Library item with owner's user profile */
 export interface ItemWithOwner extends Item {
   owner: User;
 }
 
+/** Loan with full item and borrower details */
 export interface LoanWithDetails extends Loan {
   item: Item;
   borrower: User;
 }
 
+/** Event with host's user profile */
 export interface EventWithHost extends Event {
   host: User;
 }
 
+/** Event RSVP with attendee's user profile */
 export interface EventRsvpWithUser extends EventRsvp {
   user: User;
 }
 
+/** Childcare availability with provider's user profile */
 export interface ChildcareAvailabilityWithUser extends ChildcareAvailability {
   user: User;
 }
 
+/** Post with author profile and optional editor info */
 export interface PostWithAuthor extends Post {
   author: User;
   editor?: User | null;
 }
 
+/** Post with author and aggregated reaction data for display */
 export interface PostWithReactions extends PostWithAuthor {
+  /** Count of each reaction type on this post */
   reaction_counts: Record<PostReactionType, number>;
+  /** Reaction types the current user has added */
   user_reactions: PostReactionType[];
 }
 

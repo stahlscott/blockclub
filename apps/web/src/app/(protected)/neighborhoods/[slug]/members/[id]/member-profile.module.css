@@ -1,11 +1,11 @@
 .profileHeader {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .profileInfo {
@@ -14,37 +14,37 @@
 }
 
 .name {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
 .adminBadge {
   font-size: 0.625rem;
-  font-weight: 500;
-  background-color: #fef3c7;
-  color: #92400e;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  font-weight: var(--font-weight-medium);
+  background-color: var(--color-warning-light);
+  color: var(--color-borrowed-text);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .address {
-  margin: 0 0 0.5rem 0;
-  color: #666;
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text-secondary);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .moveInYear {
-  color: #888;
-  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
   white-space: nowrap;
 }
 
@@ -69,4 +69,312 @@
   .moveInYear {
     display: block;
   }
+}
+
+/* Page container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+
+.backLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  display: inline-block;
+  margin-bottom: var(--space-2);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+/* Avatar */
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-emphasis);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* Bio and edit button */
+.bio {
+  margin: 0 0 var(--space-4) 0;
+  color: var(--color-text);
+}
+
+.editButton {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.editButton:hover {
+  background-color: var(--color-border);
+}
+
+/* Family section */
+.familySection {
+  margin-bottom: var(--space-8);
+}
+
+.familyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-3);
+}
+
+.familyCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.familyIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.familyContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.familyLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.familyValue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  white-space: pre-line;
+}
+
+/* Contact section */
+.contactSection {
+  margin-bottom: var(--space-8);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-4) 0;
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.phoneCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.contactIcon {
+  font-size: 1.5rem;
+}
+
+.contactLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.phoneNumber {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.contactLink {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  text-align: center;
+  text-decoration: none;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}
+
+.phoneActions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.phoneActionButton {
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.15s ease;
+}
+
+.phoneActionButton:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* Items section */
+.itemsSection {
+  margin-bottom: var(--space-8);
+}
+
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.itemCard {
+  display: block;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: inherit;
+}
+
+.itemCard:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.itemName {
+  margin: 0 0 var(--space-1) 0;
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.itemDescription {
+  margin: 0 0 var(--space-2) 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.itemFooter {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.itemCategory {
+  font-size: 0.6875rem;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.itemStatus {
+  font-size: 0.6875rem;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  text-transform: capitalize;
+}
+
+.itemStatusAvailable {
+  background-color: var(--color-success-light);
+  color: var(--color-available-text);
+}
+
+.itemStatusUnavailable {
+  background-color: var(--color-error-light);
+  color: var(--color-unavailable-text);
+}
+
+/* Member since */
+.memberSince {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Admin actions */
+.adminActionsSection {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.adminActionsRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* Role/Move-out action components */
+.actionContainer {
+  display: inline-block;
+}
+
+.actionError {
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.actionLink {
+  padding: 0;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  text-decoration: underline;
+}
+
+.actionLink:hover {
+  color: var(--color-text);
+}
+
+.actionLink:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }

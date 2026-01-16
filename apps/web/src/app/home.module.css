@@ -1,0 +1,84 @@
+/* Home/landing page styles */
+.container {
+  min-height: calc(100vh - 60px);
+  background-color: var(--color-background);
+}
+
+.hero {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 4rem var(--space-6);
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-2);
+  color: var(--color-text);
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.location {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cta {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.primaryButton {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  padding: 0.875rem var(--space-8);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.inviteSection {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-6);
+}
+
+.inviteNote {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.contactNote {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.contactLink {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PostsClient } from "./posts-client";
 import type { PostReactionType } from "@blockclub/shared";
+import styles from "./posts-page.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -103,19 +104,19 @@ export default async function PostsPage({ params }: Props) {
     }) || [];
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className={styles.container}>
+      <div className={styles.header}>
         <div>
-          <Link href="/dashboard" style={styles.backLink}>
+          <Link href="/dashboard" className={styles.backLink}>
             &larr; Dashboard
           </Link>
-          <h1 style={styles.title}>Posts</h1>
-          <p style={styles.subtitle}>
+          <h1 className={styles.title}>Posts</h1>
+          <p className={styles.subtitle}>
             {postsWithReactions.length} post
             {postsWithReactions.length !== 1 ? "s" : ""} in {neighborhood.name}
           </p>
         </div>
-        <Link href={`/neighborhoods/${slug}/posts/new`} style={styles.newButton}>
+        <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.newButton}>
           + New Post
         </Link>
       </div>
@@ -130,47 +131,3 @@ export default async function PostsPage({ params }: Props) {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    width: "100%",
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "1.5rem 1rem",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "1.5rem",
-    flexWrap: "wrap",
-    gap: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "0.5rem",
-  },
-  title: {
-    margin: "0",
-    fontSize: "1.75rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0.25rem 0 0 0",
-    color: "#666",
-    fontSize: "0.875rem",
-  },
-  newButton: {
-    display: "inline-block",
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.75rem 1.25rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
-    fontSize: "0.875rem",
-  },
-};

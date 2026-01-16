@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import styles from "./member-profile.module.css";
 
 interface RoleActionsProps {
   membershipId: string;
@@ -58,16 +59,16 @@ export function RoleActions({
   }
 
   return (
-    <div style={styles.container}>
-      {error && <p style={styles.error}>{error}</p>}
+    <div className={styles.actionContainer}>
+      {error && <p className={styles.actionError}>{error}</p>}
 
       {currentRole === "member" && canPromote && (
         <button
           onClick={() => handleRoleChange("admin")}
           disabled={loading}
-          style={styles.promoteButton}
+          className={styles.actionLink}
         >
-          {loading ? "Updating..." : "Promote to Admin"}
+          {loading ? "Updating..." : "Promote to admin"}
         </button>
       )}
 
@@ -75,42 +76,11 @@ export function RoleActions({
         <button
           onClick={() => handleRoleChange("member")}
           disabled={loading}
-          style={styles.demoteButton}
+          className={styles.actionLink}
         >
-          {loading ? "Updating..." : "Demote to Member"}
+          {loading ? "Updating..." : "Demote to member"}
         </button>
       )}
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    marginTop: "1rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  promoteButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  demoteButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#dc2626",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-};

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import "@/app/globals.css";
+import styles from "../join.module.css";
 
 export default function PublicJoinPage() {
   const params = useParams();
@@ -126,10 +127,42 @@ export default function PublicJoinPage() {
     setSubmitting(false);
   };
 
+  const handleRejoinRequest = async () => {
+    if (!user || !neighborhood || !existingMembership) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    const supabase = createClient();
+    const requiresApproval = neighborhood.settings?.require_approval !== false;
+
+    // Update existing membership status back to pending or active
+    const { error: updateError } = await supabase
+      .from("memberships")
+      .update({
+        status: requiresApproval ? "pending" : "active",
+      })
+      .eq("id", existingMembership.id);
+
+    if (updateError) {
+      setError(updateError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    if (requiresApproval) {
+      setSuccess(true);
+    } else {
+      router.push(`/neighborhoods/${slug}`);
+    }
+
+    setSubmitting(false);
+  };
+
   if (loading) {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
+        <div className={styles.card}>
           <p>Loading...</p>
         </div>
       </div>
@@ -140,13 +173,13 @@ export default function PublicJoinPage() {
   if (!neighborhood) {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
-          <h1 style={styles.title}>Neighborhood Not Found</h1>
-          <p style={styles.message}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>Neighborhood Not Found</h1>
+          <p className={styles.message}>
             This invite link may be invalid or the neighborhood no longer
             exists.
           </p>
-          <Link href="/" style={styles.secondaryButton}>
+          <Link href="/" className={styles.secondaryButton}>
             Go to Home
           </Link>
         </div>
@@ -158,38 +191,38 @@ export default function PublicJoinPage() {
   if (!user) {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
-          <div style={styles.inviteHeader}>
-            <span style={styles.inviteIcon}>🏘️</span>
-            <p style={styles.inviteText}>You&apos;ve been invited to join</p>
+        <div className={styles.card}>
+          <div className={styles.inviteHeader}>
+            <span className={styles.inviteIcon}>🏘️</span>
+            <p className={styles.inviteText}>You&apos;ve been invited to join</p>
           </div>
 
-          <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
+          <h1 className={styles.neighborhoodName}>{neighborhood.name}</h1>
 
           {neighborhood.description && (
-            <p style={styles.description}>{neighborhood.description}</p>
+            <p className={styles.description}>{neighborhood.description}</p>
           )}
 
           {neighborhood.location && (
-            <p style={styles.location}>{neighborhood.location}</p>
+            <p className={styles.location}>{neighborhood.location}</p>
           )}
 
-          <div style={styles.divider} />
+          <div className={styles.divider} />
 
-          <p style={styles.ctaText}>
+          <p className={styles.ctaText}>
             Create an account or sign in to join this neighborhood.
           </p>
 
-          <div style={styles.buttonGroup}>
+          <div className={styles.buttonGroup}>
             <Link
               href={`/signup?redirect=/join/${slug}`}
-              style={styles.primaryButton}
+              className={styles.primaryButton}
             >
               Sign Up
             </Link>
             <Link
               href={`/signin?redirect=/join/${slug}`}
-              style={styles.secondaryButton}
+              className={styles.secondaryButton}
             >
               Sign In
             </Link>
@@ -200,38 +233,38 @@ export default function PublicJoinPage() {
   }
 
   // User is already a member
-  if (existingMembership) {
+  if (existingMembership && existingMembership.status !== "moved_out") {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
-          <h1 style={styles.title}>{neighborhood.name}</h1>
+        <div className={styles.card}>
+          <h1 className={styles.title}>{neighborhood.name}</h1>
 
           {existingMembership.status === "active" ? (
             <>
-              <p style={styles.message}>
+              <p className={styles.message}>
                 You&apos;re already a member of this neighborhood!
               </p>
-              <Link href="/dashboard" style={styles.primaryButton}>
+              <Link href="/dashboard" className={styles.primaryButton}>
                 Go to Dashboard
               </Link>
             </>
           ) : existingMembership.status === "pending" ? (
             <>
-              <div style={styles.pendingBadge}>Pending Approval</div>
-              <p style={styles.message}>
+              <div className={styles.pendingBadge}>Pending Approval</div>
+              <p className={styles.message}>
                 Your request to join this neighborhood is pending approval from
                 an admin.
               </p>
-              <Link href="/dashboard" style={styles.secondaryButton}>
+              <Link href="/dashboard" className={styles.secondaryButton}>
                 Go to Dashboard
               </Link>
             </>
           ) : (
             <>
-              <p style={styles.message}>
+              <p className={styles.message}>
                 Your membership status is: {existingMembership.status}
               </p>
-              <Link href="/dashboard" style={styles.secondaryButton}>
+              <Link href="/dashboard" className={styles.secondaryButton}>
                 Go to Dashboard
               </Link>
             </>
@@ -241,19 +274,62 @@ export default function PublicJoinPage() {
     );
   }
 
+  // User previously moved out - can rejoin
+  if (existingMembership && existingMembership.status === "moved_out") {
+    return (
+      <div className="fullPageContainer">
+        <div className={styles.card}>
+          <div className={styles.inviteHeader}>
+            <span className={styles.inviteIcon}>🏘️</span>
+            <p className={styles.inviteText}>Welcome back!</p>
+          </div>
+
+          <h1 className={styles.neighborhoodName}>{neighborhood.name}</h1>
+
+          {neighborhood.description && (
+            <p className={styles.description}>{neighborhood.description}</p>
+          )}
+
+          <div className={styles.infoBox}>
+            <p>
+              You were previously a member of this neighborhood.
+              {neighborhood.settings?.require_approval !== false
+                ? " Your rejoin request will need admin approval."
+                : " You can rejoin immediately."}
+            </p>
+          </div>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <button
+            onClick={handleRejoinRequest}
+            disabled={submitting}
+            className={styles.primaryButton}
+          >
+            {submitting
+              ? "Rejoining..."
+              : neighborhood.settings?.require_approval !== false
+                ? "Request to Rejoin"
+                : "Rejoin Neighborhood"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Success state after requesting to join
   if (success) {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
-          <div style={styles.successIcon}>✓</div>
-          <h1 style={styles.title}>Request Sent!</h1>
-          <p style={styles.message}>
+        <div className={styles.card}>
+          <div className={styles.successIcon}>✓</div>
+          <h1 className={styles.title}>Request Sent!</h1>
+          <p className={styles.message}>
             Your request to join <strong>{neighborhood.name}</strong> has been
             sent. An admin will review your request and you&apos;ll be notified
             when approved.
           </p>
-          <Link href="/dashboard" style={styles.primaryButton}>
+          <Link href="/dashboard" className={styles.primaryButton}>
             Go to Dashboard
           </Link>
         </div>
@@ -264,23 +340,23 @@ export default function PublicJoinPage() {
   // Logged in user can request to join
   return (
     <div className="fullPageContainer">
-      <div style={styles.card}>
-        <div style={styles.inviteHeader}>
-          <span style={styles.inviteIcon}>🏘️</span>
-          <p style={styles.inviteText}>You&apos;ve been invited to join</p>
+      <div className={styles.card}>
+        <div className={styles.inviteHeader}>
+          <span className={styles.inviteIcon}>🏘️</span>
+          <p className={styles.inviteText}>You&apos;ve been invited to join</p>
         </div>
 
-        <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
+        <h1 className={styles.neighborhoodName}>{neighborhood.name}</h1>
 
         {neighborhood.description && (
-          <p style={styles.description}>{neighborhood.description}</p>
+          <p className={styles.description}>{neighborhood.description}</p>
         )}
 
         {neighborhood.location && (
-          <p style={styles.location}>{neighborhood.location}</p>
+          <p className={styles.location}>{neighborhood.location}</p>
         )}
 
-        <div style={styles.infoBox}>
+        <div className={styles.infoBox}>
           {neighborhood.settings?.require_approval !== false ? (
             <p>
               This neighborhood requires admin approval. After you request to
@@ -294,12 +370,12 @@ export default function PublicJoinPage() {
           )}
         </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         <button
           onClick={handleJoinRequest}
           disabled={submitting}
-          style={styles.primaryButton}
+          className={styles.primaryButton}
         >
           {submitting
             ? "Sending..."
@@ -311,132 +387,3 @@ export default function PublicJoinPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  card: {
-    backgroundColor: "white",
-    padding: "2rem",
-    borderRadius: "12px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-    width: "100%",
-    maxWidth: "420px",
-    textAlign: "center",
-  },
-  inviteHeader: {
-    marginBottom: "0.5rem",
-  },
-  inviteIcon: {
-    fontSize: "3rem",
-    display: "block",
-    marginBottom: "0.5rem",
-  },
-  inviteText: {
-    color: "#666",
-    fontSize: "0.875rem",
-    margin: 0,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-  },
-  neighborhoodName: {
-    margin: "0.5rem 0",
-    fontSize: "1.75rem",
-    fontWeight: "700",
-    color: "#111",
-  },
-  title: {
-    margin: "0 0 1rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  description: {
-    color: "#444",
-    marginBottom: "0.5rem",
-    fontSize: "1rem",
-  },
-  location: {
-    color: "#666",
-    fontSize: "0.875rem",
-    marginBottom: "1rem",
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: "#e5e7eb",
-    margin: "1.5rem 0",
-  },
-  ctaText: {
-    color: "#444",
-    marginBottom: "1.5rem",
-    fontSize: "0.95rem",
-  },
-  buttonGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.75rem",
-  },
-  primaryButton: {
-    display: "block",
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.875rem 2rem",
-    borderRadius: "8px",
-    textDecoration: "none",
-    fontWeight: "600",
-    border: "none",
-    fontSize: "1rem",
-    cursor: "pointer",
-    transition: "background-color 0.15s ease",
-  },
-  secondaryButton: {
-    display: "block",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    padding: "0.875rem 2rem",
-    borderRadius: "8px",
-    textDecoration: "none",
-    fontWeight: "500",
-    border: "none",
-    fontSize: "1rem",
-    cursor: "pointer",
-  },
-  infoBox: {
-    backgroundColor: "#f0f9ff",
-    border: "1px solid #bae6fd",
-    borderRadius: "8px",
-    padding: "1rem",
-    marginBottom: "1.5rem",
-    fontSize: "0.875rem",
-    color: "#0369a1",
-    textAlign: "left",
-  },
-  message: {
-    color: "#444",
-    marginBottom: "1.5rem",
-  },
-  pendingBadge: {
-    display: "inline-block",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    padding: "0.5rem 1rem",
-    borderRadius: "9999px",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    marginBottom: "1rem",
-  },
-  successIcon: {
-    width: "60px",
-    height: "60px",
-    borderRadius: "50%",
-    backgroundColor: "#d1fae5",
-    color: "#065f46",
-    fontSize: "2rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 1rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    marginBottom: "1rem",
-  },
-};

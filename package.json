@@ -13,8 +13,14 @@
     "build:web": "turbo build --filter=@blockclub/web",
     "build:mobile": "turbo build --filter=@blockclub/mobile",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "clean": "turbo clean && rm -rf node_modules"
+    "clean": "turbo clean && rm -rf node_modules",
+    "test": "turbo test --filter=@blockclub/web --filter=@blockclub/shared",
+    "test:unit": "turbo test:unit --filter=@blockclub/web --filter=@blockclub/shared",
+    "test:integration": "turbo test:integration --filter=@blockclub/web",
+    "test:e2e": "turbo test:e2e --filter=@blockclub/web",
+    "test:coverage": "turbo test:coverage --filter=@blockclub/web --filter=@blockclub/shared"
   },
   "devDependencies": {
     "prettier": "^3.2.4",
