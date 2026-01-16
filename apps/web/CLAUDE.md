@@ -69,21 +69,52 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 ### CSS Variables (globals.css)
 ```css
---color-primary: #2563eb     /* Primary actions, links */
---color-text: #111           /* Body text */
---color-text-secondary: #666 /* Labels, metadata */
---color-text-muted: #999     /* Placeholder, disabled */
---color-background: #f5f5f5  /* Page background */
---color-surface: #fff        /* Card backgrounds */
---color-border: #e5e5e5      /* Borders */
---color-error: #dc2626       /* Error states */
---color-success: #16a34a     /* Success states */
+/* Primary - Purple (main brand) */
+--color-primary: #7c3aed       /* Primary buttons, links */
+--color-primary-hover: #6d28d9 /* Hover state */
+--color-primary-light: #f3f0ff /* Subtle backgrounds */
 
---radius-sm: 4px             /* Buttons, inputs */
---radius-md: 6px             /* Small cards */
---radius-lg: 8px             /* Large cards */
+/* Accent - Gold (special moments, celebrations) */
+--color-accent: #fbbf24        /* Celebratory CTAs, badges */
+--color-accent-text: #78350f   /* Text on accent background */
 
---shadow-sm/md/lg            /* Elevation levels */
+/* Text */
+--color-text: #18181b          /* Body text */
+--color-text-secondary: #52525b /* Labels, metadata */
+--color-text-muted: #a1a1aa    /* Placeholder, disabled */
+
+/* Backgrounds & Borders */
+--color-background: #fafaf9    /* Page background */
+--color-surface: #ffffff       /* Card backgrounds */
+--color-border: #e4e4e7        /* Standard borders */
+--color-border-emphasis: #c4b5fd /* Purple-tinted (outlined buttons, pills) */
+
+/* Semantic */
+--color-error: #dc2626         /* Error states */
+--color-success: #16a34a       /* Success states */
+
+/* Border Radius */
+--radius-sm: 6px               /* Buttons, inputs */
+--radius-md: 8px               /* Small cards */
+--radius-lg: 12px              /* Large cards */
+
+--shadow-sm/md/lg              /* Elevation levels */
+```
+
+### Button Styling Patterns
+```css
+/* Primary button - solid purple */
+background: var(--color-primary);
+color: white;
+
+/* Secondary/Outlined button - purple border */
+background: white;
+border: 1px solid var(--color-border-emphasis);
+color: var(--color-primary);
+
+/* Accent button - gold (use sparingly for celebrations) */
+background: var(--color-accent);
+color: var(--color-accent-text);
 ```
 
 ### Responsive Grid Utilities (responsive.module.css)

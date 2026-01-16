@@ -1,7 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Header } from "@/components/Header";
 import "./globals.css";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-nunito",
+});
 
 export const metadata: Metadata = {
   title: "Block Club",
@@ -20,10 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body style={{ 
-        margin: 0, 
-        fontFamily: "system-ui, sans-serif",
+    <html lang="en" className={nunito.variable}>
+      <body style={{
+        margin: 0,
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",

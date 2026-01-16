@@ -131,7 +131,7 @@
 
 .statusApproved {
   background-color: var(--color-info-light);
-  color: #1e40af;
+  color: var(--color-primary);
 }
 
 .statusActive {

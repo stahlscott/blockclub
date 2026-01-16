@@ -15,7 +15,7 @@
 
 /* Pinned section */
 .pinnedSection {
-  background-color: #fef3c7;
+  background-color: var(--color-warning-light);
   border-radius: var(--radius-lg);
   padding: var(--space-3);
   margin-bottom: var(--space-2);
@@ -28,7 +28,7 @@
   margin-bottom: var(--space-3);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: #92400e;
+  color: var(--color-borrowed-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -69,12 +69,13 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  background-color: #e0e7ff;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border-emphasis);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-semibold);
-  color: #3730a3;
+  color: var(--color-primary);
   font-size: var(--font-size-base);
 }
 
@@ -136,12 +137,12 @@
 }
 
 .reactionActive {
-  background-color: #dbeafe;
-  box-shadow: inset 0 0 0 1px #93c5fd;
+  background-color: var(--color-primary-light);
+  box-shadow: inset 0 0 0 1px var(--color-border-emphasis);
 }
 
 .reactionActive:hover {
-  background-color: #bfdbfe;
+  background-color: var(--color-info-border);
 }
 
 .reactionLoading {

@@ -84,7 +84,7 @@
 }
 
 .optionActive {
-  background-color: #f0f7ff;
+  background-color: var(--color-primary-light);
 }
 
 .checkmark {

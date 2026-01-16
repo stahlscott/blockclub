@@ -4,27 +4,36 @@ This document describes the CSS custom properties (design tokens) defined in `gl
 
 ## Colors
 
-### Primary Colors
+### Primary Colors (Purple)
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--color-primary` | #2563eb | Primary buttons, links, focus rings |
-| `--color-primary-dark` | #1d4ed8 | Darker variant (deprecated, use hover) |
-| `--color-primary-hover` | #1d4ed8 | Hover state for primary elements |
-| `--color-primary-active` | #1e40af | Active/pressed state |
+| `--color-primary` | #7c3aed | Primary buttons, links, focus rings |
+| `--color-primary-dark` | #6d28d9 | Darker variant (deprecated, use hover) |
+| `--color-primary-hover` | #6d28d9 | Hover state for primary elements |
+| `--color-primary-active` | #5b21b6 | Active/pressed state |
+| `--color-primary-light` | #f3f0ff | Subtle purple backgrounds |
+
+### Accent Colors (Gold - use sparingly)
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-accent` | #fbbf24 | Celebratory CTAs, special badges |
+| `--color-accent-hover` | #f59e0b | Hover state for accent elements |
+| `--color-accent-text` | #78350f | Text on accent background |
 
 ### Text Colors
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--color-text` | #111 | Primary body text, headings |
-| `--color-text-secondary` | #666 | Labels, metadata, less emphasis |
-| `--color-text-muted` | #999 | Placeholders, disabled text, timestamps |
+| `--color-text` | #18181b | Primary body text, headings |
+| `--color-text-secondary` | #52525b | Labels, metadata, less emphasis |
+| `--color-text-muted` | #a1a1aa | Placeholders, disabled text, timestamps |
 
 ### Background Colors
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--color-background` | #f5f5f5 | Page background |
-| `--color-surface` | #fff | Cards, modals, elevated surfaces |
-| `--color-border` | #e5e5e5 | Borders, dividers |
+| `--color-background` | #fafaf9 | Page background |
+| `--color-surface` | #ffffff | Cards, modals, elevated surfaces |
+| `--color-border` | #e4e4e7 | Standard borders, dividers |
+| `--color-border-emphasis` | #c4b5fd | Purple-tinted borders (outlined buttons, pills) |
 
 ### Semantic Colors (Status)
 Each status has a main color, light background, and border variant:
@@ -34,7 +43,7 @@ Each status has a main color, light background, and border variant:
 | Error | `--color-error` #dc2626 | `--color-error-light` | `--color-error-border` |
 | Success | `--color-success` #16a34a | `--color-success-light` | `--color-success-border` |
 | Warning | `--color-warning` #f59e0b | `--color-warning-light` | `--color-warning-border` |
-| Info | `--color-info` #2563eb | `--color-info-light` | `--color-info-border` |
+| Info | `--color-info` #7c3aed | `--color-info-light` | `--color-info-border` |
 
 **Usage example (banner):**
 ```css
@@ -82,7 +91,9 @@ Based on a 4px grid system. Use for padding, margin, and gap.
 ### Font Family
 | Token | Value |
 |-------|-------|
-| `--font-sans` | system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif |
+| `--font-sans` | Nunito (via next/font), system-ui fallback |
+
+**Note:** Nunito is loaded via `next/font/google` in `layout.tsx` for optimal performance. The CSS variable `--font-nunito` is set automatically.
 
 ### Font Sizes
 | Token | Value | Usage |
@@ -117,9 +128,9 @@ Based on a 4px grid system. Use for padding, margin, and gap.
 ### Border Radius
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--radius-sm` | 4px | Small elements, buttons, inputs |
-| `--radius-md` | 6px | Small cards, dropdowns |
-| `--radius-lg` | 8px | Cards, modals |
+| `--radius-sm` | 6px | Small elements, buttons, inputs |
+| `--radius-md` | 8px | Small cards, dropdowns |
+| `--radius-lg` | 12px | Cards, modals |
 | `--radius-full` | 9999px | Pills, avatars, circular buttons |
 
 ### Box Shadows

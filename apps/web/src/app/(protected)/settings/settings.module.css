@@ -196,18 +196,19 @@
 
 .copyButton {
   padding: var(--space-3) var(--space-5);
-  background-color: #e0e7ff;
-  color: #3730a3;
-  border: none;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 0.15s ease;
 }
 
 .copyButton:hover {
-  background-color: #c7d2fe;
+  background-color: var(--color-primary-light);
 }
 
 /* Leave section */

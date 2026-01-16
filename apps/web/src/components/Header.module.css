@@ -4,6 +4,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.04);
 }
 
 .container {
@@ -17,12 +18,17 @@
 
 .logo {
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
   text-decoration: none;
   line-height: 1;
   display: flex;
   align-items: center;
+  letter-spacing: -0.01em;
+}
+
+.logo:hover {
+  color: var(--color-primary-hover);
 }
 
 .nav {
@@ -35,10 +41,12 @@
   color: var(--color-text-secondary);
   text-decoration: none;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: color 0.15s ease;
 }
 
 .navLink:hover {
-  color: var(--color-text);
+  color: var(--color-primary);
 }
 
 .signUpButton {
@@ -61,11 +69,15 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .signOutButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
+  border-color: var(--color-border-emphasis);
+  color: var(--color-primary);
 }
 
 .loading {
@@ -100,6 +112,11 @@
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-background);
   display: block;
+  font-weight: var(--font-weight-medium);
+}
+
+.mobileNavLink:hover {
+  color: var(--color-primary);
 }
 
 .mobileSignOutButton {
@@ -108,9 +125,14 @@
   padding: var(--space-3) 0;
   border: none;
   font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   text-align: left;
   width: 100%;
+}
+
+.mobileSignOutButton:hover {
+  color: var(--color-primary);
 }
 
 /* Mobile styles */

@@ -96,7 +96,8 @@
   width: 100px;
   height: 100px;
   border-radius: var(--radius-full);
-  background-color: #e0e7ff;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-emphasis);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,7 +114,7 @@
 .avatarInitial {
   font-size: 2.5rem;
   font-weight: var(--font-weight-semibold);
-  color: #3730a3;
+  color: var(--color-primary);
 }
 
 /* Bio and edit button */
@@ -243,16 +244,18 @@
 
 .phoneActionButton {
   padding: var(--space-2) var(--space-3);
-  background-color: #e0e7ff;
-  color: #3730a3;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  transition: background-color 0.15s ease;
 }
 
 .phoneActionButton:hover {
-  background-color: #c7d2fe;
+  background-color: var(--color-primary-light);
 }
 
 /* Items section */
@@ -300,10 +303,11 @@
 
 .itemCategory {
   font-size: 0.6875rem;
-  background-color: #e0e7ff;
-  color: #3730a3;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
   padding: 2px var(--space-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   text-transform: capitalize;
 }
 

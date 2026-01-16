@@ -169,6 +169,6 @@
 }
 
 .submitButton:disabled {
-  background-color: #93c5fd;
+  opacity: 0.6;
   cursor: not-allowed;
 }

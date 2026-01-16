@@ -88,7 +88,7 @@
 .loanDates {
   margin: 0 0 var(--space-3) 0;
   font-size: var(--font-size-sm);
-  color: #1e40af;
+  color: var(--color-primary);
 }
 
 /* Due date display */
@@ -105,7 +105,7 @@
 .dueDateText {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: #1e40af;
+  color: var(--color-primary);
 }
 
 .editDueDateButton {
@@ -163,7 +163,7 @@
 }
 
 .approveButton:hover {
-  background-color: #15803d;
+  opacity: 0.9;
 }
 
 .cancelButton {
@@ -296,7 +296,7 @@
 .approvedBadge {
   padding: var(--space-3) var(--space-6);
   background-color: var(--color-info-light);
-  color: #1e40af;
+  color: var(--color-primary);
   border-radius: var(--radius-md);
   text-align: center;
   font-size: var(--font-size-sm);
@@ -320,7 +320,7 @@
 
 .borrowedDue {
   font-size: var(--font-size-xs);
-  color: #15803d;
+  color: var(--color-available-text);
 }
 
 .overdueBadge {
@@ -340,7 +340,7 @@
 
 .overdueDue {
   font-size: var(--font-size-xs);
-  color: #b91c1c;
+  color: var(--color-unavailable-text);
 }
 
 .overdueHint {
@@ -419,7 +419,7 @@
 }
 
 .removeButton:hover {
-  background-color: #b91c1c;
+  opacity: 0.9;
 }
 
 .adminError {
@@ -521,10 +521,11 @@
 
 .categoryTag {
   display: inline-block;
-  background-color: #e0e7ff;
-  color: #3730a3;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   text-transform: capitalize;
   margin-bottom: var(--space-4);
@@ -565,12 +566,13 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background-color: #e0e7ff;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border-emphasis);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-semibold);
-  color: #3730a3;
+  color: var(--color-primary);
   overflow: hidden;
 }
 
@@ -596,5 +598,5 @@
   border-radius: var(--radius-md);
   margin-bottom: var(--space-6);
   font-size: var(--font-size-sm);
-  color: #0369a1;
+  color: var(--color-primary);
 }

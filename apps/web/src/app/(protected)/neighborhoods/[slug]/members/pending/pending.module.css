@@ -63,12 +63,13 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background-color: #e0e7ff;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border-emphasis);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-semibold);
-  color: #3730a3;
+  color: var(--color-primary);
   overflow: hidden;
   flex-shrink: 0;
 }
