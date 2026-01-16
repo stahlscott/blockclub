@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import "@/app/globals.css";
+import styles from "../auth.module.css";
 
 function SignUpForm() {
   const router = useRouter();
@@ -72,15 +73,15 @@ function SignUpForm() {
   if (success) {
     return (
       <div className="fullPageContainer">
-        <div style={styles.card}>
-          <h1 style={styles.title}>Check your email</h1>
-          <p style={styles.text}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>Check your email</h1>
+          <p className={styles.text}>
             We&apos;ve sent a confirmation link to <strong>{email}</strong>.
           </p>
-          <p style={styles.text}>
+          <p className={styles.text}>
             Click the link in the email to activate your account.
           </p>
-          <Link href="/signin" style={styles.link}>
+          <Link href="/signin" className={styles.link}>
             Back to sign in
           </Link>
         </div>
@@ -90,13 +91,13 @@ function SignUpForm() {
 
   return (
     <div className="fullPageContainer">
-      <div style={styles.card}>
-        <h1 style={styles.title}>Create your account</h1>
-        <p style={styles.subtitle}>Join your neighborhood on Block Club</p>
+      <div className={styles.card}>
+        <h1 className={styles.title}>Create your account</h1>
+        <p className={styles.subtitle}>Join your neighborhood on Block Club</p>
 
-        <form onSubmit={handleSignUp} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label htmlFor="name" style={styles.label}>
+        <form onSubmit={handleSignUp} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name" className={styles.label}>
               Household Name
             </label>
             <input
@@ -105,13 +106,13 @@ function SignUpForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              style={styles.input}
+              className={styles.input}
               placeholder="e.g., The Smith Family"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="address" style={styles.label}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="address" className={styles.label}>
               Street Address
             </label>
             <input
@@ -120,13 +121,13 @@ function SignUpForm() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               required
-              style={styles.input}
+              className={styles.input}
               placeholder="e.g., 123 Main Street"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="email" style={styles.label}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="email" className={styles.label}>
               Email
             </label>
             <input
@@ -135,13 +136,13 @@ function SignUpForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={styles.input}
+              className={styles.input}
               placeholder="you@example.com"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="password" style={styles.label}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="password" className={styles.label}>
               Password
             </label>
             <input
@@ -151,21 +152,21 @@ function SignUpForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              style={styles.input}
+              className={styles.input}
               placeholder="At least 6 characters"
             />
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && <p className={styles.error}>{error}</p>}
 
-          <button type="submit" disabled={loading} style={styles.button}>
+          <button type="submit" disabled={loading} className={styles.button}>
             {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
-        <p style={styles.footer}>
+        <p className={styles.footer}>
           Already have an account?{" "}
-          <Link href="/signin" style={styles.link}>
+          <Link href="/signin" className={styles.link}>
             Sign in
           </Link>
         </p>
@@ -179,7 +180,7 @@ export default function SignUpPage() {
     <Suspense
       fallback={
         <div className="fullPageContainer">
-          <div style={styles.card}>
+          <div className={styles.card}>
             <p>Loading...</p>
           </div>
         </div>
@@ -189,73 +190,3 @@ export default function SignUpPage() {
     </Suspense>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  card: {
-    backgroundColor: "white",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    width: "100%",
-    maxWidth: "400px",
-  },
-  title: {
-    margin: "0 0 0.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0 0 1.5rem 0",
-    color: "#666",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  input: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  button: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#2563eb",
-    color: "white",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: "pointer",
-    marginTop: "0.5rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  footer: {
-    marginTop: "1.5rem",
-    textAlign: "center",
-    color: "#666",
-    fontSize: "0.875rem",
-  },
-  link: {
-    color: "#2563eb",
-    textDecoration: "none",
-  },
-  text: {
-    color: "#666",
-    marginBottom: "1rem",
-  },
-};

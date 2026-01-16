@@ -8,6 +8,7 @@ import {
   validateImageFile,
   getPathFromUrl,
 } from "@/lib/storage";
+import styles from "./ItemPhotoUpload.module.css";
 
 interface ItemPhotoUploadProps {
   userId: string;
@@ -119,29 +120,29 @@ export function ItemPhotoUpload({
   const canAddMore = photos.length + pendingUploads.length < maxPhotos;
 
   return (
-    <div style={styles.container}>
-      <label style={styles.label}>Photos</label>
-      <p style={styles.hint}>
+    <div className={styles.container}>
+      <label className={styles.label}>Photos</label>
+      <p className={styles.hint}>
         Add up to {maxPhotos} photos. First photo will be the cover image.
       </p>
 
-      <div style={styles.grid}>
+      <div className={styles.grid}>
         {photos.map((url, index) => (
-          <div key={url} style={styles.photoItem}>
+          <div key={url} className={styles.photoItem}>
             <Image
               src={url}
               alt={`Photo ${index + 1}`}
               width={120}
               height={120}
-              style={styles.photo}
+              className={styles.photo}
             />
-            {index === 0 && <span style={styles.coverBadge}>Cover</span>}
-            <div style={styles.photoActions}>
+            {index === 0 && <span className={styles.coverBadge}>Cover</span>}
+            <div className={styles.photoActions}>
               {index > 0 && (
                 <button
                   type="button"
                   onClick={() => handleMakeCover(index)}
-                  style={styles.actionButton}
+                  className={styles.actionButton}
                   title="Make cover"
                 >
                   *
@@ -150,7 +151,7 @@ export function ItemPhotoUpload({
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
-                style={styles.removeButton}
+                className={styles.removeButton}
                 title="Remove"
               >
                 x
@@ -160,13 +161,13 @@ export function ItemPhotoUpload({
         ))}
 
         {pendingUploads.map((pending) => (
-          <div key={pending.id} style={styles.photoItem}>
+          <div key={pending.id} className={styles.photoItem}>
             <img
               src={pending.previewUrl}
               alt="Uploading..."
-              style={{ ...styles.photo, opacity: 0.5 }}
+              className={`${styles.photo} ${styles.photoUploading}`}
             />
-            <div style={styles.uploadingOverlay}>
+            <div className={styles.uploadingOverlay}>
               {pending.status === "uploading" ? "Uploading..." : "Error"}
             </div>
           </div>
@@ -176,9 +177,9 @@ export function ItemPhotoUpload({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            style={styles.addButton}
+            className={styles.addButton}
           >
-            <span style={styles.addIcon}>+</span>
+            <span className={styles.addIcon}>+</span>
             <span>Add Photo</span>
           </button>
         )}
@@ -190,113 +191,8 @@ export function ItemPhotoUpload({
         accept="image/jpeg,image/png,image/webp"
         multiple
         onChange={handleFilesSelect}
-        style={{ display: "none" }}
+        className={styles.hiddenInput}
       />
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    marginBottom: "1.25rem",
-  },
-  label: {
-    display: "block",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    marginBottom: "0.25rem",
-  },
-  hint: {
-    fontSize: "0.75rem",
-    color: "#666",
-    marginBottom: "0.75rem",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
-    gap: "0.75rem",
-  },
-  photoItem: {
-    position: "relative",
-    aspectRatio: "1",
-    borderRadius: "8px",
-    overflow: "hidden",
-  },
-  photo: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  coverBadge: {
-    position: "absolute",
-    top: "4px",
-    left: "4px",
-    backgroundColor: "#2563eb",
-    color: "white",
-    fontSize: "0.625rem",
-    padding: "2px 6px",
-    borderRadius: "4px",
-  },
-  photoActions: {
-    position: "absolute",
-    top: "4px",
-    right: "4px",
-    display: "flex",
-    gap: "4px",
-  },
-  actionButton: {
-    width: "24px",
-    height: "24px",
-    borderRadius: "50%",
-    border: "none",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    color: "white",
-    cursor: "pointer",
-    fontSize: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  removeButton: {
-    width: "24px",
-    height: "24px",
-    borderRadius: "50%",
-    border: "none",
-    backgroundColor: "rgba(220,38,38,0.8)",
-    color: "white",
-    cursor: "pointer",
-    fontSize: "14px",
-    lineHeight: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  uploadingOverlay: {
-    position: "absolute",
-    inset: "0",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "0.75rem",
-  },
-  addButton: {
-    aspectRatio: "1",
-    border: "2px dashed #ddd",
-    borderRadius: "8px",
-    backgroundColor: "transparent",
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.25rem",
-    color: "#666",
-    fontSize: "0.75rem",
-  },
-  addIcon: {
-    fontSize: "1.5rem",
-    lineHeight: 1,
-  },
-};

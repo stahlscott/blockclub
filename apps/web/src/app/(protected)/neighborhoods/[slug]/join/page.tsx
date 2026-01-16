@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import styles from "@/app/join/join.module.css";
 
 export default function JoinNeighborhoodPage() {
   const params = useParams();
@@ -161,8 +162,8 @@ export default function JoinNeighborhoodPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
+      <div className={styles.container}>
+        <div className={styles.card}>
           <p>Loading...</p>
         </div>
       </div>
@@ -172,36 +173,36 @@ export default function JoinNeighborhoodPage() {
   // Handle existing membership (but not moved_out)
   if (existingMembership && existingMembership.status !== "moved_out") {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>{neighborhood.name}</h1>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>{neighborhood.name}</h1>
 
           {existingMembership.status === "active" ? (
             <>
-              <p style={styles.message}>
+              <p className={styles.message}>
                 You&apos;re already a member of this neighborhood!
               </p>
-              <Link href="/dashboard" style={styles.primaryButton}>
+              <Link href="/dashboard" className={styles.primaryButton}>
                 Go to Dashboard
               </Link>
             </>
           ) : existingMembership.status === "pending" ? (
             <>
-              <div style={styles.pendingBadge}>Pending Approval</div>
-              <p style={styles.message}>
+              <div className={styles.pendingBadge}>Pending Approval</div>
+              <p className={styles.message}>
                 Your request to join this neighborhood is pending approval from
                 an admin.
               </p>
-              <Link href="/dashboard" style={styles.secondaryButton}>
+              <Link href="/dashboard" className={styles.secondaryButton}>
                 Back to Dashboard
               </Link>
             </>
           ) : (
             <>
-              <p style={styles.message}>
+              <p className={styles.message}>
                 Your membership status is: {existingMembership.status}
               </p>
-              <Link href="/dashboard" style={styles.secondaryButton}>
+              <Link href="/dashboard" className={styles.secondaryButton}>
                 Back to Dashboard
               </Link>
             </>
@@ -214,19 +215,19 @@ export default function JoinNeighborhoodPage() {
   // User previously moved out - can rejoin
   if (existingMembership && existingMembership.status === "moved_out") {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <Link href="/dashboard" style={styles.backLink}>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <Link href="/dashboard" className={styles.backLink}>
             &larr; Back to Dashboard
           </Link>
 
-          <h1 style={styles.title}>Rejoin {neighborhood.name}</h1>
+          <h1 className={styles.title}>Rejoin {neighborhood.name}</h1>
 
           {neighborhood.description && (
-            <p style={styles.description}>{neighborhood.description}</p>
+            <p className={styles.description}>{neighborhood.description}</p>
           )}
 
-          <div style={styles.infoBox}>
+          <div className={styles.infoBox}>
             <p>
               You were previously a member of this neighborhood.
               {neighborhood.settings?.require_approval !== false
@@ -235,12 +236,12 @@ export default function JoinNeighborhoodPage() {
             </p>
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && <p className={styles.error}>{error}</p>}
 
           <button
             onClick={handleRejoinRequest}
             disabled={submitting}
-            style={styles.primaryButton}
+            className={styles.primaryButton}
           >
             {submitting
               ? "Rejoining..."
@@ -255,16 +256,16 @@ export default function JoinNeighborhoodPage() {
 
   if (success) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <div style={styles.successIcon}>✓</div>
-          <h1 style={styles.title}>Request Sent!</h1>
-          <p style={styles.message}>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.successIcon}>✓</div>
+          <h1 className={styles.title}>Request Sent!</h1>
+          <p className={styles.message}>
             Your request to join <strong>{neighborhood.name}</strong> has been
             sent. An admin will review your request and you&apos;ll be notified
             when approved.
           </p>
-          <Link href="/dashboard" style={styles.primaryButton}>
+          <Link href="/dashboard" className={styles.primaryButton}>
             Back to Dashboard
           </Link>
         </div>
@@ -273,23 +274,23 @@ export default function JoinNeighborhoodPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <Link href="/dashboard" style={styles.backLink}>
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <Link href="/dashboard" className={styles.backLink}>
           &larr; Back to Dashboard
         </Link>
 
-        <h1 style={styles.title}>Join {neighborhood.name}</h1>
+        <h1 className={styles.title}>Join {neighborhood.name}</h1>
 
         {neighborhood.description && (
-          <p style={styles.description}>{neighborhood.description}</p>
+          <p className={styles.description}>{neighborhood.description}</p>
         )}
 
         {neighborhood.location && (
-          <p style={styles.location}>{neighborhood.location}</p>
+          <p className={styles.location}>{neighborhood.location}</p>
         )}
 
-        <div style={styles.infoBox}>
+        <div className={styles.infoBox}>
           {neighborhood.settings?.require_approval !== false ? (
             <p>
               This neighborhood requires admin approval. After you request to
@@ -303,12 +304,12 @@ export default function JoinNeighborhoodPage() {
           )}
         </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         <button
           onClick={handleJoinRequest}
           disabled={submitting}
-          style={styles.primaryButton}
+          className={styles.primaryButton}
         >
           {submitting
             ? "Sending..."
@@ -320,102 +321,3 @@ export default function JoinNeighborhoodPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "500px",
-    margin: "0 auto",
-    padding: "1rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    textAlign: "center",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-    textAlign: "left",
-    width: "100%",
-  },
-  title: {
-    margin: "0 0 1rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  description: {
-    color: "#444",
-    marginBottom: "0.5rem",
-  },
-  location: {
-    color: "#666",
-    fontSize: "0.875rem",
-    marginBottom: "1.5rem",
-  },
-  infoBox: {
-    backgroundColor: "#f0f9ff",
-    border: "1px solid #bae6fd",
-    borderRadius: "6px",
-    padding: "1rem",
-    marginBottom: "1.5rem",
-    fontSize: "0.875rem",
-    color: "#0369a1",
-  },
-  primaryButton: {
-    display: "inline-block",
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.75rem 2rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
-    border: "none",
-    fontSize: "1rem",
-    cursor: "pointer",
-  },
-  secondaryButton: {
-    display: "inline-block",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    padding: "0.75rem 2rem",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500",
-  },
-  message: {
-    color: "#444",
-    marginBottom: "1.5rem",
-  },
-  pendingBadge: {
-    display: "inline-block",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    padding: "0.5rem 1rem",
-    borderRadius: "9999px",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    marginBottom: "1rem",
-  },
-  successIcon: {
-    width: "60px",
-    height: "60px",
-    borderRadius: "50%",
-    backgroundColor: "#d1fae5",
-    color: "#065f46",
-    fontSize: "2rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 1rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    marginBottom: "1rem",
-  },
-};

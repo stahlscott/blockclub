@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import styles from "./new-neighborhood.module.css";
 
 interface NewNeighborhoodFormProps {
   userId: string;
@@ -115,20 +116,20 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <Link href="/dashboard" style={styles.backLink}>
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <Link href="/dashboard" className={styles.backLink}>
           &larr; Back to Dashboard
         </Link>
 
-        <h1 style={styles.title}>Create a Neighborhood</h1>
-        <p style={styles.subtitle}>
+        <h1 className={styles.title}>Create a Neighborhood</h1>
+        <p className={styles.subtitle}>
           Start a community for your neighbors to connect and share.
         </p>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label htmlFor="name" style={styles.label}>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name" className={styles.label}>
               Neighborhood Name *
             </label>
             <input
@@ -138,23 +139,23 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={MAX_LENGTHS.neighborhoodName}
-              style={styles.input}
+              className={styles.input}
               placeholder="e.g., Maplewood Heights"
             />
             {name.length > MAX_LENGTHS.neighborhoodName * 0.8 && (
-              <span style={styles.charCount}>
+              <span className={styles.charCount}>
                 {name.length}/{MAX_LENGTHS.neighborhoodName}
               </span>
             )}
             {name && (
-              <span style={styles.slug}>
+              <span className={styles.slug}>
                 URL: /neighborhoods/{generateSlug(name)}
               </span>
             )}
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="description" style={styles.label}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="description" className={styles.label}>
               Description
             </label>
             <textarea
@@ -162,19 +163,19 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={MAX_LENGTHS.neighborhoodDescription}
-              style={styles.textarea}
+              className={styles.textarea}
               placeholder="Tell potential members about your neighborhood..."
               rows={3}
             />
             {description.length > MAX_LENGTHS.neighborhoodDescription * 0.8 && (
-              <span style={styles.charCount}>
+              <span className={styles.charCount}>
                 {description.length}/{MAX_LENGTHS.neighborhoodDescription}
               </span>
             )}
           </div>
 
-          <div style={styles.inputGroup}>
-            <label htmlFor="location" style={styles.label}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="location" className={styles.label}>
               Location
             </label>
             <input
@@ -183,30 +184,30 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               maxLength={MAX_LENGTHS.neighborhoodLocation}
-              style={styles.input}
+              className={styles.input}
               placeholder="e.g., Downtown Portland"
             />
           </div>
 
-          <div style={styles.checkboxGroup}>
-            <label style={styles.checkboxLabel}>
+          <div className={styles.checkboxGroup}>
+            <label className={styles.checkboxLabel}>
               <input
                 type="checkbox"
                 checked={requireApproval}
                 onChange={(e) => setRequireApproval(e.target.checked)}
-                style={styles.checkbox}
+                className={styles.checkbox}
               />
               <span>Require approval for new members</span>
             </label>
-            <span style={styles.hint}>
+            <span className={styles.hint}>
               When enabled, you&apos;ll need to approve each person who wants to
               join.
             </span>
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && <p className={styles.error}>{error}</p>}
 
-          <button type="submit" disabled={loading} style={styles.button}>
+          <button type="submit" disabled={loading} className={styles.button}>
             {loading ? "Creating..." : "Create Neighborhood"}
           </button>
         </form>
@@ -214,108 +215,3 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "1rem",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: "1.5rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  title: {
-    margin: "0 0 0.5rem 0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0 0 1.5rem 0",
-    color: "#666",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  input: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-  },
-  textarea: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-    fontSize: "1rem",
-    resize: "vertical" as const,
-    fontFamily: "inherit",
-  },
-  slug: {
-    fontSize: "0.75rem",
-    color: "#888",
-    marginTop: "0.25rem",
-  },
-  checkboxGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    cursor: "pointer",
-  },
-  checkbox: {
-    width: "1rem",
-    height: "1rem",
-  },
-  hint: {
-    fontSize: "0.75rem",
-    color: "#888",
-    marginLeft: "1.5rem",
-  },
-  button: {
-    padding: "0.75rem",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#2563eb",
-    color: "white",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: "pointer",
-    marginTop: "0.5rem",
-  },
-  error: {
-    color: "#dc2626",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  charCount: {
-    fontSize: "0.75rem",
-    color: "#888",
-    textAlign: "right",
-    marginTop: "0.25rem",
-  },
-};

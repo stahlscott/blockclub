@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import styles from "./directory.module.css";
 
 interface PhoneEntry {
   label: string;
@@ -200,33 +201,33 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
   }, [members, debouncedQuery, sortOption]);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className={styles.container}>
+      <div className={styles.header}>
         <div>
-          <Link href="/dashboard" style={styles.backLink}>
+          <Link href="/dashboard" className={styles.backLink}>
             &larr; Dashboard
           </Link>
-          <h1 style={styles.title}>Neighborhood Directory</h1>
-          <p style={styles.subtitle}>
+          <h1 className={styles.title}>Neighborhood Directory</h1>
+          <p className={styles.subtitle}>
             {members.length} households in {neighborhoodName}
           </p>
         </div>
       </div>
 
-      <div style={styles.controls}>
+      <div className={styles.controls}>
         <input
           type="text"
           placeholder="Search members..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={styles.searchInput}
+          className={styles.searchInput}
         />
-        <div style={styles.sortWrapper}>
-          <span style={styles.sortLabel}>Sort by:</span>
+        <div className={styles.sortWrapper}>
+          <span className={styles.sortLabel}>Sort by:</span>
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as SortOption)}
-            style={styles.sortSelect}
+            className={styles.sortSelect}
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -238,43 +239,43 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
       </div>
 
       {filteredMembers.length > 0 ? (
-        <div style={styles.memberGrid}>
+        <div className={styles.memberGrid}>
           {filteredMembers.map((member) => (
             <Link
               key={member.id}
               href={`/neighborhoods/${slug}/members/${member.user.id}`}
-              style={styles.memberCard}
+              className={styles.memberCard}
             >
-              <div style={styles.avatar}>
+              <div className={styles.avatar}>
                 {member.user.avatar_url ? (
                   <Image
                     src={member.user.avatar_url}
                     alt={member.user.name}
                     width={56}
                     height={56}
-                    style={styles.avatarImg}
+                    className={styles.avatarImg}
                   />
                 ) : (
-                  <span style={styles.avatarInitial}>
+                  <span className={styles.avatarInitial}>
                     {getInitial(member.user.name)}
                   </span>
                 )}
               </div>
-              <div style={styles.memberInfo}>
-                <h3 style={styles.memberName}>
+              <div className={styles.memberInfo}>
+                <h3 className={styles.memberName}>
                   {member.user.name}
                   {member.role === "admin" && (
-                    <span style={styles.adminBadge}>Admin</span>
+                    <span className={styles.adminBadge}>Admin</span>
                   )}
                 </h3>
                 {member.user.address && (
-                  <p style={styles.memberAddress}>
+                  <p className={styles.memberAddress}>
                     {member.user.address}
                     {member.user.unit && `, ${member.user.unit}`}
                   </p>
                 )}
                 {member.user.bio && (
-                  <p style={styles.memberBio}>
+                  <p className={styles.memberBio}>
                     {member.user.bio.length > 80
                       ? `${member.user.bio.substring(0, 80)}...`
                       : member.user.bio}
@@ -285,150 +286,14 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
           ))}
         </div>
       ) : debouncedQuery ? (
-        <div style={styles.emptyState}>
+        <div className={styles.emptyState}>
           <p>No results found for &ldquo;{debouncedQuery}&rdquo;</p>
         </div>
       ) : (
-        <div style={styles.emptyState}>
+        <div className={styles.emptyState}>
           <p>No members yet. Be the first to invite neighbors!</p>
         </div>
       )}
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    width: "100%",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "1.5rem 1rem",
-  },
-  header: {
-    marginBottom: "1rem",
-  },
-  backLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    display: "inline-block",
-    marginBottom: "1rem",
-  },
-  title: {
-    margin: "0",
-    fontSize: "1.5rem",
-    fontWeight: "600",
-  },
-  subtitle: {
-    margin: "0.25rem 0 0 0",
-    color: "#666",
-  },
-  controls: {
-    display: "flex",
-    gap: "1rem",
-    marginBottom: "1.5rem",
-    flexWrap: "wrap",
-  },
-  searchInput: {
-    flex: "1 1 200px",
-    padding: "0.75rem 1rem",
-    fontSize: "1rem",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-    outline: "none",
-  },
-  sortWrapper: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-  },
-  sortLabel: {
-    fontSize: "0.875rem",
-    color: "#666",
-    whiteSpace: "nowrap",
-  },
-  sortSelect: {
-    padding: "0.75rem 1rem",
-    fontSize: "1rem",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-    backgroundColor: "white",
-    cursor: "pointer",
-  },
-  memberGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "1rem",
-  },
-  memberCard: {
-    display: "flex",
-    gap: "1rem",
-    padding: "1.25rem",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    textDecoration: "none",
-    color: "inherit",
-    transition: "box-shadow 0.15s ease",
-  },
-  avatar: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "50%",
-    backgroundColor: "#e0e7ff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    overflow: "hidden",
-  },
-  avatarImg: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  avatarInitial: {
-    fontSize: "1.25rem",
-    fontWeight: "600",
-    color: "#3730a3",
-  },
-  memberInfo: {
-    flex: 1,
-    minWidth: 0,
-  },
-  memberName: {
-    margin: "0 0 0.25rem 0",
-    fontSize: "1rem",
-    fontWeight: "600",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    flexWrap: "wrap" as const,
-  },
-  adminBadge: {
-    fontSize: "0.625rem",
-    fontWeight: "500",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    padding: "0.125rem 0.375rem",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    whiteSpace: "nowrap" as const,
-    flexShrink: 0,
-  },
-  memberAddress: {
-    margin: "0 0 0.25rem 0",
-    fontSize: "0.875rem",
-    color: "#666",
-  },
-  memberBio: {
-    margin: 0,
-    fontSize: "0.875rem",
-    color: "#888",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "3rem",
-    color: "#666",
-  },
-};
