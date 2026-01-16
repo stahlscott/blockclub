@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/auth";
 import { RoleActions } from "./role-actions";
+import { MoveOutActions } from "./move-out-actions";
 import profileStyles from "./member-profile.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -99,6 +100,10 @@ export default async function MemberProfilePage({ params }: Props) {
   const canDemote =
     userIsSuperAdmin && membership.role === "admin" && !isOwnProfile;
 
+  // Admins can mark any active member as moved out (except themselves)
+  const canMarkMovedOut =
+    (userIsSuperAdmin || isNeighborhoodAdmin) && !isOwnProfile;
+
   return (
     <div style={styles.container}>
       <Link href={`/neighborhoods/${slug}/directory`} style={styles.backLink}>
@@ -149,16 +154,6 @@ export default async function MemberProfilePage({ params }: Props) {
             <Link href="/profile" style={styles.editButton}>
               Edit Profile
             </Link>
-          )}
-
-          {!isOwnProfile && (canPromote || canDemote) && (
-            <RoleActions
-              membershipId={membership.id}
-              currentRole={membership.role}
-              canPromote={canPromote}
-              canDemote={canDemote}
-              memberName={member.name}
-            />
           )}
         </div>
       </div>
@@ -304,6 +299,30 @@ export default async function MemberProfilePage({ params }: Props) {
           year: "numeric",
         })}
       </div>
+
+      {!isOwnProfile && (canPromote || canDemote || canMarkMovedOut) && (
+        <div style={styles.adminActionsSection}>
+          <div style={styles.adminActionsRow}>
+            {(canPromote || canDemote) && (
+              <RoleActions
+                membershipId={membership.id}
+                currentRole={membership.role}
+                canPromote={canPromote}
+                canDemote={canDemote}
+                memberName={member.name}
+              />
+            )}
+            {canMarkMovedOut && (
+              <MoveOutActions
+                membershipId={membership.id}
+                slug={slug}
+                canMarkMovedOut={canMarkMovedOut}
+                memberName={member.name}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -517,5 +536,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: "center",
     color: "#888",
     fontSize: "0.875rem",
+  },
+  adminActionsSection: {
+    marginTop: "2rem",
+    paddingTop: "1rem",
+    borderTop: "1px solid #eee",
+  },
+  adminActionsRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "1.5rem",
+    flexWrap: "wrap",
   },
 };

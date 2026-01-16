@@ -126,6 +126,38 @@ export default function PublicJoinPage() {
     setSubmitting(false);
   };
 
+  const handleRejoinRequest = async () => {
+    if (!user || !neighborhood || !existingMembership) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    const supabase = createClient();
+    const requiresApproval = neighborhood.settings?.require_approval !== false;
+
+    // Update existing membership status back to pending or active
+    const { error: updateError } = await supabase
+      .from("memberships")
+      .update({
+        status: requiresApproval ? "pending" : "active",
+      })
+      .eq("id", existingMembership.id);
+
+    if (updateError) {
+      setError(updateError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    if (requiresApproval) {
+      setSuccess(true);
+    } else {
+      router.push(`/neighborhoods/${slug}`);
+    }
+
+    setSubmitting(false);
+  };
+
   if (loading) {
     return (
       <div className="fullPageContainer">
@@ -200,7 +232,7 @@ export default function PublicJoinPage() {
   }
 
   // User is already a member
-  if (existingMembership) {
+  if (existingMembership && existingMembership.status !== "moved_out") {
     return (
       <div className="fullPageContainer">
         <div style={styles.card}>
@@ -236,6 +268,49 @@ export default function PublicJoinPage() {
               </Link>
             </>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  // User previously moved out - can rejoin
+  if (existingMembership && existingMembership.status === "moved_out") {
+    return (
+      <div className="fullPageContainer">
+        <div style={styles.card}>
+          <div style={styles.inviteHeader}>
+            <span style={styles.inviteIcon}>🏘️</span>
+            <p style={styles.inviteText}>Welcome back!</p>
+          </div>
+
+          <h1 style={styles.neighborhoodName}>{neighborhood.name}</h1>
+
+          {neighborhood.description && (
+            <p style={styles.description}>{neighborhood.description}</p>
+          )}
+
+          <div style={styles.infoBox}>
+            <p>
+              You were previously a member of this neighborhood.
+              {neighborhood.settings?.require_approval !== false
+                ? " Your rejoin request will need admin approval."
+                : " You can rejoin immediately."}
+            </p>
+          </div>
+
+          {error && <p style={styles.error}>{error}</p>}
+
+          <button
+            onClick={handleRejoinRequest}
+            disabled={submitting}
+            style={styles.primaryButton}
+          >
+            {submitting
+              ? "Rejoining..."
+              : neighborhood.settings?.require_approval !== false
+                ? "Request to Rejoin"
+                : "Rejoin Neighborhood"}
+          </button>
         </div>
       </div>
     );

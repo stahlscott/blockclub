@@ -9,7 +9,13 @@ export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [slug, setSlug] = useState<string | null>(null);
+  const [membershipId, setMembershipId] = useState<string | null>(null);
+  const [neighborhoodName, setNeighborhoodName] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Leave neighborhood state
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
 
   // Password change state
   const [newPassword, setNewPassword] = useState("");
@@ -39,32 +45,49 @@ export default function SettingsPage() {
         .single();
 
       let neighborhoodSlug: string | null = null;
+      let activeMembershipId: string | null = null;
+      let activeMembershipNeighborhoodName: string | null = null;
 
       if (profile?.primary_neighborhood_id) {
-        // Get slug from primary neighborhood
+        // Get slug from primary neighborhood and membership
         const { data: neighborhood } = await supabase
           .from("neighborhoods")
-          .select("slug")
+          .select("slug, name")
           .eq("id", profile.primary_neighborhood_id)
           .single();
         neighborhoodSlug = neighborhood?.slug || null;
+        activeMembershipNeighborhoodName = neighborhood?.name || null;
+
+        // Get the membership ID for this neighborhood
+        const { data: membership } = await supabase
+          .from("memberships")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("neighborhood_id", profile.primary_neighborhood_id)
+          .eq("status", "active")
+          .single();
+        activeMembershipId = membership?.id || null;
       }
 
       // Fall back to first active membership if no primary set
       if (!neighborhoodSlug) {
         const { data: memberships } = await supabase
           .from("memberships")
-          .select("neighborhood:neighborhoods(slug)")
+          .select("id, neighborhood:neighborhoods(slug, name)")
           .eq("user_id", user.id)
           .eq("status", "active")
           .limit(1);
 
         if (memberships?.[0]?.neighborhood) {
           neighborhoodSlug = (memberships[0].neighborhood as any).slug;
+          activeMembershipNeighborhoodName = (memberships[0].neighborhood as any).name;
+          activeMembershipId = memberships[0].id;
         }
       }
 
       setSlug(neighborhoodSlug);
+      setMembershipId(activeMembershipId);
+      setNeighborhoodName(activeMembershipNeighborhoodName);
       setLoading(false);
     }
 
@@ -77,6 +100,38 @@ export default function SettingsPage() {
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLeaveNeighborhood = async () => {
+    if (!membershipId) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to leave ${neighborhoodName || "this neighborhood"}? You will need an invitation to return!`
+    );
+
+    if (!confirmed) return;
+
+    setLeaving(true);
+    setLeaveError(null);
+
+    try {
+      const response = await fetch(`/api/memberships/${membershipId}/move-out`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to leave neighborhood");
+      }
+
+      router.push("/dashboard");
+    } catch (err) {
+      setLeaveError(err instanceof Error ? err.message : "An error occurred");
+      setLeaving(false);
+    }
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -155,6 +210,18 @@ export default function SettingsPage() {
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
+            </div>
+
+            <div style={styles.leaveSection}>
+              {leaveError && <p style={styles.error}>{leaveError}</p>}
+              <button
+                type="button"
+                onClick={handleLeaveNeighborhood}
+                disabled={leaving}
+                style={styles.leaveButton}
+              >
+                {leaving ? "Leaving..." : "Leave Neighborhood"}
+              </button>
             </div>
           </>
         ) : (
@@ -284,6 +351,20 @@ const styles: { [key: string]: React.CSSProperties } = {
   noNeighborhood: {
     color: "#666",
     fontSize: "0.875rem",
+  },
+  leaveSection: {
+    marginTop: "1.5rem",
+    paddingTop: "1rem",
+    borderTop: "1px solid #eee",
+  },
+  leaveButton: {
+    padding: "0",
+    backgroundColor: "transparent",
+    color: "#dc2626",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "0.875rem",
+    textDecoration: "underline",
   },
   form: {
     display: "flex",

@@ -8,7 +8,7 @@
 // ============================================================================
 
 export type MembershipRole = "admin" | "member";
-export type MembershipStatus = "pending" | "active" | "inactive";
+export type MembershipStatus = "pending" | "active" | "inactive" | "moved_out";
 
 export type ItemCategory =
   | "tools"

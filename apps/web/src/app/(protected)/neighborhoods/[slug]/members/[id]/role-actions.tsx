@@ -65,9 +65,9 @@ export function RoleActions({
         <button
           onClick={() => handleRoleChange("admin")}
           disabled={loading}
-          style={styles.promoteButton}
+          style={styles.actionLink}
         >
-          {loading ? "Updating..." : "Promote to Admin"}
+          {loading ? "Updating..." : "Promote to admin"}
         </button>
       )}
 
@@ -75,9 +75,9 @@ export function RoleActions({
         <button
           onClick={() => handleRoleChange("member")}
           disabled={loading}
-          style={styles.demoteButton}
+          style={styles.actionLink}
         >
-          {loading ? "Updating..." : "Demote to Member"}
+          {loading ? "Updating..." : "Demote to member"}
         </button>
       )}
     </div>
@@ -86,31 +86,20 @@ export function RoleActions({
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    marginTop: "1rem",
+    display: "inline-block",
   },
   error: {
     color: "#dc2626",
-    fontSize: "0.875rem",
-    margin: 0,
+    fontSize: "0.75rem",
+    margin: "0 0 0.25rem 0",
   },
-  promoteButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#2563eb",
-    color: "white",
+  actionLink: {
+    padding: "0",
+    backgroundColor: "transparent",
+    color: "#666",
     border: "none",
-    borderRadius: "6px",
     cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  demoteButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#dc2626",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: "500",
+    fontSize: "0.75rem",
+    textDecoration: "underline",
   },
 };
