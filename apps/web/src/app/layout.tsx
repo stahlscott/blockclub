@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
+import { NeighborhoodProvider } from "@/components/NeighborhoodProvider";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
@@ -36,8 +37,10 @@ export default function RootLayout({
         flexDirection: "column",
       }}>
         <AuthProvider>
-          <Header />
-          <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>{children}</main>
+          <NeighborhoodProvider>
+            <Header />
+            <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>{children}</main>
+          </NeighborhoodProvider>
         </AuthProvider>
       </body>
     </html>

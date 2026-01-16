@@ -25,7 +25,6 @@ export default function NeighborhoodSettingsPage() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -137,7 +136,7 @@ export default function NeighborhoodSettingsPage() {
       </Link>
 
       <div className={styles.card}>
-        <h1 className={styles.title}>Neighborhood Settings</h1>
+        <h1 className={styles.title}>Neighborhood Admin</h1>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <div className={styles.error}>{error}</div>}
@@ -156,6 +155,9 @@ export default function NeighborhoodSettingsPage() {
               maxLength={MAX_LENGTHS.neighborhoodName}
               className={styles.input}
             />
+            <span className={styles.hint}>
+              Display name only. The URL will remain /{slug}.
+            </span>
           </div>
 
           <div className={styles.field}>
@@ -216,41 +218,6 @@ export default function NeighborhoodSettingsPage() {
                 New members must be approved by an admin before joining
               </span>
             </label>
-          </div>
-
-          <div className={styles.divider} />
-
-          <h2 className={styles.sectionTitle}>Invite Link</h2>
-
-          <div className={styles.inviteSection}>
-            <p className={styles.inviteHint}>
-              Share this link to invite neighbors to join:
-            </p>
-            <div className={styles.inviteRow}>
-              <input
-                type="text"
-                readOnly
-                value={
-                  typeof window !== "undefined"
-                    ? `${window.location.origin}/join/${slug}`
-                    : `/join/${slug}`
-                }
-                className={styles.inviteInput}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/join/${slug}`,
-                  );
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-                className={styles.copyButton}
-              >
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
           </div>
 
           <div className={styles.divider} />

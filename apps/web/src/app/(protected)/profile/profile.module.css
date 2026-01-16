@@ -1,6 +1,7 @@
 /* Profile page container */
 .container {
-  max-width: 500px;
+  width: 100%;
+  max-width: 680px;
   margin: 0 auto;
   padding: var(--space-4);
   display: flex;

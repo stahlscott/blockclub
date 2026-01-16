@@ -37,16 +37,31 @@
   gap: var(--space-4);
 }
 
+.neighborhoodNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-right: var(--space-2);
+}
+
 .navLink {
   color: var(--color-text-secondary);
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  transition: color 0.15s ease;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
 }
 
 .navLink:hover {
   color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.navLinkActive {
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
 }
 
 .signUpButton {
@@ -110,7 +125,6 @@
   color: var(--color-text);
   text-decoration: none;
   padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-background);
   display: block;
   font-weight: var(--font-weight-medium);
 }
@@ -132,7 +146,118 @@
 }
 
 .mobileSignOutButton:hover {
+  color: var(--color-error);
+}
+
+/* Mobile user section */
+.mobileUserSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.mobileAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border-emphasis);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.mobileUserInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.mobileUserEmail {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileNeighborhoodName {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.mobileDivider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--space-2) 0;
+}
+
+/* Mobile neighborhood switcher */
+.mobileSwitcherToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.mobileSwitcherToggle:hover {
+  color: var(--color-primary);
+}
+
+.chevron {
+  font-size: var(--font-size-xs);
+  transition: transform 0.15s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.mobileSwitcherList {
+  background-color: var(--color-background);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+}
+
+.mobileSwitcherOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.mobileSwitcherOption:hover {
+  color: var(--color-primary);
+}
+
+.mobileSwitcherOptionActive {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.checkmark {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
 }
 
 /* Mobile styles */

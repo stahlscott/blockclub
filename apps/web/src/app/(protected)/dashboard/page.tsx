@@ -6,7 +6,6 @@ import { isSuperAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
-import { NeighborhoodSwitcher } from "@/components/NeighborhoodSwitcher";
 
 function getInitial(name: string | null | undefined): string {
   if (!name) return "?";
@@ -216,32 +215,10 @@ export default async function DashboardPage() {
     }
   }
 
-  // Build neighborhoods list for switcher
-  const neighborhoodsForSwitcher = activeMemberships.map((m: any) => ({
-    id: m.neighborhood.id,
-    name: m.neighborhood.name,
-    slug: m.neighborhood.slug,
-  }));
-
   return (
     <div className={dashboardStyles.container}>
       {primaryNeighborhood && (
-        <div className={dashboardStyles.headerRow}>
-          <div>
-            {activeMemberships.length > 1 ? (
-              <NeighborhoodSwitcher
-                neighborhoods={neighborhoodsForSwitcher}
-                currentNeighborhoodId={primaryNeighborhood.id}
-                userId={authUser.id}
-              />
-            ) : (
-              <h1 className={dashboardStyles.title}>{primaryNeighborhood.name}</h1>
-            )}
-          </div>
-          <Link href="/settings" className={dashboardStyles.settingsLink}>
-            Settings
-          </Link>
-        </div>
+        <h1 className={dashboardStyles.title}>{primaryNeighborhood.name}</h1>
       )}
 
       {/* Borrow Requests Banner */}
@@ -665,7 +642,7 @@ export default async function DashboardPage() {
               className={dashboardStyles.actionCard}
             >
               <span className={dashboardStyles.actionIcon}>⚙️</span>
-              <span>Neighborhood Settings</span>
+              <span>Neighborhood Admin</span>
             </Link>
             {canCreateNeighborhood && (
               <Link href="/neighborhoods/new" className={dashboardStyles.actionCard}>

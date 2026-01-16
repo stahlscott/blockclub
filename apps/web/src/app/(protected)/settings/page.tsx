@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 import styles from "./settings.module.css";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [slug, setSlug] = useState<string | null>(null);
   const [membershipId, setMembershipId] = useState<string | null>(null);
@@ -45,19 +47,19 @@ export default function SettingsPage() {
         .eq("id", user.id)
         .single();
 
-      let neighborhoodSlug: string | null = null;
       let activeMembershipId: string | null = null;
       let activeMembershipNeighborhoodName: string | null = null;
+      let neighborhoodSlug: string | null = null;
 
       if (profile?.primary_neighborhood_id) {
-        // Get slug from primary neighborhood and membership
+        // Get neighborhood name and slug
         const { data: neighborhood } = await supabase
           .from("neighborhoods")
-          .select("slug, name")
+          .select("name, slug")
           .eq("id", profile.primary_neighborhood_id)
           .single();
-        neighborhoodSlug = neighborhood?.slug || null;
         activeMembershipNeighborhoodName = neighborhood?.name || null;
+        neighborhoodSlug = neighborhood?.slug || null;
 
         // Get the membership ID for this neighborhood
         const { data: membership } = await supabase
@@ -71,17 +73,17 @@ export default function SettingsPage() {
       }
 
       // Fall back to first active membership if no primary set
-      if (!neighborhoodSlug) {
+      if (!activeMembershipId) {
         const { data: memberships } = await supabase
           .from("memberships")
-          .select("id, neighborhood:neighborhoods(slug, name)")
+          .select("id, neighborhood:neighborhoods(name, slug)")
           .eq("user_id", user.id)
           .eq("status", "active")
           .limit(1);
 
         if (memberships?.[0]?.neighborhood) {
-          neighborhoodSlug = (memberships[0].neighborhood as any).slug;
           activeMembershipNeighborhoodName = (memberships[0].neighborhood as any).name;
+          neighborhoodSlug = (memberships[0].neighborhood as any).slug;
           activeMembershipId = memberships[0].id;
         }
       }
@@ -94,14 +96,6 @@ export default function SettingsPage() {
 
     loadData();
   }, [router]);
-
-  const handleCopy = () => {
-    if (!slug) return;
-    const url = `${window.location.origin}/join/${slug}`;
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleLeaveNeighborhood = async () => {
     if (!membershipId) return;
@@ -170,6 +164,14 @@ export default function SettingsPage() {
     setChangingPassword(false);
   };
 
+  const handleCopy = async () => {
+    if (!slug) return;
+    const url = `${window.location.origin}/join/${slug}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -187,48 +189,40 @@ export default function SettingsPage() {
       </Link>
 
       <div className={styles.card}>
-        <h1 className={styles.title}>Settings</h1>
+        <h1 className={styles.title}>Account Settings</h1>
 
-        {slug ? (
-          <>
+        {slug && (
+          <div className={styles.inviteSection}>
             <h2 className={styles.sectionTitle}>Invite Link</h2>
-            <div className={styles.inviteSection}>
-              <p className={styles.inviteHint}>
-                Share this link to invite neighbors to join:
-              </p>
-              <div className={styles.inviteRow}>
-                <input
-                  type="text"
-                  readOnly
-                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/join/${slug}`}
-                  className={styles.inviteInput}
-                />
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className={styles.copyButton}
-                >
-                  {copied ? "Copied!" : "Copy"}
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.leaveSection}>
-              {leaveError && <p className={styles.error}>{leaveError}</p>}
-              <button
-                type="button"
-                onClick={handleLeaveNeighborhood}
-                disabled={leaving}
-                className={styles.leaveButton}
-              >
-                {leaving ? "Leaving..." : "Leave Neighborhood"}
+            <p className={styles.inviteHint}>
+              Share this link to invite neighbors to {neighborhoodName || "your neighborhood"}:
+            </p>
+            <div className={styles.inviteRow}>
+              <input
+                type="text"
+                readOnly
+                value={`${typeof window !== "undefined" ? window.location.origin : ""}/join/${slug}`}
+                className={styles.inviteInput}
+              />
+              <button type="button" onClick={handleCopy} className={styles.copyButton}>
+                {copied ? "Copied!" : "Copy"}
               </button>
             </div>
-          </>
-        ) : (
-          <p className={styles.noNeighborhood}>
-            Join a neighborhood to get an invite link.
-          </p>
+          </div>
+        )}
+
+        {membershipId && (
+          <div className={styles.leaveSection}>
+            {leaveError && <p className={styles.error}>{leaveError}</p>}
+            <button
+              type="button"
+              onClick={handleLeaveNeighborhood}
+              disabled={leaving}
+              className={styles.leaveButton}
+            >
+              {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
+            </button>
+          </div>
         )}
       </div>
 
@@ -276,6 +270,16 @@ export default function SettingsPage() {
             {changingPassword ? "Changing..." : "Change Password"}
           </button>
         </form>
+      </div>
+
+      <div className={styles.card}>
+        <h2 className={styles.sectionTitle}>Sign Out</h2>
+        <p className={styles.signOutHint}>
+          Sign out of your account on this device.
+        </p>
+        <button type="button" onClick={signOut} className={styles.signOutButton}>
+          Sign Out
+        </button>
       </div>
     </div>
   );
