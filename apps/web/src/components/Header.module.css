@@ -1,6 +1,6 @@
 .header {
-  background-color: white;
-  border-bottom: 1px solid #e5e5e5;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -9,16 +9,16 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
   text-decoration: none;
   line-height: 1;
   display: flex;
@@ -28,55 +28,55 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .navLink {
-  color: #666;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
 }
 
 .navLink:hover {
-  color: #333;
+  color: var(--color-text);
 }
 
 .signUpButton {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
 }
 
 .signUpButton:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-hover);
 }
 
 .signOutButton {
   background-color: transparent;
-  color: #666;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 
 .signOutButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--color-background);
 }
 
 .loading {
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .menuButton {
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -89,25 +89,25 @@
 .mobileNav {
   display: none;
   flex-direction: column;
-  padding: 0.5rem 1rem 1rem;
-  border-top: 1px solid #e5e5e5;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border);
   gap: 0;
 }
 
 .mobileNavLink {
-  color: #333;
+  color: var(--color-text);
   text-decoration: none;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-background);
   display: block;
 }
 
 .mobileSignOutButton {
   background-color: transparent;
-  color: #666;
-  padding: 0.75rem 0;
+  color: var(--color-text-secondary);
+  padding: var(--space-3) 0;
   border: none;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   cursor: pointer;
   text-align: left;
   width: 100%;

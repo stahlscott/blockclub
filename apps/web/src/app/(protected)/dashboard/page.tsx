@@ -226,7 +226,7 @@ export default async function DashboardPage() {
   return (
     <div className={dashboardStyles.container}>
       {primaryNeighborhood && (
-        <div style={styles.headerRow}>
+        <div className={dashboardStyles.headerRow}>
           <div>
             {activeMemberships.length > 1 ? (
               <NeighborhoodSwitcher
@@ -235,10 +235,10 @@ export default async function DashboardPage() {
                 userId={authUser.id}
               />
             ) : (
-              <h1 style={styles.title}>{primaryNeighborhood.name}</h1>
+              <h1 className={dashboardStyles.title}>{primaryNeighborhood.name}</h1>
             )}
           </div>
-          <Link href="/settings" style={styles.settingsLink}>
+          <Link href="/settings" className={dashboardStyles.settingsLink}>
             Settings
           </Link>
         </div>
@@ -246,31 +246,31 @@ export default async function DashboardPage() {
 
       {/* Borrow Requests Banner */}
       {pendingLoanRequests.length > 0 && (
-        <section style={styles.section}>
-          <div style={styles.loanRequestsBanner}>
-            <div style={styles.loanRequestsHeader}>
-              <span style={styles.pendingIcon}>📬</span>
+        <section className={dashboardStyles.section}>
+          <div className={dashboardStyles.loanRequestsBanner}>
+            <div className={dashboardStyles.loanRequestsHeader}>
+              <span className={dashboardStyles.pendingIcon}>📬</span>
               <strong>
                 {pendingLoanRequests.length} Borrow Request
                 {pendingLoanRequests.length > 1 ? "s" : ""}
               </strong>
             </div>
-            <div style={styles.loanRequestsList}>
+            <div className={dashboardStyles.loanRequestsList}>
               {pendingLoanRequests.slice(0, 3).map((loan: any) => (
                 <Link
                   key={loan.id}
                   href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
-                  style={styles.loanRequestItem}
+                  className={dashboardStyles.loanRequestItem}
                 >
                   <span>
                     <strong>{loan.borrower?.name}</strong> wants to borrow{" "}
                     <strong>{loan.item?.name}</strong>
                   </span>
-                  <span style={styles.loanRequestArrow}>&rarr;</span>
+                  <span className={dashboardStyles.loanRequestArrow}>&rarr;</span>
                 </Link>
               ))}
               {pendingLoanRequests.length > 3 && (
-                <p style={styles.moreRequests}>
+                <p className={dashboardStyles.moreRequests}>
                   +{pendingLoanRequests.length - 3} more request
                   {pendingLoanRequests.length - 3 > 1 ? "s" : ""}
                 </p>
@@ -298,27 +298,27 @@ export default async function DashboardPage() {
           return (
             <>
               {overdueItems.length > 0 && (
-                <section style={styles.section}>
-                  <div style={styles.overdueBanner}>
-                    <div style={styles.overdueHeader}>
-                      <span style={styles.pendingIcon}>⚠️</span>
+                <section className={dashboardStyles.section}>
+                  <div className={dashboardStyles.overdueBanner}>
+                    <div className={dashboardStyles.overdueHeader}>
+                      <span className={dashboardStyles.pendingIcon}>⚠️</span>
                       <strong>
                         {overdueItems.length} Overdue Item
                         {overdueItems.length > 1 ? "s" : ""}
                       </strong>
                     </div>
-                    <div style={styles.overdueList}>
+                    <div className={dashboardStyles.overdueList}>
                       {overdueItems.map((loan: any) => (
                         <Link
                           key={loan.id}
                           href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
-                          style={styles.overdueItem}
+                          className={dashboardStyles.overdueItem}
                         >
-                          <div style={styles.borrowedItemInfo}>
-                            <span style={styles.overdueItemName}>
+                          <div className={dashboardStyles.borrowedItemInfo}>
+                            <span className={dashboardStyles.overdueItemName}>
                               {loan.item?.name}
                             </span>
-                            <span style={styles.overdueItemDue}>
+                            <span className={dashboardStyles.overdueItemDue}>
                               Was due{" "}
                               {parseDateLocal(loan.due_date).toLocaleDateString(
                                 "en-US",
@@ -331,7 +331,7 @@ export default async function DashboardPage() {
                               {loan.item?.owner?.name || "owner"}
                             </span>
                           </div>
-                          <span style={styles.overdueArrow}>&rarr;</span>
+                          <span className={dashboardStyles.overdueArrow}>&rarr;</span>
                         </Link>
                       ))}
                     </div>
@@ -340,27 +340,27 @@ export default async function DashboardPage() {
               )}
 
               {currentItems.length > 0 && (
-                <section style={styles.section}>
-                  <div style={styles.borrowedBanner}>
-                    <div style={styles.borrowedHeader}>
-                      <span style={styles.pendingIcon}>📦</span>
+                <section className={dashboardStyles.section}>
+                  <div className={dashboardStyles.borrowedBanner}>
+                    <div className={dashboardStyles.borrowedHeader}>
+                      <span className={dashboardStyles.pendingIcon}>📦</span>
                       <strong>
                         You&apos;re Borrowing {currentItems.length} Item
                         {currentItems.length > 1 ? "s" : ""}
                       </strong>
                     </div>
-                    <div style={styles.borrowedList}>
+                    <div className={dashboardStyles.borrowedList}>
                       {currentItems.map((loan: any) => (
                         <Link
                           key={loan.id}
                           href={`/neighborhoods/${loan.item?.neighborhood?.slug}/library/${loan.item_id}`}
-                          style={styles.borrowedItem}
+                          className={dashboardStyles.borrowedItem}
                         >
-                          <div style={styles.borrowedItemInfo}>
-                            <span style={styles.borrowedItemName}>
+                          <div className={dashboardStyles.borrowedItemInfo}>
+                            <span className={dashboardStyles.borrowedItemName}>
                               {loan.item?.name}
                             </span>
-                            <span style={styles.borrowedItemOwner}>
+                            <span className={dashboardStyles.borrowedItemOwner}>
                               from {loan.item?.owner?.name || "Unknown"}
                               {loan.due_date &&
                                 ` · Due ${parseDateLocal(
@@ -371,7 +371,7 @@ export default async function DashboardPage() {
                                 })}`}
                             </span>
                           </div>
-                          <span style={styles.loanRequestArrow}>&rarr;</span>
+                          <span className={dashboardStyles.loanRequestArrow}>&rarr;</span>
                         </Link>
                       ))}
                     </div>
@@ -384,12 +384,12 @@ export default async function DashboardPage() {
 
       {/* Pending Memberships Banner (user's own pending requests to join neighborhoods) */}
       {pendingMemberships && pendingMemberships.length > 0 && (
-        <section style={styles.section}>
-          <div style={styles.pendingBanner}>
-            <span style={styles.pendingIcon}>⏳</span>
+        <section className={dashboardStyles.section}>
+          <div className={dashboardStyles.pendingBanner}>
+            <span className={dashboardStyles.pendingIcon}>⏳</span>
             <div>
               <strong>Pending Requests</strong>
-              <p style={styles.pendingText}>
+              <p className={dashboardStyles.pendingText}>
                 {pendingMemberships
                   .map((m: any) => m.neighborhood.name)
                   .join(", ")}
@@ -406,38 +406,38 @@ export default async function DashboardPage() {
           {isAdmin && pendingMemberRequests > 0 && (
             <Link
               href={`/neighborhoods/${primaryNeighborhood.slug}/members/pending`}
-              style={styles.adminBanner}
+              className={dashboardStyles.adminBanner}
             >
               <span>
                 {pendingMemberRequests} pending membership request
                 {pendingMemberRequests > 1 ? "s" : ""}
               </span>
-              <span style={styles.adminBannerArrow}>&rarr;</span>
+              <span className={dashboardStyles.adminBannerArrow}>&rarr;</span>
             </Link>
           )}
 
           {/* Quick Actions */}
-          <section style={styles.section}>
+          <section className={dashboardStyles.section}>
             <div className={responsive.grid3}>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                style={styles.actionCard}
+                className={dashboardStyles.actionCard}
               >
-                <span style={styles.actionIcon}>📝</span>
+                <span className={dashboardStyles.actionIcon}>📝</span>
                 <span>Posts</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                style={styles.actionCard}
+                className={dashboardStyles.actionCard}
               >
-                <span style={styles.actionIcon}>📚</span>
+                <span className={dashboardStyles.actionIcon}>📚</span>
                 <span>Library</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                style={styles.actionCard}
+                className={dashboardStyles.actionCard}
               >
-                <span style={styles.actionIcon}>👥</span>
+                <span className={dashboardStyles.actionIcon}>👥</span>
                 <span>Directory</span>
               </Link>
             </div>
@@ -445,17 +445,17 @@ export default async function DashboardPage() {
 
           {/* Recently Posted */}
           {recentPosts.length > 0 && (
-            <section style={styles.section}>
-              <div style={styles.sectionHeader}>
+            <section className={dashboardStyles.section}>
+              <div className={dashboardStyles.sectionHeader}>
                 <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
                 <Link
                   href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                  style={styles.seeAllLink}
+                  className={dashboardStyles.seeAllLink}
                 >
                   See all &rarr;
                 </Link>
               </div>
-              <div style={styles.memberList}>
+              <div className={dashboardStyles.memberList}>
                 {recentPosts.slice(0, 3).map((post: any) => {
                   const isNew =
                     post.created_at && isWithinDays(post.created_at, 3);
@@ -463,30 +463,30 @@ export default async function DashboardPage() {
                     <Link
                       key={post.id}
                       href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                      style={styles.postRow}
+                      className={dashboardStyles.postRow}
                     >
-                      <div style={styles.memberInfo}>
+                      <div className={dashboardStyles.memberInfo}>
                         {post.author?.avatar_url ? (
                           <Image
                             src={post.author.avatar_url}
                             alt={post.author.name || "Author"}
                             width={40}
                             height={40}
-                            style={styles.memberAvatar}
+                            className={dashboardStyles.memberAvatar}
                           />
                         ) : (
-                          <div style={styles.memberAvatarPlaceholder}>
+                          <div className={dashboardStyles.memberAvatarPlaceholder}>
                             {getInitial(post.author?.name)}
                           </div>
                         )}
-                        <div style={styles.memberDetails}>
-                          <span style={styles.memberName}>
+                        <div className={dashboardStyles.memberDetails}>
+                          <span className={dashboardStyles.memberName}>
                             {post.author?.name || "Unknown"}
                             {isNew && (
-                              <span style={styles.newBadgeInline}>New</span>
+                              <span className={dashboardStyles.newBadgeInline}>New</span>
                             )}
                           </span>
-                          <span style={styles.postPreview}>
+                          <span className={dashboardStyles.postPreview}>
                             {post.content.length > 80
                               ? post.content.slice(0, 80) + "..."
                               : post.content}
@@ -494,7 +494,7 @@ export default async function DashboardPage() {
                         </div>
                       </div>
                       {post.is_pinned && (
-                        <span style={styles.pinnedBadge}>📌</span>
+                        <span className={dashboardStyles.pinnedBadge}>📌</span>
                       )}
                     </Link>
                   );
@@ -505,47 +505,47 @@ export default async function DashboardPage() {
 
           {/* Recently Added Items */}
           {recentItems.length > 0 && (
-            <section style={styles.section}>
-              <div style={styles.sectionHeader}>
+            <section className={dashboardStyles.section}>
+              <div className={dashboardStyles.sectionHeader}>
                 <h2 className={dashboardStyles.sectionTitle}>
                   Recently Added Items
                 </h2>
                 <Link
                   href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                  style={styles.seeAllLink}
+                  className={dashboardStyles.seeAllLink}
                 >
                   See all &rarr;
                 </Link>
               </div>
-              <div style={styles.itemGrid}>
+              <div className={dashboardStyles.itemGrid}>
                 {recentItems.slice(0, 4).map((item: any) => {
                   const isNew = isWithinDays(item.created_at, 14);
                   return (
                     <Link
                       key={item.id}
                       href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
-                      style={styles.itemCard}
+                      className={dashboardStyles.itemCard}
                     >
                       {item.photo_urls && item.photo_urls.length > 0 ? (
-                        <div style={styles.itemImageContainer}>
+                        <div className={dashboardStyles.itemImageContainer}>
                           <Image
                             src={item.photo_urls[0]}
                             alt={item.name}
                             width={160}
                             height={120}
-                            style={styles.itemImage}
+                            className={dashboardStyles.itemImage}
                           />
-                          {isNew && <span style={styles.newBadge}>New</span>}
+                          {isNew && <span className={dashboardStyles.newBadge}>New</span>}
                         </div>
                       ) : (
-                        <div style={styles.itemPlaceholder}>
-                          <span style={styles.itemPlaceholderIcon}>📦</span>
-                          {isNew && <span style={styles.newBadge}>New</span>}
+                        <div className={dashboardStyles.itemPlaceholder}>
+                          <span className={dashboardStyles.itemPlaceholderIcon}>📦</span>
+                          {isNew && <span className={dashboardStyles.newBadge}>New</span>}
                         </div>
                       )}
-                      <div style={styles.itemInfo}>
-                        <span style={styles.itemName}>{item.name}</span>
-                        <span style={styles.itemOwner}>
+                      <div className={dashboardStyles.itemInfo}>
+                        <span className={dashboardStyles.itemName}>{item.name}</span>
+                        <span className={dashboardStyles.itemOwner}>
                           {item.owner?.name || "Unknown"}
                         </span>
                       </div>
@@ -558,19 +558,19 @@ export default async function DashboardPage() {
 
           {/* Recently Joined Households */}
           {recentMembers.length > 0 && (
-            <section style={styles.section}>
-              <div style={styles.sectionHeader}>
+            <section className={dashboardStyles.section}>
+              <div className={dashboardStyles.sectionHeader}>
                 <h2 className={dashboardStyles.sectionTitle}>
                   Recently Joined Households
                 </h2>
                 <Link
                   href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                  style={styles.seeAllLink}
+                  className={dashboardStyles.seeAllLink}
                 >
                   See all &rarr;
                 </Link>
               </div>
-              <div style={styles.memberList}>
+              <div className={dashboardStyles.memberList}>
                 {recentMembers.slice(0, 5).map((membership: any) => {
                   const isNew =
                     membership.joined_at &&
@@ -579,31 +579,31 @@ export default async function DashboardPage() {
                     <Link
                       key={membership.id}
                       href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
-                      style={styles.memberRow}
+                      className={dashboardStyles.memberRow}
                     >
-                      <div style={styles.memberInfo}>
+                      <div className={dashboardStyles.memberInfo}>
                         {membership.user?.avatar_url ? (
                           <Image
                             src={membership.user.avatar_url}
                             alt={membership.user.name || "Member"}
                             width={40}
                             height={40}
-                            style={styles.memberAvatar}
+                            className={dashboardStyles.memberAvatar}
                           />
                         ) : (
-                          <div style={styles.memberAvatarPlaceholder}>
+                          <div className={dashboardStyles.memberAvatarPlaceholder}>
                             {getInitial(membership.user?.name)}
                           </div>
                         )}
-                        <div style={styles.memberDetails}>
-                          <span style={styles.memberName}>
+                        <div className={dashboardStyles.memberDetails}>
+                          <span className={dashboardStyles.memberName}>
                             {membership.user?.name || "Unknown"}
                             {isNew && (
-                              <span style={styles.newBadgeInline}>New</span>
+                              <span className={dashboardStyles.newBadgeInline}>New</span>
                             )}
                           </span>
                           {membership.joined_at && (
-                            <span style={styles.memberJoinDate}>
+                            <span className={dashboardStyles.memberJoinDate}>
                               Joined{" "}
                               {new Date(
                                 membership.joined_at,
@@ -615,7 +615,7 @@ export default async function DashboardPage() {
                           )}
                         </div>
                       </div>
-                      <span style={styles.memberArrow}>&rarr;</span>
+                      <span className={dashboardStyles.memberArrow}>&rarr;</span>
                     </Link>
                   );
                 })}
@@ -624,15 +624,15 @@ export default async function DashboardPage() {
           )}
         </>
       ) : (
-        <section style={styles.section}>
-          <div style={styles.emptyState}>
-            <h2 style={styles.emptyTitle}>No neighborhoods yet</h2>
-            <p style={styles.emptyText}>
+        <section className={dashboardStyles.section}>
+          <div className={dashboardStyles.emptyState}>
+            <h2 className={dashboardStyles.emptyTitle}>No neighborhoods yet</h2>
+            <p className={dashboardStyles.emptyText}>
               You haven&apos;t joined any neighborhoods yet. Ask a neighbor to
               share their invite link with you!
             </p>
             {canCreateNeighborhood && (
-              <Link href="/neighborhoods/new" style={styles.primaryButton}>
+              <Link href="/neighborhoods/new" className={dashboardStyles.primaryButton}>
                 Create a Neighborhood
               </Link>
             )}
@@ -642,7 +642,7 @@ export default async function DashboardPage() {
 
       {/* Admin Section */}
       {isAdmin && primaryNeighborhood && (
-        <section style={styles.section}>
+        <section className={dashboardStyles.section}>
           <h2
             className={dashboardStyles.sectionTitle}
             style={{ marginBottom: "1rem" }}
@@ -650,26 +650,26 @@ export default async function DashboardPage() {
             Admin
           </h2>
           <div className={responsive.statsRow} style={{ marginBottom: "1rem" }}>
-            <div style={styles.stat}>
-              <span style={styles.statValue}>{memberCount}</span>
-              <span style={styles.statLabel}>Households</span>
+            <div className={dashboardStyles.stat}>
+              <span className={dashboardStyles.statValue}>{memberCount}</span>
+              <span className={dashboardStyles.statLabel}>Households</span>
             </div>
-            <div style={styles.stat}>
-              <span style={styles.statValue}>{itemsAvailable}</span>
-              <span style={styles.statLabel}>Items Available</span>
+            <div className={dashboardStyles.stat}>
+              <span className={dashboardStyles.statValue}>{itemsAvailable}</span>
+              <span className={dashboardStyles.statLabel}>Items Available</span>
             </div>
           </div>
           <div className={responsive.grid2}>
             <Link
               href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
-              style={styles.actionCard}
+              className={dashboardStyles.actionCard}
             >
-              <span style={styles.actionIcon}>⚙️</span>
+              <span className={dashboardStyles.actionIcon}>⚙️</span>
               <span>Neighborhood Settings</span>
             </Link>
             {canCreateNeighborhood && (
-              <Link href="/neighborhoods/new" style={styles.actionCard}>
-                <span style={styles.actionIcon}>🏘️</span>
+              <Link href="/neighborhoods/new" className={dashboardStyles.actionCard}>
+                <span className={dashboardStyles.actionIcon}>🏘️</span>
                 <span>New Neighborhood</span>
               </Link>
             )}
@@ -679,7 +679,7 @@ export default async function DashboardPage() {
 
       {/* New Neighborhood (for super admins without neighborhood admin role) */}
       {canCreateNeighborhood && !isAdmin && (
-        <section style={styles.section}>
+        <section className={dashboardStyles.section}>
           <h2
             className={dashboardStyles.sectionTitle}
             style={{ marginBottom: "1rem" }}
@@ -687,8 +687,8 @@ export default async function DashboardPage() {
             Admin
           </h2>
           <div className={responsive.grid4}>
-            <Link href="/neighborhoods/new" style={styles.actionCard}>
-              <span style={styles.actionIcon}>🏘️</span>
+            <Link href="/neighborhoods/new" className={dashboardStyles.actionCard}>
+              <span className={dashboardStyles.actionIcon}>🏘️</span>
               <span>New Neighborhood</span>
             </Link>
           </div>
@@ -697,412 +697,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  headerRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1.5rem",
-    gap: "1rem",
-  },
-  title: {
-    fontSize: "1.75rem",
-    fontWeight: "600",
-    margin: 0,
-  },
-  settingsLink: {
-    color: "#666",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    padding: "0.5rem 1rem",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-  },
-  section: {
-    marginBottom: "2rem",
-  },
-  sectionHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1rem",
-  },
-  seeAllLink: {
-    color: "#2563eb",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  // Stats
-  stat: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: "1.5rem",
-    fontWeight: "700",
-    color: "#111",
-  },
-  statLabel: {
-    fontSize: "0.875rem",
-    color: "#666",
-  },
-  // Admin banner
-  adminBanner: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#dbeafe",
-    border: "1px solid #93c5fd",
-    padding: "0.875rem 1.25rem",
-    borderRadius: "8px",
-    marginBottom: "1.5rem",
-    color: "#1e40af",
-    textDecoration: "none",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-  },
-  adminBannerArrow: {
-    fontSize: "1.25rem",
-  },
-  // Items grid
-  itemGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: "1rem",
-  },
-  itemCard: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    overflow: "hidden",
-    textDecoration: "none",
-    color: "inherit",
-    transition: "box-shadow 0.15s ease",
-  },
-  itemImageContainer: {
-    position: "relative",
-    width: "100%",
-    aspectRatio: "1",
-    backgroundColor: "#f3f4f6",
-  },
-  itemImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  itemPlaceholder: {
-    position: "relative",
-    width: "100%",
-    aspectRatio: "1",
-    backgroundColor: "#f3f4f6",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  itemPlaceholderIcon: {
-    fontSize: "2rem",
-    opacity: 0.5,
-  },
-  newBadge: {
-    position: "absolute",
-    top: "8px",
-    right: "8px",
-    backgroundColor: "#22c55e",
-    color: "white",
-    fontSize: "0.625rem",
-    fontWeight: "600",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    letterSpacing: "0.025em",
-  },
-  itemInfo: {
-    padding: "0.75rem",
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.25rem",
-  },
-  itemName: {
-    fontSize: "0.875rem",
-    fontWeight: "600",
-    color: "#111",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  itemOwner: {
-    fontSize: "0.75rem",
-    color: "#666",
-  },
-  // Members list
-  memberList: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    overflow: "hidden",
-  },
-  memberRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "0.875rem 1rem",
-    borderBottom: "1px solid #f0f0f0",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  memberInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-  },
-  memberAvatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    objectFit: "cover",
-  },
-  memberAvatarPlaceholder: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#e0e7ff",
-    color: "#3730a3",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "1rem",
-    fontWeight: "600",
-  },
-  memberDetails: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.125rem",
-  },
-  memberName: {
-    fontSize: "0.875rem",
-    fontWeight: "600",
-    color: "#111",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-  },
-  memberJoinDate: {
-    fontSize: "0.75rem",
-    color: "#666",
-  },
-  newBadgeInline: {
-    backgroundColor: "#22c55e",
-    color: "white",
-    fontSize: "0.625rem",
-    fontWeight: "600",
-    padding: "0.125rem 0.375rem",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    letterSpacing: "0.025em",
-  },
-  memberArrow: {
-    color: "#999",
-    fontSize: "1rem",
-  },
-  // Post preview
-  postRow: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    padding: "0.875rem 1rem",
-    borderBottom: "1px solid #f0f0f0",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  postPreview: {
-    fontSize: "0.8125rem",
-    color: "#666",
-    lineHeight: "1.4",
-    marginTop: "0.25rem",
-  },
-  pinnedBadge: {
-    fontSize: "0.875rem",
-    flexShrink: 0,
-    marginLeft: "0.5rem",
-  },
-  // Empty state
-  emptyState: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "3rem",
-    textAlign: "center",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  },
-  emptyTitle: {
-    fontSize: "1.25rem",
-    fontWeight: "600",
-    margin: "0 0 0.5rem 0",
-  },
-  emptyText: {
-    color: "#666",
-    marginBottom: "1.5rem",
-  },
-  primaryButton: {
-    display: "inline-block",
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "0.75rem 1.5rem",
-    borderRadius: "6px",
-    fontSize: "1rem",
-    fontWeight: "500",
-    textDecoration: "none",
-  },
-  // Banners
-  pendingBanner: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-    backgroundColor: "#fef3c7",
-    padding: "1rem 1.25rem",
-    borderRadius: "8px",
-    border: "1px solid #fcd34d",
-  },
-  pendingIcon: {
-    fontSize: "1.5rem",
-  },
-  pendingText: {
-    margin: "0.25rem 0 0 0",
-    fontSize: "0.875rem",
-    color: "#92400e",
-  },
-  actionCard: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "1.5rem 1rem",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "0.5rem",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    textDecoration: "none",
-    color: "inherit",
-  },
-  actionIcon: {
-    fontSize: "1.5rem",
-  },
-  loanRequestsBanner: {
-    backgroundColor: "#dbeafe",
-    border: "1px solid #93c5fd",
-    borderRadius: "8px",
-    overflow: "hidden",
-  },
-  loanRequestsHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    padding: "1rem 1.25rem",
-    borderBottom: "1px solid #93c5fd",
-  },
-  loanRequestsList: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  loanRequestItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "0.875rem 1.25rem",
-    fontSize: "0.875rem",
-    color: "#1e40af",
-    textDecoration: "none",
-    borderBottom: "1px solid #bfdbfe",
-  },
-  loanRequestArrow: {
-    fontSize: "1.25rem",
-    color: "#3b82f6",
-  },
-  moreRequests: {
-    margin: 0,
-    padding: "0.75rem 1.25rem",
-    fontSize: "0.875rem",
-    color: "#1e40af",
-  },
-  borrowedBanner: {
-    backgroundColor: "#f0fdf4",
-    border: "1px solid #86efac",
-    borderRadius: "8px",
-    overflow: "hidden",
-  },
-  borrowedHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    padding: "1rem 1.25rem",
-    borderBottom: "1px solid #86efac",
-  },
-  borrowedList: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  borrowedItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "0.875rem 1.25rem",
-    fontSize: "0.875rem",
-    color: "#166534",
-    textDecoration: "none",
-    borderBottom: "1px solid #bbf7d0",
-  },
-  borrowedItemInfo: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.125rem",
-  },
-  borrowedItemName: {
-    fontWeight: "600",
-  },
-  borrowedItemOwner: {
-    fontSize: "0.75rem",
-    color: "#15803d",
-  },
-  overdueBanner: {
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fca5a5",
-    borderRadius: "8px",
-    overflow: "hidden",
-  },
-  overdueHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    padding: "1rem 1.25rem",
-    borderBottom: "1px solid #fca5a5",
-    color: "#991b1b",
-  },
-  overdueList: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  overdueItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "0.875rem 1.25rem",
-    fontSize: "0.875rem",
-    color: "#991b1b",
-    textDecoration: "none",
-    borderBottom: "1px solid #fecaca",
-  },
-  overdueItemName: {
-    fontWeight: "600",
-  },
-  overdueItemDue: {
-    fontSize: "0.75rem",
-    color: "#b91c1c",
-  },
-  overdueArrow: {
-    fontSize: "1.25rem",
-    color: "#dc2626",
-  },
-};
