@@ -46,6 +46,7 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   white-space: nowrap;
+  margin-left: var(--space-3);
 }
 
 @media (max-width: 480px) {
@@ -68,6 +69,7 @@
 
   .moveInYear {
     display: block;
+    margin-left: 0;
   }
 }
 
@@ -126,15 +128,18 @@
 .editButton {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
   border-radius: var(--radius-md);
   text-decoration: none;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast);
 }
 
 .editButton:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-primary-light);
 }
 
 /* Family section */

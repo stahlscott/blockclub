@@ -108,8 +108,7 @@ export default async function MemberProfilePage({ params }: Props) {
               {member.unit && `, ${member.unit}`}
               {member.move_in_year && (
                 <span className={profileStyles.moveInYear}>
-                  {" "}
-                  - Since {member.move_in_year}
+                  Since {member.move_in_year}
                 </span>
               )}
             </p>

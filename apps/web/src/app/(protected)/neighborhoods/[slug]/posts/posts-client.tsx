@@ -39,12 +39,6 @@ interface Props {
   neighborhoodId: string;
 }
 
-const REACTIONS: { type: PostReactionType; emoji: string; label: string }[] = [
-  { type: "thumbs_up", emoji: "\uD83D\uDC4D", label: "Like" },
-  { type: "heart", emoji: "\u2764\uFE0F", label: "Love" },
-  { type: "pray", emoji: "\uD83D\uDE4F", label: "Thanks" },
-  { type: "celebrate", emoji: "\uD83C\uDF89", label: "Celebrate" },
-];
 
 function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString);
@@ -269,10 +263,14 @@ function PostCard({
   const canDelete = isAuthor || isAdmin;
   const canPin = isAdmin;
 
-  const getReactionClassName = (hasReacted: boolean, isLoading: boolean) => {
-    let className = styles.reactionButton;
-    if (hasReacted) className += ` ${styles.reactionActive}`;
-    if (isLoading) className += ` ${styles.reactionLoading}`;
+  const heartCount = post.reaction_counts.heart || 0;
+  const hasReactedHeart = post.user_reactions.includes("heart");
+  const isHeartLoading = loadingReaction === `${post.id}-heart`;
+
+  const getHeartClassName = () => {
+    let className = styles.heartButton;
+    if (hasReactedHeart) className += ` ${styles.heartButtonActive}`;
+    if (isHeartLoading) className += ` ${styles.heartButtonLoading}`;
     return className;
   };
 
@@ -310,26 +308,26 @@ function PostCard({
       <p className={styles.content}>{post.content}</p>
 
       <div className={styles.postFooter}>
-        <div className={styles.reactions}>
-          {REACTIONS.map((r) => {
-            const count = post.reaction_counts[r.type] || 0;
-            const hasReacted = post.user_reactions.includes(r.type);
-            const isLoading = loadingReaction === `${post.id}-${r.type}`;
-
-            return (
-              <button
-                key={r.type}
-                onClick={() => onToggleReaction(post.id, r.type)}
-                disabled={isLoading}
-                title={r.label}
-                className={getReactionClassName(hasReacted, isLoading)}
-              >
-                <span className={styles.reactionEmoji}>{r.emoji}</span>
-                <span className={styles.reactionCount}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+        {isAuthor ? (
+          // Author sees static count only if there are reactions
+          heartCount > 0 && (
+            <span className={styles.heartDisplay}>
+              <span className={styles.heartEmoji}>{"\u2764\uFE0F"}</span>
+              <span className={styles.heartCount}>{heartCount}</span>
+            </span>
+          )
+        ) : (
+          // Non-authors can interact
+          <button
+            onClick={() => onToggleReaction(post.id, "heart")}
+            disabled={isHeartLoading}
+            title="Love"
+            className={getHeartClassName()}
+          >
+            <span className={styles.heartEmoji}>{hasReactedHeart ? "\u2764\uFE0F" : "\uD83E\uDD0D"}</span>
+            {heartCount > 0 && <span className={styles.heartCount}>{heartCount}</span>}
+          </button>
+        )}
 
         {post.expires_at && (
           <span className={styles.expiresTag}>Expires: {formatDate(post.expires_at)}</span>
@@ -338,31 +336,35 @@ function PostCard({
 
       {(canEdit || canDelete || canPin) && (
         <div className={styles.actions}>
-          {canPin && (
-            <button
-              onClick={() => onTogglePin(post.id, post.is_pinned)}
-              className={styles.actionButton}
-            >
-              {post.is_pinned ? "Unpin" : "Pin"}
-            </button>
-          )}
-          {canEdit && (
-            <Link
-              href={`/neighborhoods/${slug}/posts/${post.id}/edit`}
-              className={styles.actionLink}
-            >
-              Edit
-            </Link>
-          )}
-          {canDelete && (
-            <button
-              onClick={() => onDelete(post.id)}
-              disabled={deletingPost === post.id}
-              className={styles.deleteButton}
-            >
-              {deletingPost === post.id ? "Deleting..." : "Delete"}
-            </button>
-          )}
+          <div className={styles.actionsLeft}>
+            {canPin && (
+              <button
+                onClick={() => onTogglePin(post.id, post.is_pinned)}
+                className={styles.actionButton}
+              >
+                {post.is_pinned ? "Unpin" : "Pin"}
+              </button>
+            )}
+          </div>
+          <div className={styles.actionsRight}>
+            {canEdit && (
+              <Link
+                href={`/neighborhoods/${slug}/posts/${post.id}/edit`}
+                className={styles.actionLink}
+              >
+                Edit
+              </Link>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => onDelete(post.id)}
+                disabled={deletingPost === post.id}
+                className={styles.deleteButton}
+              >
+                {deletingPost === post.id ? "Deleting..." : "Delete"}
+              </button>
+            )}
+          </div>
         </div>
       )}
     </article>
