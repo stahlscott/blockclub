@@ -171,9 +171,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Only staff admins can update neighborhood slugs
+  // Only staff admins can update neighborhoods via this endpoint
   if (!isStaffAdmin(user.email)) {
-    logger.warn("Non-staff admin attempted to update neighborhood slug", {
+    logger.warn("Non-staff admin attempted to update neighborhood", {
       userId: user.id,
       neighborhoodId,
     });
@@ -182,20 +182,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   // Parse request body
   const body = await request.json();
-  const { slug } = body;
-
-  if (!slug || typeof slug !== "string") {
-    return NextResponse.json({ error: "slug is required" }, { status: 400 });
-  }
-
-  // Validate slug format (lowercase, alphanumeric, hyphens only)
-  const slugRegex = /^[a-z0-9-]+$/;
-  if (!slugRegex.test(slug)) {
-    return NextResponse.json(
-      { error: "Slug can only contain lowercase letters, numbers, and hyphens" },
-      { status: 400 }
-    );
-  }
+  const { slug, name, description, location, settings } = body;
 
   // Use admin client to bypass RLS
   const adminSupabase = createAdminClient();
@@ -203,11 +190,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   // Fetch the neighborhood to verify it exists
   const { data: neighborhoodData, error: fetchError } = await adminSupabase
     .from("neighborhoods")
-    .select("id, name, slug")
+    .select("id, name, slug, settings")
     .eq("id", neighborhoodId)
     .single();
 
-  const neighborhood = neighborhoodData as NeighborhoodRow | null;
+  const neighborhood = neighborhoodData as (NeighborhoodRow & { settings?: Record<string, unknown> }) | null;
 
   if (fetchError || !neighborhood) {
     return NextResponse.json(
@@ -216,49 +203,84 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  // Check if the new slug is already taken by another neighborhood
-  const { data: existingNeighborhood } = await adminSupabase
-    .from("neighborhoods")
-    .select("id")
-    .eq("slug", slug)
-    .neq("id", neighborhoodId)
-    .single();
+  // Build update object with only provided fields
+  const updateData: Record<string, unknown> = {};
 
-  if (existingNeighborhood) {
-    return NextResponse.json(
-      { error: "This slug is already in use by another neighborhood" },
-      { status: 400 }
-    );
+  if (slug !== undefined) {
+    // Validate slug format (lowercase, alphanumeric, hyphens only)
+    const slugRegex = /^[a-z0-9-]+$/;
+    if (!slugRegex.test(slug)) {
+      return NextResponse.json(
+        { error: "Slug can only contain lowercase letters, numbers, and hyphens" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the new slug is already taken by another neighborhood
+    const { data: existingNeighborhood } = await adminSupabase
+      .from("neighborhoods")
+      .select("id")
+      .eq("slug", slug)
+      .neq("id", neighborhoodId)
+      .single();
+
+    if (existingNeighborhood) {
+      return NextResponse.json(
+        { error: "This slug is already in use by another neighborhood" },
+        { status: 400 }
+      );
+    }
+
+    updateData.slug = slug;
   }
 
-  logger.info("Staff admin updating neighborhood slug", {
+  if (name !== undefined) {
+    updateData.name = name;
+  }
+
+  if (description !== undefined) {
+    updateData.description = description || null;
+  }
+
+  if (location !== undefined) {
+    updateData.location = location || null;
+  }
+
+  if (settings !== undefined) {
+    // Merge with existing settings
+    updateData.settings = { ...neighborhood.settings, ...settings };
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+  }
+
+  logger.info("Staff admin updating neighborhood", {
     userId: user.id,
     email: user.email,
     neighborhoodId,
     neighborhoodName: neighborhood.name,
-    oldSlug: neighborhood.slug,
-    newSlug: slug,
+    updates: Object.keys(updateData),
   });
 
-  // Update the slug
+  // Update the neighborhood
   const { error: updateError } = await adminSupabase
     .from("neighborhoods")
-    .update({ slug } as never)
+    .update(updateData as never)
     .eq("id", neighborhoodId);
 
   if (updateError) {
-    logger.error("Error updating neighborhood slug", updateError, { neighborhoodId });
+    logger.error("Error updating neighborhood", updateError, { neighborhoodId });
     return NextResponse.json(
-      { error: "Failed to update slug" },
+      { error: "Failed to update neighborhood" },
       { status: 500 }
     );
   }
 
-  logger.info("Neighborhood slug updated successfully", {
+  logger.info("Neighborhood updated successfully", {
     userId: user.id,
     neighborhoodId,
-    newSlug: slug,
   });
 
-  return NextResponse.json({ success: true, slug });
+  return NextResponse.json({ success: true });
 }

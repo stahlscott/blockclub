@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import styles from "@/app/(protected)/settings/settings.module.css";
@@ -17,6 +16,7 @@ export default function NeighborhoodSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [neighborhood, setNeighborhood] = useState<any>(null);
+  const [isStaffAdmin, setIsStaffAdmin] = useState(false);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -61,13 +61,23 @@ export default function NeighborhoodSettingsPage() {
         .single();
 
       const isNeighborhoodAdmin = membership?.role === "admin";
-      const userIsStaffAdmin = isStaffAdmin(user.email);
+
+      // Fetch staff admin status via API (env var not available on client)
+      let userIsStaffAdmin = false;
+      try {
+        const staffResponse = await fetch("/api/auth/staff-status");
+        const staffData = await staffResponse.json();
+        userIsStaffAdmin = staffData.isStaffAdmin;
+      } catch {
+        userIsStaffAdmin = false;
+      }
 
       if (!isNeighborhoodAdmin && !userIsStaffAdmin) {
-        router.push(`/neighborhoods/${slug}`);
+        router.push("/dashboard");
         return;
       }
 
+      setIsStaffAdmin(userIsStaffAdmin);
       setNeighborhood(neighborhoodData);
       setForm({
         name: neighborhoodData.name,
@@ -88,24 +98,45 @@ export default function NeighborhoodSettingsPage() {
     setSaving(true);
 
     try {
-      const supabase = createClient();
+      // Staff admins use the admin API to bypass RLS
+      if (isStaffAdmin) {
+        const response = await fetch(`/api/admin/neighborhoods/${neighborhood.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            description: form.description.trim() || null,
+            location: form.location.trim() || null,
+            settings: { require_approval: form.require_approval },
+          }),
+        });
 
-      const { error: updateError } = await supabase
-        .from("neighborhoods")
-        .update({
-          name: form.name.trim(),
-          description: form.description.trim() || null,
-          location: form.location.trim() || null,
-          settings: {
-            ...neighborhood.settings,
-            require_approval: form.require_approval,
-          },
-        })
-        .eq("id", neighborhood.id);
+        if (!response.ok) {
+          const data = await response.json();
+          setError(data.error || "Failed to save changes");
+          return;
+        }
+      } else {
+        // Regular neighborhood admins use direct Supabase update
+        const supabase = createClient();
 
-      if (updateError) {
-        setError(updateError.message);
-        return;
+        const { error: updateError } = await supabase
+          .from("neighborhoods")
+          .update({
+            name: form.name.trim(),
+            description: form.description.trim() || null,
+            location: form.location.trim() || null,
+            settings: {
+              ...neighborhood.settings,
+              require_approval: form.require_approval,
+            },
+          })
+          .eq("id", neighborhood.id);
+
+        if (updateError) {
+          setError(updateError.message);
+          return;
+        }
       }
 
       setSuccess(true);
