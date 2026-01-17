@@ -274,6 +274,22 @@
   cursor: not-allowed;
 }
 
+.buttonSuccess {
+  background-color: var(--color-success);
+}
+
+.buttonSuccess:hover {
+  background-color: var(--color-success);
+}
+
+.buttonError {
+  background-color: var(--color-error);
+}
+
+.buttonError:hover {
+  background-color: var(--color-error);
+}
+
 /* Error and success */
 .error {
   color: var(--color-error);

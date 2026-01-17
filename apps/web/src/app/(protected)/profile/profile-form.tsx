@@ -74,7 +74,7 @@ function isValidEmail(email: string): boolean {
 
 export function ProfileForm({ userId, profile, isImpersonating, impersonatedUserName }: ProfileFormProps) {
   const router = useRouter();
-  const [saving, setSaving] = useState(false);
+  const [buttonState, setButtonState] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [name, setName] = useState(profile.name || "");
   const [bio, setBio] = useState(profile.bio || "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url);
@@ -87,7 +87,6 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
   const [pets, setPets] = useState(profile.pets || "");
   const [photoUrls, setPhotoUrls] = useState<string[]>(profile.photo_urls || []);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Initialize phones from profile
   const [phones, setPhones] = useState<PhoneEntry[]>(() => {
@@ -150,7 +149,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
+    setButtonState('idle');
 
     // Validate address is required
     if (!address.trim()) {
@@ -201,7 +200,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
         email: e.email.trim().toLowerCase(),
       }));
 
-    setSaving(true);
+    setButtonState('saving');
 
     const result = await updateProfile({
       userId,
@@ -220,15 +219,15 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
 
     if (!result.success) {
       setError(result.error || "Failed to save profile");
+      setButtonState('error');
     } else {
-      setSuccess(true);
       setPhones(cleanedPhones.length > 0 ? cleanedPhones : []);
       setEmails(cleanedEmails.length > 0 ? cleanedEmails : []);
-      router.refresh();
-      setTimeout(() => setSuccess(false), 3000);
+      setButtonState('success');
+      setTimeout(() => {
+        router.back();
+      }, 1000);
     }
-
-    setSaving(false);
   };
 
   return (
@@ -513,12 +512,16 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
         </section>
 
         {error && <p className={styles.error}>{error}</p>}
-        {success && (
-          <p className={styles.success}>Profile updated successfully!</p>
-        )}
 
-        <button type="submit" disabled={saving} className={styles.button}>
-          {saving ? "Saving..." : "Save Changes"}
+        <button
+          type="submit"
+          disabled={buttonState === 'saving'}
+          className={`${styles.button} ${buttonState === 'success' ? styles.buttonSuccess : ''} ${buttonState === 'error' ? styles.buttonError : ''}`}
+        >
+          {buttonState === 'saving' ? "Saving..." :
+           buttonState === 'success' ? "Saved!" :
+           buttonState === 'error' ? "Failed - Try Again" :
+           "Save Changes"}
         </button>
       </form>
     </div>
