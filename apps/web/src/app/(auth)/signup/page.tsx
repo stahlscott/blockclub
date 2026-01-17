@@ -94,6 +94,10 @@ function SignUpForm() {
       <div className={styles.card}>
         <h1 className={styles.title}>Create your account</h1>
         <p className={styles.subtitle}>Join your neighborhood on Block Club</p>
+        <p className={styles.hint}>
+          Accounts are meant to be one per household. If someone in your home
+          already has an account, ask them to share login details instead.
+        </p>
 
         <form onSubmit={handleSignUp} className={styles.form}>
           <div className={styles.inputGroup}>
