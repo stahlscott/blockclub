@@ -3,6 +3,7 @@ import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { NeighborhoodProvider } from "@/components/NeighborhoodProvider";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { getImpersonationContext } from "@/lib/impersonation";
 import "./globals.css";
@@ -58,6 +59,7 @@ export default async function RootLayout({
             )}
             <Header />
             <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>{children}</main>
+            <Footer />
           </NeighborhoodProvider>
         </AuthProvider>
       </body>
