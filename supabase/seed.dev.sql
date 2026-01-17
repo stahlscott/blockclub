@@ -3,7 +3,7 @@
 --
 -- PREREQUISITES:
 -- 1. Create a demo user in Supabase Auth first:
---    - Email: demo@blockclub.app
+--    - Email: demo@lakewoodblock.club
 --    - Password: demo1234
 --    - You can do this via Supabase Dashboard → Authentication → Users → Add User
 --    - Or sign up through the app normally with these credentials
@@ -27,7 +27,7 @@
 DO $$
 DECLARE
     demo_user_id UUID;
-    demo_user_email TEXT := 'demo@blockclub.app';
+    demo_user_email TEXT := 'demo@lakewoodblock.club';
     neighborhood_id UUID := 'a0000000-0000-0000-0000-000000000001'::UUID;
     -- Fixed UUIDs for display users (deterministic for idempotency)
     sarah_id UUID := 'b0000000-0000-0000-0000-000000000001'::UUID;
@@ -71,7 +71,7 @@ BEGIN
         NULL,
         'Just moved in from downtown! Jordan works in tech and Alex is a freelance graphic designer. We''re excited to meet everyone and get involved in the community.',
         '[{"label": "Jordan", "number": "5551234567"}, {"label": "Alex", "number": "5551234568"}]'::jsonb,
-        '[{"label": "Jordan", "email": "demo@blockclub.app"}, {"label": "Alex", "email": "alex.demo@example.local"}]'::jsonb,
+        '[{"label": "Jordan", "email": "demo@lakewoodblock.club"}, {"label": "Alex", "email": "alex.demo@example.local"}]'::jsonb,
         2024,
         NULL,
         'Two cats: Luna and Olive'
