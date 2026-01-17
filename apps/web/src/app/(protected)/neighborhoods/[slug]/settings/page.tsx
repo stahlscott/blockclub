@@ -25,6 +25,9 @@ export default function NeighborhoodSettingsPage() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [newSlug, setNewSlug] = useState("");
+  const [slugError, setSlugError] = useState("");
+  const [savingSlug, setSavingSlug] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -79,6 +82,7 @@ export default function NeighborhoodSettingsPage() {
 
       setIsStaffAdmin(userIsStaffAdmin);
       setNeighborhood(neighborhoodData);
+      setNewSlug(neighborhoodData.slug);
       setForm({
         name: neighborhoodData.name,
         description: neighborhoodData.description || "",
@@ -147,6 +151,42 @@ export default function NeighborhoodSettingsPage() {
       setError("Something went wrong");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSlugUpdate() {
+    if (!newSlug.trim() || newSlug === slug) return;
+
+    // Validate slug format
+    const slugRegex = /^[a-z0-9-]+$/;
+    if (!slugRegex.test(newSlug)) {
+      setSlugError("Slug can only contain lowercase letters, numbers, and hyphens");
+      return;
+    }
+
+    setSavingSlug(true);
+    setSlugError("");
+
+    try {
+      const response = await fetch(`/api/admin/neighborhoods/${neighborhood.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: newSlug.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setSlugError(data.error || "Failed to update slug");
+        return;
+      }
+
+      // Redirect to new slug URL
+      router.push(`/neighborhoods/${newSlug}/settings`);
+    } catch (err) {
+      logger.error("Error updating slug", err, { slug });
+      setSlugError("Something went wrong");
+    } finally {
+      setSavingSlug(false);
     }
   }
 
@@ -268,6 +308,48 @@ export default function NeighborhoodSettingsPage() {
             </button>
           </div>
         </form>
+
+        {/* Staff Admin Section - only visible to staff admins */}
+        {isStaffAdmin && (
+          <>
+            <div className={styles.divider} style={{ margin: "var(--space-6) 0" }} />
+
+            <h2 className={styles.sectionTitle}>Staff Admin</h2>
+
+            <div className={styles.field}>
+              <label htmlFor="slug" className={styles.label}>
+                URL Slug
+              </label>
+              <div className={styles.inviteRow}>
+                <input
+                  id="slug"
+                  type="text"
+                  value={newSlug}
+                  onChange={(e) => setNewSlug(e.target.value.toLowerCase())}
+                  className={styles.input}
+                  style={{ flex: 1 }}
+                  pattern="[a-z0-9-]+"
+                />
+                <button
+                  type="button"
+                  onClick={handleSlugUpdate}
+                  disabled={savingSlug || !newSlug.trim() || newSlug === slug}
+                  className={styles.copyButton}
+                >
+                  {savingSlug ? "Saving..." : "Update"}
+                </button>
+              </div>
+              <span className={styles.hint}>
+                Changing the slug will update all URLs for this neighborhood.
+              </span>
+              {slugError && (
+                <div className={styles.error} style={{ marginTop: "var(--space-2)" }}>
+                  {slugError}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

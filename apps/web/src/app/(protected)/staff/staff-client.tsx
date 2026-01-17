@@ -67,11 +67,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
     selectedNeighborhoodId: string;
   } | null>(null);
   const [isAddingMembership, setIsAddingMembership] = useState(false);
-  const [editSlugModal, setEditSlugModal] = useState<{
-    neighborhood: Neighborhood;
-    newSlug: string;
-  } | null>(null);
-  const [isUpdatingSlug, setIsUpdatingSlug] = useState(false);
   const [isImpersonating, startImpersonating] = useTransition();
   const [copiedNeighborhoodId, setCopiedNeighborhoodId] = useState<string | null>(null);
 
@@ -180,36 +175,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
     }
   };
 
-  // Handle slug update
-  const handleUpdateSlug = async () => {
-    if (!editSlugModal || !editSlugModal.newSlug.trim()) return;
-
-    setIsUpdatingSlug(true);
-    try {
-      const response = await fetch(
-        `/api/admin/neighborhoods/${editSlugModal.neighborhood.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug: editSlugModal.newSlug.trim() }),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        alert(data.error || "Failed to update slug");
-        return;
-      }
-
-      setEditSlugModal(null);
-      router.refresh();
-    } catch (error) {
-      alert("Failed to update slug");
-    } finally {
-      setIsUpdatingSlug(false);
-    }
-  };
-
   // Get neighborhoods the user is NOT a member of
   const getAvailableNeighborhoods = (user: User) => {
     const memberNeighborhoodIds = user.memberships.map((m) => m.neighborhood_id);
@@ -312,16 +277,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
             {neighborhoods.map((n) => (
               <div key={n.id} className={styles.tableRow}>
                 <span className={styles.colName}>{n.name}</span>
-                <span className={styles.colSlug}>
-                  {n.slug}
-                  <button
-                    className={styles.editSlugButton}
-                    onClick={() => setEditSlugModal({ neighborhood: n, newSlug: n.slug })}
-                    title="Edit slug"
-                  >
-                    Edit
-                  </button>
-                </span>
+                <span className={styles.colSlug}>{n.slug}</span>
                 <span className={`${styles.colCount} ${styles.colMembers}`}>{n.memberCount}</span>
                 <span className={`${styles.colCount} ${styles.colItems}`}>{n.itemCount}</span>
                 <span className={styles.colDate}>
@@ -622,55 +578,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
         </div>
       )}
 
-      {/* Edit Slug Modal */}
-      {editSlugModal && (
-        <div className={styles.modalOverlay} onClick={() => setEditSlugModal(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>Edit Neighborhood Slug</h3>
-            <p className={styles.modalText}>
-              Change the URL slug for <strong>{editSlugModal.neighborhood.name}</strong>:
-            </p>
-            <div className={styles.slugInputWrapper}>
-              <span className={styles.slugPrefix}>/neighborhoods/</span>
-              <input
-                type="text"
-                value={editSlugModal.newSlug}
-                onChange={(e) =>
-                  setEditSlugModal({
-                    ...editSlugModal,
-                    newSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-                  })
-                }
-                className={styles.slugInput}
-                placeholder="neighborhood-slug"
-              />
-            </div>
-            <p className={styles.modalHint}>
-              Only lowercase letters, numbers, and hyphens are allowed.
-            </p>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setEditSlugModal(null)}
-                disabled={isUpdatingSlug}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.primaryButton}
-                onClick={handleUpdateSlug}
-                disabled={
-                  !editSlugModal.newSlug.trim() ||
-                  editSlugModal.newSlug === editSlugModal.neighborhood.slug ||
-                  isUpdatingSlug
-                }
-              >
-                {isUpdatingSlug ? "Updating..." : "Update Slug"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
