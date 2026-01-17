@@ -5,6 +5,7 @@
   top: 0;
   z-index: 100;
   box-shadow: 0 1px 3px rgba(124, 58, 237, 0.04);
+  min-height: 60px;
 }
 
 .container {
@@ -35,6 +36,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  min-height: 36px;
 }
 
 .neighborhoodNav {
@@ -97,6 +99,9 @@
 
 .loading {
   color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  min-height: 36px;
 }
 
 .menuButton {
@@ -108,8 +113,8 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
-  height: 1.5rem;
-  width: 1.5rem;
+  height: 36px;
+  width: 36px;
   align-items: center;
   justify-content: center;
 }
@@ -263,6 +268,14 @@
 
 /* Mobile styles */
 @media (max-width: 640px) {
+  .header {
+    min-height: 68px;
+  }
+
+  .container {
+    padding: var(--space-4) var(--space-4);
+  }
+
   .nav {
     display: none;
   }
