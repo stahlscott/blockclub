@@ -89,7 +89,7 @@ jobs:
     name: Run migrations
     runs-on: ubuntu-latest
     needs: [check-migrations, e2e-tests]
-    if: needs.check-migrations.outputs.has_migrations == 'true'
+    if: needs.check-migrations.outputs.has_migrations == 'true' && inputs.dry_run == false
     environment: production
     steps:
       - uses: actions/checkout@v4

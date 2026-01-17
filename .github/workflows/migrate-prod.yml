@@ -1,8 +1,6 @@
 name: Migrate Production Database
 
 on:
-  pull_request:
-    branches: [prod]
   workflow_call:
     inputs:
       base_ref:
