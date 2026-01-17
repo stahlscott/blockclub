@@ -4,7 +4,6 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
-import responsive from "@/app/responsive.module.css";
 import dashboardStyles from "./dashboard.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -378,210 +377,219 @@ export default async function DashboardPage() {
 
           {/* Quick Actions */}
           <section className={dashboardStyles.section}>
-            <div className={responsive.grid3}>
+            <div className={dashboardStyles.compactActions}>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                className={dashboardStyles.actionCard}
+                className={dashboardStyles.compactActionButton}
               >
-                <span className={dashboardStyles.actionIcon}>📝</span>
+                <span className={dashboardStyles.compactActionIcon}>📝</span>
                 <span>Posts</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                className={dashboardStyles.actionCard}
+                className={dashboardStyles.compactActionButton}
               >
-                <span className={dashboardStyles.actionIcon}>📚</span>
+                <span className={dashboardStyles.compactActionIcon}>📚</span>
                 <span>Library</span>
               </Link>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                className={dashboardStyles.actionCard}
+                className={dashboardStyles.compactActionButton}
               >
-                <span className={dashboardStyles.actionIcon}>👥</span>
+                <span className={dashboardStyles.compactActionIcon}>👥</span>
                 <span>Directory</span>
               </Link>
             </div>
           </section>
 
-          {/* Recently Posted */}
-          {recentPosts.length > 0 && (
-            <section className={dashboardStyles.section}>
-              <div className={dashboardStyles.sectionHeader}>
-                <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
-                <Link
-                  href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                  className={dashboardStyles.seeAllLink}
-                >
-                  See all &rarr;
-                </Link>
-              </div>
-              <div className={dashboardStyles.memberList}>
-                {recentPosts.slice(0, 3).map((post: any) => {
-                  const isNew =
-                    post.created_at && isWithinDays(post.created_at, 3);
-                  return (
+          {/* Two-column grid for recent sections */}
+          <div className={dashboardStyles.dashboardGrid}>
+            {/* Left column: Posts and Items */}
+            <div className={dashboardStyles.dashboardColumn}>
+              {/* Recently Posted */}
+              {recentPosts.length > 0 && (
+                <section className={dashboardStyles.section}>
+                  <div className={dashboardStyles.sectionHeader}>
+                    <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
                     <Link
-                      key={post.id}
                       href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                      className={dashboardStyles.postRow}
+                      className={dashboardStyles.seeAllLink}
                     >
-                      <div className={dashboardStyles.memberInfo}>
-                        {post.author?.avatar_url ? (
-                          <Image
-                            src={post.author.avatar_url}
-                            alt={post.author.name || "Author"}
-                            width={40}
-                            height={40}
-                            className={dashboardStyles.memberAvatar}
-                          />
-                        ) : (
-                          <div className={dashboardStyles.memberAvatarPlaceholder}>
-                            {getInitial(post.author?.name)}
-                          </div>
-                        )}
-                        <div className={dashboardStyles.memberDetails}>
-                          <span className={dashboardStyles.memberName}>
-                            {post.author?.name || "Unknown"}
-                            {isNew && (
-                              <span className={dashboardStyles.newBadgeInline}>New</span>
-                            )}
-                          </span>
-                          <span className={dashboardStyles.postPreview}>
-                            {post.content.length > 80
-                              ? post.content.slice(0, 80) + "..."
-                              : post.content}
-                          </span>
-                        </div>
-                      </div>
-                      {post.is_pinned && (
-                        <span className={dashboardStyles.pinnedBadge}>📌</span>
-                      )}
+                      See all &rarr;
                     </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* Recently Added Items */}
-          {recentItems.length > 0 && (
-            <section className={dashboardStyles.section}>
-              <div className={dashboardStyles.sectionHeader}>
-                <h2 className={dashboardStyles.sectionTitle}>
-                  Recently Added Items
-                </h2>
-                <Link
-                  href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                  className={dashboardStyles.seeAllLink}
-                >
-                  See all &rarr;
-                </Link>
-              </div>
-              <div className={dashboardStyles.itemGrid}>
-                {recentItems.slice(0, 4).map((item: any) => {
-                  const isNew = isWithinDays(item.created_at, 14);
-                  return (
-                    <Link
-                      key={item.id}
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
-                      className={dashboardStyles.itemCard}
-                    >
-                      {item.photo_urls && item.photo_urls.length > 0 ? (
-                        <div className={dashboardStyles.itemImageContainer}>
-                          <Image
-                            src={item.photo_urls[0]}
-                            alt={item.name}
-                            width={160}
-                            height={120}
-                            className={dashboardStyles.itemImage}
-                          />
-                          {isNew && <span className={dashboardStyles.newBadge}>New</span>}
-                        </div>
-                      ) : (
-                        <div className={dashboardStyles.itemPlaceholder}>
-                          <span className={dashboardStyles.itemPlaceholderIcon}>📦</span>
-                          {isNew && <span className={dashboardStyles.newBadge}>New</span>}
-                        </div>
-                      )}
-                      <div className={dashboardStyles.itemInfo}>
-                        <span className={dashboardStyles.itemName}>{item.name}</span>
-                        <span className={dashboardStyles.itemOwner}>
-                          {item.owner?.name || "Unknown"}
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* Recently Joined Households */}
-          {recentMembers.length > 0 && (
-            <section className={dashboardStyles.section}>
-              <div className={dashboardStyles.sectionHeader}>
-                <h2 className={dashboardStyles.sectionTitle}>
-                  Recently Joined Households
-                </h2>
-                <Link
-                  href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                  className={dashboardStyles.seeAllLink}
-                >
-                  See all &rarr;
-                </Link>
-              </div>
-              <div className={dashboardStyles.memberList}>
-                {recentMembers.slice(0, 5).map((membership: any) => {
-                  const isNew =
-                    membership.joined_at &&
-                    isWithinDays(membership.joined_at, 14);
-                  return (
-                    <Link
-                      key={membership.id}
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
-                      className={dashboardStyles.memberRow}
-                    >
-                      <div className={dashboardStyles.memberInfo}>
-                        {membership.user?.avatar_url ? (
-                          <Image
-                            src={membership.user.avatar_url}
-                            alt={membership.user.name || "Member"}
-                            width={40}
-                            height={40}
-                            className={dashboardStyles.memberAvatar}
-                          />
-                        ) : (
-                          <div className={dashboardStyles.memberAvatarPlaceholder}>
-                            {getInitial(membership.user?.name)}
-                          </div>
-                        )}
-                        <div className={dashboardStyles.memberDetails}>
-                          <span className={dashboardStyles.memberName}>
-                            {membership.user?.name || "Unknown"}
-                            {isNew && (
-                              <span className={dashboardStyles.newBadgeInline}>New</span>
+                  </div>
+                  <div className={dashboardStyles.memberList}>
+                    {recentPosts.slice(0, 3).map((post: any) => {
+                      const isNew =
+                        post.created_at && isWithinDays(post.created_at, 3);
+                      return (
+                        <Link
+                          key={post.id}
+                          href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
+                          className={dashboardStyles.postRow}
+                        >
+                          <div className={dashboardStyles.memberInfo}>
+                            {post.author?.avatar_url ? (
+                              <Image
+                                src={post.author.avatar_url}
+                                alt={post.author.name || "Author"}
+                                width={40}
+                                height={40}
+                                className={dashboardStyles.memberAvatar}
+                              />
+                            ) : (
+                              <div className={dashboardStyles.memberAvatarPlaceholder}>
+                                {getInitial(post.author?.name)}
+                              </div>
                             )}
-                          </span>
-                          {membership.joined_at && (
-                            <span className={dashboardStyles.memberJoinDate}>
-                              Joined{" "}
-                              {new Date(
-                                membership.joined_at,
-                              ).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
+                            <div className={dashboardStyles.memberDetails}>
+                              <span className={dashboardStyles.memberName}>
+                                {post.author?.name || "Unknown"}
+                                {isNew && (
+                                  <span className={dashboardStyles.newBadgeInline}>New</span>
+                                )}
+                              </span>
+                              <span className={dashboardStyles.postPreview}>
+                                {post.content.length > 80
+                                  ? post.content.slice(0, 80) + "..."
+                                  : post.content}
+                              </span>
+                            </div>
+                          </div>
+                          {post.is_pinned && (
+                            <span className={dashboardStyles.pinnedBadge}>📌</span>
                           )}
-                        </div>
-                      </div>
-                      <span className={dashboardStyles.memberArrow}>&rarr;</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {/* Recently Added Items */}
+              {recentItems.length > 0 && (
+                <section className={dashboardStyles.section}>
+                  <div className={dashboardStyles.sectionHeader}>
+                    <h2 className={dashboardStyles.sectionTitle}>
+                      Recently Added Items
+                    </h2>
+                    <Link
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
+                      className={dashboardStyles.seeAllLink}
+                    >
+                      See all &rarr;
                     </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+                  </div>
+                  <div className={dashboardStyles.itemGrid}>
+                    {recentItems.slice(0, 4).map((item: any) => {
+                      const isNew = isWithinDays(item.created_at, 14);
+                      return (
+                        <Link
+                          key={item.id}
+                          href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
+                          className={dashboardStyles.itemCard}
+                        >
+                          {item.photo_urls && item.photo_urls.length > 0 ? (
+                            <div className={dashboardStyles.itemImageContainer}>
+                              <Image
+                                src={item.photo_urls[0]}
+                                alt={item.name}
+                                width={160}
+                                height={120}
+                                className={dashboardStyles.itemImage}
+                              />
+                              {isNew && <span className={dashboardStyles.newBadge}>New</span>}
+                            </div>
+                          ) : (
+                            <div className={dashboardStyles.itemPlaceholder}>
+                              <span className={dashboardStyles.itemPlaceholderIcon}>📦</span>
+                              {isNew && <span className={dashboardStyles.newBadge}>New</span>}
+                            </div>
+                          )}
+                          <div className={dashboardStyles.itemInfo}>
+                            <span className={dashboardStyles.itemName}>{item.name}</span>
+                            <span className={dashboardStyles.itemOwner}>
+                              {item.owner?.name || "Unknown"}
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Right column: Members */}
+            <div className={dashboardStyles.dashboardColumn}>
+              {/* Recently Joined Households */}
+              {recentMembers.length > 0 && (
+                <section className={dashboardStyles.section}>
+                  <div className={dashboardStyles.sectionHeader}>
+                    <h2 className={dashboardStyles.sectionTitle}>
+                      Recently Joined Households
+                    </h2>
+                    <Link
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                      className={dashboardStyles.seeAllLink}
+                    >
+                      See all &rarr;
+                    </Link>
+                  </div>
+                  <div className={dashboardStyles.memberList}>
+                    {recentMembers.slice(0, 5).map((membership: any) => {
+                      const isNew =
+                        membership.joined_at &&
+                        isWithinDays(membership.joined_at, 14);
+                      return (
+                        <Link
+                          key={membership.id}
+                          href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
+                          className={dashboardStyles.memberRow}
+                        >
+                          <div className={dashboardStyles.memberInfo}>
+                            {membership.user?.avatar_url ? (
+                              <Image
+                                src={membership.user.avatar_url}
+                                alt={membership.user.name || "Member"}
+                                width={40}
+                                height={40}
+                                className={dashboardStyles.memberAvatar}
+                              />
+                            ) : (
+                              <div className={dashboardStyles.memberAvatarPlaceholder}>
+                                {getInitial(membership.user?.name)}
+                              </div>
+                            )}
+                            <div className={dashboardStyles.memberDetails}>
+                              <span className={dashboardStyles.memberName}>
+                                {membership.user?.name || "Unknown"}
+                                {isNew && (
+                                  <span className={dashboardStyles.newBadgeInline}>New</span>
+                                )}
+                              </span>
+                              {membership.joined_at && (
+                                <span className={dashboardStyles.memberJoinDate}>
+                                  Joined{" "}
+                                  {new Date(
+                                    membership.joined_at,
+                                  ).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className={dashboardStyles.memberArrow}>&rarr;</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
         </>
       ) : (
         <section className={dashboardStyles.section}>
