@@ -53,7 +53,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
     neighborhood: Neighborhood;
-    confirmName: string;
+    confirmSlug: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [removeModal, setRemoveModal] = useState<{
@@ -73,6 +73,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   } | null>(null);
   const [isUpdatingSlug, setIsUpdatingSlug] = useState(false);
   const [isImpersonating, startImpersonating] = useTransition();
+  const [copiedNeighborhoodId, setCopiedNeighborhoodId] = useState<string | null>(null);
 
   // Get neighborhood name by ID
   const getNeighborhoodName = (id: string) => {
@@ -98,7 +99,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   // Handle neighborhood deletion
   const handleDeleteNeighborhood = async () => {
     if (!deleteModal) return;
-    if (deleteModal.confirmName !== deleteModal.neighborhood.name) return;
+    if (deleteModal.confirmSlug !== deleteModal.neighborhood.slug) return;
 
     setIsDeleting(true);
     try {
@@ -215,6 +216,19 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
     return neighborhoods.filter((n) => !memberNeighborhoodIds.includes(n.id));
   };
 
+  // Copy invite link to clipboard
+  const handleCopyInvite = async (neighborhood: Neighborhood) => {
+    const inviteUrl = `${window.location.origin}/join/${neighborhood.slug}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopiedNeighborhoodId(neighborhood.id);
+      setTimeout(() => setCopiedNeighborhoodId(null), 2000);
+    } catch {
+      // Fallback: show the URL in an alert so user can copy manually
+      alert(`Copy this invite link:\n${inviteUrl}`);
+    }
+  };
+
   const getInitial = (name: string | null) => {
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
@@ -318,12 +332,12 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                   })}
                 </span>
                 <span className={styles.colActions}>
-                  <Link
-                    href={`/neighborhoods/${n.slug}/posts`}
+                  <button
                     className={styles.actionLink}
+                    onClick={() => handleCopyInvite(n)}
                   >
-                    View
-                  </Link>
+                    {copiedNeighborhoodId === n.id ? "Copied!" : "Invite"}
+                  </button>
                   <Link
                     href={`/neighborhoods/${n.slug}/settings`}
                     className={styles.actionLink}
@@ -332,7 +346,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                   </Link>
                   <button
                     className={styles.deleteButton}
-                    onClick={() => setDeleteModal({ neighborhood: n, confirmName: "" })}
+                    onClick={() => setDeleteModal({ neighborhood: n, confirmSlug: "" })}
                   >
                     Delete
                   </button>
@@ -497,14 +511,14 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
               <li>All posts, loans, and other data</li>
             </ul>
             <p className={styles.modalWarning}>
-              This action cannot be undone. Type the neighborhood name to confirm:
+              This action cannot be undone. Type the slug <strong>{deleteModal.neighborhood.slug}</strong> to confirm:
             </p>
             <input
               type="text"
-              placeholder={deleteModal.neighborhood.name}
-              value={deleteModal.confirmName}
+              placeholder={deleteModal.neighborhood.slug}
+              value={deleteModal.confirmSlug}
               onChange={(e) =>
-                setDeleteModal({ ...deleteModal, confirmName: e.target.value })
+                setDeleteModal({ ...deleteModal, confirmSlug: e.target.value })
               }
               className={styles.confirmInput}
             />
@@ -520,7 +534,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                 className={styles.confirmDeleteButton}
                 onClick={handleDeleteNeighborhood}
                 disabled={
-                  deleteModal.confirmName !== deleteModal.neighborhood.name ||
+                  deleteModal.confirmSlug !== deleteModal.neighborhood.slug ||
                   isDeleting
                 }
               >
