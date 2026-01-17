@@ -83,6 +83,7 @@ describe("Interface structure", () => {
       move_in_year: null,
       children: null,
       pets: null,
+      photo_urls: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

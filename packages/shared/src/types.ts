@@ -106,6 +106,7 @@ export interface User {
   move_in_year: number | null;
   children: string | null;
   pets: string | null;
+  photo_urls: string[]; // Gallery photos (pets, kids, gardens, etc.)
   created_at: string;
   updated_at: string;
 }
@@ -230,6 +231,7 @@ export interface Post {
   neighborhood_id: string;
   author_id: string;
   content: string;
+  image_url: string | null;
   is_pinned: boolean;
   expires_at: string | null;
   edited_at: string | null;
@@ -316,6 +318,7 @@ export type UserInsert = {
   avatar_url?: string | null;
   bio?: string | null;
   phone?: string | null;
+  photo_urls?: string[];
 };
 export type UserUpdate = Partial<
   Omit<User, "id" | "created_at" | "updated_at">
@@ -381,12 +384,13 @@ export type PostInsert = {
   neighborhood_id: string;
   author_id: string;
   content: string;
+  image_url?: string | null;
   expires_at?: string | null;
 };
 export type PostUpdate = Partial<
   Pick<
     Post,
-    "content" | "is_pinned" | "expires_at" | "edited_at" | "edited_by" | "deleted_at"
+    "content" | "image_url" | "is_pinned" | "expires_at" | "edited_at" | "edited_by" | "deleted_at"
   >
 >;
 

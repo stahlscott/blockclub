@@ -11,6 +11,7 @@ import { logger } from "@/lib/logger";
 interface CreatePostData {
   slug: string;
   content: string;
+  imageUrl: string | null;
   expiresAt: string | null;
 }
 
@@ -74,6 +75,7 @@ export async function createPost(data: CreatePostData): Promise<{ success: boole
     neighborhood_id: neighborhood.id,
     author_id: effectiveUserId,
     content: data.content.trim(),
+    image_url: data.imageUrl || null,
     expires_at: data.expiresAt ? new Date(data.expiresAt + "T23:59:59").toISOString() : null,
   };
 

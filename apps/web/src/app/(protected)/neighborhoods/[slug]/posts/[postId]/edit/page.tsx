@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { PostImageUpload } from "@/components/PostImageUpload";
 import styles from "../../post-form.module.css";
 
 interface Post {
@@ -13,6 +14,7 @@ interface Post {
   neighborhood_id: string;
   author_id: string;
   content: string;
+  image_url: string | null;
   is_pinned: boolean;
   expires_at: string | null;
 }
@@ -40,10 +42,12 @@ export default function EditPostPage() {
 
   const [post, setPost] = useState<Post | null>(null);
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -97,6 +101,7 @@ export default function EditPostPage() {
 
         const userIsAdmin = membership.role === "admin";
         setIsAdmin(userIsAdmin);
+        setUserId(user.id);
 
         // Get post
         const { data: postData, error: postError } = await supabase
@@ -121,6 +126,7 @@ export default function EditPostPage() {
 
         setPost(postData);
         setContent(postData.content);
+        setImageUrl(postData.image_url);
         setExpiresAt(isoToDateInput(postData.expires_at));
         setIsPinned(postData.is_pinned);
       } catch (err) {
@@ -154,12 +160,14 @@ export default function EditPostPage() {
       // Build update object
       const updateData: {
         content: string;
+        image_url: string | null;
         expires_at: string | null;
         edited_at: string;
         edited_by: string;
         is_pinned?: boolean;
       } = {
         content: content.trim(),
+        image_url: imageUrl,
         expires_at: expiresAt
           ? new Date(expiresAt + "T23:59:59").toISOString()
           : null,
@@ -245,6 +253,15 @@ export default function EditPostPage() {
               {content.length}/{MAX_LENGTHS.postContent}
             </span>
           </div>
+
+          {userId && (
+            <PostImageUpload
+              userId={userId}
+              imageUrl={imageUrl}
+              onImageChange={setImageUrl}
+              onError={setError}
+            />
+          )}
 
           <div className={styles.field}>
             <label htmlFor="expiresAt" className={styles.label}>

@@ -17,7 +17,7 @@ export interface UploadError {
  * @param existingPath - Optional path of file to delete before upload
  */
 export async function uploadFile(
-  bucket: "avatars" | "items",
+  bucket: "avatars" | "items" | "posts",
   userId: string,
   file: File,
   existingPath?: string
@@ -59,7 +59,7 @@ export async function uploadFile(
  * Delete a file from Supabase storage
  */
 export async function deleteFile(
-  bucket: "avatars" | "items",
+  bucket: "avatars" | "items" | "posts",
   path: string
 ): Promise<{ error: UploadError | null }> {
   const supabase = createClient();
@@ -72,7 +72,7 @@ export async function deleteFile(
  */
 export function getPathFromUrl(
   url: string,
-  bucket: "avatars" | "items"
+  bucket: "avatars" | "items" | "posts"
 ): string | null {
   const match = url.match(
     new RegExp(`/storage/v1/object/public/${bucket}/(.+)$`)

@@ -107,6 +107,56 @@
   font-style: italic;
 }
 
+/* Post image */
+.postImageButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.postImageButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-lg);
+}
+
+.postImageContainer {
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.postImageButton .postImageContainer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background var(--transition-fast);
+}
+
+.postImageButton:hover .postImageContainer::after {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.postImage {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.postImageButton:hover .postImage {
+  transform: scale(1.01);
+}
+
 .content {
   margin: 0 0 var(--space-4) 0;
   font-size: 0.9375rem;

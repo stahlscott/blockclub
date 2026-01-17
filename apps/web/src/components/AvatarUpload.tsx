@@ -26,6 +26,7 @@ export function AvatarUpload({
 }: AvatarUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getInitial = (name: string) => {
@@ -45,6 +46,7 @@ export function AvatarUpload({
     }
 
     // Show preview
+    setImageLoading(true);
     const reader = new FileReader();
     reader.onload = () => setPreviewUrl(reader.result as string);
     reader.readAsDataURL(file);
@@ -66,6 +68,7 @@ export function AvatarUpload({
 
     if (error) {
       setPreviewUrl(null);
+      setImageLoading(false);
       onError(error.message);
       return;
     }
@@ -89,14 +92,18 @@ export function AvatarUpload({
         onClick={() => !uploading && fileInputRef.current?.click()}
       >
         {displayUrl ? (
-          <Image
-            src={displayUrl}
-            alt={name}
-            width={100}
-            height={100}
-            className={styles.avatarImage}
-            unoptimized={!!previewUrl}
-          />
+          <>
+            {imageLoading && <div className={styles.skeleton} />}
+            <Image
+              src={displayUrl}
+              alt={name}
+              width={100}
+              height={100}
+              className={`${styles.avatarImage} ${imageLoading ? styles.imageHidden : ""}`}
+              unoptimized={!!previewUrl}
+              onLoad={() => setImageLoading(false)}
+            />
+          </>
         ) : (
           <span className={styles.avatarInitial}>{getInitial(name)}</span>
         )}

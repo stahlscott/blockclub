@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { ProfileGalleryUpload } from "@/components/ProfileGalleryUpload";
 import { updateProfile } from "./actions";
-import profileStyles from "./profile.module.css";
+import styles from "./profile.module.css";
 
 interface PhoneEntry {
   label: string;
@@ -31,6 +32,7 @@ interface Profile {
   move_in_year: number | null;
   children: string | null;
   pets: string | null;
+  photo_urls: string[];
 }
 
 interface ProfileFormProps {
@@ -65,8 +67,9 @@ function normalizePhone(phone: string): string {
 
 // Basic email validation
 function isValidEmail(email: string): boolean {
-  if (!email.trim()) return true; // Empty is OK
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const trimmed = email.trim();
+  if (!trimmed) return true; // Empty is OK
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 }
 
 export function ProfileForm({ userId, profile, isImpersonating, impersonatedUserName }: ProfileFormProps) {
@@ -82,6 +85,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
   );
   const [children, setChildren] = useState(profile.children || "");
   const [pets, setPets] = useState(profile.pets || "");
+  const [photoUrls, setPhotoUrls] = useState<string[]>(profile.photo_urls || []);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -154,17 +158,17 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
       return;
     }
 
-    // Validate all phone numbers
+    // Validate all phone numbers (skip empty/whitespace entries)
     const invalidPhone = phones.find(
-      (p) => p.number && !isValidPhone(p.number)
+      (p) => p.number.trim() && !isValidPhone(p.number)
     );
     if (invalidPhone) {
       setError("Phone numbers must be 10 digits");
       return;
     }
 
-    // Validate all email addresses
-    const invalidEmail = emails.find((e) => e.email && !isValidEmail(e.email));
+    // Validate all email addresses (skip empty/whitespace entries)
+    const invalidEmail = emails.find((e) => e.email.trim() && !isValidEmail(e.email));
     if (invalidEmail) {
       setError("Please enter valid email addresses");
       return;
@@ -211,6 +215,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
       moveInYear: moveInYearNum,
       children: children.trim() || null,
       pets: pets.trim() || null,
+      photoUrls,
     });
 
     if (!result.success) {
@@ -227,33 +232,40 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
   };
 
   return (
-    <div className={profileStyles.container}>
-      <div className={profileStyles.card}>
-        <Link href="/dashboard" className={profileStyles.backLink}>
-          &larr; Back to Dashboard
-        </Link>
+    <div className={styles.container}>
+      <Link href="/dashboard" className={styles.backLink}>
+        &larr; Back to Dashboard
+      </Link>
 
-        <h1 className={profileStyles.title}>
-          {isImpersonating ? `Edit Profile: ${impersonatedUserName || "User"}` : "Edit Profile"}
-        </h1>
+      <h1 className={styles.title}>
+        {isImpersonating ? `Edit Profile: ${impersonatedUserName || "User"}` : "Edit Profile"}
+      </h1>
 
-        {isImpersonating && (
-          <p className={profileStyles.impersonationNote}>
-            You are editing this profile as a staff admin.
-          </p>
-        )}
+      {isImpersonating && (
+        <p className={styles.impersonationNote}>
+          You are editing this profile as a staff admin.
+        </p>
+      )}
 
-        <form onSubmit={handleSubmit} className={profileStyles.form}>
-          <AvatarUpload
-            userId={userId}
-            currentAvatarUrl={avatarUrl}
-            name={name || "User"}
-            onUploadComplete={(url) => setAvatarUrl(url)}
-            onError={(msg) => setError(msg)}
-          />
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {/* Profile Photo Section */}
+        <section className={styles.section}>
+          <div className={styles.avatarSection}>
+            <AvatarUpload
+              userId={userId}
+              currentAvatarUrl={avatarUrl}
+              name={name || "User"}
+              onUploadComplete={(url) => setAvatarUrl(url)}
+              onError={(msg) => setError(msg)}
+            />
+          </div>
+        </section>
 
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="name" className={profileStyles.label}>
+        {/* Basic Info Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Basic Info</h2>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name" className={styles.label}>
               Household Name *
             </label>
             <input
@@ -263,191 +275,213 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={MAX_LENGTHS.userName}
-              className={profileStyles.input}
+              className={styles.input}
               placeholder="e.g., The Smith Family"
             />
           </div>
+        </section>
 
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="address" className={profileStyles.label}>
-              Address *
-            </label>
-            <input
-              id="address"
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-              maxLength={MAX_LENGTHS.address}
-              className={profileStyles.input}
-              placeholder="123 Main Street"
-            />
-          </div>
+        {/* Address Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Address</h2>
+          <div className={styles.threeColumn}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="address" className={styles.label}>
+                Street Address *
+              </label>
+              <input
+                id="address"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                maxLength={MAX_LENGTHS.address}
+                className={styles.input}
+                placeholder="123 Main Street"
+              />
+            </div>
 
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="unit" className={profileStyles.label}>
-              Unit
-            </label>
-            <input
-              id="unit"
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              maxLength={MAX_LENGTHS.unit}
-              className={profileStyles.input}
-              placeholder="Apt 2B"
-            />
-          </div>
+            <div className={styles.inputGroup}>
+              <label htmlFor="unit" className={styles.label}>
+                Unit
+              </label>
+              <input
+                id="unit"
+                type="text"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                maxLength={MAX_LENGTHS.unit}
+                className={styles.input}
+                placeholder="Apt 2B"
+              />
+            </div>
 
-          <div className={profileStyles.inputGroup}>
-            <label className={profileStyles.label}>Phone Numbers</label>
-            <span className={profileStyles.hint}>
-              Add phone numbers for household members. Visible to neighbors.
-            </span>
-
-            <div className={profileStyles.phoneList}>
-              {phones.map((phone, index) => (
-                <div key={index} className={profileStyles.phoneRow}>
-                  <input
-                    type="text"
-                    value={phone.label}
-                    onChange={(e) =>
-                      updatePhone(index, "label", e.target.value)
-                    }
-                    className={profileStyles.phoneLabelInput}
-                    placeholder="Label (e.g., Mom)"
-                  />
-                  <input
-                    type="tel"
-                    value={phone.number}
-                    onChange={(e) =>
-                      updatePhone(index, "number", e.target.value)
-                    }
-                    className={profileStyles.phoneNumberInput}
-                    placeholder="555-555-5555"
-                    maxLength={12}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePhone(index)}
-                    className={profileStyles.removeButton}
-                    aria-label="Remove phone"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-
-              <button
-                type="button"
-                onClick={addPhone}
-                className={profileStyles.addPhoneButton}
-              >
-                + Add Phone Number
-              </button>
+            <div className={styles.inputGroup}>
+              <label htmlFor="moveInYear" className={styles.label}>
+                Move-in Year
+              </label>
+              <input
+                id="moveInYear"
+                type="number"
+                value={moveInYear}
+                onChange={(e) => setMoveInYear(e.target.value)}
+                min={1900}
+                max={new Date().getFullYear()}
+                className={styles.input}
+                placeholder="2020"
+              />
             </div>
           </div>
+        </section>
 
-          <div className={profileStyles.inputGroup}>
-            <label className={profileStyles.label}>Email Addresses</label>
-            <span className={profileStyles.hint}>
-              Add email addresses for your household. Visible to neighbors.
-            </span>
+        {/* Contact Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Contact</h2>
+          <div className={styles.twoColumn}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Phone Numbers</label>
+              <span className={styles.hint}>
+                Visible to neighbors.
+              </span>
 
-            <div className={profileStyles.phoneList}>
-              {emails.map((emailEntry, index) => (
-                <div key={index} className={profileStyles.phoneRow}>
-                  <input
-                    type="text"
-                    value={emailEntry.label}
-                    onChange={(e) =>
-                      updateEmail(index, "label", e.target.value)
-                    }
-                    className={profileStyles.phoneLabelInput}
-                    placeholder="Label (e.g., Personal)"
-                  />
-                  <input
-                    type="email"
-                    value={emailEntry.email}
-                    onChange={(e) =>
-                      updateEmail(index, "email", e.target.value)
-                    }
-                    className={profileStyles.phoneNumberInput}
-                    placeholder="email@example.com"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeEmail(index)}
-                    className={profileStyles.removeButton}
-                    aria-label="Remove email"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
+              <div className={styles.phoneList}>
+                {phones.map((phone, index) => (
+                  <div key={index} className={styles.phoneRow}>
+                    <input
+                      type="text"
+                      value={phone.label}
+                      onChange={(e) =>
+                        updatePhone(index, "label", e.target.value)
+                      }
+                      className={styles.phoneLabelInput}
+                      placeholder="Label"
+                    />
+                    <input
+                      type="tel"
+                      value={phone.number}
+                      onChange={(e) =>
+                        updatePhone(index, "number", e.target.value)
+                      }
+                      className={styles.phoneNumberInput}
+                      placeholder="555-555-5555"
+                      maxLength={12}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhone(index)}
+                      className={styles.removeButton}
+                      aria-label="Remove phone"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
 
-              <button
-                type="button"
-                onClick={addEmail}
-                className={profileStyles.addPhoneButton}
-              >
-                + Add Email Address
-              </button>
+                <button
+                  type="button"
+                  onClick={addPhone}
+                  className={styles.addPhoneButton}
+                >
+                  + Add Phone
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Email Addresses</label>
+              <span className={styles.hint}>
+                Visible to neighbors.
+              </span>
+
+              <div className={styles.phoneList}>
+                {emails.map((emailEntry, index) => (
+                  <div key={index} className={styles.phoneRow}>
+                    <input
+                      type="text"
+                      value={emailEntry.label}
+                      onChange={(e) =>
+                        updateEmail(index, "label", e.target.value)
+                      }
+                      className={styles.phoneLabelInput}
+                      placeholder="Label"
+                    />
+                    <input
+                      type="email"
+                      value={emailEntry.email}
+                      onChange={(e) =>
+                        updateEmail(index, "email", e.target.value)
+                      }
+                      className={styles.phoneNumberInput}
+                      placeholder="email@example.com"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeEmail(index)}
+                      className={styles.removeButton}
+                      aria-label="Remove email"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addEmail}
+                  className={styles.addPhoneButton}
+                >
+                  + Add Email
+                </button>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="moveInYear" className={profileStyles.label}>
-              Move-in Year
-            </label>
-            <input
-              id="moveInYear"
-              type="number"
-              value={moveInYear}
-              onChange={(e) => setMoveInYear(e.target.value)}
-              min={1900}
-              max={new Date().getFullYear()}
-              className={profileStyles.input}
-              placeholder="2020"
-            />
+        {/* Household Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Household</h2>
+          <div className={styles.twoColumn}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="children" className={styles.label}>
+                Children
+              </label>
+              <textarea
+                id="children"
+                value={children}
+                onChange={(e) => setChildren(e.target.value)}
+                maxLength={MAX_LENGTHS.children}
+                className={styles.textarea}
+                placeholder="e.g., Emma (8), Jack (5)"
+                rows={2}
+              />
+              <span className={styles.hint}>
+                Names and ages of children in your household
+              </span>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="pets" className={styles.label}>
+                Pets
+              </label>
+              <textarea
+                id="pets"
+                value={pets}
+                onChange={(e) => setPets(e.target.value)}
+                maxLength={MAX_LENGTHS.pets}
+                className={styles.textarea}
+                placeholder="e.g., Golden retriever named Max"
+                rows={2}
+              />
+              <span className={styles.hint}>Pets in your household</span>
+            </div>
           </div>
+        </section>
 
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="children" className={profileStyles.label}>
-              Children
-            </label>
-            <textarea
-              id="children"
-              value={children}
-              onChange={(e) => setChildren(e.target.value)}
-              maxLength={MAX_LENGTHS.children}
-              className={profileStyles.textarea}
-              placeholder="e.g., Emma (8), Jack (5)"
-              rows={2}
-            />
-            <span className={profileStyles.hint}>
-              Names and ages of children in your household
-            </span>
-          </div>
-
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="pets" className={profileStyles.label}>
-              Pets
-            </label>
-            <textarea
-              id="pets"
-              value={pets}
-              onChange={(e) => setPets(e.target.value)}
-              maxLength={MAX_LENGTHS.pets}
-              className={profileStyles.textarea}
-              placeholder="e.g., Golden retriever named Max"
-              rows={2}
-            />
-            <span className={profileStyles.hint}>Pets in your household</span>
-          </div>
-
-          <div className={profileStyles.inputGroup}>
-            <label htmlFor="bio" className={profileStyles.label}>
+        {/* About Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>About</h2>
+          <div className={styles.inputGroup}>
+            <label htmlFor="bio" className={styles.label}>
               About Your Household
             </label>
             <textarea
@@ -455,27 +489,38 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={MAX_LENGTHS.userBio}
-              className={profileStyles.textarea}
+              className={styles.textarea}
               placeholder="Tell your neighbors a bit about yourselves..."
               rows={4}
             />
             {bio.length > MAX_LENGTHS.userBio * 0.8 && (
-              <span className={profileStyles.charCount}>
+              <span className={styles.charCount}>
                 {bio.length}/{MAX_LENGTHS.userBio}
               </span>
             )}
           </div>
+        </section>
 
-          {error && <p className={profileStyles.error}>{error}</p>}
-          {success && (
-            <p className={profileStyles.success}>Profile updated successfully!</p>
-          )}
+        {/* Photos Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Photos</h2>
+          <ProfileGalleryUpload
+            userId={userId}
+            photoUrls={photoUrls}
+            onPhotosChange={setPhotoUrls}
+            onError={setError}
+          />
+        </section>
 
-          <button type="submit" disabled={saving} className={profileStyles.button}>
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </form>
-      </div>
+        {error && <p className={styles.error}>{error}</p>}
+        {success && (
+          <p className={styles.success}>Profile updated successfully!</p>
+        )}
+
+        <button type="submit" disabled={saving} className={styles.button}>
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </form>
     </div>
   );
 }

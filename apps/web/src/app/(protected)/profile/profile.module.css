@@ -1,19 +1,93 @@
-/* Profile page container */
+/* Profile page container - wider, open feel */
 .container {
   width: 100%;
-  max-width: 600px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: var(--space-4);
+  padding: var(--space-6) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
 }
 
+/* Card - transparent for open layout */
 .card {
-  background-color: var(--color-surface);
-  padding: var(--space-6);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Section with divider */
+.section {
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Section title with purple bar */
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-4) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sectionTitle::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+/* Three-column layout for address fields */
+.threeColumn {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 740px) {
+  .threeColumn {
+    grid-template-columns: 1fr 1fr;
+  }
+  .threeColumn > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .threeColumn {
+    grid-template-columns: 1fr;
+  }
+  .threeColumn > :first-child {
+    grid-column: auto;
+  }
+}
+
+/* Two-column row for related fields on desktop */
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 740px) {
+  .twoColumn {
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 600px) {
+  .twoColumn {
+    grid-template-columns: 1fr;
+  }
 }
 
 .backLink {
@@ -29,7 +103,7 @@
 }
 
 .title {
-  margin: 0 0 var(--space-2) 0;
+  margin: 0 0 var(--space-4) 0;
   font-size: 1.5rem;
   font-weight: var(--font-weight-semibold);
 }
@@ -48,7 +122,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: 0;
 }
 
 .inputGroup {
@@ -110,13 +184,13 @@
 }
 
 .phoneRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
   gap: var(--space-2);
   align-items: center;
 }
 
 .phoneLabelInput {
-  flex: 0 0 100px;
   padding: 0.625rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -130,7 +204,6 @@
 }
 
 .phoneNumberInput {
-  flex: 1;
   padding: 0.625rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -189,7 +262,7 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  margin-top: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .button:hover {
@@ -214,22 +287,19 @@
   margin: 0;
 }
 
+/* Phone row responsive - stack on small screens */
 @media (max-width: 480px) {
   .phoneRow {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr auto;
   }
 
   .phoneLabelInput {
-    flex: 1 1 80px;
-    min-width: 80px;
+    grid-column: 1 / -1;
   }
+}
 
-  .phoneNumberInput {
-    flex: 2 1 120px;
-    min-width: 120px;
-  }
-
-  .removeButton {
-    flex: 0 0 32px;
-  }
+/* Avatar section centering */
+.avatarSection {
+  display: flex;
+  justify-content: center;
 }

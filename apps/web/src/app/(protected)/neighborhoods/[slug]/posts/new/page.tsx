@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { PostImageUpload } from "@/components/PostImageUpload";
 import { createPost } from "../actions";
 import styles from "../post-form.module.css";
 
@@ -13,9 +15,22 @@ export default function NewPostPage() {
   const slug = params.slug as string;
 
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    }
+    getUser();
+  }, []);
 
   // Helper to format date as YYYY-MM-DD in local timezone
   const formatDateLocal = (date: Date) => {
@@ -38,6 +53,7 @@ export default function NewPostPage() {
       const result = await createPost({
         slug,
         content,
+        imageUrl,
         expiresAt: expiresAt || null,
       });
 
@@ -83,6 +99,15 @@ export default function NewPostPage() {
               {content.length}/{MAX_LENGTHS.postContent}
             </span>
           </div>
+
+          {userId && (
+            <PostImageUpload
+              userId={userId}
+              imageUrl={imageUrl}
+              onImageChange={setImageUrl}
+              onError={setError}
+            />
+          )}
 
           <div className={styles.field}>
             <label htmlFor="expiresAt" className={styles.label}>

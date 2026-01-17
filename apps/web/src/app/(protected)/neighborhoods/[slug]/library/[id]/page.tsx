@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
 import { AdminActions } from "./admin-actions";
@@ -68,20 +68,20 @@ export default async function ItemDetailPage({ params }: Props) {
 
       <div className={responsive.detailGrid}>
         <div className={styles.imageSection}>
-          {item.photo_urls && item.photo_urls.length > 0 ? (
-            <Image
-              src={item.photo_urls[0]}
-              alt={item.name}
-              width={400}
-              height={300}
-              className={styles.image}
-              priority
-            />
-          ) : (
-            <div className={styles.imagePlaceholder}>
-              <span className={styles.placeholderIcon}>📦</span>
-            </div>
-          )}
+          <OptimizedImage
+            src={item.photo_urls?.[0]}
+            alt={item.name}
+            width={400}
+            height={300}
+            className={styles.image}
+            borderRadius="var(--radius-lg)"
+            priority
+            fallback={
+              <div className={styles.imagePlaceholder}>
+                <span className={styles.placeholderIcon}>📦</span>
+              </div>
+            }
+          />
         </div>
 
         <div className={styles.details}>
@@ -113,17 +113,15 @@ export default async function ItemDetailPage({ params }: Props) {
               className={styles.ownerCard}
             >
               <div className={styles.avatar}>
-                {item.owner?.avatar_url ? (
-                  <Image
-                    src={item.owner.avatar_url}
-                    alt={item.owner.name || "Owner"}
-                    width={48}
-                    height={48}
-                    className={styles.avatarImage}
-                  />
-                ) : (
-                  <span>{getInitial(item.owner?.name)}</span>
-                )}
+                <OptimizedImage
+                  src={item.owner?.avatar_url}
+                  alt={item.owner?.name || "Owner"}
+                  width={48}
+                  height={48}
+                  className={styles.avatarImage}
+                  borderRadius="50%"
+                  fallback={<span>{getInitial(item.owner?.name)}</span>}
+                />
               </div>
               <div>
                 <p className={styles.ownerName}>{item.owner?.name}</p>

@@ -193,8 +193,19 @@
 
 .sectionTitle {
   margin: 0 0 var(--space-4) 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sectionTitle::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  background: var(--color-primary);
+  border-radius: 2px;
 }
 
 .contactGrid {

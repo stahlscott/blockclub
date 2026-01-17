@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import type { ItemCategory } from "@blockclub/shared";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
@@ -165,21 +165,21 @@ export default async function LibraryPage({ params, searchParams }: Props) {
               href={`/neighborhoods/${slug}/library/${item.id}`}
               className={`${libraryStyles.card} ${getCategoryClass(item.category)}`}
             >
-              {item.photo_urls && item.photo_urls.length > 0 ? (
-                <div className={libraryStyles.imageContainer}>
-                  <Image
-                    src={item.photo_urls[0]}
-                    alt={item.name}
-                    width={200}
-                    height={140}
-                    className={libraryStyles.image}
-                  />
-                </div>
-              ) : (
-                <div className={libraryStyles.imagePlaceholder}>
-                  <span className={libraryStyles.placeholderIcon}>📦</span>
-                </div>
-              )}
+              <div className={libraryStyles.imageContainer}>
+                <OptimizedImage
+                  src={item.photo_urls?.[0]}
+                  alt={item.name}
+                  width={200}
+                  height={140}
+                  className={libraryStyles.image}
+                  borderRadius="var(--radius-lg) var(--radius-lg) 0 0"
+                  fallback={
+                    <div className={libraryStyles.imagePlaceholder}>
+                      <span className={libraryStyles.placeholderIcon}>📦</span>
+                    </div>
+                  }
+                />
+              </div>
               <div className={libraryStyles.cardContent}>
                 <h3 className={libraryStyles.itemName}>{item.name}</h3>
                 <p className={libraryStyles.itemOwner}>

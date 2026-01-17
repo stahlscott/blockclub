@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
+import { OptimizedImage } from "./OptimizedImage";
 import {
   uploadFile,
   deleteFile,
@@ -129,12 +129,13 @@ export function ItemPhotoUpload({
       <div className={styles.grid}>
         {photos.map((url, index) => (
           <div key={url} className={styles.photoItem}>
-            <Image
+            <OptimizedImage
               src={url}
               alt={`Photo ${index + 1}`}
               width={120}
               height={120}
               className={styles.photo}
+              borderRadius="var(--radius-md)"
             />
             {index === 0 && <span className={styles.coverBadge}>Cover</span>}
             <div className={styles.photoActions}>

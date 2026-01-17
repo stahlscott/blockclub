@@ -4,6 +4,7 @@ import Image from "next/image";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { RoleActions } from "./role-actions";
 import { MoveOutActions } from "./move-out-actions";
+import { ProfileGallery } from "@/components/ProfileGallery";
 import profileStyles from "./member-profile.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -148,6 +149,10 @@ export default async function MemberProfilePage({ params }: Props) {
             )}
           </div>
         </div>
+      )}
+
+      {member.photo_urls && member.photo_urls.length > 0 && (
+        <ProfileGallery photoUrls={member.photo_urls} memberName={member.name} />
       )}
 
       <div className={profileStyles.contactSection}>

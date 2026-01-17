@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { logger } from "@/lib/logger";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import type { PostReactionType } from "@blockclub/shared";
 import styles from "./posts.module.css";
 
@@ -20,6 +21,7 @@ interface Post {
   neighborhood_id: string;
   author_id: string;
   content: string;
+  image_url: string | null;
   is_pinned: boolean;
   expires_at: string | null;
   edited_at: string | null;
@@ -82,6 +84,7 @@ export function PostsClient({
   const [loadingReaction, setLoadingReaction] = useState<string | null>(null);
   const [deletingPost, setDeletingPost] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   async function toggleReaction(postId: string, reactionType: PostReactionType) {
     const post = posts.find((p) => p.id === postId);
@@ -212,6 +215,7 @@ export function PostsClient({
               onToggleReaction={toggleReaction}
               onDelete={handleDelete}
               onTogglePin={handleTogglePin}
+              onImageClick={setLightboxImage}
             />
           ))}
         </div>
@@ -229,8 +233,17 @@ export function PostsClient({
           onToggleReaction={toggleReaction}
           onDelete={handleDelete}
           onTogglePin={handleTogglePin}
+          onImageClick={setLightboxImage}
         />
       ))}
+
+      {lightboxImage && (
+        <ImageLightbox
+          src={lightboxImage}
+          alt="Post image"
+          onClose={() => setLightboxImage(null)}
+        />
+      )}
     </div>
   );
 }
@@ -245,6 +258,7 @@ interface PostCardProps {
   onToggleReaction: (postId: string, reactionType: PostReactionType) => void;
   onDelete: (postId: string) => void;
   onTogglePin: (postId: string, currentlyPinned: boolean) => void;
+  onImageClick: (imageUrl: string) => void;
 }
 
 function PostCard({
@@ -257,6 +271,7 @@ function PostCard({
   onToggleReaction,
   onDelete,
   onTogglePin,
+  onImageClick,
 }: PostCardProps) {
   const isAuthor = post.author_id === currentUserId;
   const canEdit = isAuthor || isAdmin;
@@ -281,19 +296,19 @@ function PostCard({
           href={`/neighborhoods/${slug}/members/${post.author.id}`}
           className={styles.authorLink}
         >
-          {post.author.avatar_url ? (
-            <Image
-              src={post.author.avatar_url}
-              alt={post.author.name}
-              width={40}
-              height={40}
-              className={styles.avatar}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {getInitial(post.author.name)}
-            </div>
-          )}
+          <OptimizedImage
+            src={post.author.avatar_url}
+            alt={post.author.name}
+            width={40}
+            height={40}
+            className={styles.avatar}
+            borderRadius="50%"
+            fallback={
+              <div className={styles.avatarPlaceholder}>
+                {getInitial(post.author.name)}
+              </div>
+            }
+          />
           <span className={styles.authorName}>{post.author.name}</span>
         </Link>
         <span className={styles.timestamp}>{formatRelativeTime(post.created_at)}</span>
@@ -303,6 +318,26 @@ function PostCard({
         <p className={styles.editedNote}>
           Edited by {post.editor?.name || "Unknown"} on {formatDate(post.edited_at)}
         </p>
+      )}
+
+      {post.image_url && (
+        <button
+          type="button"
+          className={styles.postImageButton}
+          onClick={() => onImageClick(post.image_url!)}
+          aria-label="View full image"
+        >
+          <div className={styles.postImageContainer}>
+            <OptimizedImage
+              src={post.image_url}
+              alt="Post image"
+              width={400}
+              height={300}
+              className={styles.postImage}
+              borderRadius="var(--radius-md)"
+            />
+          </div>
+        </button>
       )}
 
       <p className={styles.content}>{post.content}</p>

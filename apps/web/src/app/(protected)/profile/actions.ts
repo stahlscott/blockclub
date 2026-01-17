@@ -28,6 +28,7 @@ interface ProfileUpdateData {
   moveInYear: number | null;
   children: string | null;
   pets: string | null;
+  photoUrls: string[];
 }
 
 export async function updateProfile(data: ProfileUpdateData): Promise<{ success: boolean; error?: string }> {
@@ -73,6 +74,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
       move_in_year: data.moveInYear,
       children: data.children,
       pets: data.pets,
+      photo_urls: data.photoUrls,
     })
     .eq("id", data.userId);
 
