@@ -181,7 +181,10 @@ export function PostsClient({
   if (posts.length === 0) {
     return (
       <div className={styles.empty}>
-        <p className={styles.emptyText}>No posts yet. Be the first to share something!</p>
+        <div className={styles.emptyIllustration}>💬</div>
+        <p className={styles.emptyText}>
+          It&apos;s quiet here. Start a conversation with your neighbors!
+        </p>
         <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
           Create a Post
         </Link>

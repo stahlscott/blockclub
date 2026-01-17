@@ -1,6 +1,5 @@
-import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { PostsClient } from "./posts-client";
 import type { PostReactionType } from "@blockclub/shared";
 import styles from "./posts-page.module.css";
@@ -11,44 +10,12 @@ interface Props {
 
 export default async function PostsPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/signin");
-  }
-
-  // Fetch neighborhood
-  const { data: neighborhood } = await supabase
-    .from("neighborhoods")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (!neighborhood) {
-    notFound();
-  }
-
-  // Check if user is a member and get their role
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .is("deleted_at", null)
-    .single();
-
-  if (!membership) {
-    redirect(`/neighborhoods/${slug}`);
-  }
-
-  const isAdmin = membership.role === "admin";
+  const { user, neighborhood, isNeighborhoodAdmin, supabase } =
+    await getNeighborhoodAccess(slug);
 
   // Fetch posts with author info
-  // Note: RLS handles filtering deleted/expired posts
+  // Note: RLS handles filtering deleted/expired posts for regular users
+  // Admin client bypasses RLS for staff admins
   const { data: posts } = await supabase
     .from("posts")
     .select(
@@ -124,7 +91,7 @@ export default async function PostsPage({ params }: Props) {
       <PostsClient
         posts={postsWithReactions}
         currentUserId={user.id}
-        isAdmin={isAdmin}
+        isAdmin={isNeighborhoodAdmin}
         slug={slug}
         neighborhoodId={neighborhood.id}
       />

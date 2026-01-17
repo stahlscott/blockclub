@@ -89,7 +89,7 @@ blockclub/
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-   SUPER_ADMIN_EMAILS=your-email@example.com
+   STAFF_ADMIN_EMAILS=your-email@example.com
    ```
 
 5. **Run development server**
@@ -103,7 +103,7 @@ blockclub/
 
 ## User Roles
 
-| Capability                   | Super Admin | Neighborhood Admin | Member   |
+| Capability                   | Staff Admin | Neighborhood Admin | Member   |
 | ---------------------------- | ----------- | ------------------ | -------- |
 | Create neighborhoods         | Yes         | No                 | No       |
 | Approve/reject join requests | Yes         | Own neighborhood   | No       |
@@ -159,7 +159,7 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | -------------------------------------- | ------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                       |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                   |
-| `SUPER_ADMIN_EMAILS`                   | Comma-separated list of super admin emails |
+| `STAFF_ADMIN_EMAILS`                   | Comma-separated list of staff admin emails |
 | `NEXT_PUBLIC_SENTRY_DSN`               | Sentry DSN for error reporting             |
 | `SENTRY_ORG`                           | Sentry organization slug (build-time)      |
 | `SENTRY_PROJECT`                       | Sentry project slug (build-time)           |

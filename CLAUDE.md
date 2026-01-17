@@ -173,7 +173,7 @@ Required in `apps/web/.env.local`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=xxx
-SUPER_ADMIN_EMAILS=admin@example.com
+STAFF_ADMIN_EMAILS=admin@example.com
 ```
 
 ## Commands

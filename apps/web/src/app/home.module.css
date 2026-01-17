@@ -1,22 +1,26 @@
 /* Home/landing page styles */
 .container {
   min-height: calc(100vh - 60px);
-  background-color: var(--color-background);
+  background: linear-gradient(180deg, var(--color-background) 0%, var(--color-primary-light) 100%);
 }
 
 .hero {
   width: 100%;
-  max-width: 480px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 4rem var(--space-6);
   text-align: center;
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-2);
-  color: var(--color-text);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
@@ -49,10 +53,68 @@
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-base);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .primaryButton:hover {
   background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+/* Feature cards */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 640px) {
+  .features {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
+
+.featureCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.featureCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto var(--space-3);
+}
+
+.featureTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-1) 0;
+  color: var(--color-text);
+}
+
+.featureText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
 }
 
 .inviteSection {

@@ -10,16 +10,22 @@ import styles from "./Header.module.css";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
-  const { primaryNeighborhood, neighborhoods, loading: neighborhoodLoading, switchNeighborhood } = useNeighborhood();
+  const { primaryNeighborhood, neighborhoods, loading: neighborhoodLoading, switchNeighborhood, isAdmin, isStaffAdmin } = useNeighborhood();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileSwitcher, setShowMobileSwitcher] = useState(false);
 
+  // Extract slug from URL if on a neighborhood route
+  const urlSlugMatch = pathname?.match(/^\/neighborhoods\/([^\/]+)/);
+  const urlSlug = urlSlugMatch?.[1];
+
+  // Use URL slug if present, otherwise fall back to primary neighborhood
+  const activeSlug = urlSlug || primaryNeighborhood?.slug;
+
   // Build neighborhood-specific links
-  const slug = primaryNeighborhood?.slug;
-  const postsLink = slug ? `/neighborhoods/${slug}/posts` : null;
-  const libraryLink = slug ? `/neighborhoods/${slug}/library` : null;
-  const directoryLink = slug ? `/neighborhoods/${slug}/directory` : null;
+  const postsLink = activeSlug ? `/neighborhoods/${activeSlug}/posts` : null;
+  const libraryLink = activeSlug ? `/neighborhoods/${activeSlug}/library` : null;
+  const directoryLink = activeSlug ? `/neighborhoods/${activeSlug}/directory` : null;
 
   // Check if a link is active
   const isActive = (path: string | null) => {
@@ -46,8 +52,8 @@ export function Header() {
             <span className={styles.loading}>...</span>
           ) : user ? (
             <>
-              {/* Neighborhood navigation - only show if user has a neighborhood */}
-              {primaryNeighborhood && (
+              {/* Neighborhood navigation - show if viewing a neighborhood or user has one */}
+              {activeSlug && (
                 <div className={styles.neighborhoodNav}>
                   <Link
                     href={postsLink!}
@@ -114,7 +120,7 @@ export function Header() {
               <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                 Dashboard
               </Link>
-              {primaryNeighborhood && (
+              {activeSlug && (
                 <>
                   <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                     Posts
@@ -137,6 +143,27 @@ export function Header() {
               <Link href="/settings" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                 Account Settings
               </Link>
+
+              {/* Admin links */}
+              {(isAdmin || isStaffAdmin) && (
+                <>
+                  <div className={styles.mobileDivider} />
+                  {isAdmin && primaryNeighborhood && (
+                    <Link
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
+                      className={styles.mobileNavLink}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Neighborhood Admin
+                    </Link>
+                  )}
+                  {isStaffAdmin && (
+                    <Link href="/admin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                      Staff Admin
+                    </Link>
+                  )}
+                </>
+              )}
 
               {/* Neighborhood switcher - only if multiple */}
               {neighborhoods.length > 1 && (

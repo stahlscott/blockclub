@@ -249,15 +249,60 @@
   }
 
   .tableRow {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "name name"
+      "slug slug"
+      "members items"
+      "date actions";
     gap: var(--space-2);
     padding: var(--space-4);
   }
 
-  .colActions {
-    justify-content: flex-start;
-    margin-top: var(--space-2);
+  .tableRow .colName {
+    grid-area: name;
+    font-size: var(--font-size-base);
+  }
+
+  .tableRow .colSlug {
+    grid-area: slug;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .tableRow .colMembers {
+    grid-area: members;
+    text-align: left;
+  }
+
+  .tableRow .colMembers::before {
+    content: "Members: ";
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-normal);
+  }
+
+  .tableRow .colItems {
+    grid-area: items;
+    text-align: left;
+  }
+
+  .tableRow .colItems::before {
+    content: "Items: ";
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-normal);
+  }
+
+  .tableRow .colDate {
+    grid-area: date;
+    display: flex;
+    align-items: center;
+  }
+
+  .tableRow .colActions {
+    grid-area: actions;
+    justify-content: flex-end;
   }
 }
 

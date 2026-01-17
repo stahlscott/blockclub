@@ -21,6 +21,24 @@ export default async function Home() {
         </p>
         <p className={styles.location}>Lakewood, Ohio</p>
 
+        <div className={styles.features}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>📚</div>
+            <h3 className={styles.featureTitle}>Share & Borrow</h3>
+            <p className={styles.featureText}>Lending library for tools, books, and more</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>💬</div>
+            <h3 className={styles.featureTitle}>Stay Connected</h3>
+            <p className={styles.featureText}>Neighborhood bulletin board for updates</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>👥</div>
+            <h3 className={styles.featureTitle}>Know Your Neighbors</h3>
+            <p className={styles.featureText}>Directory to connect with your community</p>
+          </div>
+        </div>
+
         <div className={styles.cta}>
           <Link href="/signin" className={styles.primaryButton}>
             Sign In

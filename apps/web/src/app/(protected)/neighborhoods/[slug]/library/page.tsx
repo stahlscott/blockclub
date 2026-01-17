@@ -1,7 +1,6 @@
-import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import type { ItemCategory } from "@blockclub/shared";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
@@ -26,54 +25,36 @@ const CATEGORIES: { value: ItemCategory | "all"; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
+function getCategoriesWithItems(
+  items: Array<{ category: string }>,
+  allCategories: { value: ItemCategory | "all"; label: string }[]
+) {
+  const categoriesWithItems = new Set(items.map((item) => item.category));
+  return allCategories.filter(
+    (cat) => cat.value === "all" || categoriesWithItems.has(cat.value)
+  );
+}
+
 export default async function LibraryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { category, search } = await searchParams;
-  const supabase = await createClient();
+  const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/signin");
-  }
-
-  // Fetch neighborhood
-  const { data: neighborhood } = await supabase
-    .from("neighborhoods")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (!neighborhood) {
-    notFound();
-  }
-
-  // Check if user is a member
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
-
-  if (!membership) {
-    redirect(`/neighborhoods/${slug}`);
-  }
-
-  // Fetch items with filters
-  let query = supabase
+  // Fetch all items (no category filter) to determine available categories
+  const { data: allItems } = await supabase
     .from("items")
     .select("*, owner:users(id, name, avatar_url)")
     .eq("neighborhood_id", neighborhood.id)
     .order("created_at", { ascending: false });
 
-  if (category && category !== "all") {
-    query = query.eq("category", category);
-  }
+  // Compute which categories have items
+  const availableCategories = getCategoriesWithItems(allItems || [], CATEGORIES);
 
-  let { data: items } = await query;
+  // Apply category filter in memory
+  let items = allItems;
+  if (category && category !== "all" && items) {
+    items = items.filter((item: any) => item.category === category);
+  }
 
   // Filter by search term (name, category, description, or owner name)
   if (search && items) {
@@ -102,6 +83,22 @@ export default async function LibraryPage({ params, searchParams }: Props) {
       default:
         return libraryStyles.unavailableTag;
     }
+  };
+
+  const getCategoryClass = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      tools: libraryStyles.cardTools,
+      kitchen: libraryStyles.cardKitchen,
+      outdoor: libraryStyles.cardOutdoor,
+      baby: libraryStyles.cardBaby,
+      books: libraryStyles.cardBooks,
+      electronics: libraryStyles.cardElectronics,
+      games: libraryStyles.cardGames,
+      sports: libraryStyles.cardSports,
+      travel: libraryStyles.cardTravel,
+      other: libraryStyles.cardOther,
+    };
+    return categoryMap[category] || "";
   };
 
   return (
@@ -133,12 +130,14 @@ export default async function LibraryPage({ params, searchParams }: Props) {
           </button>
         </form>
 
-        <CategoryFilter
-          categories={CATEGORIES}
-          currentCategory={category}
-          search={search}
-          slug={slug}
-        />
+        {availableCategories.length > 2 && (
+          <CategoryFilter
+            categories={availableCategories}
+            currentCategory={category}
+            search={search}
+            slug={slug}
+          />
+        )}
       </div>
 
       <div className={libraryStyles.actions}>
@@ -162,7 +161,7 @@ export default async function LibraryPage({ params, searchParams }: Props) {
             <Link
               key={item.id}
               href={`/neighborhoods/${slug}/library/${item.id}`}
-              className={libraryStyles.card}
+              className={`${libraryStyles.card} ${getCategoryClass(item.category)}`}
             >
               {item.photo_urls && item.photo_urls.length > 0 ? (
                 <div className={libraryStyles.imageContainer}>
@@ -200,10 +199,11 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         </div>
       ) : (
         <div className={libraryStyles.empty}>
+          <div className={libraryStyles.emptyIllustration}>📚</div>
           <p className={libraryStyles.emptyText}>
             {search || category
               ? "No items match your search."
-              : "No items in the library yet."}
+              : "Your neighbors haven't shared any items yet. Be the first!"}
           </p>
           <Link
             href={`/neighborhoods/${slug}/library/new`}

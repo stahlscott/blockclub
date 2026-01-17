@@ -69,14 +69,19 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 ### CSS Variables (globals.css)
 ```css
-/* Primary - Purple (main brand) */
---color-primary: #7c3aed       /* Primary buttons, links */
---color-primary-hover: #6d28d9 /* Hover state */
---color-primary-light: #f3f0ff /* Subtle backgrounds */
+/* Primary - Violet (main brand, warmer tone) */
+--color-primary: #8b5cf6       /* Primary buttons, links */
+--color-primary-hover: #7c3aed /* Hover state */
+--color-primary-light: #f5f3ff /* Subtle backgrounds, empty states */
 
-/* Accent - Gold (special moments, celebrations) */
---color-accent: #fbbf24        /* Celebratory CTAs, badges */
+/* Accent - Gold (celebrations, new items, milestones) */
+--color-accent: #fbbf24        /* "NEW" badges, celebratory moments */
 --color-accent-text: #78350f   /* Text on accent background */
+
+/* Community - Great Lakes & Brick Streets */
+--color-lake: #0891b2          /* Outdoor, travel categories */
+--color-park: #059669          /* Tools, sports categories */
+--color-brick: #c2410c         /* Kitchen category */
 
 /* Text */
 --color-text: #18181b          /* Body text */
@@ -89,16 +94,9 @@ const styles: { [key: string]: React.CSSProperties } = {
 --color-border: #e4e4e7        /* Standard borders */
 --color-border-emphasis: #c4b5fd /* Purple-tinted (outlined buttons, pills) */
 
-/* Semantic */
---color-error: #dc2626         /* Error states */
---color-success: #16a34a       /* Success states */
-
-/* Border Radius */
---radius-sm: 6px               /* Buttons, inputs */
---radius-md: 8px               /* Small cards */
---radius-lg: 12px              /* Large cards */
-
---shadow-sm/md/lg              /* Elevation levels */
+/* Transitions */
+--transition-fast: 150ms ease  /* Hover states, micro-interactions */
+--transition-normal: 250ms ease /* Content transitions */
 ```
 
 ### Button Styling Patterns
@@ -132,6 +130,85 @@ import responsive from "@/app/responsive.module.css";
 // responsive.pageHeader - Title + action layout
 // responsive.actionRow - Button row that stacks on mobile
 ```
+
+## Design System
+
+### Design Philosophy
+Block Club's visual design reflects its community context: a progressive Cleveland streetcar suburb with brick streets, parks, and Great Lakes proximity. The design aims for warmth and approachability over corporate polish.
+
+- **Warm violet primary** instead of cold purple - feels more inviting
+- **Community palette** (lake cyan, park green, brick orange) - connects to local character
+- **Gold accents for celebration** - new members, new items, milestones
+- **Subtle animations** - hover lifts and transitions add life without distraction
+
+### Color Usage Guidelines
+
+| Color | When to Use |
+|-------|-------------|
+| Primary (violet) | Buttons, links, active states, section title indicators |
+| Accent (gold) | "NEW" badges, celebration moments, pinned post borders |
+| Lake (cyan) | Outdoor/travel categories, water-related imagery |
+| Park (green) | Tools/sports categories, nature-related imagery |
+| Brick (orange) | Kitchen category, warmth accents |
+
+### Visual Patterns
+
+**Card Hover Effect**
+Cards lift slightly on hover with enhanced shadow:
+```css
+transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+/* on hover: */
+transform: translateY(-2px);
+box-shadow: var(--shadow-lg);
+```
+
+**Button Hover Effect**
+Primary buttons lift with a colored shadow:
+```css
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+```
+
+**Section Titles**
+Include a colored bar indicator:
+```css
+.sectionTitle::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+```
+
+**Empty States**
+Use gradient backgrounds with illustrated icons:
+- Gradient from `--color-primary-light` to `--color-surface`
+- Circular icon container with shadow and emoji
+- Encouraging, community-focused copy
+
+**Content-Type Borders**
+- Posts: left border (`border-left: 4px solid var(--color-primary)`)
+- Pinned posts: gold left border (`--color-accent`)
+- Library items: top border colored by category
+
+### Typography Hierarchy
+
+| Element | Size | Weight | Extra |
+|---------|------|--------|-------|
+| Page welcome | `--font-size-2xl` | bold | `letter-spacing: -0.02em` |
+| Page title | `--font-size-2xl` | bold | `letter-spacing: -0.02em` |
+| Section title | `--font-size-xl` | semibold | Has `::before` bar indicator |
+| Card title | `--font-size-base` | medium | |
+| Body text | `--font-size-sm` | normal | |
+| Metadata | `--font-size-xs` | normal | `--color-text-secondary` |
+
+### Accessibility
+
+- All animations respect `prefers-reduced-motion`
+- Focus states use `outline: 2px solid var(--color-primary)`
+- Minimum touch targets of 44px on mobile
+- Color contrast meets WCAG AA standards
 
 ## Component Patterns
 
