@@ -1,6 +1,8 @@
-# Block Club
+# Lakewood Block Club
 
-A neighborhood community app for Block Clubs.
+The neighborhood community app powering [lakewoodblock.club](https://lakewoodblock.club).
+
+> This is an open source project. Want to run your own? See [SELF-HOSTING.md](SELF-HOSTING.md).
 
 ## Features
 
@@ -52,8 +54,8 @@ blockclub/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/stahlscott/frontporch.git
-   cd frontporch
+   git clone https://github.com/stahlscott/blockclub.git
+   cd blockclub
    ```
 
 2. **Install dependencies**
@@ -182,6 +184,14 @@ npm run dev:web    # Start web dev server
 npm run build:web  # Build web app
 npm run lint       # Lint all packages
 ```
+
+## Fork This Project
+
+Block Club is designed to be forkable for other neighborhoods and communities.
+The codebase is neighborhood-agnostic—just configure your own Supabase backend
+and deploy.
+
+See **[SELF-HOSTING.md](SELF-HOSTING.md)** for complete setup instructions.
 
 ## License
 

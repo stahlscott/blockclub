@@ -237,10 +237,11 @@ A place for neighborhood members to post messages (lost cat, party announcement,
 
 ### Open Source Preparation
 
-- [ ] Write comprehensive README with features and screenshots
+- [x] Write comprehensive README with project description
+- [x] Create SELF-HOSTING.md with fork/deployment guide
 - [ ] Create CONTRIBUTING.md with development guidelines
-- [ ] Write self-hosting guide (Supabase setup, deployment options)
-- [ ] Create configuration for neighborhood customization (name, logo, etc.)
+- [ ] Add screenshots to README
+- [ ] Create configuration system for easy customization (name, logo, colors)
 
 ---
 
