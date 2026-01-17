@@ -3,6 +3,22 @@ name: Migrate Production Database
 on:
   pull_request:
     branches: [prod]
+  workflow_call:
+    inputs:
+      base_ref:
+        description: 'Base branch to compare against for migration changes'
+        required: false
+        default: 'prod'
+        type: string
+    outputs:
+      has_migrations:
+        description: 'Whether there are migrations to run'
+        value: ${{ jobs.check-migrations.outputs.has_migrations }}
+    secrets:
+      SUPABASE_PROD_PROJECT_REF:
+        required: true
+      SUPABASE_ACCESS_TOKEN:
+        required: true
 
 jobs:
   check-migrations:

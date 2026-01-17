@@ -1,0 +1,160 @@
+name: Release to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (skip actual push to prod)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  check-migrations:
+    name: Check for migrations
+    runs-on: ubuntu-latest
+    outputs:
+      has_migrations: ${{ steps.check.outputs.has_migrations }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for migration file changes
+        id: check
+        run: |
+          # Get the list of changed files between prod and main
+          CHANGED_FILES=$(git diff --name-only origin/prod...origin/main -- 'supabase/migrations/' || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Migration files changed:"
+            echo "$CHANGED_FILES"
+            echo "has_migrations=true" >> $GITHUB_OUTPUT
+          else
+            echo "No migration files changed"
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+          fi
+
+  e2e-tests:
+    name: E2E Tests (${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/3, 2/3, 3/3]
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_TEST_KEY }}
+      STAFF_ADMIN_EMAILS: "test@example.com"
+      E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+      E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build app
+        run: npm run build:web
+
+      - name: Run E2E tests
+        run: cd apps/web && npx playwright test --shard=${{ matrix.shard }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ strategy.job-index }}
+          path: apps/web/playwright-report/
+          retention-days: 7
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ strategy.job-index }}
+          path: apps/web/test-results/
+          retention-days: 7
+
+  run-migrations:
+    name: Run migrations
+    runs-on: ubuntu-latest
+    needs: [check-migrations, e2e-tests]
+    if: needs.check-migrations.outputs.has_migrations == 'true'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Push migrations to production
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROD_PROJECT_REF }}
+          supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  skip-migrations:
+    name: Skip migrations
+    runs-on: ubuntu-latest
+    needs: [check-migrations, e2e-tests]
+    if: needs.check-migrations.outputs.has_migrations == 'false'
+    steps:
+      - name: No migrations needed
+        run: echo "No migration files changed, skipping database migration"
+
+  fast-forward-prod:
+    name: Fast-forward prod to main
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, run-migrations, skip-migrations]
+    if: |
+      always() &&
+      needs.e2e-tests.result == 'success' &&
+      (needs.run-migrations.result == 'success' || needs.run-migrations.result == 'skipped') &&
+      (needs.skip-migrations.result == 'success' || needs.skip-migrations.result == 'skipped')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fast-forward prod to main
+        run: |
+          git fetch origin main prod
+
+          MAIN_SHA=$(git rev-parse origin/main)
+          PROD_SHA=$(git rev-parse origin/prod)
+
+          echo "Main SHA: $MAIN_SHA"
+          echo "Prod SHA: $PROD_SHA"
+
+          if [ "$MAIN_SHA" = "$PROD_SHA" ]; then
+            echo "prod is already at the same commit as main, nothing to do"
+            exit 0
+          fi
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "DRY RUN: Would fast-forward prod from $PROD_SHA to $MAIN_SHA"
+          else
+            echo "Fast-forwarding prod to main..."
+            git push origin origin/main:refs/heads/prod
+            echo "Successfully updated prod to $MAIN_SHA"
+          fi
