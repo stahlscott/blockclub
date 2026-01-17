@@ -26,6 +26,16 @@ const CATEGORIES: { value: ItemCategory | "all"; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
+function getCategoriesWithItems(
+  items: Array<{ category: string }>,
+  allCategories: { value: ItemCategory | "all"; label: string }[]
+) {
+  const categoriesWithItems = new Set(items.map((item) => item.category));
+  return allCategories.filter(
+    (cat) => cat.value === "all" || categoriesWithItems.has(cat.value)
+  );
+}
+
 export default async function LibraryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { category, search } = await searchParams;
@@ -62,18 +72,21 @@ export default async function LibraryPage({ params, searchParams }: Props) {
     redirect(`/neighborhoods/${slug}`);
   }
 
-  // Fetch items with filters
-  let query = supabase
+  // Fetch all items (no category filter) to determine available categories
+  const { data: allItems } = await supabase
     .from("items")
     .select("*, owner:users(id, name, avatar_url)")
     .eq("neighborhood_id", neighborhood.id)
     .order("created_at", { ascending: false });
 
-  if (category && category !== "all") {
-    query = query.eq("category", category);
-  }
+  // Compute which categories have items
+  const availableCategories = getCategoriesWithItems(allItems || [], CATEGORIES);
 
-  let { data: items } = await query;
+  // Apply category filter in memory
+  let items = allItems;
+  if (category && category !== "all" && items) {
+    items = items.filter((item: any) => item.category === category);
+  }
 
   // Filter by search term (name, category, description, or owner name)
   if (search && items) {
@@ -133,12 +146,14 @@ export default async function LibraryPage({ params, searchParams }: Props) {
           </button>
         </form>
 
-        <CategoryFilter
-          categories={CATEGORIES}
-          currentCategory={category}
-          search={search}
-          slug={slug}
-        />
+        {availableCategories.length > 2 && (
+          <CategoryFilter
+            categories={availableCategories}
+            currentCategory={category}
+            search={search}
+            slug={slug}
+          />
+        )}
       </div>
 
       <div className={libraryStyles.actions}>

@@ -42,7 +42,7 @@ Copy `.env.example` to `.env.local` and fill in:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=xxx
-SUPER_ADMIN_EMAILS=admin@example.com
+STAFF_ADMIN_EMAILS=admin@example.com
 ```
 
 ## Scripts
