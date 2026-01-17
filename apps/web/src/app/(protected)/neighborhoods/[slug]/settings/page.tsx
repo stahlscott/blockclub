@@ -308,49 +308,47 @@ export default function NeighborhoodSettingsPage() {
             </button>
           </div>
         </form>
-
-        {/* Staff Admin Section - only visible to staff admins */}
-        {isStaffAdmin && (
-          <>
-            <div className={styles.divider} style={{ margin: "var(--space-6) 0" }} />
-
-            <h2 className={styles.sectionTitle}>Staff Admin</h2>
-
-            <div className={styles.field}>
-              <label htmlFor="slug" className={styles.label}>
-                URL Slug
-              </label>
-              <div className={styles.inviteRow}>
-                <input
-                  id="slug"
-                  type="text"
-                  value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value.toLowerCase())}
-                  className={styles.input}
-                  style={{ flex: 1 }}
-                  pattern="[a-z0-9-]+"
-                />
-                <button
-                  type="button"
-                  onClick={handleSlugUpdate}
-                  disabled={savingSlug || !newSlug.trim() || newSlug === slug}
-                  className={styles.copyButton}
-                >
-                  {savingSlug ? "Saving..." : "Update"}
-                </button>
-              </div>
-              <span className={styles.hint}>
-                Changing the slug will update all URLs for this neighborhood.
-              </span>
-              {slugError && (
-                <div className={styles.error} style={{ marginTop: "var(--space-2)" }}>
-                  {slugError}
-                </div>
-              )}
-            </div>
-          </>
-        )}
       </div>
+
+      {/* Staff Admin Section - only visible to staff admins */}
+      {isStaffAdmin && (
+        <div className={styles.card}>
+          <h1 className={styles.title}>Staff Admin</h1>
+
+          <div className={styles.field}>
+            <label htmlFor="slug" className={styles.label}>
+              URL Slug
+            </label>
+            <div className={styles.inviteRow}>
+              <input
+                id="slug"
+                type="text"
+                value={newSlug}
+                onChange={(e) => setNewSlug(e.target.value.toLowerCase())}
+                className={styles.input}
+                style={{ flex: 1 }}
+                pattern="[a-z0-9-]+"
+              />
+              <button
+                type="button"
+                onClick={handleSlugUpdate}
+                disabled={savingSlug || !newSlug.trim() || newSlug === slug}
+                className={styles.copyButton}
+              >
+                {savingSlug ? "Saving..." : "Update"}
+              </button>
+            </div>
+            <span className={styles.hint}>
+              Changing the slug will update all URLs for this neighborhood.
+            </span>
+            {slugError && (
+              <div className={styles.error} style={{ marginTop: "var(--space-2)" }}>
+                {slugError}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
