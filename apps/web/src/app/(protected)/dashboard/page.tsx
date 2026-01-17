@@ -375,219 +375,191 @@ export default async function DashboardPage() {
             </Link>
           )}
 
-          {/* Quick Actions */}
-          <section className={dashboardStyles.section}>
-            <div className={dashboardStyles.compactActions}>
+          {/* Unified Sections Grid */}
+          <div className={dashboardStyles.unifiedGrid}>
+            {/* Posts Section */}
+            <div className={dashboardStyles.unifiedSection}>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                className={dashboardStyles.compactActionButton}
+                className={dashboardStyles.unifiedSectionHeader}
               >
-                <span className={dashboardStyles.compactActionIcon}>📝</span>
-                <span>Posts</span>
+                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
+                  <span className={dashboardStyles.unifiedSectionIcon}>📝</span>
+                  <h2 className={dashboardStyles.unifiedSectionTitle}>Posts</h2>
+                </div>
+                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
               </Link>
+              <div className={dashboardStyles.unifiedSectionContent}>
+                {recentPosts.length > 0 ? (
+                  recentPosts.slice(0, 3).map((post: any) => {
+                    const isNew = post.created_at && isWithinDays(post.created_at, 3);
+                    return (
+                      <Link
+                        key={post.id}
+                        href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
+                        className={dashboardStyles.unifiedItemRow}
+                      >
+                        <div className={dashboardStyles.unifiedItemInfo}>
+                          {post.author?.avatar_url ? (
+                            <Image
+                              src={post.author.avatar_url}
+                              alt={post.author.name || "Author"}
+                              width={32}
+                              height={32}
+                              className={dashboardStyles.unifiedItemAvatar}
+                            />
+                          ) : (
+                            <div className={dashboardStyles.unifiedItemAvatarPlaceholder}>
+                              {getInitial(post.author?.name)}
+                            </div>
+                          )}
+                          <div className={dashboardStyles.unifiedItemDetails}>
+                            <span className={dashboardStyles.unifiedItemName}>
+                              {post.author?.name || "Unknown"}
+                              {isNew && (
+                                <span className={dashboardStyles.newBadgeInline}>New</span>
+                              )}
+                            </span>
+                            <span className={dashboardStyles.unifiedItemMeta}>
+                              {post.content.length > 50
+                                ? post.content.slice(0, 50) + "..."
+                                : post.content}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <div className={dashboardStyles.unifiedSectionEmpty}>
+                    No recent posts
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Library Section */}
+            <div className={dashboardStyles.unifiedSection}>
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                className={dashboardStyles.compactActionButton}
+                className={dashboardStyles.unifiedSectionHeader}
               >
-                <span className={dashboardStyles.compactActionIcon}>📚</span>
-                <span>Library</span>
+                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
+                  <span className={dashboardStyles.unifiedSectionIcon}>📚</span>
+                  <h2 className={dashboardStyles.unifiedSectionTitle}>Library</h2>
+                </div>
+                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
               </Link>
-              <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                className={dashboardStyles.compactActionButton}
-              >
-                <span className={dashboardStyles.compactActionIcon}>👥</span>
-                <span>Directory</span>
-              </Link>
-            </div>
-          </section>
-
-          {/* Two-column grid for recent sections */}
-          <div className={dashboardStyles.dashboardGrid}>
-            {/* Left column: Posts and Items */}
-            <div className={dashboardStyles.dashboardColumn}>
-              {/* Recently Posted */}
-              {recentPosts.length > 0 && (
-                <section className={dashboardStyles.section}>
-                  <div className={dashboardStyles.sectionHeader}>
-                    <h2 className={dashboardStyles.sectionTitle}>Recently Posted</h2>
-                    <Link
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                      className={dashboardStyles.seeAllLink}
-                    >
-                      See all &rarr;
-                    </Link>
-                  </div>
-                  <div className={dashboardStyles.memberList}>
-                    {recentPosts.slice(0, 3).map((post: any) => {
-                      const isNew =
-                        post.created_at && isWithinDays(post.created_at, 3);
-                      return (
-                        <Link
-                          key={post.id}
-                          href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                          className={dashboardStyles.postRow}
-                        >
-                          <div className={dashboardStyles.memberInfo}>
-                            {post.author?.avatar_url ? (
-                              <Image
-                                src={post.author.avatar_url}
-                                alt={post.author.name || "Author"}
-                                width={40}
-                                height={40}
-                                className={dashboardStyles.memberAvatar}
-                              />
-                            ) : (
-                              <div className={dashboardStyles.memberAvatarPlaceholder}>
-                                {getInitial(post.author?.name)}
-                              </div>
-                            )}
-                            <div className={dashboardStyles.memberDetails}>
-                              <span className={dashboardStyles.memberName}>
-                                {post.author?.name || "Unknown"}
-                                {isNew && (
-                                  <span className={dashboardStyles.newBadgeInline}>New</span>
-                                )}
-                              </span>
-                              <span className={dashboardStyles.postPreview}>
-                                {post.content.length > 80
-                                  ? post.content.slice(0, 80) + "..."
-                                  : post.content}
-                              </span>
-                            </div>
-                          </div>
-                          {post.is_pinned && (
-                            <span className={dashboardStyles.pinnedBadge}>📌</span>
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </section>
-              )}
-
-              {/* Recently Added Items */}
-              {recentItems.length > 0 && (
-                <section className={dashboardStyles.section}>
-                  <div className={dashboardStyles.sectionHeader}>
-                    <h2 className={dashboardStyles.sectionTitle}>
-                      Recently Added Items
-                    </h2>
-                    <Link
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                      className={dashboardStyles.seeAllLink}
-                    >
-                      See all &rarr;
-                    </Link>
-                  </div>
-                  <div className={dashboardStyles.itemGrid}>
-                    {recentItems.slice(0, 4).map((item: any) => {
-                      const isNew = isWithinDays(item.created_at, 14);
-                      return (
-                        <Link
-                          key={item.id}
-                          href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
-                          className={dashboardStyles.itemCard}
-                        >
+              <div className={dashboardStyles.unifiedSectionContent}>
+                {recentItems.length > 0 ? (
+                  recentItems.slice(0, 3).map((item: any) => {
+                    const isNew = item.created_at && isWithinDays(item.created_at, 14);
+                    return (
+                      <Link
+                        key={item.id}
+                        href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
+                        className={dashboardStyles.unifiedItemRow}
+                      >
+                        <div className={dashboardStyles.unifiedItemInfo}>
                           {item.photo_urls && item.photo_urls.length > 0 ? (
-                            <div className={dashboardStyles.itemImageContainer}>
-                              <Image
-                                src={item.photo_urls[0]}
-                                alt={item.name}
-                                width={160}
-                                height={120}
-                                className={dashboardStyles.itemImage}
-                              />
-                              {isNew && <span className={dashboardStyles.newBadge}>New</span>}
-                            </div>
+                            <Image
+                              src={item.photo_urls[0]}
+                              alt={item.name}
+                              width={40}
+                              height={40}
+                              className={dashboardStyles.unifiedItemImage}
+                            />
                           ) : (
-                            <div className={dashboardStyles.itemPlaceholder}>
-                              <span className={dashboardStyles.itemPlaceholderIcon}>📦</span>
-                              {isNew && <span className={dashboardStyles.newBadge}>New</span>}
+                            <div className={dashboardStyles.unifiedItemImagePlaceholder}>
+                              📦
                             </div>
                           )}
-                          <div className={dashboardStyles.itemInfo}>
-                            <span className={dashboardStyles.itemName}>{item.name}</span>
-                            <span className={dashboardStyles.itemOwner}>
+                          <div className={dashboardStyles.unifiedItemDetails}>
+                            <span className={dashboardStyles.unifiedItemName}>
+                              {item.name}
+                              {isNew && (
+                                <span className={dashboardStyles.newBadgeInline}>New</span>
+                              )}
+                            </span>
+                            <span className={dashboardStyles.unifiedItemMeta}>
                               {item.owner?.name || "Unknown"}
                             </span>
                           </div>
-                        </Link>
-                      );
-                    })}
+                        </div>
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <div className={dashboardStyles.unifiedSectionEmpty}>
+                    No recent items
                   </div>
-                </section>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Right column: Members */}
-            <div className={dashboardStyles.dashboardColumn}>
-              {/* Recently Joined Households */}
-              {recentMembers.length > 0 && (
-                <section className={dashboardStyles.section}>
-                  <div className={dashboardStyles.sectionHeader}>
-                    <h2 className={dashboardStyles.sectionTitle}>
-                      Recently Joined Households
-                    </h2>
-                    <Link
-                      href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                      className={dashboardStyles.seeAllLink}
-                    >
-                      See all &rarr;
-                    </Link>
-                  </div>
-                  <div className={dashboardStyles.memberList}>
-                    {recentMembers.slice(0, 5).map((membership: any) => {
-                      const isNew =
-                        membership.joined_at &&
-                        isWithinDays(membership.joined_at, 14);
-                      return (
-                        <Link
-                          key={membership.id}
-                          href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
-                          className={dashboardStyles.memberRow}
-                        >
-                          <div className={dashboardStyles.memberInfo}>
-                            {membership.user?.avatar_url ? (
-                              <Image
-                                src={membership.user.avatar_url}
-                                alt={membership.user.name || "Member"}
-                                width={40}
-                                height={40}
-                                className={dashboardStyles.memberAvatar}
-                              />
-                            ) : (
-                              <div className={dashboardStyles.memberAvatarPlaceholder}>
-                                {getInitial(membership.user?.name)}
-                              </div>
-                            )}
-                            <div className={dashboardStyles.memberDetails}>
-                              <span className={dashboardStyles.memberName}>
-                                {membership.user?.name || "Unknown"}
-                                {isNew && (
-                                  <span className={dashboardStyles.newBadgeInline}>New</span>
+            {/* Directory Section */}
+            <div className={dashboardStyles.unifiedSection}>
+              <Link
+                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                className={dashboardStyles.unifiedSectionHeader}
+              >
+                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
+                  <span className={dashboardStyles.unifiedSectionIcon}>👥</span>
+                  <h2 className={dashboardStyles.unifiedSectionTitle}>Directory</h2>
+                </div>
+                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
+              </Link>
+              <div className={dashboardStyles.unifiedSectionContent}>
+                {recentMembers.length > 0 ? (
+                  recentMembers.slice(0, 3).map((membership: any) => {
+                    const isNew = membership.joined_at && isWithinDays(membership.joined_at, 14);
+                    return (
+                      <Link
+                        key={membership.id}
+                        href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
+                        className={dashboardStyles.unifiedItemRow}
+                      >
+                        <div className={dashboardStyles.unifiedItemInfo}>
+                          {membership.user?.avatar_url ? (
+                            <Image
+                              src={membership.user.avatar_url}
+                              alt={membership.user.name || "Member"}
+                              width={32}
+                              height={32}
+                              className={dashboardStyles.unifiedItemAvatar}
+                            />
+                          ) : (
+                            <div className={dashboardStyles.unifiedItemAvatarPlaceholder}>
+                              {getInitial(membership.user?.name)}
+                            </div>
+                          )}
+                          <div className={dashboardStyles.unifiedItemDetails}>
+                            <span className={dashboardStyles.unifiedItemName}>
+                              {membership.user?.name || "Unknown"}
+                              {isNew && (
+                                <span className={dashboardStyles.newBadgeInline}>New</span>
+                              )}
+                            </span>
+                            {membership.joined_at && (
+                              <span className={dashboardStyles.unifiedItemMeta}>
+                                Joined{" "}
+                                {new Date(membership.joined_at).toLocaleDateString(
+                                  "en-US",
+                                  { month: "short", day: "numeric" }
                                 )}
                               </span>
-                              {membership.joined_at && (
-                                <span className={dashboardStyles.memberJoinDate}>
-                                  Joined{" "}
-                                  {new Date(
-                                    membership.joined_at,
-                                  ).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </span>
-                              )}
-                            </div>
+                            )}
                           </div>
-                          <span className={dashboardStyles.memberArrow}>&rarr;</span>
-                        </Link>
-                      );
-                    })}
+                        </div>
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <div className={dashboardStyles.unifiedSectionEmpty}>
+                    No recent households
                   </div>
-                </section>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </>
