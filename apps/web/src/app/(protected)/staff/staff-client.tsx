@@ -359,6 +359,15 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                     </div>
                   </div>
                   <div className={styles.userMeta}>
+                    {u.primaryNeighborhood && (
+                      <span className={styles.primaryBadge}>{u.primaryNeighborhood}</span>
+                    )}
+                    <span className={styles.membershipBadge}>
+                      {u.membershipCount}
+                    </span>
+                    <span className={styles.expandIcon}>
+                      {expandedUserId === u.id ? "−" : "+"}
+                    </span>
                     <button
                       className={styles.impersonateButton}
                       onClick={(e) => {
@@ -371,15 +380,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                     >
                       {isImpersonating ? "..." : "Act as User"}
                     </button>
-                    <span className={styles.membershipBadge}>
-                      {u.membershipCount} neighborhood{u.membershipCount !== 1 ? "s" : ""}
-                    </span>
-                    {u.primaryNeighborhood && (
-                      <span className={styles.primaryBadge}>{u.primaryNeighborhood}</span>
-                    )}
-                    <span className={styles.expandIcon}>
-                      {expandedUserId === u.id ? "−" : "+"}
-                    </span>
                   </div>
                 </div>
 
