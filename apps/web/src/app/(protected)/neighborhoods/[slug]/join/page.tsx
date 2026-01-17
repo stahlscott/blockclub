@@ -122,7 +122,7 @@ export default function JoinNeighborhoodPage() {
     if (requiresApproval) {
       setSuccess(true);
     } else {
-      router.push(`/neighborhoods/${slug}`);
+      router.push("/dashboard");
     }
 
     setSubmitting(false);
@@ -154,7 +154,7 @@ export default function JoinNeighborhoodPage() {
     if (requiresApproval) {
       setSuccess(true);
     } else {
-      router.push(`/neighborhoods/${slug}`);
+      router.push("/dashboard");
     }
 
     setSubmitting(false);

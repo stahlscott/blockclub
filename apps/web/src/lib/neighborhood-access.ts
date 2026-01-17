@@ -106,7 +106,7 @@ export async function getNeighborhoodAccess(
   const hasAccess = (userIsStaffAdmin && !isImpersonating) || membership !== null;
 
   if (requireMembership && !hasAccess) {
-    redirect(`/neighborhoods/${slug}`);
+    redirect(`/join/${slug}`);
   }
 
   return {

@@ -51,7 +51,7 @@ export default async function PendingMembersPage({ params }: Props) {
   const userIsStaffAdmin = isStaffAdmin(user.email);
 
   if (!isNeighborhoodAdmin && !userIsStaffAdmin) {
-    redirect(`/neighborhoods/${slug}`);
+    redirect("/dashboard");
   }
 
   // Fetch pending memberships

@@ -54,7 +54,7 @@ export default function PublicJoinPage() {
           .select("*")
           .eq("neighborhood_id", neighborhoodData.id)
           .eq("user_id", authUser.id)
-          .single();
+          .maybeSingle();
 
         if (membershipData) {
           setExistingMembership(membershipData);
@@ -103,14 +103,17 @@ export default function PublicJoinPage() {
       }
     }
 
-    const requiresApproval = neighborhood.settings?.require_approval !== false;
-
-    const { error: joinError } = await supabase.from("memberships").insert({
-      user_id: user.id,
-      neighborhood_id: neighborhood.id,
-      role: "member",
-      status: requiresApproval ? "pending" : "active",
-    });
+    // Always insert as pending - database AFTER INSERT trigger handles auto-approval
+    const { data: inserted, error: joinError } = await supabase
+      .from("memberships")
+      .insert({
+        user_id: user.id,
+        neighborhood_id: neighborhood.id,
+        role: "member",
+        status: "pending",
+      })
+      .select("id")
+      .single();
 
     if (joinError) {
       setError(joinError.message);
@@ -118,10 +121,18 @@ export default function PublicJoinPage() {
       return;
     }
 
-    if (requiresApproval) {
-      setSuccess(true);
+    // Re-fetch to get the status after the AFTER INSERT trigger ran
+    const { data: membership } = await supabase
+      .from("memberships")
+      .select("status")
+      .eq("id", inserted.id)
+      .single();
+
+    // Check if trigger promoted to active
+    if (membership?.status === "active") {
+      router.push("/dashboard");
     } else {
-      router.push(`/neighborhoods/${slug}`);
+      setSuccess(true);
     }
 
     setSubmitting(false);
@@ -134,7 +145,19 @@ export default function PublicJoinPage() {
     setError(null);
 
     const supabase = createClient();
-    const requiresApproval = neighborhood.settings?.require_approval !== false;
+
+    // For rejoin (UPDATE), we keep the app logic since the INSERT trigger won't fire
+    // First member always gets auto-approved, even if require_approval is true
+    const { count: activeMemberCount } = await supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "active")
+      .is("deleted_at", null);
+
+    const isFirstMember = activeMemberCount === 0;
+    const requiresApproval =
+      !isFirstMember && neighborhood.settings?.require_approval !== false;
 
     // Update existing membership status back to pending or active
     const { error: updateError } = await supabase
@@ -150,10 +173,10 @@ export default function PublicJoinPage() {
       return;
     }
 
-    if (requiresApproval) {
-      setSuccess(true);
+    if (!requiresApproval) {
+      router.push("/dashboard");
     } else {
-      router.push(`/neighborhoods/${slug}`);
+      setSuccess(true);
     }
 
     setSubmitting(false);

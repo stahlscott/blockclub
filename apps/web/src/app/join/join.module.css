@@ -78,6 +78,7 @@
 
 .primaryButton {
   display: block;
+  width: 100%;
   background-color: var(--color-primary);
   color: var(--color-surface);
   padding: 0.875rem var(--space-8);
@@ -87,6 +88,7 @@
   border: none;
   font-size: var(--font-size-base);
   cursor: pointer;
+  text-align: center;
   transition: background-color 0.15s ease;
 }
 
@@ -101,6 +103,7 @@
 
 .secondaryButton {
   display: block;
+  width: 100%;
   background-color: var(--color-background);
   color: var(--color-text);
   padding: 0.875rem var(--space-8);
@@ -110,6 +113,7 @@
   border: none;
   font-size: var(--font-size-base);
   cursor: pointer;
+  text-align: center;
 }
 
 .secondaryButton:hover {
