@@ -110,9 +110,10 @@
 /* Post image */
 .postImageButton {
   display: block;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   padding: 0;
-  margin: 0;
+  margin: 0 0 var(--space-4) 0;
   background: none;
   border: none;
   cursor: pointer;
@@ -126,7 +127,6 @@
 }
 
 .postImageContainer {
-  margin-bottom: var(--space-4);
   border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;

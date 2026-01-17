@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -86,7 +86,7 @@ export function PostsClient({
   const [error, setError] = useState("");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
-  async function toggleReaction(postId: string, reactionType: PostReactionType) {
+  const toggleReaction = useCallback(async (postId: string, reactionType: PostReactionType) => {
     const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
@@ -127,9 +127,9 @@ export function PostsClient({
     } finally {
       setLoadingReaction(null);
     }
-  }
+  }, [posts, currentUserId, router]);
 
-  async function handleDelete(postId: string) {
+  const handleDelete = useCallback(async (postId: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
 
     setDeletingPost(postId);
@@ -153,9 +153,9 @@ export function PostsClient({
     } finally {
       setDeletingPost(null);
     }
-  }
+  }, [router]);
 
-  async function handleTogglePin(postId: string, currentlyPinned: boolean) {
+  const handleTogglePin = useCallback(async (postId: string, currentlyPinned: boolean) => {
     setError("");
 
     try {
@@ -173,7 +173,7 @@ export function PostsClient({
       logger.error("Error toggling pin", err, { postId });
       setError("Failed to update pin status");
     }
-  }
+  }, [router]);
 
   if (posts.length === 0) {
     return (
@@ -261,7 +261,7 @@ interface PostCardProps {
   onImageClick: (imageUrl: string) => void;
 }
 
-function PostCard({
+const PostCard = memo(function PostCard({
   post,
   currentUserId,
   isAdmin,
@@ -331,10 +331,10 @@ function PostCard({
             <OptimizedImage
               src={post.image_url}
               alt="Post image"
-              width={400}
-              height={300}
+              width={800}
+              height={600}
               className={styles.postImage}
-              borderRadius="var(--radius-md)"
+              borderRadius="var(--radius-lg)"
             />
           </div>
         </button>
@@ -404,4 +404,4 @@ function PostCard({
       )}
     </article>
   );
-}
+});

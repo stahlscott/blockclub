@@ -2,11 +2,22 @@
 .wrapper {
   position: relative;
   overflow: hidden;
+  display: grid;
+}
+
+/* Stack skeleton and image in same grid cell */
+.wrapper > * {
+  grid-area: 1 / 1;
+}
+
+/* Image fills wrapper width, height is natural */
+.wrapper img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .skeleton {
-  position: absolute;
-  inset: 0;
   background: linear-gradient(
     90deg,
     var(--color-background) 25%,

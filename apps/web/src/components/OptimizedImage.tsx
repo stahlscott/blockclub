@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import styles from "./OptimizedImage.module.css";
 
 interface OptimizedImageProps {
@@ -37,6 +37,13 @@ export function OptimizedImage({
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check if image is already cached/loaded on mount
+  const handleImageRef = useCallback((img: HTMLImageElement | null) => {
+    if (img?.complete && img.naturalWidth > 0) {
+      setIsLoading(false);
+    }
+  }, []);
+
   if (!src || error) {
     return fallback ?? null;
   }
@@ -57,11 +64,10 @@ export function OptimizedImage({
     );
   }
 
-  // With loading state wrapper
+  // With loading state wrapper - grid stacks skeleton and image
   return (
     <div
       className={`${styles.wrapper} ${wrapperClassName || ""}`}
-      style={{ width, height }}
     >
       {isLoading && (
         <div
@@ -70,6 +76,7 @@ export function OptimizedImage({
         />
       )}
       <Image
+        ref={handleImageRef}
         src={src}
         alt={alt}
         width={width}
