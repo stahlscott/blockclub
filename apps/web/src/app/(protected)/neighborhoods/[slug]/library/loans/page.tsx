@@ -12,9 +12,10 @@ export default async function MyLoansPage({ params }: Props) {
   const { user, supabase } = await getNeighborhoodAccess(slug);
 
   // Fetch loans where user is borrower
+  // Note: Use FK hints for ambiguous relationships
   const { data: borrowedLoans } = await supabase
     .from("loans")
-    .select("*, item:items(id, name, photo_urls, owner:users(id, name))")
+    .select("*, item:items!loans_item_id_fkey(id, name, photo_urls, owner:users!items_owner_id_fkey(id, name))")
     .eq("borrower_id", user.id)
     .order("requested_at", { ascending: false });
 

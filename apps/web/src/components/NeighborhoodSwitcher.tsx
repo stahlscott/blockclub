@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
+import { useState, useRef, useEffect, useTransition } from "react";
+import { switchNeighborhood } from "@/app/actions/neighborhood";
 import styles from "./NeighborhoodSwitcher.module.css";
 
 interface Neighborhood {
@@ -14,16 +13,14 @@ interface Neighborhood {
 interface NeighborhoodSwitcherProps {
   neighborhoods: Neighborhood[];
   currentNeighborhoodId: string;
-  userId: string;
 }
 
 export function NeighborhoodSwitcher({
   neighborhoods,
   currentNeighborhoodId,
-  userId,
 }: NeighborhoodSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentNeighborhood = neighborhoods.find(
@@ -51,23 +48,15 @@ export function NeighborhoodSwitcher({
       return;
     }
 
-    setIsUpdating(true);
     setIsOpen(false);
-    const supabase = createClient();
 
-    const { error } = await supabase
-      .from("users")
-      .update({ primary_neighborhood_id: neighborhoodId })
-      .eq("id", userId);
-
-    if (error) {
-      logger.error("Failed to update primary neighborhood", error);
-      setIsUpdating(false);
-      return;
-    }
-
-    // Hard refresh to reload server components with new data
-    window.location.reload();
+    startTransition(async () => {
+      const result = await switchNeighborhood(neighborhoodId);
+      if (result.success) {
+        // Hard refresh to reload server components with new data
+        window.location.reload();
+      }
+    });
   };
 
   if (neighborhoods.length <= 1) {
@@ -84,10 +73,10 @@ export function NeighborhoodSwitcher({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={styles.trigger}
-        disabled={isUpdating}
+        disabled={isPending}
       >
         <span className={styles.neighborhoodName}>
-          {isUpdating ? "Switching..." : currentNeighborhood?.name || "Select Neighborhood"}
+          {isPending ? "Switching..." : currentNeighborhood?.name || "Select Neighborhood"}
         </span>
         <span className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}>
           &#9662;

@@ -1,13 +1,17 @@
+"use server";
+
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
 import { getImpersonationContext } from "@/lib/impersonation";
-import { ProfileForm } from "./profile-form";
+import { logger } from "@/lib/logger";
 
-export default async function ProfilePage() {
+export async function switchNeighborhood(neighborhoodId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
+  // Get authenticated user
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
@@ -17,36 +21,32 @@ export default async function ProfilePage() {
   }
 
   const userIsStaffAdmin = isStaffAdmin(authUser.email);
+
+  // Check for impersonation
   const impersonationContext = userIsStaffAdmin
     ? await getImpersonationContext()
     : null;
   const isImpersonating = impersonationContext?.isImpersonating ?? false;
 
-  // Determine the effective user ID
+  // Determine effective user ID (impersonated user or actual user)
   const effectiveUserId = isImpersonating && impersonationContext?.impersonatedUserId
     ? impersonationContext.impersonatedUserId
     : authUser.id;
 
-  // Use admin client when impersonating to bypass RLS
-  const queryClient = isImpersonating ? createAdminClient() : supabase;
+  // Use admin client for staff admins to bypass RLS
+  const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
 
-  // Fetch the profile
-  const { data: profile } = await queryClient
+  // Update the effective user's primary neighborhood
+  const { error } = await queryClient
     .from("users")
-    .select("*")
-    .eq("id", effectiveUserId)
-    .single();
+    .update({ primary_neighborhood_id: neighborhoodId })
+    .eq("id", effectiveUserId);
 
-  if (!profile) {
-    redirect("/signin");
+  if (error) {
+    logger.error("Failed to update primary neighborhood", error);
+    return { success: false, error: error.message };
   }
 
-  return (
-    <ProfileForm
-      userId={effectiveUserId}
-      profile={profile}
-      isImpersonating={isImpersonating}
-      impersonatedUserName={impersonationContext?.impersonatedUser?.name || null}
-    />
-  );
+  revalidatePath("/dashboard");
+  return { success: true };
 }

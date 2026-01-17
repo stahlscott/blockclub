@@ -2,19 +2,20 @@
 // This client bypasses Row-Level Security (RLS) policies
 // IMPORTANT: Only use this in server-side code for staff admin operations
 
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient, SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@blockclub/shared";
 import { env } from "@/lib/env";
 
 // Create a singleton admin client
-let adminClient: ReturnType<typeof createSupabaseClient> | null = null;
+let adminClient: SupabaseClient<Database> | null = null;
 
-export function createAdminClient() {
+export function createAdminClient(): SupabaseClient<Database> {
   if (!env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
 
   if (!adminClient) {
-    adminClient = createSupabaseClient(
+    adminClient = createSupabaseClient<Database>(
       env.SUPABASE_URL,
       env.SUPABASE_SERVICE_ROLE_KEY,
       {

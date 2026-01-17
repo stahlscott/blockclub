@@ -8,10 +8,24 @@ import styles from "./UserMenu.module.css";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
-  const { primaryNeighborhood, neighborhoods, switchNeighborhood, isAdmin, isStaffAdmin } = useNeighborhood();
+  const {
+    primaryNeighborhood,
+    neighborhoods,
+    switchNeighborhood,
+    isAdmin,
+    isStaffAdmin,
+    isImpersonating,
+    impersonatedUserName,
+    impersonatedUserEmail,
+  } = useNeighborhood();
   const [isOpen, setIsOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // When impersonating, show the impersonated user's info
+  const displayName = isImpersonating ? impersonatedUserName : null;
+  const displayEmail = isImpersonating ? impersonatedUserEmail : user?.email;
+  const displayInitial = displayName?.charAt(0)?.toUpperCase() || displayEmail?.charAt(0)?.toUpperCase() || "?";
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -49,8 +63,6 @@ export function UserMenu() {
     );
   }
 
-  // Get user initials for avatar placeholder
-  const userInitial = user.email?.charAt(0).toUpperCase() || "?";
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -73,7 +85,7 @@ export function UserMenu() {
         aria-label="User menu"
       >
         <div className={styles.avatar}>
-          {userInitial}
+          {displayInitial}
         </div>
       </button>
 
@@ -82,10 +94,15 @@ export function UserMenu() {
           {/* User info header */}
           <div className={styles.userHeader}>
             <div className={styles.avatarLarge}>
-              {userInitial}
+              {displayInitial}
             </div>
             <div className={styles.userInfo}>
-              <div className={styles.userEmail}>{user.email}</div>
+              {isImpersonating && displayName && (
+                <div className={styles.userName}>{displayName}</div>
+              )}
+              <div className={isImpersonating ? styles.userEmailSmall : styles.userEmail}>
+                {displayEmail}
+              </div>
               {primaryNeighborhood && (
                 <div className={styles.neighborhoodName}>{primaryNeighborhood.name}</div>
               )}
@@ -116,7 +133,7 @@ export function UserMenu() {
                 </Link>
               )}
               {isStaffAdmin && (
-                <Link href="/admin" className={styles.menuItem} onClick={handleLinkClick}>
+                <Link href="/staff" className={styles.menuItem} onClick={handleLinkClick}>
                   Staff Admin
                 </Link>
               )}

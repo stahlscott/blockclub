@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import styles from "./admin.module.css";
+import { startImpersonation } from "@/app/actions/impersonation";
+import styles from "./staff.module.css";
 import responsive from "@/app/responsive.module.css";
 
 interface Neighborhood {
@@ -33,7 +34,7 @@ interface User {
   memberships: UserMembership[];
 }
 
-interface AdminClientProps {
+interface StaffClientProps {
   neighborhoods: Neighborhood[];
   users: User[];
   stats: {
@@ -45,7 +46,7 @@ interface AdminClientProps {
 
 type Tab = "overview" | "neighborhoods" | "users";
 
-export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
+export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [userSearch, setUserSearch] = useState("");
@@ -71,6 +72,7 @@ export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
     newSlug: string;
   } | null>(null);
   const [isUpdatingSlug, setIsUpdatingSlug] = useState(false);
+  const [isImpersonating, startImpersonating] = useTransition();
 
   // Get neighborhood name by ID
   const getNeighborhoodName = (id: string) => {
@@ -387,6 +389,18 @@ export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
                     </div>
                   </div>
                   <div className={styles.userMeta}>
+                    <button
+                      className={styles.impersonateButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startImpersonating(() => {
+                          startImpersonation(u.id);
+                        });
+                      }}
+                      disabled={isImpersonating}
+                    >
+                      {isImpersonating ? "..." : "Act as User"}
+                    </button>
                     <span className={styles.membershipBadge}>
                       {u.membershipCount} neighborhood{u.membershipCount !== 1 ? "s" : ""}
                     </span>

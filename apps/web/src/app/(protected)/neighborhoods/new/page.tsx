@@ -15,5 +15,5 @@ export default async function NewNeighborhoodPage() {
     redirect("/dashboard");
   }
 
-  return <NewNeighborhoodForm userId={user.id} />;
+  return <NewNeighborhoodForm userId={user.id} userEmail={user.email || ""} />;
 }

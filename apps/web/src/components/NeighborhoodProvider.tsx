@@ -12,11 +12,23 @@ interface Neighborhood {
   slug: string;
 }
 
+interface ImpersonationState {
+  isImpersonating: boolean;
+  impersonatedUserId: string | null;
+  impersonatedUserName: string | null;
+  impersonatedUserEmail: string | null;
+  impersonatedUserAvatarUrl: string | null;
+}
+
 interface NeighborhoodContextType {
   primaryNeighborhood: Neighborhood | null;
   neighborhoods: Neighborhood[];
   isAdmin: boolean;
   isStaffAdmin: boolean;
+  isImpersonating: boolean;
+  impersonatedUserName: string | null;
+  impersonatedUserEmail: string | null;
+  impersonatedUserAvatarUrl: string | null;
   loading: boolean;
   switchNeighborhood: (neighborhoodId: string) => Promise<void>;
 }
@@ -26,11 +38,20 @@ const NeighborhoodContext = createContext<NeighborhoodContextType>({
   neighborhoods: [],
   isAdmin: false,
   isStaffAdmin: false,
+  isImpersonating: false,
+  impersonatedUserName: null,
+  impersonatedUserEmail: null,
+  impersonatedUserAvatarUrl: null,
   loading: true,
   switchNeighborhood: async () => {},
 });
 
-export function NeighborhoodProvider({ children }: { children: React.ReactNode }) {
+interface NeighborhoodProviderProps {
+  children: React.ReactNode;
+  impersonation?: ImpersonationState;
+}
+
+export function NeighborhoodProvider({ children, impersonation }: NeighborhoodProviderProps) {
   const { user } = useAuth();
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [primaryNeighborhood, setPrimaryNeighborhood] = useState<Neighborhood | null>(null);
@@ -38,6 +59,11 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
   const [isStaffAdmin, setIsStaffAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
+
+  // Determine which user ID to use for queries
+  const effectiveUserId = impersonation?.isImpersonating
+    ? impersonation.impersonatedUserId
+    : user?.id;
 
   useEffect(() => {
     if (!user) {
@@ -62,11 +88,21 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
         setIsStaffAdmin(false);
       }
 
+      // If staff admin and NOT impersonating, skip neighborhood fetching
+      // Staff admins without impersonation don't have neighborhoods
+      if (!effectiveUserId) {
+        setNeighborhoods([]);
+        setPrimaryNeighborhood(null);
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
       // Fetch user's profile with primary neighborhood
       const { data: profile } = await supabase
         .from("users")
         .select("primary_neighborhood_id")
-        .eq("id", user!.id)
+        .eq("id", effectiveUserId)
         .single();
 
       // Fetch user's active memberships with neighborhood data
@@ -76,7 +112,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
           role,
           neighborhood:neighborhoods(id, name, slug)
         `)
-        .eq("user_id", user!.id)
+        .eq("user_id", effectiveUserId)
         .eq("status", "active")
         .is("deleted_at", null);
 
@@ -121,7 +157,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
     }
 
     fetchNeighborhoodData();
-  }, [user, supabase]);
+  }, [user, supabase, effectiveUserId]);
 
   const switchNeighborhood = async (neighborhoodId: string) => {
     if (!user || neighborhoodId === primaryNeighborhood?.id) {
@@ -154,6 +190,10 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
         neighborhoods,
         isAdmin,
         isStaffAdmin,
+        isImpersonating: impersonation?.isImpersonating ?? false,
+        impersonatedUserName: impersonation?.impersonatedUserName ?? null,
+        impersonatedUserEmail: impersonation?.impersonatedUserEmail ?? null,
+        impersonatedUserAvatarUrl: impersonation?.impersonatedUserAvatarUrl ?? null,
         loading,
         switchNeighborhood,
       }}

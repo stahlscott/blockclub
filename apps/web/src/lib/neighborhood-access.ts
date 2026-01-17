@@ -5,6 +5,7 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
+import { getImpersonationContext } from "@/lib/impersonation";
 import type { User, Neighborhood, Membership } from "@blockclub/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -18,9 +19,13 @@ export interface NeighborhoodAccess {
 }
 
 /**
- * Get neighborhood access for a user, handling staff admin bypass.
+ * Get neighborhood access for a user, handling staff admin bypass and impersonation.
  *
- * For staff admins:
+ * For staff admins impersonating:
+ * - Returns admin client that bypasses RLS
+ * - Uses impersonated user's profile and memberships
+ *
+ * For staff admins (not impersonating):
  * - Returns admin client that bypasses RLS
  * - Does not require membership
  *
@@ -50,6 +55,17 @@ export async function getNeighborhoodAccess(
 
   const userIsStaffAdmin = isStaffAdmin(authUser.email);
 
+  // Check for impersonation
+  const impersonationContext = userIsStaffAdmin
+    ? await getImpersonationContext()
+    : null;
+  const isImpersonating = impersonationContext?.isImpersonating ?? false;
+
+  // Determine effective user ID (impersonated user or actual user)
+  const effectiveUserId = isImpersonating && impersonationContext?.impersonatedUserId
+    ? impersonationContext.impersonatedUserId
+    : authUser.id;
+
   // Use admin client for staff admins to bypass RLS
   const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
 
@@ -64,29 +80,30 @@ export async function getNeighborhoodAccess(
     notFound();
   }
 
-  // Fetch user profile
+  // Fetch user profile (impersonated user if impersonating)
   const { data: user } = await queryClient
     .from("users")
     .select("*")
-    .eq("id", authUser.id)
+    .eq("id", effectiveUserId)
     .single();
 
   if (!user) {
     redirect("/signin");
   }
 
-  // Check membership
+  // Check membership (for impersonated user if impersonating)
   const { data: membership } = await queryClient
     .from("memberships")
     .select("*")
     .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", authUser.id)
+    .eq("user_id", effectiveUserId)
     .eq("status", "active")
     .is("deleted_at", null)
     .single();
 
   // Determine if user has access
-  const hasAccess = userIsStaffAdmin || membership !== null;
+  // Staff admins always have access, impersonating users need membership
+  const hasAccess = (userIsStaffAdmin && !isImpersonating) || membership !== null;
 
   if (requireMembership && !hasAccess) {
     redirect(`/neighborhoods/${slug}`);
@@ -97,7 +114,7 @@ export async function getNeighborhoodAccess(
     neighborhood,
     membership,
     isStaffAdmin: userIsStaffAdmin,
-    isNeighborhoodAdmin: membership?.role === "admin" || userIsStaffAdmin,
+    isNeighborhoodAdmin: membership?.role === "admin" || (userIsStaffAdmin && !isImpersonating),
     supabase: queryClient,
   };
 }

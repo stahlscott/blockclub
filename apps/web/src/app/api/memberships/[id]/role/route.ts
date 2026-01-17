@@ -83,11 +83,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 
   // Update the role
+  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
   const { data: updatedMembership, error: updateError } = await supabase
     .from("memberships")
     .update({ role })
     .eq("id", membershipId)
-    .select("*, neighborhood:neighborhoods(*), user:users(*)")
+    .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
     .single();
 
   if (updateError) {

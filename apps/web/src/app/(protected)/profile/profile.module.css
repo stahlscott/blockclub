@@ -29,9 +29,19 @@
 }
 
 .title {
-  margin: 0 0 var(--space-6) 0;
+  margin: 0 0 var(--space-2) 0;
   font-size: 1.5rem;
   font-weight: var(--font-weight-semibold);
+}
+
+.impersonationNote {
+  margin: 0 0 var(--space-4) 0;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-warning-light, #fef3c7);
+  border-left: 3px solid var(--color-warning, #f59e0b);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-warning-text, #92400e);
 }
 
 /* Form */

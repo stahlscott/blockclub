@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
-import { AdminClient } from "./admin-client";
+import { StaffClient } from "./staff-client";
 
 // Types for admin queries
 interface NeighborhoodRow {
@@ -22,7 +22,7 @@ interface UserRow {
   memberships: { id: string; neighborhood_id: string; status: string }[];
 }
 
-export default async function AdminPage() {
+export default async function StaffPage() {
   const supabase = await createClient();
 
   const {
@@ -35,7 +35,7 @@ export default async function AdminPage() {
 
   // Only staff admins can access this page
   if (!isStaffAdmin(user.email)) {
-    logger.warn("Non-staff admin attempted to access /admin", { userId: user.id, email: user.email });
+    logger.warn("Non-staff admin attempted to access /staff", { userId: user.id, email: user.email });
     redirect("/dashboard");
   }
 
@@ -43,9 +43,10 @@ export default async function AdminPage() {
   const adminSupabase = createAdminClient();
 
   // Fetch statistics
+  // Note: Use !memberships_user_id_fkey to specify which FK to use (there are multiple user references)
   const [neighborhoodsResult, usersResult, itemsResult] = await Promise.all([
     adminSupabase.from("neighborhoods").select("*"),
-    adminSupabase.from("users").select("*, memberships(id, neighborhood_id, status)"),
+    adminSupabase.from("users").select("*, memberships!memberships_user_id_fkey(id, neighborhood_id, status)"),
     adminSupabase.from("items").select("*", { count: "exact", head: true }),
   ]);
 
@@ -113,13 +114,16 @@ export default async function AdminPage() {
     };
   });
 
+  // Filter out staff admins from the user list - they shouldn't appear in the user list
+  const nonStaffUsers = enrichedUsers.filter((u) => !isStaffAdmin(u.email));
+
   return (
-    <AdminClient
+    <StaffClient
       neighborhoods={enrichedNeighborhoods}
-      users={enrichedUsers}
+      users={nonStaffUsers}
       stats={{
         neighborhoodCount: neighborhoods.length,
-        userCount: users.length,
+        userCount: nonStaffUsers.length,
         totalItems,
       }}
     />

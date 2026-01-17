@@ -10,7 +10,23 @@ import styles from "./Header.module.css";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
-  const { primaryNeighborhood, neighborhoods, loading: neighborhoodLoading, switchNeighborhood, isAdmin, isStaffAdmin } = useNeighborhood();
+  const {
+    primaryNeighborhood,
+    neighborhoods,
+    loading: neighborhoodLoading,
+    switchNeighborhood,
+    isAdmin,
+    isStaffAdmin,
+    isImpersonating,
+    impersonatedUserName,
+    impersonatedUserEmail,
+    impersonatedUserAvatarUrl,
+  } = useNeighborhood();
+
+  // When impersonating, show the impersonated user's info
+  const displayName = isImpersonating ? impersonatedUserName : null;
+  const displayEmail = isImpersonating ? impersonatedUserEmail : user?.email;
+  const displayInitial = displayName?.charAt(0)?.toUpperCase() || displayEmail?.charAt(0)?.toUpperCase() || "?";
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileSwitcher, setShowMobileSwitcher] = useState(false);
@@ -21,6 +37,9 @@ export function Header() {
 
   // Use URL slug if present, otherwise fall back to primary neighborhood
   const activeSlug = urlSlug || primaryNeighborhood?.slug;
+
+  // Staff admins without impersonation shouldn't see neighborhood nav
+  const shouldShowNeighborhoodNav = activeSlug && (!isStaffAdmin || isImpersonating);
 
   // Build neighborhood-specific links
   const postsLink = activeSlug ? `/neighborhoods/${activeSlug}/posts` : null;
@@ -53,7 +72,8 @@ export function Header() {
           ) : user ? (
             <>
               {/* Neighborhood navigation - show if viewing a neighborhood or user has one */}
-              {activeSlug && (
+              {/* Staff admins without impersonation don't see this */}
+              {shouldShowNeighborhoodNav && (
                 <div className={styles.neighborhoodNav}>
                   <Link
                     href={postsLink!}
@@ -104,10 +124,13 @@ export function Header() {
               {/* User info section */}
               <div className={styles.mobileUserSection}>
                 <div className={styles.mobileAvatar}>
-                  {user.email?.charAt(0).toUpperCase() || "?"}
+                  {displayInitial}
                 </div>
                 <div className={styles.mobileUserInfo}>
-                  <div className={styles.mobileUserEmail}>{user.email}</div>
+                  {isImpersonating && displayName && (
+                    <div className={styles.mobileUserName}>{displayName}</div>
+                  )}
+                  <div className={styles.mobileUserEmail}>{displayEmail}</div>
                   {primaryNeighborhood && (
                     <div className={styles.mobileNeighborhoodName}>{primaryNeighborhood.name}</div>
                   )}
@@ -120,7 +143,7 @@ export function Header() {
               <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                 Dashboard
               </Link>
-              {activeSlug && (
+              {shouldShowNeighborhoodNav && (
                 <>
                   <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                     Posts
@@ -158,7 +181,7 @@ export function Header() {
                     </Link>
                   )}
                   {isStaffAdmin && (
-                    <Link href="/admin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                    <Link href="/staff" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                       Staff Admin
                     </Link>
                   )}

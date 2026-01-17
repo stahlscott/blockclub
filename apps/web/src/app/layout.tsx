@@ -3,6 +3,8 @@ import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import { NeighborhoodProvider } from "@/components/NeighborhoodProvider";
 import { Header } from "@/components/Header";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { getImpersonationContext } from "@/lib/impersonation";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -23,11 +25,22 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const impersonationContext = await getImpersonationContext();
+  const impersonation = impersonationContext
+    ? {
+        isImpersonating: impersonationContext.isImpersonating,
+        impersonatedUserId: impersonationContext.impersonatedUserId,
+        impersonatedUserName: impersonationContext.impersonatedUser?.name || null,
+        impersonatedUserEmail: impersonationContext.impersonatedUser?.email || null,
+        impersonatedUserAvatarUrl: impersonationContext.impersonatedUser?.avatar_url || null,
+      }
+    : undefined;
+
   return (
     <html lang="en" className={nunito.variable}>
       <body style={{
@@ -37,7 +50,12 @@ export default function RootLayout({
         flexDirection: "column",
       }}>
         <AuthProvider>
-          <NeighborhoodProvider>
+          <NeighborhoodProvider impersonation={impersonation}>
+            {impersonationContext?.isImpersonating && impersonationContext.impersonatedUser && (
+              <ImpersonationBanner
+                impersonatedUser={impersonationContext.impersonatedUser}
+              />
+            )}
             <Header />
             <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>{children}</main>
           </NeighborhoodProvider>

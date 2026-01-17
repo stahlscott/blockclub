@@ -5,15 +5,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
+import { canHaveMemberships } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import styles from "./new-neighborhood.module.css";
 
 interface NewNeighborhoodFormProps {
   userId: string;
+  userEmail: string;
 }
 
-export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
+export function NewNeighborhoodForm({ userId, userEmail }: NewNeighborhoodFormProps) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -99,20 +101,26 @@ export function NewNeighborhoodForm({ userId }: NewNeighborhoodFormProps) {
       return;
     }
 
-    // Add creator as admin member
-    const { error: memberError } = await supabase.from("memberships").insert({
-      user_id: user.id,
-      neighborhood_id: neighborhood.id,
-      role: "admin",
-      status: "active",
-    });
+    // Add creator as admin member - but NOT for staff admins
+    // Staff admins access neighborhoods via impersonation, not membership
+    // The first non-staff user to join will become the admin via trigger
+    if (canHaveMemberships(userEmail)) {
+      const { error: memberError } = await supabase.from("memberships").insert({
+        user_id: user.id,
+        neighborhood_id: neighborhood.id,
+        role: "admin",
+        status: "active",
+      });
 
-    if (memberError) {
-      logger.error("Error creating membership", memberError);
-      // Don't block - neighborhood was created
+      if (memberError) {
+        logger.error("Error creating membership", memberError);
+        // Don't block - neighborhood was created
+      }
+      router.push("/dashboard");
+    } else {
+      // Staff admins go back to the staff panel
+      router.push("/staff");
     }
-
-    router.push("/dashboard");
   };
 
   return (

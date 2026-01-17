@@ -1,0 +1,120 @@
+/* ImpersonationBanner - Floating panel shown during impersonation */
+
+.banner {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: var(--color-accent);
+  border: 2px solid var(--color-accent-text);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.75rem 1rem;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-accent-text);
+}
+
+.userName {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.staffLink {
+  padding: 0.25rem 0.75rem;
+  background: white;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: background var(--transition-fast);
+}
+
+.staffLink:hover {
+  background: var(--color-primary-light);
+}
+
+.exitButton {
+  padding: 0.25rem 0.75rem;
+  background: var(--color-accent-text);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.exitButton:hover {
+  opacity: 0.9;
+}
+
+.exitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .banner {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .content {
+    justify-content: space-between;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    animation: none;
+  }
+}

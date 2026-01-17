@@ -55,9 +55,10 @@ export default async function PendingMembersPage({ params }: Props) {
   }
 
   // Fetch pending memberships
+  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
   const { data: pendingMembers } = await supabase
     .from("memberships")
-    .select("*, user:users(id, name, email, avatar_url, address)")
+    .select("*, user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)")
     .eq("neighborhood_id", neighborhood.id)
     .eq("status", "pending")
     .order("joined_at", { ascending: true });

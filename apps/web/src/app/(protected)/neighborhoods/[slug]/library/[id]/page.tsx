@@ -24,9 +24,10 @@ export default async function ItemDetailPage({ params }: Props) {
     await getNeighborhoodAccess(slug);
 
   // Fetch item with owner
+  // Note: Use FK hint for ambiguous relationship (items has multiple user FKs)
   const { data: item } = await supabase
     .from("items")
-    .select("*, owner:users(id, name, avatar_url, phone)")
+    .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url, phone)")
     .eq("id", id)
     .eq("neighborhood_id", neighborhood.id)
     .single();
@@ -42,9 +43,10 @@ export default async function ItemDetailPage({ params }: Props) {
   const canRemoveItem = isAdmin && !isOwner;
 
   // Fetch active loan for this item
+  // Note: Use FK hint for ambiguous relationship (loans has multiple user FKs)
   const { data: activeLoan } = await supabase
     .from("loans")
-    .select("*, borrower:users(id, name)")
+    .select("*, borrower:users!loans_borrower_id_fkey(id, name)")
     .eq("item_id", id)
     .in("status", ["requested", "approved", "active"])
     .single();

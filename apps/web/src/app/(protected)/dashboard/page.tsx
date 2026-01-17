@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
+import { getImpersonationContext } from "@/lib/impersonation";
 import { logger } from "@/lib/logger";
 import dashboardStyles from "./dashboard.module.css";
 
@@ -39,16 +41,32 @@ export default async function DashboardPage() {
   }
 
   const isUserStaffAdmin = isStaffAdmin(authUser.email);
+  const impersonationContext = await getImpersonationContext();
+
+  // Staff admins without impersonation should go to the staff panel
+  if (isUserStaffAdmin && !impersonationContext?.isImpersonating) {
+    redirect("/staff");
+  }
+
+  // Determine the effective user ID (impersonated or self)
+  const effectiveUserId = impersonationContext?.isImpersonating
+    ? impersonationContext.impersonatedUserId!
+    : authUser.id;
+
+  // Use admin client when impersonating to bypass RLS
+  const queryClient = impersonationContext?.isImpersonating
+    ? createAdminClient()
+    : supabase;
 
   // Fetch user profile
-  const { data: profile } = await supabase
+  const { data: profile } = await queryClient
     .from("users")
     .select("*")
-    .eq("id", authUser.id)
+    .eq("id", effectiveUserId)
     .single();
 
   // Fetch user's memberships with neighborhood details
-  const { data: memberships } = await supabase
+  const { data: memberships } = await queryClient
     .from("memberships")
     .select(
       `
@@ -56,11 +74,11 @@ export default async function DashboardPage() {
       neighborhood:neighborhoods(*)
     `,
     )
-    .eq("user_id", authUser.id)
+    .eq("user_id", effectiveUserId)
     .eq("status", "active");
 
   // Fetch pending membership requests (user's own pending requests to join)
-  const { data: pendingMemberships } = await supabase
+  const { data: pendingMemberships } = await queryClient
     .from("memberships")
     .select(
       `
@@ -68,26 +86,26 @@ export default async function DashboardPage() {
       neighborhood:neighborhoods(*)
     `,
     )
-    .eq("user_id", authUser.id)
+    .eq("user_id", effectiveUserId)
     .eq("status", "pending");
 
   // Fetch user's items (for loan request notifications)
-  const { data: userItems } = await supabase
+  const { data: userItems } = await queryClient
     .from("items")
     .select("id")
-    .eq("owner_id", authUser.id);
+    .eq("owner_id", effectiveUserId);
 
   // Fetch pending loan requests for user's items
   const itemIds = userItems?.map((i) => i.id) || [];
   let pendingLoanRequests: any[] = [];
   if (itemIds.length > 0) {
-    const { data: loans } = await supabase
+    const { data: loans } = await queryClient
       .from("loans")
       .select(
         `
         *,
-        item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
-        borrower:users(id, name)
+        item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
+        borrower:users!loans_borrower_id_fkey(id, name)
       `,
       )
       .in("item_id", itemIds)
@@ -97,15 +115,16 @@ export default async function DashboardPage() {
   }
 
   // Fetch user's active borrowed items
-  const { data: borrowedItems, error: borrowedError } = await supabase
+  // Note: Use FK hints for ambiguous relationships
+  const { data: borrowedItems, error: borrowedError } = await queryClient
     .from("loans")
     .select(
       `
       *,
-      item:items(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users(id, name))
+      item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users!items_owner_id_fkey(id, name))
     `,
     )
-    .eq("borrower_id", authUser.id)
+    .eq("borrower_id", effectiveUserId)
     .eq("status", "active")
     .order("start_date", { ascending: false });
 
@@ -137,31 +156,33 @@ export default async function DashboardPage() {
   let recentMembers: any[] = [];
   let recentPosts: any[] = [];
   let pendingMemberRequests = 0;
-  // Staff admins have admin privileges in all neighborhoods
-  const isAdmin =
-    primaryMembership?.role === "admin" || isStaffAdmin(authUser.email);
+  // Check admin status based on membership role (not staff admin)
+  // When impersonating, we inherit the impersonated user's permissions
+  const isAdmin = primaryMembership?.role === "admin";
 
   if (primaryNeighborhood) {
     // Fetch recently added items (last 14 days)
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-    const { data: items } = await supabase
+    const { data: items } = await queryClient
       .from("items")
-      .select("*, owner:users(name)")
+      .select("*, owner:users!items_owner_id_fkey(name)")
       .eq("neighborhood_id", primaryNeighborhood.id)
       .eq("availability", "available")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(8);
     recentItems = items || [];
 
     // Fetch recently joined members (last 14 days)
-    const { data: members } = await supabase
+    // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
+    const { data: members } = await queryClient
       .from("memberships")
       .select(
         `
         *,
-        user:users(id, name, email, avatar_url)
+        user:users!memberships_user_id_fkey(id, name, email, avatar_url)
       `,
       )
       .eq("neighborhood_id", primaryNeighborhood.id)
@@ -170,11 +191,11 @@ export default async function DashboardPage() {
       .limit(6);
     // Filter out staff admin users and current user from the recent members list
     recentMembers = (members || []).filter(
-      (m: any) => !isStaffAdmin(m.user?.email) && m.user_id !== authUser.id,
+      (m: any) => !isStaffAdmin(m.user?.email) && m.user_id !== effectiveUserId,
     );
 
     // Fetch recent posts
-    const { data: postsData } = await supabase
+    const { data: postsData } = await queryClient
       .from("posts")
       .select("*, author:users!author_id(id, name, avatar_url)")
       .eq("neighborhood_id", primaryNeighborhood.id)
@@ -185,7 +206,7 @@ export default async function DashboardPage() {
 
     // Fetch pending membership requests count (admin only)
     if (isAdmin) {
-      const { count } = await supabase
+      const { count } = await queryClient
         .from("memberships")
         .select("*", { count: "exact", head: true })
         .eq("neighborhood_id", primaryNeighborhood.id)
@@ -572,11 +593,6 @@ export default async function DashboardPage() {
               You haven&apos;t joined any neighborhoods yet. Ask a neighbor to
               share their invite link with you!
             </p>
-            {isUserStaffAdmin && (
-              <Link href="/neighborhoods/new" className={dashboardStyles.primaryButton}>
-                Create a Neighborhood
-              </Link>
-            )}
           </div>
         </section>
       )}

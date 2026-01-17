@@ -43,9 +43,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const adminSupabase = createAdminClient();
 
   // Fetch the membership to verify it exists and belongs to the specified user
+  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
   const { data: membershipData, error: fetchError } = await adminSupabase
     .from("memberships")
-    .select("*, user:users(name, email), neighborhood:neighborhoods(name)")
+    .select("*, user:users!memberships_user_id_fkey(name, email), neighborhood:neighborhoods(name)")
     .eq("id", membershipId)
     .eq("user_id", userId)
     .single();

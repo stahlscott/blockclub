@@ -41,10 +41,12 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
   // Fetch all items (no category filter) to determine available categories
+  // Note: Use !items_owner_id_fkey to specify which FK to use (there are multiple user references)
   const { data: allItems } = await supabase
     .from("items")
-    .select("*, owner:users(id, name, avatar_url)")
+    .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url)")
     .eq("neighborhood_id", neighborhood.id)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   // Compute which categories have items

@@ -11,12 +11,13 @@ export default async function DirectoryPage({ params }: Props) {
   const { neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
   // Fetch all active members with their user profiles
+  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
   const { data: members } = await supabase
     .from("memberships")
     .select(
       `
       *,
-      user:users(*)
+      user:users!memberships_user_id_fkey(*)
     `,
     )
     .eq("neighborhood_id", neighborhood.id)

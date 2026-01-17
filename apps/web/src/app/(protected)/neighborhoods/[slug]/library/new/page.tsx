@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { isStaffAdmin } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
+import { createItem } from "../actions";
 import type { ItemCategory } from "@blockclub/shared";
 import styles from "../library-forms.module.css";
 
@@ -34,7 +33,7 @@ export default function NewItemPage() {
   const [category, setCategory] = useState<ItemCategory>("other");
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
   // Load user ID on mount for photo uploads
@@ -54,76 +53,23 @@ export default function NewItemPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      const supabase = createClient();
-
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      // Get neighborhood ID
-      const { data: neighborhood } = await supabase
-        .from("neighborhoods")
-        .select("id")
-        .eq("slug", slug)
-        .single();
-
-      if (!neighborhood) {
-        setError("Neighborhood not found");
-        return;
-      }
-
-      // Check if user is staff admin
-      const userIsStaffAdmin = isStaffAdmin(user.email);
-
-      // Verify membership (staff admins bypass this check)
-      if (!userIsStaffAdmin) {
-        const { data: membership } = await supabase
-          .from("memberships")
-          .select("id")
-          .eq("neighborhood_id", neighborhood.id)
-          .eq("user_id", user.id)
-          .eq("status", "active")
-          .single();
-
-        if (!membership) {
-          setError("You must be a member to add items");
-          return;
-        }
-      }
-
-      // Create item
-      const { error: insertError } = await supabase.from("items").insert({
-        neighborhood_id: neighborhood.id,
-        owner_id: user.id,
-        name: name.trim(),
-        description: description.trim() || null,
+    startTransition(async () => {
+      const result = await createItem({
+        slug,
+        name,
+        description: description || null,
         category,
-        photo_urls: photoUrls,
-        availability: "available",
+        photoUrls,
       });
 
-      if (insertError) {
-        logger.error("Insert error", insertError);
-        setError(insertError.message);
-        return;
+      if (result.success) {
+        router.push(`/neighborhoods/${slug}/library`);
+        router.refresh();
+      } else {
+        setError(result.error || "Something went wrong. Please try again.");
       }
-
-      router.push(`/neighborhoods/${slug}/library`);
-      router.refresh();
-    } catch (err) {
-      logger.error("Error adding item", err);
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    });
   }
 
   return (
@@ -214,10 +160,10 @@ export default function NewItemPage() {
             </Link>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className={styles.submitButton}
             >
-              {loading ? "Adding..." : "Add Item"}
+              {isPending ? "Adding..." : "Add Item"}
             </button>
           </div>
         </form>
