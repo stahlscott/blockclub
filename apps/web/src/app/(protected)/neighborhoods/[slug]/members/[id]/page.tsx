@@ -1,8 +1,7 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { RoleActions } from "./role-actions";
 import { MoveOutActions } from "./move-out-actions";
 import profileStyles from "./member-profile.module.css";
@@ -19,38 +18,8 @@ interface Props {
 
 export default async function MemberProfilePage({ params }: Props) {
   const { slug, id } = await params;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/signin");
-  }
-
-  // Fetch neighborhood
-  const { data: neighborhood } = await supabase
-    .from("neighborhoods")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (!neighborhood) {
-    notFound();
-  }
-
-  // Check if current user is a member
-  const { data: currentMembership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
-
-  if (!currentMembership) {
-    redirect(`/neighborhoods/${slug}`);
-  }
+  const { user, neighborhood, membership, isStaffAdmin, isNeighborhoodAdmin, supabase } =
+    await getNeighborhoodAccess(slug);
 
   // Fetch the member's profile
   const { data: member } = await supabase
@@ -64,7 +33,7 @@ export default async function MemberProfilePage({ params }: Props) {
   }
 
   // Fetch member's membership for this neighborhood
-  const { data: membership } = await supabase
+  const { data: memberMembership } = await supabase
     .from("memberships")
     .select("*")
     .eq("neighborhood_id", neighborhood.id)
@@ -72,7 +41,7 @@ export default async function MemberProfilePage({ params }: Props) {
     .eq("status", "active")
     .single();
 
-  if (!membership) {
+  if (!memberMembership) {
     notFound();
   }
 
@@ -86,23 +55,21 @@ export default async function MemberProfilePage({ params }: Props) {
     .limit(6);
 
   const isOwnProfile = user.id === id;
-  const userIsStaffAdmin = isStaffAdmin(user.email);
-  const isNeighborhoodAdmin = currentMembership.role === "admin";
-  const isAdmin = isNeighborhoodAdmin || userIsStaffAdmin;
+  const isAdmin = isNeighborhoodAdmin || isStaffAdmin;
 
   // Determine role change permissions
   // Can promote: staff admin or neighborhood admin (if target is member)
   // Can demote: staff admin only (if target is admin)
   const canPromote =
-    (userIsStaffAdmin || isNeighborhoodAdmin) &&
-    membership.role === "member" &&
+    (isStaffAdmin || (membership?.role === "admin")) &&
+    memberMembership.role === "member" &&
     !isOwnProfile;
   const canDemote =
-    userIsStaffAdmin && membership.role === "admin" && !isOwnProfile;
+    isStaffAdmin && memberMembership.role === "admin" && !isOwnProfile;
 
   // Admins can mark any active member as moved out (except themselves)
   const canMarkMovedOut =
-    (userIsStaffAdmin || isNeighborhoodAdmin) && !isOwnProfile;
+    (isStaffAdmin || (membership?.role === "admin")) && !isOwnProfile;
 
   return (
     <div className={profileStyles.container}>
@@ -130,7 +97,7 @@ export default async function MemberProfilePage({ params }: Props) {
         <div className={profileStyles.profileInfo}>
           <h1 className={profileStyles.name}>
             {member.name}
-            {membership.role === "admin" && (
+            {memberMembership.role === "admin" && (
               <span className={profileStyles.adminBadge}>Admin</span>
             )}
           </h1>
@@ -288,7 +255,7 @@ export default async function MemberProfilePage({ params }: Props) {
 
       <div className={profileStyles.memberSince}>
         Member since{" "}
-        {new Date(membership.joined_at).toLocaleDateString("en-US", {
+        {new Date(memberMembership.joined_at).toLocaleDateString("en-US", {
           month: "long",
           year: "numeric",
         })}
@@ -299,8 +266,8 @@ export default async function MemberProfilePage({ params }: Props) {
           <div className={profileStyles.adminActionsRow}>
             {(canPromote || canDemote) && (
               <RoleActions
-                membershipId={membership.id}
-                currentRole={membership.role}
+                membershipId={memberMembership.id}
+                currentRole={memberMembership.role}
                 canPromote={canPromote}
                 canDemote={canDemote}
                 memberName={member.name}
@@ -308,7 +275,7 @@ export default async function MemberProfilePage({ params }: Props) {
             )}
             {canMarkMovedOut && (
               <MoveOutActions
-                membershipId={membership.id}
+                membershipId={memberMembership.id}
                 slug={slug}
                 canMarkMovedOut={canMarkMovedOut}
                 memberName={member.name}

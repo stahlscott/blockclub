@@ -15,11 +15,39 @@
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sectionTitle::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  background: var(--color-primary);
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .title {
   font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text);
+}
+
+.welcome {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-1) 0;
+  color: var(--color-text);
+}
+
+.neighborhoodName {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 0 0 var(--space-6) 0;
 }
 
@@ -102,10 +130,11 @@
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.15s ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .itemCard:hover {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
@@ -141,10 +170,10 @@
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
-  background-color: var(--color-success);
-  color: var(--color-surface);
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
   font-size: 0.625rem;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   text-transform: uppercase;
@@ -246,10 +275,10 @@
 }
 
 .newBadgeInline {
-  background-color: var(--color-success);
-  color: var(--color-surface);
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
   font-size: 0.625rem;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   text-transform: uppercase;
@@ -295,22 +324,38 @@
 
 /* Empty state */
 .emptyState {
-  background-color: var(--color-surface);
+  background: linear-gradient(180deg, var(--color-primary-light) 0%, var(--color-surface) 50%);
   border-radius: var(--radius-lg);
   padding: var(--space-12);
   text-align: center;
   box-shadow: var(--shadow-md);
 }
 
+.emptyIllustration {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-4);
+  background: var(--color-surface);
+  border-radius: 50%;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
 .emptyTitle {
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   margin: 0 0 var(--space-2) 0;
 }
 
 .emptyText {
   color: var(--color-text-secondary);
   margin-bottom: var(--space-6);
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .primaryButton {
@@ -322,10 +367,13 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .primaryButton:hover {
   background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
 }
 
 /* Banners */
@@ -357,18 +405,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   cursor: pointer;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
   color: inherit;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .actionCard:hover {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .actionIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--font-size-2xl);
 }
 

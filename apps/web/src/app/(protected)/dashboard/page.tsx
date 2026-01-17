@@ -218,7 +218,10 @@ export default async function DashboardPage() {
   return (
     <div className={dashboardStyles.container}>
       {primaryNeighborhood && (
-        <h1 className={dashboardStyles.title}>{primaryNeighborhood.name}</h1>
+        <div>
+          <h1 className={dashboardStyles.welcome}>Welcome back!</h1>
+          <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
+        </div>
       )}
 
       {/* Borrow Requests Banner */}
@@ -603,6 +606,7 @@ export default async function DashboardPage() {
       ) : (
         <section className={dashboardStyles.section}>
           <div className={dashboardStyles.emptyState}>
+            <div className={dashboardStyles.emptyIllustration}>🏘️</div>
             <h2 className={dashboardStyles.emptyTitle}>No neighborhoods yet</h2>
             <p className={dashboardStyles.emptyText}>
               You haven&apos;t joined any neighborhoods yet. Ask a neighbor to

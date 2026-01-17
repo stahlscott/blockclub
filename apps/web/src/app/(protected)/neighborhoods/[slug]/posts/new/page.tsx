@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import styles from "../post-form.module.css";
@@ -60,19 +61,24 @@ export default function NewPostPage() {
         return;
       }
 
-      // Verify membership
-      const { data: membership } = await supabase
-        .from("memberships")
-        .select("id")
-        .eq("neighborhood_id", neighborhood.id)
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .is("deleted_at", null)
-        .single();
+      // Check if user is staff admin
+      const userIsStaffAdmin = isStaffAdmin(user.email);
 
-      if (!membership) {
-        setError("You must be a member to post");
-        return;
+      // Verify membership (staff admins bypass this check)
+      if (!userIsStaffAdmin) {
+        const { data: membership } = await supabase
+          .from("memberships")
+          .select("id")
+          .eq("neighborhood_id", neighborhood.id)
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .is("deleted_at", null)
+          .single();
+
+        if (!membership) {
+          setError("You must be a member to post");
+          return;
+        }
       }
 
       // Create post

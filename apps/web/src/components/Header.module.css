@@ -104,6 +104,7 @@
   background: none;
   border: none;
   font-size: var(--font-size-2xl);
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   line-height: 1;

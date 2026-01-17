@@ -1,7 +1,6 @@
-import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import type { ItemCategory } from "@blockclub/shared";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
@@ -39,38 +38,7 @@ function getCategoriesWithItems(
 export default async function LibraryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { category, search } = await searchParams;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/signin");
-  }
-
-  // Fetch neighborhood
-  const { data: neighborhood } = await supabase
-    .from("neighborhoods")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (!neighborhood) {
-    notFound();
-  }
-
-  // Check if user is a member
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
-
-  if (!membership) {
-    redirect(`/neighborhoods/${slug}`);
-  }
+  const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
   // Fetch all items (no category filter) to determine available categories
   const { data: allItems } = await supabase
@@ -115,6 +83,22 @@ export default async function LibraryPage({ params, searchParams }: Props) {
       default:
         return libraryStyles.unavailableTag;
     }
+  };
+
+  const getCategoryClass = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      tools: libraryStyles.cardTools,
+      kitchen: libraryStyles.cardKitchen,
+      outdoor: libraryStyles.cardOutdoor,
+      baby: libraryStyles.cardBaby,
+      books: libraryStyles.cardBooks,
+      electronics: libraryStyles.cardElectronics,
+      games: libraryStyles.cardGames,
+      sports: libraryStyles.cardSports,
+      travel: libraryStyles.cardTravel,
+      other: libraryStyles.cardOther,
+    };
+    return categoryMap[category] || "";
   };
 
   return (
@@ -177,7 +161,7 @@ export default async function LibraryPage({ params, searchParams }: Props) {
             <Link
               key={item.id}
               href={`/neighborhoods/${slug}/library/${item.id}`}
-              className={libraryStyles.card}
+              className={`${libraryStyles.card} ${getCategoryClass(item.category)}`}
             >
               {item.photo_urls && item.photo_urls.length > 0 ? (
                 <div className={libraryStyles.imageContainer}>
@@ -215,10 +199,11 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         </div>
       ) : (
         <div className={libraryStyles.empty}>
+          <div className={libraryStyles.emptyIllustration}>📚</div>
           <p className={libraryStyles.emptyText}>
             {search || category
               ? "No items match your search."
-              : "No items in the library yet."}
+              : "Your neighbors haven't shared any items yet. Be the first!"}
           </p>
           <Link
             href={`/neighborhoods/${slug}/library/new`}

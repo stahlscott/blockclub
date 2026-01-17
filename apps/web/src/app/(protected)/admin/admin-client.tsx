@@ -288,8 +288,8 @@ export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
             <div className={styles.tableHeader}>
               <span className={styles.colName}>Name</span>
               <span className={styles.colSlug}>Slug</span>
-              <span className={styles.colCount}>Members</span>
-              <span className={styles.colCount}>Items</span>
+              <span className={`${styles.colCount} ${styles.colMembers}`}>Members</span>
+              <span className={`${styles.colCount} ${styles.colItems}`}>Items</span>
               <span className={styles.colDate}>Created</span>
               <span className={styles.colActions}>Actions</span>
             </div>
@@ -306,8 +306,8 @@ export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
                     Edit
                   </button>
                 </span>
-                <span className={styles.colCount}>{n.memberCount}</span>
-                <span className={styles.colCount}>{n.itemCount}</span>
+                <span className={`${styles.colCount} ${styles.colMembers}`}>{n.memberCount}</span>
+                <span className={`${styles.colCount} ${styles.colItems}`}>{n.itemCount}</span>
                 <span className={styles.colDate}>
                   {new Date(n.created_at).toLocaleDateString("en-US", {
                     month: "short",
@@ -316,6 +316,12 @@ export function AdminClient({ neighborhoods, users, stats }: AdminClientProps) {
                   })}
                 </span>
                 <span className={styles.colActions}>
+                  <Link
+                    href={`/neighborhoods/${n.slug}/posts`}
+                    className={styles.actionLink}
+                  >
+                    View
+                  </Link>
                   <Link
                     href={`/neighborhoods/${n.slug}/settings`}
                     className={styles.actionLink}
