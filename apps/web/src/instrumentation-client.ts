@@ -57,3 +57,6 @@ Sentry.init({
   // Only enable Sentry when DSN is configured
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
 });
+
+// Export hook for Next.js App Router navigation instrumentation
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
