@@ -223,6 +223,7 @@
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
 .contactIcon {
@@ -246,6 +247,8 @@
   color: var(--color-primary);
   text-align: center;
   text-decoration: none;
+  max-width: 100%;
+  word-break: break-all;
 }
 
 .contactLink:hover {
