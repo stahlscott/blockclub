@@ -10,7 +10,7 @@ import styles from "./Header.module.css";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
-  const { primaryNeighborhood, neighborhoods, loading: neighborhoodLoading, switchNeighborhood } = useNeighborhood();
+  const { primaryNeighborhood, neighborhoods, loading: neighborhoodLoading, switchNeighborhood, isAdmin, isStaffAdmin } = useNeighborhood();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileSwitcher, setShowMobileSwitcher] = useState(false);
@@ -143,6 +143,27 @@ export function Header() {
               <Link href="/settings" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
                 Account Settings
               </Link>
+
+              {/* Admin links */}
+              {(isAdmin || isStaffAdmin) && (
+                <>
+                  <div className={styles.mobileDivider} />
+                  {isAdmin && primaryNeighborhood && (
+                    <Link
+                      href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
+                      className={styles.mobileNavLink}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Neighborhood Admin
+                    </Link>
+                  )}
+                  {isStaffAdmin && (
+                    <Link href="/admin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                      Staff Admin
+                    </Link>
+                  )}
+                </>
+              )}
 
               {/* Neighborhood switcher - only if multiple */}
               {neighborhoods.length > 1 && (

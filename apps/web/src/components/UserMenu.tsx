@@ -8,7 +8,7 @@ import styles from "./UserMenu.module.css";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
-  const { primaryNeighborhood, neighborhoods, switchNeighborhood } = useNeighborhood();
+  const { primaryNeighborhood, neighborhoods, switchNeighborhood, isAdmin, isStaffAdmin } = useNeighborhood();
   const [isOpen, setIsOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -101,6 +101,27 @@ export function UserMenu() {
           <Link href="/settings" className={styles.menuItem} onClick={handleLinkClick}>
             Account Settings
           </Link>
+
+          {/* Admin links */}
+          {(isAdmin || isStaffAdmin) && (
+            <>
+              <div className={styles.divider} />
+              {isAdmin && primaryNeighborhood && (
+                <Link
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
+                  className={styles.menuItem}
+                  onClick={handleLinkClick}
+                >
+                  Neighborhood Admin
+                </Link>
+              )}
+              {isStaffAdmin && (
+                <Link href="/admin" className={styles.menuItem} onClick={handleLinkClick}>
+                  Staff Admin
+                </Link>
+              )}
+            </>
+          )}
 
           {/* Neighborhood switcher - only show if multiple neighborhoods */}
           {neighborhoods.length > 1 && (

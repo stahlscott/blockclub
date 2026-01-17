@@ -134,8 +134,6 @@ export default async function DashboardPage() {
   }
 
   // Fetch neighborhood-specific data if user has a primary neighborhood
-  let memberCount = 0;
-  let itemsAvailable = 0;
   let recentItems: any[] = [];
   let recentMembers: any[] = [];
   let recentPosts: any[] = [];
@@ -145,24 +143,6 @@ export default async function DashboardPage() {
     primaryMembership?.role === "admin" || isStaffAdmin(authUser.email);
 
   if (primaryNeighborhood) {
-    // Fetch member count (excluding staff admins)
-    const { data: allMembers } = await supabase
-      .from("memberships")
-      .select("user:users(email)")
-      .eq("neighborhood_id", primaryNeighborhood.id)
-      .eq("status", "active");
-    memberCount = (allMembers || []).filter(
-      (m: any) => !isStaffAdmin(m.user?.email),
-    ).length;
-
-    // Fetch items available count
-    const { count: iCount } = await supabase
-      .from("items")
-      .select("*", { count: "exact", head: true })
-      .eq("neighborhood_id", primaryNeighborhood.id)
-      .eq("availability", "available");
-    itemsAvailable = iCount || 0;
-
     // Fetch recently added items (last 14 days)
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
@@ -621,60 +601,6 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Admin Section */}
-      {isAdmin && primaryNeighborhood && (
-        <section className={dashboardStyles.section}>
-          <h2
-            className={dashboardStyles.sectionTitle}
-            style={{ marginBottom: "1rem" }}
-          >
-            Admin
-          </h2>
-          <div className={responsive.statsRow} style={{ marginBottom: "1rem" }}>
-            <div className={dashboardStyles.stat}>
-              <span className={dashboardStyles.statValue}>{memberCount}</span>
-              <span className={dashboardStyles.statLabel}>Households</span>
-            </div>
-            <div className={dashboardStyles.stat}>
-              <span className={dashboardStyles.statValue}>{itemsAvailable}</span>
-              <span className={dashboardStyles.statLabel}>Items Available</span>
-            </div>
-          </div>
-          <div className={responsive.grid2}>
-            <Link
-              href={`/neighborhoods/${primaryNeighborhood.slug}/settings`}
-              className={dashboardStyles.actionCard}
-            >
-              <span className={dashboardStyles.actionIcon}>⚙️</span>
-              <span>Neighborhood Admin</span>
-            </Link>
-            {isUserStaffAdmin && (
-              <Link href="/admin" className={dashboardStyles.actionCard}>
-                <span className={dashboardStyles.actionIcon}>🔧</span>
-                <span>Staff Admin</span>
-              </Link>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Staff Admin (for staff admins without neighborhood admin role) */}
-      {isUserStaffAdmin && !isAdmin && (
-        <section className={dashboardStyles.section}>
-          <h2
-            className={dashboardStyles.sectionTitle}
-            style={{ marginBottom: "1rem" }}
-          >
-            Admin
-          </h2>
-          <div className={responsive.grid4}>
-            <Link href="/admin" className={dashboardStyles.actionCard}>
-              <span className={dashboardStyles.actionIcon}>🔧</span>
-              <span>Staff Admin</span>
-            </Link>
-          </div>
-        </section>
-      )}
     </div>
   );
 }

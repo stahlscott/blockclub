@@ -16,6 +16,7 @@ interface NeighborhoodContextType {
   primaryNeighborhood: Neighborhood | null;
   neighborhoods: Neighborhood[];
   isAdmin: boolean;
+  isStaffAdmin: boolean;
   loading: boolean;
   switchNeighborhood: (neighborhoodId: string) => Promise<void>;
 }
@@ -24,6 +25,7 @@ const NeighborhoodContext = createContext<NeighborhoodContextType>({
   primaryNeighborhood: null,
   neighborhoods: [],
   isAdmin: false,
+  isStaffAdmin: false,
   loading: true,
   switchNeighborhood: async () => {},
 });
@@ -33,6 +35,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [primaryNeighborhood, setPrimaryNeighborhood] = useState<Neighborhood | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaffAdmin, setIsStaffAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
@@ -41,6 +44,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
       setNeighborhoods([]);
       setPrimaryNeighborhood(null);
       setIsAdmin(false);
+      setIsStaffAdmin(false);
       setLoading(false);
       setSentryNeighborhood(null);
       return;
@@ -48,6 +52,15 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
 
     async function fetchNeighborhoodData() {
       setLoading(true);
+
+      // Fetch staff admin status
+      try {
+        const staffResponse = await fetch("/api/auth/staff-status");
+        const staffData = await staffResponse.json();
+        setIsStaffAdmin(staffData.isStaffAdmin);
+      } catch {
+        setIsStaffAdmin(false);
+      }
 
       // Fetch user's profile with primary neighborhood
       const { data: profile } = await supabase
@@ -140,6 +153,7 @@ export function NeighborhoodProvider({ children }: { children: React.ReactNode }
         primaryNeighborhood,
         neighborhoods,
         isAdmin,
+        isStaffAdmin,
         loading,
         switchNeighborhood,
       }}
