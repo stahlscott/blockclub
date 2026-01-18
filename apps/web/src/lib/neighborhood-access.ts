@@ -3,9 +3,7 @@
 
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
-import { getImpersonationContext } from "@/lib/impersonation";
+import { getAuthContext } from "@/lib/auth-context";
 import type { User, Neighborhood, Membership } from "@blockclub/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -53,21 +51,8 @@ export async function getNeighborhoodAccess(
     redirect("/signin");
   }
 
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
-
-  // Check for impersonation
-  const impersonationContext = userIsStaffAdmin
-    ? await getImpersonationContext()
-    : null;
-  const isImpersonating = impersonationContext?.isImpersonating ?? false;
-
-  // Determine effective user ID (impersonated user or actual user)
-  const effectiveUserId = isImpersonating && impersonationContext?.impersonatedUserId
-    ? impersonationContext.impersonatedUserId
-    : authUser.id;
-
-  // Use admin client for staff admins to bypass RLS
-  const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
+  const { isStaffAdmin: userIsStaffAdmin, isImpersonating, effectiveUserId, queryClient } =
+    await getAuthContext(supabase, authUser);
 
   // Fetch neighborhood
   const { data: neighborhood } = await queryClient

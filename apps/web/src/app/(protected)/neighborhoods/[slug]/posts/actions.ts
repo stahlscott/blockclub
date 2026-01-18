@@ -3,9 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
-import { getImpersonationContext } from "@/lib/impersonation";
+import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 
 interface CreatePostData {
@@ -27,21 +25,8 @@ export async function createPost(data: CreatePostData): Promise<{ success: boole
     redirect("/signin");
   }
 
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
-
-  // Check for impersonation
-  const impersonationContext = userIsStaffAdmin
-    ? await getImpersonationContext()
-    : null;
-  const isImpersonating = impersonationContext?.isImpersonating ?? false;
-
-  // Determine effective user ID (impersonated user or actual user)
-  const effectiveUserId = isImpersonating && impersonationContext?.impersonatedUserId
-    ? impersonationContext.impersonatedUserId
-    : authUser.id;
-
-  // Use admin client for staff admins to bypass RLS
-  const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
+  const { isStaffAdmin: userIsStaffAdmin, isImpersonating, effectiveUserId, queryClient } =
+    await getAuthContext(supabase, authUser);
 
   // Get neighborhood
   const { data: neighborhood } = await queryClient

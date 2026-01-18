@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { parseDateLocal, displayDateLocal, getTodayLocal } from "@/lib/date-utils";
 import styles from "./item-detail.module.css";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
   userLoan: any | null;
 }
 
-export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
+export function BorrowButton({ itemId, isAvailable, userLoan }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -58,18 +59,11 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
     }
   }
 
-  // Helper to parse YYYY-MM-DD string as local date (not UTC)
-  const parseDateLocal = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  };
-
   // User has an active loan on this item
   if (userLoan?.status === "active") {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getTodayLocal();
     const isOverdue = userLoan.due_date && parseDateLocal(userLoan.due_date) < today;
-    
+
     return (
       <div className={isOverdue ? styles.overdueBadge : styles.borrowedBadge}>
         <div className={isOverdue ? styles.overdueTitle : styles.borrowedTitle}>
@@ -77,11 +71,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
         </div>
         {userLoan.due_date && (
           <div className={isOverdue ? styles.overdueDue : styles.borrowedDue}>
-            {isOverdue ? "Was due" : "Due"}: {parseDateLocal(userLoan.due_date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {isOverdue ? "Was due" : "Due"}: {displayDateLocal(userLoan.due_date)}
           </div>
         )}
         {isOverdue && (

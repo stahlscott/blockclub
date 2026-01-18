@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { formatDateLocal, displayDateLocal, getDaysFromNow } from "@/lib/date-utils";
 import styles from "./item-detail.module.css";
 
 interface Props {
@@ -17,34 +18,9 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  // Helper to format date as YYYY-MM-DD in local timezone
-  const formatDateLocal = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-  
-  // Helper to parse YYYY-MM-DD string as local date (not UTC)
-  const parseDateLocal = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  };
-  
-  // Helper to display a date string in local timezone
-  const displayDate = (dateStr: string) => {
-    return parseDateLocal(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-  
+
   // Default due date is 2 weeks from today, or use existing due date for active loans
-  const twoWeeksFromNow = new Date();
-  twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
-  const defaultDueDate = activeLoan?.due_date || formatDateLocal(twoWeeksFromNow);
+  const defaultDueDate = activeLoan?.due_date || formatDateLocal(getDaysFromNow(14));
   const [dueDate, setDueDate] = useState(defaultDueDate);
   const [noDueDate, setNoDueDate] = useState(activeLoan?.status === "active" && !activeLoan?.due_date);
   const [isEditingDueDate, setIsEditingDueDate] = useState(false);
@@ -253,7 +229,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             Borrowed by <strong>{activeLoan.borrower?.name}</strong>
           </p>
           <p className={styles.loanDates}>
-            Since: {displayDate(activeLoan.start_date)}
+            Since: {displayDateLocal(activeLoan.start_date)}
           </p>
           
           {isEditingDueDate ? (
@@ -305,7 +281,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             <div className={styles.dueDateDisplay}>
               <span className={styles.dueDateText}>
                 Due: {activeLoan.due_date 
-                  ? displayDate(activeLoan.due_date)
+                  ? displayDateLocal(activeLoan.due_date)
                   : "No due date set"}
               </span>
               <button

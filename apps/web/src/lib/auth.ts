@@ -16,10 +16,3 @@ export function isStaffAdmin(email: string | null | undefined): boolean {
   return env.STAFF_ADMIN_EMAILS.includes(email || "");
 }
 
-/**
- * Check if a user can have memberships in neighborhoods.
- * Staff admins should NOT have memberships - they access via impersonation.
- */
-export function canHaveMemberships(email: string | null | undefined): boolean {
-  return !isStaffAdmin(email);
-}

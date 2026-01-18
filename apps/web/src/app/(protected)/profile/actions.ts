@@ -2,8 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
-import { getImpersonationContext } from "@/lib/impersonation";
+import { getAuthContext } from "@/lib/auth-context";
 import { revalidatePath } from "next/cache";
 
 interface PhoneEntry {
@@ -42,22 +41,14 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
     return { success: false, error: "Not authenticated" };
   }
 
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
-  const impersonationContext = userIsStaffAdmin
-    ? await getImpersonationContext()
-    : null;
-  const isImpersonating = impersonationContext?.isImpersonating ?? false;
+  const { isImpersonating, effectiveUserId } = await getAuthContext(supabase, authUser);
 
   // Verify the userId matches the expected user
-  const expectedUserId = isImpersonating && impersonationContext?.impersonatedUserId
-    ? impersonationContext.impersonatedUserId
-    : authUser.id;
-
-  if (data.userId !== expectedUserId) {
+  if (data.userId !== effectiveUserId) {
     return { success: false, error: "User ID mismatch" };
   }
 
-  // Use admin client when impersonating to bypass RLS
+  // Use admin client only when impersonating to bypass RLS
   const queryClient = isImpersonating ? createAdminClient() : supabase;
 
   const { error: updateError } = await queryClient

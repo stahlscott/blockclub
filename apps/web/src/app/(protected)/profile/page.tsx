@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
-import { getImpersonationContext } from "@/lib/impersonation";
+import { getAuthContext } from "@/lib/auth-context";
 import { ProfileForm } from "./profile-form";
 
 export default async function ProfilePage() {
@@ -16,16 +15,8 @@ export default async function ProfilePage() {
     redirect("/signin");
   }
 
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
-  const impersonationContext = userIsStaffAdmin
-    ? await getImpersonationContext()
-    : null;
-  const isImpersonating = impersonationContext?.isImpersonating ?? false;
-
-  // Determine the effective user ID
-  const effectiveUserId = isImpersonating && impersonationContext?.impersonatedUserId
-    ? impersonationContext.impersonatedUserId
-    : authUser.id;
+  const { isImpersonating, effectiveUserId, impersonationContext } =
+    await getAuthContext(supabase, authUser);
 
   // Use admin client when impersonating to bypass RLS
   const queryClient = isImpersonating ? createAdminClient() : supabase;

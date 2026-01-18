@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateLength, truncate, MAX_LENGTHS } from '../validation';
+import { validateLength, MAX_LENGTHS } from '../validation';
 
 describe('validation', () => {
   describe('validateLength', () => {
@@ -28,28 +28,6 @@ describe('validation', () => {
     it('includes current length in error message', () => {
       const result = validateLength('a'.repeat(150), 'Description', 100);
       expect(result).toContain('150');
-    });
-  });
-
-  describe('truncate', () => {
-    it('returns original string if within limit', () => {
-      expect(truncate('hello', 10)).toBe('hello');
-    });
-
-    it('returns original string if exactly at limit', () => {
-      expect(truncate('hello', 5)).toBe('hello');
-    });
-
-    it('truncates and adds ellipsis if over limit', () => {
-      expect(truncate('hello world', 8)).toBe('hello...');
-    });
-
-    it('handles empty string', () => {
-      expect(truncate('', 10)).toBe('');
-    });
-
-    it('handles single character over limit', () => {
-      expect(truncate('abcdef', 5)).toBe('ab...');
     });
   });
 

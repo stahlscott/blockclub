@@ -40,10 +40,3 @@ export function validateLength(
   return null;
 }
 
-/**
- * Truncate a string to max length (for display purposes)
- */
-export function truncate(value: string, maxLength: number): string {
-  if (value.length <= maxLength) return value;
-  return value.slice(0, maxLength - 3) + "...";
-}

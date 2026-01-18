@@ -211,17 +211,17 @@ A place for neighborhood members to post messages (lost cat, party announcement,
 ### Phase 9: Admin & Moderation
 
 - [x] Create admin/member roles at neighborhood level
-- [x] Create super admin role (system-wide)
+- [x] Create staff admin role (system-wide)
 - [x] Build user approval/invitation workflow per neighborhood
-- [x] Add neighborhood creation flow (super admin only)
+- [x] Add neighborhood creation flow (staff admin only)
 - [x] Add ability to remove items (admin moderation)
 - [x] Add ability to promote/demote members
-- [x] Hide super admin from neighborhood member lists and counts
+- [x] Hide staff admin from neighborhood member lists and counts
 
 ### Pre-Deployment
 
 - [x] Fix middleware protection for all authenticated routes
-- [x] Move super admin emails to environment variable
+- [x] Move staff admin emails to environment variable
 - [x] Abstract error logging into a module (prep for Sentry)
 - [x] Add input validation with max lengths and error messages
 - [x] Implement soft deletes for loans and members (items use hard delete)
@@ -291,7 +291,7 @@ All content (items, events, childcare) is scoped to a neighborhood via `neighbor
 
 ## Admin Roles
 
-| Capability                           | Super Admin | Neighborhood Admin    | Member   |
+| Capability                           | Staff Admin | Neighborhood Admin    | Member   |
 | ------------------------------------ | ----------- | --------------------- | -------- |
 | Create neighborhoods                 | ✅          | ❌                    | ❌       |
 | Automatic admin in all neighborhoods | ✅          | ❌                    | ❌       |

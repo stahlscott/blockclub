@@ -64,16 +64,6 @@ export type LoanStatus =
   | "returned"
   | "cancelled";
 
-/** RSVP response for events */
-export type RsvpStatus = "yes" | "no" | "maybe";
-
-/** Status for childcare exchange requests */
-export type ChildcareRequestStatus =
-  | "pending"
-  | "approved"
-  | "declined"
-  | "cancelled";
-
 /** Available emoji reactions for posts */
 export type PostReactionType = "thumbs_up" | "heart" | "pray" | "celebrate";
 
@@ -170,59 +160,6 @@ export interface Loan {
 }
 
 // ============================================================================
-// EVENTS
-// ============================================================================
-
-export interface Event {
-  id: string;
-  neighborhood_id: string;
-  host_id: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  starts_at: string;
-  ends_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface EventRsvp {
-  id: string;
-  event_id: string;
-  user_id: string;
-  status: RsvpStatus;
-  guest_count: number;
-  created_at: string;
-}
-
-// ============================================================================
-// CHILDCARE
-// ============================================================================
-
-export interface ChildcareAvailability {
-  id: string;
-  user_id: string;
-  neighborhood_id: string;
-  date: string;
-  start_time: string;
-  end_time: string;
-  capacity: number;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ChildcareRequest {
-  id: string;
-  availability_id: string;
-  requester_id: string;
-  status: ChildcareRequestStatus;
-  children_count: number;
-  notes: string | null;
-  created_at: string;
-}
-
-// ============================================================================
 // POSTS
 // ============================================================================
 
@@ -276,21 +213,6 @@ export interface ItemWithOwner extends Item {
 export interface LoanWithDetails extends Loan {
   item: Item;
   borrower: User;
-}
-
-/** Event with host's user profile */
-export interface EventWithHost extends Event {
-  host: User;
-}
-
-/** Event RSVP with attendee's user profile */
-export interface EventRsvpWithUser extends EventRsvp {
-  user: User;
-}
-
-/** Childcare availability with provider's user profile */
-export interface ChildcareAvailabilityWithUser extends ChildcareAvailability {
-  user: User;
 }
 
 /** Post with author profile and optional editor info */
@@ -348,38 +270,6 @@ export type LoanUpdate = Partial<
   Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">
 >;
 
-export type EventInsert = Omit<Event, "id" | "created_at" | "updated_at">;
-export type EventUpdate = Partial<
-  Omit<
-    Event,
-    "id" | "neighborhood_id" | "host_id" | "created_at" | "updated_at"
-  >
->;
-
-export type EventRsvpInsert = Omit<EventRsvp, "id" | "created_at">;
-export type EventRsvpUpdate = Partial<
-  Pick<EventRsvp, "status" | "guest_count">
->;
-
-export type ChildcareAvailabilityInsert = Omit<
-  ChildcareAvailability,
-  "id" | "created_at" | "updated_at"
->;
-export type ChildcareAvailabilityUpdate = Partial<
-  Omit<
-    ChildcareAvailability,
-    "id" | "user_id" | "neighborhood_id" | "created_at" | "updated_at"
-  >
->;
-
-export type ChildcareRequestInsert = Omit<
-  ChildcareRequest,
-  "id" | "created_at"
->;
-export type ChildcareRequestUpdate = Partial<
-  Pick<ChildcareRequest, "status" | "notes">
->;
-
 export type PostInsert = {
   neighborhood_id: string;
   author_id: string;
@@ -432,26 +322,6 @@ export interface Database {
         Insert: LoanInsert;
         Update: LoanUpdate;
       };
-      events: {
-        Row: Event;
-        Insert: EventInsert;
-        Update: EventUpdate;
-      };
-      event_rsvps: {
-        Row: EventRsvp;
-        Insert: EventRsvpInsert;
-        Update: EventRsvpUpdate;
-      };
-      childcare_availability: {
-        Row: ChildcareAvailability;
-        Insert: ChildcareAvailabilityInsert;
-        Update: ChildcareAvailabilityUpdate;
-      };
-      childcare_requests: {
-        Row: ChildcareRequest;
-        Insert: ChildcareRequestInsert;
-        Update: ChildcareRequestUpdate;
-      };
       posts: {
         Row: Post;
         Insert: PostInsert;
@@ -469,8 +339,6 @@ export interface Database {
       item_category: ItemCategory;
       item_availability: ItemAvailability;
       loan_status: LoanStatus;
-      rsvp_status: RsvpStatus;
-      childcare_request_status: ChildcareRequestStatus;
       post_reaction_type: PostReactionType;
     };
   };

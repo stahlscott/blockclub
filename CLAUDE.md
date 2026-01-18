@@ -63,7 +63,7 @@ import type { User, Item, MembershipWithUser } from "@blockclub/shared";
 
 // 4. Internal imports with @ alias
 import { createClient } from "@/lib/supabase/server";
-import { isSuperAdmin } from "@/lib/auth";
+import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import responsive from "@/app/responsive.module.css";
 
@@ -130,11 +130,49 @@ const { data: items } = await supabase
   .eq("neighborhood_id", neighborhoodId);
 ```
 
-### Super Admin Check
+### Staff Admin Check
 ```typescript
-import { isSuperAdmin } from "@/lib/auth";
-const isUserSuperAdmin = isSuperAdmin(user.email);
+import { isStaffAdmin } from "@/lib/auth";
+const isUserStaffAdmin = isStaffAdmin(user.email);
 ```
+
+### Auth Context Helper
+Use `getAuthContext()` from `/lib/auth-context.ts` for server actions that need staff admin and impersonation logic:
+```typescript
+import { getAuthContext } from "@/lib/auth-context";
+
+// In a server action or API route
+const supabase = await createClient();
+const { data: { user: authUser } } = await supabase.auth.getUser();
+if (!authUser) redirect("/signin");
+
+const { effectiveUserId, queryClient, isImpersonating, isStaffAdmin } =
+  await getAuthContext(supabase, authUser);
+
+// Use queryClient for database queries (bypasses RLS for staff admins)
+const { data } = await queryClient.from("items").select("*");
+```
+
+### Date Utilities
+Use `/lib/date-utils.ts` for consistent date handling:
+```typescript
+import {
+  parseDateLocal,      // "2024-03-15" -> Date at midnight local
+  formatDateLocal,     // Date -> "2024-03-15"
+  displayDateLocal,    // "2024-03-15" -> "Mar 15, 2024"
+  formatDate,          // ISO timestamp -> "Mar 15, 2024"
+  formatRelativeTime,  // ISO timestamp -> "5m ago", "2d ago"
+  getTodayLocal,       // Today at midnight local
+  getDaysFromNow,      // Date N days from now
+} from "@/lib/date-utils";
+```
+
+## Component Guidelines
+
+- Keep components under 300 lines
+- Split large forms into section components
+- Extract reusable logic into custom hooks or utilities
+- Use composition over monolithic components
 
 ## Package Responsibilities
 
@@ -166,6 +204,11 @@ const isUserSuperAdmin = isSuperAdmin(user.email);
 - Located in `apps/web/e2e/`
 - Test complete user flows
 - Run: `npm run test:e2e -w @blockclub/web`
+
+### Test Requirements
+- Unit tests required for business logic in `/lib/`
+- E2E tests recommended for user-facing flows
+- Test authorization logic for protected actions
 
 ## Environment Variables
 

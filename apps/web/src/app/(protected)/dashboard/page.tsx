@@ -4,8 +4,9 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
-import { getImpersonationContext } from "@/lib/impersonation";
+import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
+import { parseDateLocal } from "@/lib/date-utils";
 import { InviteButton } from "@/components/InviteButton";
 import dashboardStyles from "./dashboard.module.css";
 
@@ -13,12 +14,6 @@ function getInitial(name: string | null | undefined): string {
   if (!name) return "?";
   const stripped = name.replace(/^the\s+/i, "");
   return stripped.charAt(0)?.toUpperCase() || "?";
-}
-
-// Helper to parse YYYY-MM-DD string as local date (not UTC)
-function parseDateLocal(dateStr: string) {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  return new Date(year, month - 1, day);
 }
 
 // Check if a date is within the last N days
@@ -41,23 +36,16 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  const isUserStaffAdmin = isStaffAdmin(authUser.email);
-  const impersonationContext = await getImpersonationContext();
+  const { isStaffAdmin: isUserStaffAdmin, isImpersonating, effectiveUserId } =
+    await getAuthContext(supabase, authUser);
 
   // Staff admins without impersonation should go to the staff panel
-  if (isUserStaffAdmin && !impersonationContext?.isImpersonating) {
+  if (isUserStaffAdmin && !isImpersonating) {
     redirect("/staff");
   }
 
-  // Determine the effective user ID (impersonated or self)
-  const effectiveUserId = impersonationContext?.isImpersonating
-    ? impersonationContext.impersonatedUserId!
-    : authUser.id;
-
   // Use admin client when impersonating to bypass RLS
-  const queryClient = impersonationContext?.isImpersonating
-    ? createAdminClient()
-    : supabase;
+  const queryClient = isImpersonating ? createAdminClient() : supabase;
 
   // Fetch user profile
   const { data: profile } = await queryClient
