@@ -95,7 +95,7 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         setNeighborhoods(initialData.neighborhoods);
 
         // Determine primary neighborhood from initial data
-        let primary = initialData.neighborhoods.find(
+        const primary = initialData.neighborhoods.find(
           (n) => n.id === initialData.primaryNeighborhoodId
         ) || initialData.neighborhoods[0] || null;
         setPrimaryNeighborhood(primary);
