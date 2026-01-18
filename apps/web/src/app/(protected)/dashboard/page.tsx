@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { logger } from "@/lib/logger";
+import { InviteButton } from "@/components/InviteButton";
 import dashboardStyles from "./dashboard.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -218,9 +219,12 @@ export default async function DashboardPage() {
   return (
     <div className={dashboardStyles.container}>
       {primaryNeighborhood && (
-        <div>
-          <h1 className={dashboardStyles.welcome}>Welcome back!</h1>
-          <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
+        <div className={dashboardStyles.welcomeSection}>
+          <div>
+            <h1 className={dashboardStyles.welcome}>Welcome back!</h1>
+            <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
+          </div>
+          <InviteButton slug={primaryNeighborhood.slug} variant="link" />
         </div>
       )}
 

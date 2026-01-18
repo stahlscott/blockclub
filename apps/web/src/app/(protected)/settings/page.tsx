@@ -11,10 +11,8 @@ export default function SettingsPage() {
   const router = useRouter();
   const { signOut } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [slug, setSlug] = useState<string | null>(null);
   const [membershipId, setMembershipId] = useState<string | null>(null);
   const [neighborhoodName, setNeighborhoodName] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   // Leave neighborhood state
   const [leaving, setLeaving] = useState(false);
@@ -49,17 +47,15 @@ export default function SettingsPage() {
 
       let activeMembershipId: string | null = null;
       let activeMembershipNeighborhoodName: string | null = null;
-      let neighborhoodSlug: string | null = null;
 
       if (profile?.primary_neighborhood_id) {
-        // Get neighborhood name and slug
+        // Get neighborhood name
         const { data: neighborhood } = await supabase
           .from("neighborhoods")
-          .select("name, slug")
+          .select("name")
           .eq("id", profile.primary_neighborhood_id)
           .single();
         activeMembershipNeighborhoodName = neighborhood?.name || null;
-        neighborhoodSlug = neighborhood?.slug || null;
 
         // Get the membership ID for this neighborhood
         const { data: membership } = await supabase
@@ -76,19 +72,17 @@ export default function SettingsPage() {
       if (!activeMembershipId) {
         const { data: memberships } = await supabase
           .from("memberships")
-          .select("id, neighborhood:neighborhoods(name, slug)")
+          .select("id, neighborhood:neighborhoods(name)")
           .eq("user_id", user.id)
           .eq("status", "active")
           .limit(1);
 
         if (memberships?.[0]?.neighborhood) {
           activeMembershipNeighborhoodName = (memberships[0].neighborhood as any).name;
-          neighborhoodSlug = (memberships[0].neighborhood as any).slug;
           activeMembershipId = memberships[0].id;
         }
       }
 
-      setSlug(neighborhoodSlug);
       setMembershipId(activeMembershipId);
       setNeighborhoodName(activeMembershipNeighborhoodName);
       setLoading(false);
@@ -164,14 +158,6 @@ export default function SettingsPage() {
     setChangingPassword(false);
   };
 
-  const handleCopy = async () => {
-    if (!slug) return;
-    const url = `${window.location.origin}/join/${slug}`;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   if (loading) {
     return (
       <div className={styles.container}>
@@ -190,26 +176,6 @@ export default function SettingsPage() {
 
       <div className={styles.card}>
         <h1 className={styles.title}>Account Settings</h1>
-
-        {slug && (
-          <div className={styles.inviteSection}>
-            <h2 className={styles.sectionTitle}>Invite Link</h2>
-            <p className={styles.inviteHint}>
-              Share this link to invite neighbors to {neighborhoodName || "your neighborhood"}:
-            </p>
-            <div className={styles.inviteRow}>
-              <input
-                type="text"
-                readOnly
-                value={`${typeof window !== "undefined" ? window.location.origin : ""}/join/${slug}`}
-                className={styles.inviteInput}
-              />
-              <button type="button" onClick={handleCopy} className={styles.copyButton}>
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          </div>
-        )}
 
         {membershipId && (
           <div className={styles.leaveSection}>
