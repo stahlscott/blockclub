@@ -117,6 +117,20 @@ export function SettingsClient({
         </div>
       )}
 
+      <div className={styles.card}>
+        <h2 className={styles.sectionTitle}>Notifications</h2>
+        <p className={styles.signOutHint}>
+          Control how you receive notifications about your lending library activity.
+        </p>
+        <Link
+          href="/settings/notifications"
+          className={styles.adminLink}
+          data-testid="settings-notifications-link"
+        >
+          Manage notification preferences &rarr;
+        </Link>
+      </div>
+
       {!isImpersonating && (
         <div className={styles.card}>
           <h2 className={styles.sectionTitle}>Change Password</h2>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import { notifyLoanRequested } from "@/lib/email/notifications";
 
 export interface RequestLoanState {
   success?: boolean;
@@ -60,16 +61,29 @@ export async function requestLoan(
     return { error: "You already have an active request for this item" };
   }
 
-  const { error: insertError } = await supabase.from("loans").insert({
-    item_id: itemId,
-    borrower_id: user.id,
-    status: "requested",
-    notes,
-  });
+  const { data: newLoan, error: insertError } = await supabase
+    .from("loans")
+    .insert({
+      item_id: itemId,
+      borrower_id: user.id,
+      status: "requested",
+      notes,
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     logger.error("Loan request error", insertError, { itemId });
     return { error: insertError.message };
+  }
+
+  // Send notification to item owner (fire-and-forget)
+  if (newLoan) {
+    notifyLoanRequested(newLoan.id).catch((err) =>
+      logger.error("Failed to send loan requested notification", err, {
+        loanId: newLoan.id,
+      })
+    );
   }
 
   revalidatePath(`/neighborhoods/${slug}/library/${itemId}`);

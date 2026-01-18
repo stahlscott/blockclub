@@ -1,97 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { formatDateLocal, displayDateLocal, getDaysFromNow } from "@/lib/date-utils";
+import {
+  approveLoan,
+  declineLoan,
+  markLoanReturned,
+  type LoanActionState,
+} from "./loan-actions";
 import styles from "./item-detail.module.css";
 
 interface Props {
-  item: any;
+  item: {
+    id: string;
+    availability: string;
+  };
   slug: string;
-  activeLoan: any;
+  activeLoan: {
+    id: string;
+    status: string;
+    due_date: string | null;
+    start_date: string | null;
+    notes: string | null;
+    borrower?: {
+      id: string;
+      name: string;
+    };
+  } | null;
 }
 
 export function OwnerActions({ item, slug, activeLoan }: Props) {
   const router = useRouter();
+
+  // Local UI state
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
 
   // Default due date is 2 weeks from today, or use existing due date for active loans
   const defaultDueDate = activeLoan?.due_date || formatDateLocal(getDaysFromNow(14));
   const [dueDate, setDueDate] = useState(defaultDueDate);
-  const [noDueDate, setNoDueDate] = useState(activeLoan?.status === "active" && !activeLoan?.due_date);
+  const [noDueDate, setNoDueDate] = useState(
+    activeLoan?.status === "active" && !activeLoan?.due_date
+  );
   const [isEditingDueDate, setIsEditingDueDate] = useState(false);
 
-  async function handleLoanAction(action: "approve" | "decline" | "mark_returned") {
-    setError("");
-    setLoading(true);
+  // Server action states
+  const [approveState, approveAction, approvePending] = useActionState<
+    LoanActionState,
+    FormData
+  >(approveLoan, {});
 
-    try {
-      const supabase = createClient();
+  const [declineState, declineAction, declinePending] = useActionState<
+    LoanActionState,
+    FormData
+  >(declineLoan, {});
 
-      if (action === "approve") {
-        // Approve the loan request with selected due date (or null if no due date)
-        const { error: loanError } = await supabase
-          .from("loans")
-          .update({
-            status: "active",
-            start_date: formatDateLocal(new Date()),
-            due_date: noDueDate ? null : dueDate,
-          })
-          .eq("id", activeLoan.id);
+  const [returnState, returnAction, returnPending] = useActionState<
+    LoanActionState,
+    FormData
+  >(markLoanReturned, {});
 
-        if (loanError) throw loanError;
+  // Combined loading state
+  const isActionPending = approvePending || declinePending || returnPending || loading;
 
-        // Mark item as borrowed
-        const { error: itemError } = await supabase
-          .from("items")
-          .update({ availability: "borrowed" })
-          .eq("id", item.id);
+  // Combined error state
+  const error = localError || approveState.error || declineState.error || returnState.error;
 
-        if (itemError) throw itemError;
-      } else if (action === "decline") {
-        // Decline/cancel the request
-        const { error: loanError } = await supabase
-          .from("loans")
-          .update({ status: "cancelled" })
-          .eq("id", activeLoan.id);
-
-        if (loanError) throw loanError;
-      } else if (action === "mark_returned") {
-        // Mark as returned
-        const { error: loanError } = await supabase
-          .from("loans")
-          .update({
-            status: "returned",
-            returned_at: new Date().toISOString(),
-          })
-          .eq("id", activeLoan.id);
-
-        if (loanError) throw loanError;
-
-        // Mark item as available
-        const { error: itemError } = await supabase
-          .from("items")
-          .update({ availability: "available" })
-          .eq("id", item.id);
-
-        if (itemError) throw itemError;
-      }
-
-      router.refresh();
-    } catch (err: any) {
-      logger.error("Error updating loan", err, { itemId: item.id });
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Client-side handlers for non-notification actions
   async function handleUpdateDueDate() {
-    setError("");
+    setLocalError("");
     setLoading(true);
 
     try {
@@ -100,22 +81,23 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       const { error: updateError } = await supabase
         .from("loans")
         .update({ due_date: noDueDate ? null : dueDate })
-        .eq("id", activeLoan.id);
+        .eq("id", activeLoan!.id);
 
       if (updateError) throw updateError;
 
       setIsEditingDueDate(false);
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong";
       logger.error("Error updating due date", err, { itemId: item.id });
-      setError(err.message || "Something went wrong");
+      setLocalError(message);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleToggleAvailability() {
-    setError("");
+    setLocalError("");
     setLoading(true);
 
     try {
@@ -130,9 +112,10 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
       if (updateError) throw updateError;
 
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong";
       logger.error("Error updating availability", err, { itemId: item.id });
-      setError(err.message || "Something went wrong");
+      setLocalError(message);
     } finally {
       setLoading(false);
     }
@@ -141,7 +124,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this item?")) return;
 
-    setError("");
+    setLocalError("");
     setLoading(true);
 
     try {
@@ -156,9 +139,10 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
 
       router.push(`/neighborhoods/${slug}/library`);
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong";
       logger.error("Error deleting item", err, { itemId: item.id });
-      setError(err.message || "Something went wrong");
+      setLocalError(message);
     } finally {
       setLoading(false);
     }
@@ -185,12 +169,14 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             <input
               type="date"
               id="dueDate"
+              name="dueDate"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               min={formatDateLocal(new Date())}
               className={styles.dueDateInput}
               style={{ opacity: noDueDate ? 0.5 : 1 }}
               disabled={noDueDate}
+              form="approve-form"
             />
             <label className={styles.checkboxLabel}>
               <input
@@ -203,22 +189,37 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             </label>
           </div>
           <div className={styles.requestActions}>
-            <button
-              onClick={() => handleLoanAction("decline")}
-              className={styles.declineButton}
-              disabled={loading}
-              data-testid="library-item-decline-button"
-            >
-              Decline
-            </button>
-            <button
-              onClick={() => handleLoanAction("approve")}
-              className={styles.approveButton}
-              disabled={loading}
-              data-testid="library-item-approve-button"
-            >
-              Approve
-            </button>
+            {/* Decline form */}
+            <form action={declineAction}>
+              <input type="hidden" name="loanId" value={activeLoan.id} />
+              <input type="hidden" name="itemId" value={item.id} />
+              <input type="hidden" name="slug" value={slug} />
+              <button
+                type="submit"
+                className={styles.declineButton}
+                disabled={isActionPending}
+                data-testid="library-item-decline-button"
+              >
+                {declinePending ? "Declining..." : "Decline"}
+              </button>
+            </form>
+
+            {/* Approve form */}
+            <form id="approve-form" action={approveAction}>
+              <input type="hidden" name="loanId" value={activeLoan.id} />
+              <input type="hidden" name="itemId" value={item.id} />
+              <input type="hidden" name="slug" value={slug} />
+              <input type="hidden" name="dueDate" value={dueDate} />
+              <input type="hidden" name="noDueDate" value={noDueDate ? "true" : "false"} />
+              <button
+                type="submit"
+                className={styles.approveButton}
+                disabled={isActionPending}
+                data-testid="library-item-approve-button"
+              >
+                {approvePending ? "Approving..." : "Approve"}
+              </button>
+            </form>
           </div>
         </div>
       )}
@@ -231,9 +232,9 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             Borrowed by <strong>{activeLoan.borrower?.name}</strong>
           </p>
           <p className={styles.loanDates}>
-            Since: {displayDateLocal(activeLoan.start_date)}
+            Since: {displayDateLocal(activeLoan.start_date!)}
           </p>
-          
+
           {isEditingDueDate ? (
             <div className={styles.editDueDateSection}>
               <label htmlFor="editDueDate" className={styles.dueDateLabel}>
@@ -282,7 +283,8 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
           ) : (
             <div className={styles.dueDateDisplay}>
               <span className={styles.dueDateText}>
-                Due: {activeLoan.due_date 
+                Due:{" "}
+                {activeLoan.due_date
                   ? displayDateLocal(activeLoan.due_date)
                   : "No due date set"}
               </span>
@@ -294,21 +296,31 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               </button>
             </div>
           )}
-          
-          <button
-            onClick={() => handleLoanAction("mark_returned")}
-            className={styles.returnButton}
-            disabled={loading}
-            data-testid="library-item-mark-returned-button"
-          >
-            Mark as Returned
-          </button>
+
+          {/* Mark as returned form */}
+          <form action={returnAction}>
+            <input type="hidden" name="loanId" value={activeLoan.id} />
+            <input type="hidden" name="itemId" value={item.id} />
+            <input type="hidden" name="slug" value={slug} />
+            <button
+              type="submit"
+              className={styles.returnButton}
+              disabled={isActionPending}
+              data-testid="library-item-mark-returned-button"
+            >
+              {returnPending ? "Processing..." : "Mark as Returned"}
+            </button>
+          </form>
         </div>
       )}
 
       {/* Owner management buttons */}
       <div className={styles.ownerActions}>
-        <Link href={`/neighborhoods/${slug}/library/${item.id}/edit`} className={styles.editButton} data-testid="library-item-edit-button">
+        <Link
+          href={`/neighborhoods/${slug}/library/${item.id}/edit`}
+          className={styles.editButton}
+          data-testid="library-item-edit-button"
+        >
           Edit Item
         </Link>
 

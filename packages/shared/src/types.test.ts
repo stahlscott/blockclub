@@ -84,6 +84,17 @@ describe("Interface structure", () => {
       children: null,
       pets: null,
       photo_urls: [],
+      notification_preferences: {
+        version: 1,
+        email_enabled: true,
+        notification_email: null,
+        channels: {
+          loan_requested: true,
+          loan_approved: true,
+          loan_declined: true,
+          loan_returned: true,
+        },
+      },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

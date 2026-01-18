@@ -81,6 +81,30 @@ export interface EmailEntry {
   email: string;
 }
 
+/**
+ * User notification preferences.
+ * Controls which notifications are sent and where.
+ */
+export interface NotificationPreferences {
+  /** Schema version for future migrations */
+  version: number;
+  /** Master toggle for all email notifications */
+  email_enabled: boolean;
+  /** Custom email address for notifications, null = use auth email */
+  notification_email: string | null;
+  /** Per-channel notification settings */
+  channels: {
+    /** Notify when someone requests to borrow your item */
+    loan_requested: boolean;
+    /** Notify when your borrow request is approved */
+    loan_approved: boolean;
+    /** Notify when your borrow request is declined */
+    loan_declined: boolean;
+    /** Notify when a borrower returns your item */
+    loan_returned: boolean;
+  };
+}
+
 export interface User {
   id: string;
   email: string;
@@ -97,6 +121,7 @@ export interface User {
   children: string | null;
   pets: string | null;
   photo_urls: string[]; // Gallery photos (pets, kids, gardens, etc.)
+  notification_preferences: NotificationPreferences; // Email notification settings
   created_at: string;
   updated_at: string;
 }
