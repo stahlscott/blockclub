@@ -60,5 +60,13 @@ module.exports = withSentryConfig(nextConfig, {
     },
     // Enables automatic instrumentation of Vercel Cron Monitors
     automaticVercelMonitors: true,
+    // Ignore Next.js internal manifest files that don't have source maps
+    ignore: [
+      "**/*_client-reference-manifest.js",
+      "**/server-reference-manifest.js",
+      "**/middleware-build-manifest.js",
+      "**/next-font-manifest.js",
+      "**/interception-route-rewrite-manifest.js",
+    ],
   },
 });
