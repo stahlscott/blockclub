@@ -6,7 +6,7 @@ import styles from "./InviteButton.module.css";
 
 interface InviteButtonProps {
   slug: string;
-  variant?: "card" | "link";
+  variant?: "card" | "link" | "text";
 }
 
 export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
@@ -130,6 +130,17 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
       <span className={styles.hint}>Press Esc to close</span>
     </div>
   );
+
+  if (variant === "text") {
+    return (
+      <>
+        <button onClick={handleOpenModal} className={styles.textButton} data-testid="invite-button">
+          Invite
+        </button>
+        {modal}
+      </>
+    );
+  }
 
   if (variant === "link") {
     return (

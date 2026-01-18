@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startImpersonation } from "@/app/actions/impersonation";
+import { InviteButton } from "@/components/InviteButton";
 import styles from "./staff.module.css";
 import responsive from "@/app/responsive.module.css";
 
@@ -68,7 +69,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   } | null>(null);
   const [isAddingMembership, setIsAddingMembership] = useState(false);
   const [isImpersonating, startImpersonating] = useTransition();
-  const [copiedNeighborhoodId, setCopiedNeighborhoodId] = useState<string | null>(null);
 
   // Get neighborhood name by ID
   const getNeighborhoodName = (id: string) => {
@@ -181,19 +181,6 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
     return neighborhoods.filter((n) => !memberNeighborhoodIds.includes(n.id));
   };
 
-  // Copy invite link to clipboard
-  const handleCopyInvite = async (neighborhood: Neighborhood) => {
-    const inviteUrl = `${window.location.origin}/join/${neighborhood.slug}`;
-    try {
-      await navigator.clipboard.writeText(inviteUrl);
-      setCopiedNeighborhoodId(neighborhood.id);
-      setTimeout(() => setCopiedNeighborhoodId(null), 2000);
-    } catch {
-      // Fallback: show the URL in an alert so user can copy manually
-      alert(`Copy this invite link:\n${inviteUrl}`);
-    }
-  };
-
   const getInitial = (name: string | null) => {
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
@@ -291,12 +278,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                   })}
                 </span>
                 <span className={styles.colActions}>
-                  <button
-                    className={styles.actionLink}
-                    onClick={() => handleCopyInvite(n)}
-                  >
-                    {copiedNeighborhoodId === n.id ? "Copied!" : "Invite"}
-                  </button>
+                  <InviteButton slug={n.slug} variant="text" />
                   <Link
                     href={`/neighborhoods/${n.slug}/settings`}
                     className={styles.actionLink}

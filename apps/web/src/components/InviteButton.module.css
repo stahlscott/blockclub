@@ -23,6 +23,20 @@
   font-size: var(--font-size-xl);
 }
 
+/* Text variant - inline link style for tables/lists */
+.textButton {
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 0;
+}
+
+.textButton:hover {
+  text-decoration: underline;
+}
+
 .linkButton {
   display: flex;
   align-items: center;
