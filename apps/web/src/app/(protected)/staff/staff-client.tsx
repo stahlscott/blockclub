@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -71,9 +71,9 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
   const [isImpersonating, startImpersonating] = useTransition();
 
   // Get neighborhood name by ID
-  const getNeighborhoodName = (id: string) => {
+  const getNeighborhoodName = useCallback((id: string) => {
     return neighborhoods.find((n) => n.id === id)?.name || "Unknown";
-  };
+  }, [neighborhoods]);
 
   // Filter users based on search (name, email, or neighborhood name)
   const filteredUsers = useMemo(() => {
@@ -89,7 +89,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
       );
       return userNeighborhoodNames.some((name) => name.includes(search));
     });
-  }, [users, userSearch, neighborhoods]);
+  }, [users, userSearch, getNeighborhoodName]);
 
   // Handle neighborhood deletion
   const handleDeleteNeighborhood = async () => {
