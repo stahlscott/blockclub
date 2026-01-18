@@ -6,15 +6,6 @@
   padding: var(--space-6) var(--space-4);
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--space-6);
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
 .backLink {
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -25,6 +16,15 @@
 
 .backLink:hover {
   color: var(--color-text);
+}
+
+/* Header row with title and action button */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
 }
 
 .title {
@@ -49,6 +49,8 @@
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -56,4 +58,15 @@
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+@media (max-width: 480px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .newButton {
+    text-align: center;
+  }
 }

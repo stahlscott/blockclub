@@ -174,23 +174,7 @@ export default function SettingsPage() {
         &larr; Back to Dashboard
       </Link>
 
-      <div className={styles.card}>
-        <h1 className={styles.title}>Account Settings</h1>
-
-        {membershipId && (
-          <div className={styles.leaveSection}>
-            {leaveError && <p className={styles.error}>{leaveError}</p>}
-            <button
-              type="button"
-              onClick={handleLeaveNeighborhood}
-              disabled={leaving}
-              className={styles.leaveButton}
-            >
-              {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
-            </button>
-          </div>
-        )}
-      </div>
+      <h1 className={styles.title}>Account Settings</h1>
 
       <div className={styles.card}>
         <h2 className={styles.sectionTitle}>Change Password</h2>
@@ -247,6 +231,24 @@ export default function SettingsPage() {
           Sign Out
         </button>
       </div>
+
+      {membershipId && (
+        <div className={styles.card}>
+          <h2 className={styles.sectionTitle}>Leave Neighborhood</h2>
+          <p className={styles.signOutHint}>
+            Leave {neighborhoodName || "your neighborhood"}. You will need an invitation to return.
+          </p>
+          {leaveError && <p className={styles.error}>{leaveError}</p>}
+          <button
+            type="button"
+            onClick={handleLeaveNeighborhood}
+            disabled={leaving}
+            className={styles.leaveButton}
+          >
+            {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

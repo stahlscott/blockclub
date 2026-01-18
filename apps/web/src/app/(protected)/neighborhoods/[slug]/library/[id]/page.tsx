@@ -9,7 +9,6 @@ import {
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
 import { AdminActions } from "./admin-actions";
-import responsive from "@/app/responsive.module.css";
 import styles from "./item-detail.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -70,8 +69,8 @@ export default async function ItemDetailPage({ params }: Props) {
         &larr; Back to Library
       </Link>
 
-      <div className={responsive.detailGrid}>
-        <div className={styles.imageSection}>
+      <div className={styles.detailLayout}>
+        <div className={styles.imageCard}>
           <OptimizedImage
             src={item.photo_urls?.[0]}
             alt={item.name}
@@ -109,7 +108,7 @@ export default async function ItemDetailPage({ params }: Props) {
           />
         </div>
 
-        <div className={styles.details}>
+        <div className={styles.detailsCard}>
           <div className={styles.headerRow}>
             <h1 className={styles.title}>{item.name}</h1>
             <span

@@ -54,11 +54,11 @@ export default async function MyItemsPage({ params }: Props) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.headerWithAction}>
+      <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
+        &larr; Back to Library
+      </Link>
+      <div className={styles.headerRow}>
         <div>
-          <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
-            &larr; Back to Library
-          </Link>
           <h1 className={styles.title}>My Items</h1>
           <p className={styles.subtitle}>
             {items?.length || 0} item{items?.length !== 1 ? "s" : ""}{" "}

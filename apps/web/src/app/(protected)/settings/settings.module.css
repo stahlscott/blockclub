@@ -39,6 +39,17 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sectionTitle::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  background: var(--color-primary);
+  border-radius: 2px;
 }
 
 /* Form */
@@ -183,25 +194,21 @@
   background-color: var(--color-primary-light);
 }
 
-/* Leave section */
-.leaveSection {
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-}
-
+/* Leave neighborhood button */
 .leaveButton {
-  padding: 0;
-  background-color: transparent;
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--color-surface);
   color: var(--color-error);
-  border: none;
-  cursor: pointer;
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  text-decoration: underline;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .leaveButton:hover {
-  text-decoration: none;
+  background-color: var(--color-error-light);
 }
 
 .leaveButton:disabled {

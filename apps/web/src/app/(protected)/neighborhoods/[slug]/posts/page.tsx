@@ -72,11 +72,11 @@ export default async function PostsPage({ params }: Props) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <Link href="/dashboard" className={styles.backLink}>
+        &larr; Dashboard
+      </Link>
+      <div className={styles.headerRow}>
         <div>
-          <Link href="/dashboard" className={styles.backLink}>
-            &larr; Dashboard
-          </Link>
           <h1 className={styles.title}>Posts</h1>
           <p className={styles.subtitle}>
             {postsWithReactions.length} post
