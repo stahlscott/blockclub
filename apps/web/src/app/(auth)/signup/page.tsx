@@ -130,7 +130,7 @@ function SignUpForm() {
               onChange={(e) => setAddress(e.target.value)}
               required
               className={styles.input}
-              placeholder="e.g., 123 Main Street"
+              placeholder="e.g., 123 Bunts Rd"
               data-testid="signup-form-address-input"
             />
           </div>

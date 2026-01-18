@@ -84,7 +84,7 @@ export default function NewItemPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Circular Saw, Dutch Oven, Camping Tent"
+              placeholder="e.g., circular saw, kayak, board games"
               required
               maxLength={MAX_LENGTHS.itemName}
               className={styles.input}

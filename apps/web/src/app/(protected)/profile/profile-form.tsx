@@ -302,7 +302,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
                 required
                 maxLength={MAX_LENGTHS.address}
                 className={styles.input}
-                placeholder="123 Main Street"
+                placeholder="123 Madison Ave"
                 data-testid="profile-form-address-input"
               />
             </div>

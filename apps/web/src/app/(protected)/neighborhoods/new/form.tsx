@@ -125,7 +125,7 @@ export function NewNeighborhoodForm() {
               required
               maxLength={MAX_LENGTHS.neighborhoodName}
               className={styles.input}
-              placeholder="e.g., Maplewood Heights"
+              placeholder="e.g., Detroit Ave"
             />
             {name.length > MAX_LENGTHS.neighborhoodName * 0.8 && (
               <span className={styles.charCount}>
@@ -170,7 +170,7 @@ export function NewNeighborhoodForm() {
               onChange={(e) => setLocation(e.target.value)}
               maxLength={MAX_LENGTHS.neighborhoodLocation}
               className={styles.input}
-              placeholder="e.g., Downtown Portland"
+              placeholder="e.g., Northwest"
             />
           </div>
 

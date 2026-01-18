@@ -240,7 +240,7 @@ export default function NeighborhoodSettingsPage() {
               type="text"
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="e.g., Austin, TX"
+              placeholder="e.g., Northwest"
               maxLength={MAX_LENGTHS.neighborhoodLocation}
               className={styles.input}
             />

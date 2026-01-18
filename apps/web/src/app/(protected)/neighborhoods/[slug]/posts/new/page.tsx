@@ -89,7 +89,7 @@ export default function NewPostPage() {
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Lost cat, block party announcement, road closure notice..."
+              placeholder="Event announcement, lost pet, road closure notice..."
               rows={6}
               required
               maxLength={MAX_LENGTHS.postContent}
