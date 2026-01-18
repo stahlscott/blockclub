@@ -32,23 +32,23 @@ enable_confirmations = false
 # Custom email templates
 [auth.email.template.confirmation]
 subject = "Confirm your Block Club email"
-content_path = "./templates/confirmation.html"
+content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.invite]
 subject = "You're invited to join Block Club"
-content_path = "./templates/invite.html"
+content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.magic_link]
 subject = "Sign in to Block Club"
-content_path = "./templates/magic_link.html"
+content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.email_change]
 subject = "Confirm your email change"
-content_path = "./templates/email_change.html"
+content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.recovery]
 subject = "Reset your Block Club password"
-content_path = "./templates/recovery.html"
+content_path = "./supabase/templates/recovery.html"
 
 [storage]
 enabled = true
