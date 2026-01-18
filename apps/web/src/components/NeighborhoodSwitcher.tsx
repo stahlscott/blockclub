@@ -42,7 +42,7 @@ export function NeighborhoodSwitcher({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = async (neighborhoodId: string) => {
+  const handleSelect = (neighborhoodId: string) => {
     if (neighborhoodId === currentNeighborhoodId) {
       setIsOpen(false);
       return;
@@ -50,12 +50,13 @@ export function NeighborhoodSwitcher({
 
     setIsOpen(false);
 
-    startTransition(async () => {
-      const result = await switchNeighborhood(neighborhoodId);
-      if (result.success) {
-        // Hard refresh to reload server components with new data
-        window.location.reload();
-      }
+    startTransition(() => {
+      switchNeighborhood(neighborhoodId).then((result) => {
+        if (result.success) {
+          // Hard refresh to reload server components with new data
+          window.location.reload();
+        }
+      });
     });
   };
 

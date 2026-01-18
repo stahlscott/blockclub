@@ -38,25 +38,25 @@ export default function NewItemPage() {
     loadUser();
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
-    startTransition(async () => {
-      const result = await createItem({
+    startTransition(() => {
+      createItem({
         slug,
         name,
         description: description || null,
         category,
         photoUrls,
+      }).then((result) => {
+        if (result.success) {
+          router.push(`/neighborhoods/${slug}/library`);
+          router.refresh();
+        } else {
+          setError(result.error || "Something went wrong. Please try again.");
+        }
       });
-
-      if (result.success) {
-        router.push(`/neighborhoods/${slug}/library`);
-        router.refresh();
-      } else {
-        setError(result.error || "Something went wrong. Please try again.");
-      }
     });
   }
 
