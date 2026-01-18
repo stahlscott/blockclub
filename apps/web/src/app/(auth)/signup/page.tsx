@@ -37,6 +37,7 @@ function SignUpForm() {
           address,
           pending_neighborhood_id: neighborhoodId || null,
         },
+        emailRedirectTo: `${window.location.origin}/callback`,
       },
     });
 
