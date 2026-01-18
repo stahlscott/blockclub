@@ -4,6 +4,13 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@blockclub/shared"],
+  // TODO: Enable cacheComponents when ready to adopt Suspense throughout the app
+  // This requires:
+  // 1. Wrapping all dynamic data fetching in <Suspense> boundaries
+  // 2. Adding "use cache" directive to data fetching files (e.g., dashboard/data.ts)
+  // 3. Using cacheTag() for cache keys and revalidateTag() for invalidation
+  // See: https://nextjs.org/docs/app/getting-started/cache-components
+  // cacheComponents: true,
   images: {
     remotePatterns: [
       {
@@ -53,5 +60,13 @@ module.exports = withSentryConfig(nextConfig, {
     },
     // Enables automatic instrumentation of Vercel Cron Monitors
     automaticVercelMonitors: true,
+    // Ignore Next.js internal manifest files that don't have source maps
+    ignore: [
+      "**/*_client-reference-manifest.js",
+      "**/server-reference-manifest.js",
+      "**/middleware-build-manifest.js",
+      "**/next-font-manifest.js",
+      "**/interception-route-rewrite-manifest.js",
+    ],
   },
 });

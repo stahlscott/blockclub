@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 import { parseDateLocal, displayDateLocal, getTodayLocal } from "@/lib/date-utils";
+import { requestLoan, type RequestLoanState } from "./actions";
 import styles from "./item-detail.module.css";
 
 interface Props {
@@ -14,50 +13,20 @@ interface Props {
   userLoan: any | null;
 }
 
-export function BorrowButton({ itemId, isAvailable, userLoan }: Props) {
+export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [notes, setNotes] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [state, formAction, isPending] = useActionState<RequestLoanState, FormData>(
+    requestLoan,
+    {}
+  );
 
-  async function handleRequest() {
-    setError("");
-    setLoading(true);
-
-    try {
-      const supabase = createClient();
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      const { error: insertError } = await supabase.from("loans").insert({
-        item_id: itemId,
-        borrower_id: user.id,
-        status: "requested",
-        notes: notes.trim() || null,
-      });
-
-      if (insertError) {
-        logger.error("Loan request error", insertError, { itemId });
-        setError(insertError.message);
-        return;
-      }
-
+  // Refresh the page when the request succeeds
+  useEffect(() => {
+    if (state.success) {
       router.refresh();
-    } catch (err) {
-      logger.error("Error requesting loan", err, { itemId });
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  }
+  }, [state.success, router]);
 
   // User has an active loan on this item
   if (userLoan?.status === "active") {
@@ -117,12 +86,14 @@ export function BorrowButton({ itemId, isAvailable, userLoan }: Props) {
   }
 
   return (
-    <div className={styles.form}>
-      {error && <div className={styles.error}>{error}</div>}
+    <form action={formAction} className={styles.form}>
+      <input type="hidden" name="itemId" value={itemId} />
+      <input type="hidden" name="slug" value={slug} />
+
+      {state.error && <div className={styles.error}>{state.error}</div>}
 
       <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
+        name="notes"
         placeholder="Add a note to the owner (optional)..."
         rows={3}
         className={styles.textarea}
@@ -130,20 +101,21 @@ export function BorrowButton({ itemId, isAvailable, userLoan }: Props) {
 
       <div className={styles.actions}>
         <button
+          type="button"
           onClick={() => setShowForm(false)}
           className={styles.formCancelButton}
-          disabled={loading}
+          disabled={isPending}
         >
           Cancel
         </button>
         <button
-          onClick={handleRequest}
+          type="submit"
           className={styles.button}
-          disabled={loading}
+          disabled={isPending}
         >
-          {loading ? "Sending..." : "Send Request"}
+          {isPending ? "Sending..." : "Send Request"}
         </button>
       </div>
-    </div>
+    </form>
   );
 }

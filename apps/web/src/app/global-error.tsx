@@ -36,7 +36,8 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               <button onClick={reset} style={styles.primaryButton}>
                 Try Again
               </button>
-              <a href="/" style={styles.secondaryButton}>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Global error can't use Link since the app may have crashed */}
+            <a href="/" style={styles.secondaryButton}>
                 Go Home
               </a>
             </div>

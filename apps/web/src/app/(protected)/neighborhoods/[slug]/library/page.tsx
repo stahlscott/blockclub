@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import type { ItemCategory } from "@blockclub/shared";
+import {
+  getCategoryEmoji,
+  getCategoryColorLight,
+  FILTER_CATEGORIES,
+  type FilterCategoryOption,
+} from "@/lib/category-utils";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
 import { CategoryFilter } from "./category-filter";
@@ -11,23 +16,9 @@ interface Props {
   searchParams: Promise<{ category?: string; search?: string }>;
 }
 
-const CATEGORIES: { value: ItemCategory | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "baby", label: "Baby" },
-  { value: "books", label: "Books" },
-  { value: "electronics", label: "Electronics" },
-  { value: "games", label: "Games" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "outdoor", label: "Outdoor" },
-  { value: "sports", label: "Sports" },
-  { value: "tools", label: "Tools" },
-  { value: "travel", label: "Travel" },
-  { value: "other", label: "Other" },
-];
-
 function getCategoriesWithItems(
   items: Array<{ category: string }>,
-  allCategories: { value: ItemCategory | "all"; label: string }[]
+  allCategories: FilterCategoryOption[]
 ) {
   const categoriesWithItems = new Set(items.map((item) => item.category));
   return allCategories.filter(
@@ -50,7 +41,7 @@ export default async function LibraryPage({ params, searchParams }: Props) {
     .order("created_at", { ascending: false });
 
   // Compute which categories have items
-  const availableCategories = getCategoriesWithItems(allItems || [], CATEGORIES);
+  const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);
 
   // Apply category filter in memory
   let items = allItems;
@@ -174,8 +165,17 @@ export default async function LibraryPage({ params, searchParams }: Props) {
                   className={libraryStyles.image}
                   borderRadius="var(--radius-lg) var(--radius-lg) 0 0"
                   fallback={
-                    <div className={libraryStyles.imagePlaceholder}>
-                      <span className={libraryStyles.placeholderIcon}>📦</span>
+                    <div
+                      className={libraryStyles.imagePlaceholder}
+                      style={{
+                        background: `linear-gradient(180deg, ${getCategoryColorLight(item.category)} 0%, var(--color-surface) 100%)`,
+                      }}
+                    >
+                      <div className={libraryStyles.placeholderCircle}>
+                        <span className={libraryStyles.placeholderIcon}>
+                          {getCategoryEmoji(item.category)}
+                        </span>
+                      </div>
                     </div>
                   }
                 />

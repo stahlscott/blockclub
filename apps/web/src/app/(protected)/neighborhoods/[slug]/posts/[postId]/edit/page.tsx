@@ -46,7 +46,6 @@ export default function EditPostPage() {
   const [expiresAt, setExpiresAt] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isAuthor, setIsAuthor] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -116,7 +115,6 @@ export default function EditPostPage() {
         }
 
         const userIsAuthor = postData.author_id === user.id;
-        setIsAuthor(userIsAuthor);
 
         // Check if user can edit
         if (!userIsAuthor && !userIsAdmin) {

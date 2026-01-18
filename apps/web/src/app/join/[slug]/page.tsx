@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
@@ -10,7 +10,6 @@ import styles from "../join.module.css";
 
 export default function PublicJoinPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const slug = params.slug as string;
   const router = useRouter();
 

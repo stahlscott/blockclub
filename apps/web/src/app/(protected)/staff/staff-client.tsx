@@ -110,7 +110,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
 
       setDeleteModal(null);
       router.refresh();
-    } catch (error) {
+    } catch {
       alert("Failed to delete neighborhood");
     } finally {
       setIsDeleting(false);
@@ -136,7 +136,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
 
       setRemoveModal(null);
       router.refresh();
-    } catch (error) {
+    } catch {
       alert("Failed to remove membership");
     } finally {
       setIsRemoving(false);
@@ -168,7 +168,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
 
       setAddToNeighborhoodModal(null);
       router.refresh();
-    } catch (error) {
+    } catch {
       alert("Failed to add user to neighborhood");
     } finally {
       setIsAddingMembership(false);

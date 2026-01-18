@@ -72,7 +72,7 @@ export function NewNeighborhoodForm() {
     }
 
     // Create the neighborhood
-    const { data: neighborhood, error: createError } = await supabase
+    const { error: createError } = await supabase
       .from("neighborhoods")
       .insert({
         name,

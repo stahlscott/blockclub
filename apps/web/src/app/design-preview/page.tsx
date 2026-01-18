@@ -1,5 +1,4 @@
-/* eslint-disable @next/next/no-page-custom-font */
-import Script from "next/script";
+// Design preview page for testing fonts
 
 // Font options to preview
 const fonts = [

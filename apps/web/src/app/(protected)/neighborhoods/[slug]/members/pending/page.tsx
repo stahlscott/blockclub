@@ -132,10 +132,7 @@ export default async function PendingMembersPage({ params }: Props) {
                     </p>
                   </div>
                 </div>
-                <MembershipActions
-                  membershipId={member.id}
-                  slug={slug}
-                />
+                <MembershipActions membershipId={member.id} />
               </div>
             );
           })}

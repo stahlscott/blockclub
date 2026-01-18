@@ -3,11 +3,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { parseDateLocal } from "@/lib/date-utils";
+import {
+  getCategoryEmoji,
+  getCategoryColorLight,
+} from "@/lib/category-utils";
+import type { ItemCategory } from "@blockclub/shared";
 import { InviteButton } from "@/components/InviteButton";
+import {
+  getRecentItems,
+  getRecentMembers,
+  getRecentPosts,
+  getPendingMemberRequestsCount,
+} from "./data";
 import dashboardStyles from "./dashboard.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -140,68 +150,30 @@ export default async function DashboardPage() {
     primaryNeighborhood = primaryMembership?.neighborhood;
   }
 
-  // Fetch neighborhood-specific data if user has a primary neighborhood
-  let recentItems: any[] = [];
-  let recentMembers: any[] = [];
-  let recentPosts: any[] = [];
-  let pendingMemberRequests = 0;
   // Check admin status based on membership role (not staff admin)
   // When impersonating, we inherit the impersonated user's permissions
   const isAdmin = primaryMembership?.role === "admin";
 
+  // Fetch neighborhood-specific data if user has a primary neighborhood
+  // Use cached functions for better performance
+  let recentItems: any[] = [];
+  let recentMembers: any[] = [];
+  let recentPosts: any[] = [];
+  let pendingMemberRequests = 0;
+
   if (primaryNeighborhood) {
-    // Fetch recently added items (last 14 days)
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    // Fetch data in parallel using cached functions
+    const [items, members, posts, pendingCount] = await Promise.all([
+      getRecentItems(primaryNeighborhood.id),
+      getRecentMembers(primaryNeighborhood.id, effectiveUserId),
+      getRecentPosts(primaryNeighborhood.id),
+      isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id) : Promise.resolve(0),
+    ]);
 
-    const { data: items } = await queryClient
-      .from("items")
-      .select("*, owner:users!items_owner_id_fkey(name)")
-      .eq("neighborhood_id", primaryNeighborhood.id)
-      .eq("availability", "available")
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false })
-      .limit(8);
-    recentItems = items || [];
-
-    // Fetch recently joined members (last 14 days)
-    // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
-    const { data: members } = await queryClient
-      .from("memberships")
-      .select(
-        `
-        *,
-        user:users!memberships_user_id_fkey(id, name, email, avatar_url)
-      `,
-      )
-      .eq("neighborhood_id", primaryNeighborhood.id)
-      .eq("status", "active")
-      .order("joined_at", { ascending: false })
-      .limit(6);
-    // Filter out staff admin users and current user from the recent members list
-    recentMembers = (members || []).filter(
-      (m: any) => !isStaffAdmin(m.user?.email) && m.user_id !== effectiveUserId,
-    );
-
-    // Fetch recent posts
-    const { data: postsData } = await queryClient
-      .from("posts")
-      .select("*, author:users!author_id(id, name, avatar_url)")
-      .eq("neighborhood_id", primaryNeighborhood.id)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false })
-      .limit(5);
-    recentPosts = postsData || [];
-
-    // Fetch pending membership requests count (admin only)
-    if (isAdmin) {
-      const { count } = await queryClient
-        .from("memberships")
-        .select("*", { count: "exact", head: true })
-        .eq("neighborhood_id", primaryNeighborhood.id)
-        .eq("status", "pending");
-      pendingMemberRequests = count || 0;
-    }
+    recentItems = items;
+    recentMembers = members;
+    recentPosts = posts;
+    pendingMemberRequests = pendingCount;
   }
 
   return (
@@ -483,8 +455,13 @@ export default async function DashboardPage() {
                               className={dashboardStyles.unifiedItemImage}
                             />
                           ) : (
-                            <div className={dashboardStyles.unifiedItemImagePlaceholder}>
-                              📦
+                            <div
+                              className={dashboardStyles.unifiedItemImagePlaceholder}
+                              style={{
+                                background: `linear-gradient(180deg, ${getCategoryColorLight(item.category as ItemCategory)} 0%, var(--color-surface) 100%)`,
+                              }}
+                            >
+                              {getCategoryEmoji(item.category as ItemCategory)}
                             </div>
                           )}
                           <div className={dashboardStyles.unifiedItemDetails}>

@@ -23,11 +23,18 @@
     "test:coverage": "turbo test:coverage --filter=@blockclub/web --filter=@blockclub/shared"
   },
   "devDependencies": {
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
     "prettier": "^3.2.4",
-    "turbo": "^2.3.0"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "turbo": "^2.7.5"
   },
   "overrides": {
-    "react-dom": "18.2.0"
+    "@types/react": "$@types/react",
+    "@types/react-dom": "$@types/react-dom",
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "packageManager": "npm@10.2.0"
 }
