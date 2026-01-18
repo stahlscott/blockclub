@@ -5,8 +5,8 @@
 Block Club is a neighborhood community app built as a Turborepo monorepo.
 
 **Stack:**
-- **Web**: Next.js 14 with App Router (primary, production)
-- **Mobile**: Expo/React Native (scaffold only)
+- **Web**: Next.js 16 with React 19 and App Router (primary, production)
+- **Mobile**: Expo/React Native (scaffold only - placeholder)
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Language**: TypeScript (strict mode)
 - **Hosting**: Vercel (auto-deploy from main)
@@ -120,6 +120,66 @@ if (!user) redirect("/signin");
 - Use native `<form>` with `action` prop for server actions
 - Client-side validation uses constants from `@/lib/validation.ts`
 - Error state managed with `useState` in client components
+
+### React 19 Patterns
+
+**useActionState for Server Actions:**
+Prefer `useActionState` over manual `useState` for form submission state when using server actions:
+```typescript
+"use client";
+import { useActionState } from "react";
+import { myServerAction, type ActionState } from "./actions";
+
+export function MyForm() {
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
+    myServerAction,
+    {} // initial state
+  );
+
+  return (
+    <form action={formAction}>
+      {state.error && <div className={styles.error}>{state.error}</div>}
+      <input name="field" />
+      <button type="submit" disabled={isPending}>
+        {isPending ? "Saving..." : "Save"}
+      </button>
+    </form>
+  );
+}
+```
+
+Server action signature for useActionState:
+```typescript
+"use server";
+export interface ActionState {
+  success?: boolean;
+  error?: string;
+}
+
+export async function myServerAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  // ... validation and database operations
+  return { success: true };
+}
+```
+
+### Next.js 16 Patterns
+
+**Middleware:**
+- Next.js 16 renames middleware.ts to `proxy.ts` with `proxy()` function
+- Located at `apps/web/proxy.ts`
+
+**Cache Components (Future):**
+- Next.js 16 introduces `"use cache"` directive for explicit caching
+- Requires `cacheComponents: true` in next.config.js
+- Also requires wrapping dynamic data in Suspense boundaries
+- Currently disabled; enable when ready to adopt Suspense throughout
+
+**Data Fetching:**
+- Extract data fetching into separate functions for parallel execution
+- See `apps/web/src/app/(protected)/dashboard/data.ts` for example
 
 ### Fetching Related Data
 ```typescript

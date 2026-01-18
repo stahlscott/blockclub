@@ -1,5 +1,10 @@
 "use client";
 
+// TODO: Consider converting to useActionState (React 19) for form submission state.
+// Current approach uses manual useState for buttonState/error which works but
+// useActionState provides automatic isPending state. See borrow-button.tsx for example.
+// Note: Complex forms with dynamic arrays (phones, emails) may be harder to convert.
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

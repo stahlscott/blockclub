@@ -109,6 +109,20 @@ Grouped for tackling in batches.
 - [ ] Add environment variable validation at startup
 - [ ] Activity/audit log
 
+#### Next.js 16 Cache Components (Medium Priority)
+Enable `"use cache"` directive for improved performance. Requires:
+- [ ] Enable `cacheComponents: true` in `next.config.js`
+- [ ] Add Suspense boundaries to all dynamic routes
+- [ ] Add `"use cache"` directive to `dashboard/data.ts`
+- [ ] Add `cacheTag()` calls and `revalidateTag()` to server actions
+
+#### React 19 useActionState Migration (Low Priority)
+Convert remaining forms from manual `useState` to `useActionState`:
+- [x] `borrow-button.tsx` - converted
+- [ ] `profile/profile-form.tsx` - complex form with dynamic arrays
+- [ ] `library/new/` - new item form
+- [ ] `posts/new/` - new post form
+
 ---
 
 ## Ideas to Consider
