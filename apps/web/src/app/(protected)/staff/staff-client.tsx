@@ -208,18 +208,21 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
         <button
           className={`${styles.tab} ${activeTab === "overview" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("overview")}
+          data-testid="staff-tab-overview"
         >
           Overview
         </button>
         <button
           className={`${styles.tab} ${activeTab === "neighborhoods" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("neighborhoods")}
+          data-testid="staff-tab-neighborhoods"
         >
           Neighborhoods
         </button>
         <button
           className={`${styles.tab} ${activeTab === "users" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("users")}
+          data-testid="staff-tab-users"
         >
           Users
         </button>
@@ -327,6 +330,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               className={styles.searchInput}
+              data-testid="staff-users-search-input"
             />
           </div>
 
@@ -377,6 +381,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                         });
                       }}
                       disabled={isImpersonating}
+                      data-testid={`staff-impersonate-button-${u.id}`}
                     >
                       {isImpersonating ? "..." : "Act as User"}
                     </button>

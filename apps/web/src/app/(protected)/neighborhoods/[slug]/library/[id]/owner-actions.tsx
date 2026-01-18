@@ -207,6 +207,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               onClick={() => handleLoanAction("decline")}
               className={styles.declineButton}
               disabled={loading}
+              data-testid="library-item-decline-button"
             >
               Decline
             </button>
@@ -214,6 +215,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               onClick={() => handleLoanAction("approve")}
               className={styles.approveButton}
               disabled={loading}
+              data-testid="library-item-approve-button"
             >
               Approve
             </button>
@@ -297,6 +299,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             onClick={() => handleLoanAction("mark_returned")}
             className={styles.returnButton}
             disabled={loading}
+            data-testid="library-item-mark-returned-button"
           >
             Mark as Returned
           </button>
@@ -305,7 +308,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
 
       {/* Owner management buttons */}
       <div className={styles.ownerActions}>
-        <Link href={`/neighborhoods/${slug}/library/${item.id}/edit`} className={styles.editButton}>
+        <Link href={`/neighborhoods/${slug}/library/${item.id}/edit`} className={styles.editButton} data-testid="library-item-edit-button">
           Edit Item
         </Link>
 
@@ -314,6 +317,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
             onClick={handleToggleAvailability}
             className={styles.toggleButton}
             disabled={loading}
+            data-testid="library-item-toggle-availability-button"
           >
             {item.availability === "available" ? "Mark Unavailable" : "Mark Available"}
           </button>
@@ -323,6 +327,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
           onClick={handleDelete}
           className={styles.deleteButton}
           disabled={loading || !!activeLoan}
+          data-testid="library-item-delete-button"
         >
           Delete Item
         </button>

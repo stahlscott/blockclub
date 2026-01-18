@@ -60,6 +60,7 @@ export function MembershipActions({ membershipId }: Props) {
         onClick={() => handleAction("reject")}
         disabled={loading}
         className={styles.rejectButton}
+        data-testid={`pending-member-decline-${membershipId}`}
       >
         Decline
       </button>
@@ -67,6 +68,7 @@ export function MembershipActions({ membershipId }: Props) {
         onClick={() => handleAction("approve")}
         disabled={loading}
         className={styles.approveButton}
+        data-testid={`pending-member-approve-${membershipId}`}
       >
         Approve
       </button>

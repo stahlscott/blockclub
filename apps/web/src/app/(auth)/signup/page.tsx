@@ -102,7 +102,7 @@ function SignUpForm() {
           already has an account, ask them to share login details instead.
         </p>
 
-        <form onSubmit={handleSignUp} className={styles.form}>
+        <form onSubmit={handleSignUp} className={styles.form} data-testid="signup-form">
           <div className={styles.inputGroup}>
             <label htmlFor="name" className={styles.label}>
               Household Name
@@ -115,6 +115,7 @@ function SignUpForm() {
               required
               className={styles.input}
               placeholder="e.g., The Smith Family"
+              data-testid="signup-form-name-input"
             />
           </div>
 
@@ -130,6 +131,7 @@ function SignUpForm() {
               required
               className={styles.input}
               placeholder="e.g., 123 Main Street"
+              data-testid="signup-form-address-input"
             />
           </div>
 
@@ -145,6 +147,7 @@ function SignUpForm() {
               required
               className={styles.input}
               placeholder="you@example.com"
+              data-testid="signup-form-email-input"
             />
           </div>
 
@@ -161,19 +164,20 @@ function SignUpForm() {
               minLength={6}
               className={styles.input}
               placeholder="At least 6 characters"
+              data-testid="signup-form-password-input"
             />
           </div>
 
-          {error && <p className={styles.error}>{error}</p>}
+          {error && <p className={styles.error} data-testid="signup-form-error">{error}</p>}
 
-          <button type="submit" disabled={loading} className={styles.button}>
+          <button type="submit" disabled={loading} className={styles.button} data-testid="signup-form-submit-button">
             {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
         <p className={styles.footer}>
           Already have an account?{" "}
-          <Link href="/signin" className={styles.link}>
+          <Link href="/signin" className={styles.link} data-testid="signup-signin-link">
             Sign in
           </Link>
         </p>

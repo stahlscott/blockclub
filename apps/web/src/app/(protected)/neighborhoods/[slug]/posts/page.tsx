@@ -83,7 +83,7 @@ export default async function PostsPage({ params }: Props) {
             {postsWithReactions.length !== 1 ? "s" : ""} in {neighborhood.name}
           </p>
         </div>
-        <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.newButton}>
+        <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.newButton} data-testid="posts-new-post-button">
           + New Post
         </Link>
       </div>

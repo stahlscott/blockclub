@@ -270,6 +270,27 @@ import {
 - E2E tests recommended for user-facing flows
 - Test authorization logic for protected actions
 
+### Test IDs
+
+All interactive elements should have `data-testid` attributes for testing.
+
+**Naming Convention:** `{context}-{component}-{element}` (kebab-case)
+
+- **Context:** Page/feature area (signin, library, header, user-menu)
+- **Component:** Optional grouping (form, modal, card)
+- **Element:** Element purpose (email-input, submit-button, close-button)
+
+**Examples:**
+- `signin-form-email-input`
+- `header-mobile-menu-button`
+- `library-item-card-{id}` (dynamic)
+- `invite-modal-copy-button`
+
+**Guidelines:**
+- Add to: buttons, links, inputs, forms, modals, dropdowns
+- For list items: include database ID for uniqueness
+- Not needed for: static text, images, decorative elements
+
 ## Environment Variables
 
 Required in `apps/web/.env.local`:

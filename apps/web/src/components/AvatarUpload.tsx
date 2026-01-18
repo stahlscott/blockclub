@@ -86,10 +86,11 @@ export function AvatarUpload({
   const displayUrl = previewUrl || currentAvatarUrl;
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="avatar-upload">
       <div
         className={styles.avatarWrapper}
         onClick={() => !uploading && fileInputRef.current?.click()}
+        data-testid="avatar-upload-trigger"
       >
         {displayUrl ? (
           <>

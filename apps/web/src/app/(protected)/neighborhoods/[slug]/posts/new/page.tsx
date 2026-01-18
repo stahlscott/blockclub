@@ -78,8 +78,8 @@ export default function NewPostPage() {
           Share something with your neighbors
         </p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.form} data-testid="posts-new-post-form">
+          {error && <div className={styles.error} data-testid="posts-new-post-form-error">{error}</div>}
 
           <div className={styles.field}>
             <label htmlFor="content" className={styles.label}>
@@ -94,6 +94,7 @@ export default function NewPostPage() {
               required
               maxLength={MAX_LENGTHS.postContent}
               className={styles.textarea}
+              data-testid="posts-new-post-content-input"
             />
             <span className={styles.charCount}>
               {content.length}/{MAX_LENGTHS.postContent}
@@ -120,6 +121,7 @@ export default function NewPostPage() {
               onChange={(e) => setExpiresAt(e.target.value)}
               min={minDate}
               className={styles.input}
+              data-testid="posts-new-post-expires-input"
             />
             <span className={styles.hint}>
               Post will be automatically hidden after this date
@@ -130,6 +132,7 @@ export default function NewPostPage() {
             <Link
               href={`/neighborhoods/${slug}/posts`}
               className={styles.cancelButton}
+              data-testid="posts-new-post-cancel-button"
             >
               Cancel
             </Link>
@@ -137,6 +140,7 @@ export default function NewPostPage() {
               type="submit"
               disabled={isPending || !content.trim()}
               className={styles.submitButton}
+              data-testid="posts-new-post-submit-button"
             >
               {isPending ? "Posting..." : "Post"}
             </button>

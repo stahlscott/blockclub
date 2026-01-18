@@ -77,18 +77,21 @@ export function Header() {
                   <Link
                     href={postsLink!}
                     className={`${styles.navLink} ${isActive(postsLink) ? styles.navLinkActive : ""}`}
+                    data-testid="header-posts-link"
                   >
                     Posts
                   </Link>
                   <Link
                     href={libraryLink!}
                     className={`${styles.navLink} ${isActive(libraryLink) ? styles.navLinkActive : ""}`}
+                    data-testid="header-library-link"
                   >
                     Library
                   </Link>
                   <Link
                     href={directoryLink!}
                     className={`${styles.navLink} ${isActive(directoryLink) ? styles.navLinkActive : ""}`}
+                    data-testid="header-directory-link"
                   >
                     Directory
                   </Link>
@@ -97,7 +100,7 @@ export function Header() {
               <UserMenu />
             </>
           ) : (
-            <Link href="/signin" className={styles.navLink}>
+            <Link href="/signin" className={styles.navLink} data-testid="header-signin-link">
               Sign in
             </Link>
           )}
@@ -108,6 +111,7 @@ export function Header() {
           className={styles.menuButton}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          data-testid="header-mobile-menu-button"
         >
           {menuOpen ? "✕" : "☰"}
         </button>
@@ -139,18 +143,18 @@ export function Header() {
               <div className={styles.mobileDivider} />
 
               {/* Main navigation */}
-              <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+              <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-dashboard-link">
                 Dashboard
               </Link>
               {shouldShowNeighborhoodNav && (
                 <>
-                  <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                  <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-posts-link">
                     Posts
                   </Link>
-                  <Link href={libraryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                  <Link href={libraryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-library-link">
                     Library
                   </Link>
-                  <Link href={directoryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                  <Link href={directoryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-directory-link">
                     Directory
                   </Link>
                 </>
@@ -159,10 +163,10 @@ export function Header() {
               <div className={styles.mobileDivider} />
 
               {/* Account links */}
-              <Link href="/profile" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+              <Link href="/profile" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-profile-link">
                 Edit Profile
               </Link>
-              <Link href="/settings" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+              <Link href="/settings" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-settings-link">
                 Account Settings
               </Link>
 
@@ -223,12 +227,12 @@ export function Header() {
 
               <div className={styles.mobileDivider} />
 
-              <button onClick={() => { signOut(); setMenuOpen(false); }} className={styles.mobileSignOutButton}>
+              <button onClick={() => { signOut(); setMenuOpen(false); }} className={styles.mobileSignOutButton} data-testid="header-mobile-signout-button">
                 Sign Out
               </button>
             </>
           ) : (
-            <Link href="/signin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+            <Link href="/signin" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-signin-link">
               Sign in
             </Link>
           )}

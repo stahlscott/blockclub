@@ -85,6 +85,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Invite QR code"
+      data-testid="invite-modal"
     >
       <div className={styles.modalContent}>
         <h2 className={styles.modalTitle}>Invite to Neighborhood</h2>
@@ -103,6 +104,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
             onClick={handleCopy}
             className={styles.qrButton}
             type="button"
+            data-testid="invite-modal-copy-button"
           >
             {copied ? "Copied!" : "Copy Link"}
           </button>
@@ -110,6 +112,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
             onClick={handleDownloadQR}
             className={styles.qrButtonOutlined}
             type="button"
+            data-testid="invite-modal-download-button"
           >
             Download QR
           </button>
@@ -120,6 +123,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
         onClick={handleCloseModal}
         aria-label="Close"
         type="button"
+        data-testid="invite-modal-close-button"
       >
         &times;
       </button>
@@ -130,7 +134,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
   if (variant === "link") {
     return (
       <>
-        <button onClick={handleOpenModal} className={styles.linkButton}>
+        <button onClick={handleOpenModal} className={styles.linkButton} data-testid="invite-button">
           <span className={styles.linkIcon}>👋</span>
           <span className={styles.linkText}>Invite</span>
         </button>
@@ -141,7 +145,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
 
   return (
     <>
-      <button onClick={handleOpenModal} className={styles.button}>
+      <button onClick={handleOpenModal} className={styles.button} data-testid="invite-button">
         <span className={styles.icon}>🔗</span>
         <span>Invite</span>
       </button>

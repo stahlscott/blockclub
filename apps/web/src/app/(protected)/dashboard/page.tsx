@@ -179,7 +179,7 @@ export default async function DashboardPage() {
   return (
     <div className={dashboardStyles.container}>
       {primaryNeighborhood && (
-        <div className={dashboardStyles.welcomeSection}>
+        <div className={dashboardStyles.welcomeSection} data-testid="dashboard-welcome-section">
           <div>
             <h1 className={dashboardStyles.welcome}>Welcome back!</h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
@@ -351,6 +351,7 @@ export default async function DashboardPage() {
             <Link
               href={`/neighborhoods/${primaryNeighborhood.slug}/members/pending`}
               className={dashboardStyles.adminBanner}
+              data-testid="dashboard-pending-requests-link"
             >
               <span>
                 {pendingMemberRequests} pending membership request
@@ -363,10 +364,11 @@ export default async function DashboardPage() {
           {/* Unified Sections Grid */}
           <div className={dashboardStyles.unifiedGrid}>
             {/* Posts Section */}
-            <div className={dashboardStyles.unifiedSection}>
+            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-posts-section">
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
                 className={dashboardStyles.unifiedSectionHeader}
+                data-testid="dashboard-posts-link"
               >
                 <div className={dashboardStyles.unifiedSectionHeaderLeft}>
                   <span className={dashboardStyles.unifiedSectionIcon}>📝</span>
@@ -424,10 +426,11 @@ export default async function DashboardPage() {
             </div>
 
             {/* Library Section */}
-            <div className={dashboardStyles.unifiedSection}>
+            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-library-section">
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
                 className={dashboardStyles.unifiedSectionHeader}
+                data-testid="dashboard-library-link"
               >
                 <div className={dashboardStyles.unifiedSectionHeaderLeft}>
                   <span className={dashboardStyles.unifiedSectionIcon}>📚</span>
@@ -488,10 +491,11 @@ export default async function DashboardPage() {
             </div>
 
             {/* Directory Section */}
-            <div className={dashboardStyles.unifiedSection}>
+            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-directory-section">
               <Link
                 href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
                 className={dashboardStyles.unifiedSectionHeader}
+                data-testid="dashboard-directory-link"
               >
                 <div className={dashboardStyles.unifiedSectionHeaderLeft}>
                   <span className={dashboardStyles.unifiedSectionIcon}>👥</span>

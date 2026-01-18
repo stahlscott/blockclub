@@ -48,12 +48,14 @@ export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Image lightbox"
+      data-testid="image-lightbox"
     >
       <button
         className={styles.closeButton}
         onClick={onClose}
         aria-label="Close lightbox"
         type="button"
+        data-testid="image-lightbox-close-button"
       >
         &times;
       </button>

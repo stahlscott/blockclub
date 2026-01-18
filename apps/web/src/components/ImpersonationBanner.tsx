@@ -33,20 +33,21 @@ export function ImpersonationBanner({ impersonatedUser }: ImpersonationBannerPro
   const displayName = impersonatedUser.name || impersonatedUser.email;
 
   return (
-    <div className={styles.banner}>
+    <div className={styles.banner} data-testid="impersonation-banner">
       <div className={styles.content}>
         <div className={styles.userInfo}>
           <span className={styles.label}>Viewing as:</span>
           <span className={styles.userName}>{displayName}</span>
         </div>
         <div className={styles.actions}>
-          <Link href="/staff" className={styles.staffLink}>
+          <Link href="/staff" className={styles.staffLink} data-testid="impersonation-staff-link">
             Staff Panel
           </Link>
           <button
             onClick={handleExit}
             disabled={isPending}
             className={styles.exitButton}
+            data-testid="impersonation-exit-button"
           >
             {isPending ? "Exiting..." : "Exit"}
           </button>

@@ -179,7 +179,7 @@ export default function SettingsPage() {
       <div className={styles.card}>
         <h2 className={styles.sectionTitle}>Change Password</h2>
 
-        <form onSubmit={handlePasswordChange} className={styles.form}>
+        <form onSubmit={handlePasswordChange} className={styles.form} data-testid="settings-password-form">
           <div className={styles.inputGroup}>
             <label htmlFor="newPassword" className={styles.label}>
               New Password
@@ -193,6 +193,7 @@ export default function SettingsPage() {
               minLength={6}
               className={styles.input}
               placeholder="At least 6 characters"
+              data-testid="settings-new-password-input"
             />
           </div>
 
@@ -208,15 +209,16 @@ export default function SettingsPage() {
               required
               className={styles.input}
               placeholder="Re-enter new password"
+              data-testid="settings-confirm-password-input"
             />
           </div>
 
-          {passwordError && <p className={styles.error}>{passwordError}</p>}
+          {passwordError && <p className={styles.error} data-testid="settings-password-error">{passwordError}</p>}
           {passwordSuccess && (
-            <p className={styles.success}>Password changed successfully!</p>
+            <p className={styles.success} data-testid="settings-password-success">Password changed successfully!</p>
           )}
 
-          <button type="submit" disabled={changingPassword} className={styles.button}>
+          <button type="submit" disabled={changingPassword} className={styles.button} data-testid="settings-change-password-button">
             {changingPassword ? "Changing..." : "Change Password"}
           </button>
         </form>
@@ -227,7 +229,7 @@ export default function SettingsPage() {
         <p className={styles.signOutHint}>
           Sign out of your account on this device.
         </p>
-        <button type="button" onClick={signOut} className={styles.signOutButton}>
+        <button type="button" onClick={signOut} className={styles.signOutButton} data-testid="settings-signout-button">
           Sign Out
         </button>
       </div>
@@ -244,6 +246,7 @@ export default function SettingsPage() {
             onClick={handleLeaveNeighborhood}
             disabled={leaving}
             className={styles.leaveButton}
+            data-testid="settings-leave-neighborhood-button"
           >
             {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
           </button>

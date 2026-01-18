@@ -83,6 +83,7 @@ export function UserMenu() {
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="User menu"
+        data-testid="user-menu-avatar-button"
       >
         <div className={styles.avatar}>
           {displayInitial}
@@ -90,7 +91,7 @@ export function UserMenu() {
       </button>
 
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div className={styles.dropdown} data-testid="user-menu-dropdown">
           {/* User info header */}
           <div className={styles.userHeader}>
             <div className={styles.avatarLarge}>
@@ -112,10 +113,10 @@ export function UserMenu() {
           <div className={styles.divider} />
 
           {/* Navigation links */}
-          <Link href="/profile" className={styles.menuItem} onClick={handleLinkClick}>
+          <Link href="/profile" className={styles.menuItem} onClick={handleLinkClick} data-testid="user-menu-profile-link">
             Edit Profile
           </Link>
-          <Link href="/settings" className={styles.menuItem} onClick={handleLinkClick}>
+          <Link href="/settings" className={styles.menuItem} onClick={handleLinkClick} data-testid="user-menu-settings-link">
             Account Settings
           </Link>
 
@@ -178,7 +179,7 @@ export function UserMenu() {
           <div className={styles.divider} />
 
           {/* Sign out */}
-          <button className={styles.signOutItem} onClick={signOut}>
+          <button className={styles.signOutItem} onClick={signOut} data-testid="user-menu-signout-button">
             Sign Out
           </button>
         </div>

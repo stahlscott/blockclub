@@ -251,7 +251,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form onSubmit={handleSubmit} className={styles.form} data-testid="profile-form">
         {/* Profile Photo Section */}
         <section className={styles.section}>
           <div className={styles.avatarSection}>
@@ -281,6 +281,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               maxLength={MAX_LENGTHS.userName}
               className={styles.input}
               placeholder="e.g., The Smith Family"
+              data-testid="profile-form-name-input"
             />
           </div>
         </section>
@@ -302,6 +303,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
                 maxLength={MAX_LENGTHS.address}
                 className={styles.input}
                 placeholder="123 Main Street"
+                data-testid="profile-form-address-input"
               />
             </div>
 
@@ -496,6 +498,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               className={styles.textarea}
               placeholder="Tell your neighbors a bit about yourselves..."
               rows={4}
+              data-testid="profile-form-bio-input"
             />
             {bio.length > MAX_LENGTHS.userBio * 0.8 && (
               <span className={styles.charCount}>
@@ -516,12 +519,13 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
           />
         </section>
 
-        {error && <p className={styles.error}>{error}</p>}
+        {error && <p className={styles.error} data-testid="profile-form-error">{error}</p>}
 
         <button
           type="submit"
           disabled={buttonState === 'saving'}
           className={`${styles.button} ${buttonState === 'success' ? styles.buttonSuccess : ''} ${buttonState === 'error' ? styles.buttonError : ''}`}
+          data-testid="profile-form-submit-button"
         >
           {buttonState === 'saving' ? "Saving..." :
            buttonState === 'success' ? "Saved!" :

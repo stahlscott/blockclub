@@ -79,24 +79,25 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
 
   if (!showForm) {
     return (
-      <button onClick={() => setShowForm(true)} className={styles.button}>
+      <button onClick={() => setShowForm(true)} className={styles.button} data-testid="library-item-borrow-button">
         Request to Borrow...
       </button>
     );
   }
 
   return (
-    <form action={formAction} className={styles.form}>
+    <form action={formAction} className={styles.form} data-testid="library-item-borrow-form">
       <input type="hidden" name="itemId" value={itemId} />
       <input type="hidden" name="slug" value={slug} />
 
-      {state.error && <div className={styles.error}>{state.error}</div>}
+      {state.error && <div className={styles.error} data-testid="library-item-borrow-form-error">{state.error}</div>}
 
       <textarea
         name="notes"
         placeholder="Add a note to the owner (optional)..."
         rows={3}
         className={styles.textarea}
+        data-testid="library-item-borrow-notes-input"
       />
 
       <div className={styles.actions}>
@@ -105,6 +106,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
           onClick={() => setShowForm(false)}
           className={styles.formCancelButton}
           disabled={isPending}
+          data-testid="library-item-borrow-cancel-button"
         >
           Cancel
         </button>
@@ -112,6 +114,7 @@ export function BorrowButton({ itemId, slug, isAvailable, userLoan }: Props) {
           type="submit"
           className={styles.button}
           disabled={isPending}
+          data-testid="library-item-borrow-submit-button"
         >
           {isPending ? "Sending..." : "Send Request"}
         </button>

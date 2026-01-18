@@ -75,6 +75,7 @@ export function NeighborhoodSwitcher({
         onClick={() => setIsOpen(!isOpen)}
         className={styles.trigger}
         disabled={isPending}
+        data-testid="neighborhood-switcher-button"
       >
         <span className={styles.neighborhoodName}>
           {isPending ? "Switching..." : currentNeighborhood?.name || "Select Neighborhood"}
@@ -85,12 +86,13 @@ export function NeighborhoodSwitcher({
       </button>
 
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div className={styles.dropdown} data-testid="neighborhood-switcher-dropdown">
           {neighborhoods.map((neighborhood) => (
             <button
               key={neighborhood.id}
               onClick={() => handleSelect(neighborhood.id)}
               className={`${styles.option} ${neighborhood.id === currentNeighborhoodId ? styles.optionActive : ""}`}
+              data-testid={`neighborhood-switcher-option-${neighborhood.id}`}
             >
               <span>{neighborhood.name}</span>
               {neighborhood.id === currentNeighborhoodId && (

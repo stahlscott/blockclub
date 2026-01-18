@@ -5,20 +5,20 @@ test.describe('Authentication', () => {
     await page.goto('/signin');
 
     await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
-    await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+    await expect(page.getByTestId('signin-form-email-input')).toBeVisible();
+    await expect(page.getByTestId('signin-form-password-input')).toBeVisible();
+    await expect(page.getByTestId('signin-form-submit-button')).toBeVisible();
   });
 
   test('shows error for invalid credentials', async ({ page }) => {
     await page.goto('/signin');
 
-    await page.getByLabel('Email').fill('invalid@example.com');
-    await page.getByLabel('Password').fill('wrongpassword');
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByTestId('signin-form-email-input').fill('invalid@example.com');
+    await page.getByTestId('signin-form-password-input').fill('wrongpassword');
+    await page.getByTestId('signin-form-submit-button').click();
 
     // Wait for error message to appear
-    await expect(page.locator('text=Invalid')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('signin-form-error')).toBeVisible({ timeout: 10000 });
   });
 
   test('redirects unauthenticated users from protected routes', async ({ page }) => {
@@ -32,11 +32,11 @@ test.describe('Authentication', () => {
   test('email field validates email format', async ({ page }) => {
     await page.goto('/signin');
 
-    const emailInput = page.getByLabel('Email');
+    const emailInput = page.getByTestId('signin-form-email-input');
     await emailInput.fill('notanemail');
 
     // HTML5 validation should prevent submission
-    const submitButton = page.getByRole('button', { name: 'Sign in' });
+    const submitButton = page.getByTestId('signin-form-submit-button');
     await submitButton.click();
 
     // The form should not navigate away due to HTML5 validation
@@ -46,15 +46,15 @@ test.describe('Authentication', () => {
   test('shows loading state during sign in', async ({ page }) => {
     await page.goto('/signin');
 
-    await page.getByLabel('Email').fill('test@example.com');
-    await page.getByLabel('Password').fill('somepassword');
+    await page.getByTestId('signin-form-email-input').fill('test@example.com');
+    await page.getByTestId('signin-form-password-input').fill('somepassword');
 
     // Click and immediately check for loading state
-    const submitButton = page.getByRole('button', { name: 'Sign in' });
+    const submitButton = page.getByTestId('signin-form-submit-button');
     await submitButton.click();
 
-    // Button should show loading text briefly
-    await expect(page.getByRole('button', { name: 'Signing in...' })).toBeVisible();
+    // Button should show loading text briefly (same testID, text changes)
+    await expect(submitButton).toContainText('Signing in...');
   });
 
   test('has link text for users without account', async ({ page }) => {

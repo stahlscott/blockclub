@@ -74,7 +74,7 @@ function SignInForm() {
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.subtitle}>Sign in to Block Club</p>
 
-        <form onSubmit={handleSignIn} className={styles.form}>
+        <form onSubmit={handleSignIn} className={styles.form} data-testid="signin-form">
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>
               Email
@@ -87,6 +87,7 @@ function SignInForm() {
               required
               className={styles.input}
               placeholder="you@example.com"
+              data-testid="signin-form-email-input"
             />
           </div>
 
@@ -102,10 +103,11 @@ function SignInForm() {
               required
               className={styles.input}
               placeholder="Your password"
+              data-testid="signin-form-password-input"
             />
           </div>
 
-          {error && <p className={styles.error}>{error}</p>}
+          {error && <p className={styles.error} data-testid="signin-form-error">{error}</p>}
 
           {emailNotConfirmed && !resendSuccess && (
             <button
@@ -113,18 +115,19 @@ function SignInForm() {
               onClick={handleResendConfirmation}
               disabled={resendLoading}
               className={styles.resendButton}
+              data-testid="signin-form-resend-button"
             >
               {resendLoading ? "Sending..." : "Resend confirmation email"}
             </button>
           )}
 
           {resendSuccess && (
-            <p className={styles.success}>
+            <p className={styles.success} data-testid="signin-form-success">
               Confirmation email sent! Check your inbox.
             </p>
           )}
 
-          <button type="submit" disabled={loading} className={styles.button}>
+          <button type="submit" disabled={loading} className={styles.button} data-testid="signin-form-submit-button">
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>

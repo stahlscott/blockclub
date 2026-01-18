@@ -72,8 +72,8 @@ export default function NewItemPage() {
           Share something with your neighbors that they can borrow
         </p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.form} data-testid="library-new-item-form">
+          {error && <div className={styles.error} data-testid="library-new-item-form-error">{error}</div>}
 
           <div className={styles.field}>
             <label htmlFor="name" className={styles.label}>
@@ -88,6 +88,7 @@ export default function NewItemPage() {
               required
               maxLength={MAX_LENGTHS.itemName}
               className={styles.input}
+              data-testid="library-new-item-name-input"
             />
           </div>
 
@@ -101,6 +102,7 @@ export default function NewItemPage() {
               onChange={(e) => setCategory(e.target.value as ItemCategory)}
               required
               className={styles.select}
+              data-testid="library-new-item-category-select"
             >
               {ITEM_CATEGORIES.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -122,6 +124,7 @@ export default function NewItemPage() {
               rows={4}
               maxLength={MAX_LENGTHS.itemDescription}
               className={styles.textarea}
+              data-testid="library-new-item-description-input"
             />
             {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
               <span className={styles.charCount}>
@@ -143,6 +146,7 @@ export default function NewItemPage() {
             <Link
               href={`/neighborhoods/${slug}/library`}
               className={styles.cancelButton}
+              data-testid="library-new-item-cancel-button"
             >
               Cancel
             </Link>
@@ -150,6 +154,7 @@ export default function NewItemPage() {
               type="submit"
               disabled={isPending}
               className={styles.submitButton}
+              data-testid="library-new-item-submit-button"
             >
               {isPending ? "Adding..." : "Add Item"}
             </button>

@@ -68,6 +68,7 @@ export default async function MyItemsPage({ params }: Props) {
         <Link
           href={`/neighborhoods/${slug}/library/new`}
           className={styles.addButton}
+          data-testid="library-mine-add-item-button"
         >
           + Add Item
         </Link>
@@ -82,6 +83,7 @@ export default async function MyItemsPage({ params }: Props) {
                 key={item.id}
                 href={`/neighborhoods/${slug}/library/${item.id}`}
                 className={styles.itemCard}
+                data-testid={`library-mine-item-card-${item.id}`}
               >
                 <div className={styles.itemImageContainer}>
                   {item.photo_urls && item.photo_urls.length > 0 ? (

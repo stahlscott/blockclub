@@ -109,22 +109,24 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         <Link
           href={`/neighborhoods/${slug}/library/new`}
           className={libraryStyles.addButton}
+          data-testid="library-add-item-button"
         >
           + Add Item
         </Link>
       </div>
 
       <div className={libraryStyles.filters}>
-        <form method="GET" className={libraryStyles.searchForm}>
+        <form method="GET" className={libraryStyles.searchForm} data-testid="library-search-form">
           <input
             type="text"
             name="search"
             placeholder="Search items..."
             defaultValue={search || ""}
             className={libraryStyles.searchInput}
+            data-testid="library-search-input"
           />
           {category && <input type="hidden" name="category" value={category} />}
-          <button type="submit" className={libraryStyles.searchButton}>
+          <button type="submit" className={libraryStyles.searchButton} data-testid="library-search-button">
             Search
           </button>
         </form>
@@ -143,12 +145,14 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         <Link
           href={`/neighborhoods/${slug}/library/mine`}
           className={libraryStyles.secondaryLink}
+          data-testid="library-my-items-link"
         >
           My Items
         </Link>
         <Link
           href={`/neighborhoods/${slug}/library/loans`}
           className={libraryStyles.secondaryLink}
+          data-testid="library-my-loans-link"
         >
           My Loans
         </Link>
@@ -161,6 +165,7 @@ export default async function LibraryPage({ params, searchParams }: Props) {
               key={item.id}
               href={`/neighborhoods/${slug}/library/${item.id}`}
               className={`${libraryStyles.card} ${getCategoryClass(item.category)}`}
+              data-testid={`library-item-card-${item.id}`}
             >
               <div className={libraryStyles.imageContainer}>
                 <OptimizedImage

@@ -41,6 +41,7 @@ export function CategoryFilter({ categories, currentCategory, search, slug }: Pr
               key={cat.value}
               href={buildHref(cat.value)}
               className={`${styles.categoryChip} ${isActive ? styles.categoryChipActive : ""}`}
+              data-testid={`library-category-chip-${cat.value}`}
             >
               {cat.label}
             </Link>
@@ -53,6 +54,7 @@ export function CategoryFilter({ categories, currentCategory, search, slug }: Pr
         className={styles.categorySelect}
         value={currentCategory || "all"}
         onChange={handleSelectChange}
+        data-testid="library-category-select"
       >
         {categories.map((cat) => (
           <option key={cat.value} value={cat.value}>
