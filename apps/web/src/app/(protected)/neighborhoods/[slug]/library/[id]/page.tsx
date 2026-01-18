@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import {
+  getCategoryEmoji,
+  getCategoryColorLight,
+} from "@/lib/category-utils";
 import { BorrowButton } from "./borrow-button";
 import { OwnerActions } from "./owner-actions";
 import { AdminActions } from "./admin-actions";
@@ -77,8 +81,29 @@ export default async function ItemDetailPage({ params }: Props) {
             borderRadius="var(--radius-lg)"
             priority
             fallback={
-              <div className={styles.imagePlaceholder}>
-                <span className={styles.placeholderIcon}>📦</span>
+              <div
+                className={styles.imagePlaceholder}
+                style={{
+                  background: `linear-gradient(180deg, ${getCategoryColorLight(item.category)} 0%, var(--color-surface) 50%)`,
+                }}
+              >
+                <div className={styles.placeholderCircle}>
+                  <span className={styles.placeholderIcon}>
+                    {getCategoryEmoji(item.category)}
+                  </span>
+                </div>
+                <div className={styles.placeholderTitle}>No Photo Added</div>
+                <div className={styles.placeholderSubtext}>
+                  Photos help neighbors know what to borrow
+                </div>
+                {isOwner && (
+                  <Link
+                    href={`/neighborhoods/${slug}/library/${item.id}/edit`}
+                    className={styles.placeholderButton}
+                  >
+                    Add Photo
+                  </Link>
+                )}
               </div>
             }
           />

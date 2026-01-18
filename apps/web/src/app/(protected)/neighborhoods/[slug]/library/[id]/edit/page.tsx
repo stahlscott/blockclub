@@ -6,22 +6,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { ITEM_CATEGORIES } from "@/lib/category-utils";
 import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
 import type { ItemCategory } from "@blockclub/shared";
 import styles from "../../library-forms.module.css";
-
-const CATEGORIES: { value: ItemCategory; label: string }[] = [
-  { value: "tools", label: "Tools" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "outdoor", label: "Outdoor" },
-  { value: "sports", label: "Sports" },
-  { value: "games", label: "Games" },
-  { value: "electronics", label: "Electronics" },
-  { value: "books", label: "Books" },
-  { value: "baby", label: "Baby" },
-  { value: "travel", label: "Travel" },
-  { value: "other", label: "Other" },
-];
 
 export default function EditItemPage() {
   const router = useRouter();
@@ -163,7 +151,7 @@ export default function EditItemPage() {
               required
               className={styles.select}
             >
-              {CATEGORIES.map((cat) => (
+              {ITEM_CATEGORIES.map((cat) => (
                 <option key={cat.value} value={cat.value}>
                   {cat.label}
                 </option>

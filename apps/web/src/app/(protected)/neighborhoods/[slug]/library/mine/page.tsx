@@ -1,6 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import {
+  getCategoryEmoji,
+  getCategoryColorLight,
+} from "@/lib/category-utils";
+import type { ItemCategory } from "@blockclub/shared";
 import styles from "../library-pages.module.css";
 
 interface Props {
@@ -88,8 +93,17 @@ export default async function MyItemsPage({ params }: Props) {
                       className={styles.itemImage}
                     />
                   ) : (
-                    <div className={styles.itemImagePlaceholder}>
-                      <span>📦</span>
+                    <div
+                      className={styles.itemImagePlaceholder}
+                      style={{
+                        background: `linear-gradient(180deg, ${getCategoryColorLight(item.category as ItemCategory)} 0%, var(--color-surface) 100%)`,
+                      }}
+                    >
+                      <div className={styles.itemPlaceholderCircle}>
+                        <span className={styles.itemPlaceholderIcon}>
+                          {getCategoryEmoji(item.category as ItemCategory)}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -7,6 +7,11 @@ import { isStaffAdmin } from "@/lib/auth";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { parseDateLocal } from "@/lib/date-utils";
+import {
+  getCategoryEmoji,
+  getCategoryColorLight,
+} from "@/lib/category-utils";
+import type { ItemCategory } from "@blockclub/shared";
 import { InviteButton } from "@/components/InviteButton";
 import dashboardStyles from "./dashboard.module.css";
 
@@ -483,8 +488,13 @@ export default async function DashboardPage() {
                               className={dashboardStyles.unifiedItemImage}
                             />
                           ) : (
-                            <div className={dashboardStyles.unifiedItemImagePlaceholder}>
-                              📦
+                            <div
+                              className={dashboardStyles.unifiedItemImagePlaceholder}
+                              style={{
+                                background: `linear-gradient(180deg, ${getCategoryColorLight(item.category as ItemCategory)} 0%, var(--color-surface) 100%)`,
+                              }}
+                            >
+                              {getCategoryEmoji(item.category as ItemCategory)}
                             </div>
                           )}
                           <div className={dashboardStyles.unifiedItemDetails}>
