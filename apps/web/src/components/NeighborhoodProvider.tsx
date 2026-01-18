@@ -20,6 +20,13 @@ interface ImpersonationState {
   impersonatedUserAvatarUrl: string | null;
 }
 
+export interface InitialNeighborhoodData {
+  primaryNeighborhoodId: string | null;
+  neighborhoods: Neighborhood[];
+  memberships: Array<{ role: string; neighborhood: Neighborhood }>;
+  isStaffAdmin: boolean;
+}
+
 interface NeighborhoodContextType {
   primaryNeighborhood: Neighborhood | null;
   neighborhoods: Neighborhood[];
@@ -49,9 +56,10 @@ const NeighborhoodContext = createContext<NeighborhoodContextType>({
 interface NeighborhoodProviderProps {
   children: React.ReactNode;
   impersonation?: ImpersonationState;
+  initialData?: InitialNeighborhoodData;
 }
 
-export function NeighborhoodProvider({ children, impersonation }: NeighborhoodProviderProps) {
+export function NeighborhoodProvider({ children, impersonation, initialData }: NeighborhoodProviderProps) {
   const { user } = useAuth();
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [primaryNeighborhood, setPrimaryNeighborhood] = useState<Neighborhood | null>(null);
@@ -79,7 +87,37 @@ export function NeighborhoodProvider({ children, impersonation }: NeighborhoodPr
     async function fetchNeighborhoodData() {
       setLoading(true);
 
-      // Fetch staff admin status
+      // If we have server-provided initial data (when impersonating), use that
+      // This bypasses RLS issues where the browser client can't read impersonated user's data
+      // and avoids a client-side fetch that can hang during SSR
+      if (initialData) {
+        setIsStaffAdmin(initialData.isStaffAdmin);
+        setNeighborhoods(initialData.neighborhoods);
+
+        // Determine primary neighborhood from initial data
+        let primary = initialData.neighborhoods.find(
+          (n) => n.id === initialData.primaryNeighborhoodId
+        ) || initialData.neighborhoods[0] || null;
+        setPrimaryNeighborhood(primary);
+
+        // Set Sentry neighborhood context
+        setSentryNeighborhood(primary);
+
+        // Check if impersonated user is admin in primary neighborhood
+        if (primary) {
+          const membership = initialData.memberships.find(
+            (m) => m.neighborhood?.id === primary!.id
+          );
+          setIsAdmin(membership?.role === "admin");
+        } else {
+          setIsAdmin(false);
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // Fetch staff admin status (only when not using initialData)
       try {
         const staffResponse = await fetch("/api/auth/staff-status");
         const staffData = await staffResponse.json();
@@ -157,7 +195,7 @@ export function NeighborhoodProvider({ children, impersonation }: NeighborhoodPr
     }
 
     fetchNeighborhoodData();
-  }, [user, supabase, effectiveUserId]);
+  }, [user, supabase, effectiveUserId, impersonation, initialData]);
 
   const switchNeighborhood = async (neighborhoodId: string) => {
     if (!user || neighborhoodId === primaryNeighborhood?.id) {

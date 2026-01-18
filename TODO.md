@@ -8,7 +8,7 @@ Neighborhood community app with directory + lending library.
 - **Multi-neighborhood support:** Yes, from day one
 - **Tech stack:** Expo (mobile), Next.js (web), Supabase (backend), Turborepo (monorepo)
 - **License:** MIT (open source)
-- **Target scale:** ~100 users, low-cost hosting
+- **Target scale:** maxing out around 25k users, low-cost hosting
 - **Supabase:** Account ready with GitHub OAuth
 
 ---

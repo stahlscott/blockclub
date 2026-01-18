@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
-import { NeighborhoodProvider } from "@/components/NeighborhoodProvider";
+import { NeighborhoodProvider, type InitialNeighborhoodData } from "@/components/NeighborhoodProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { getImpersonationContext } from "@/lib/impersonation";
+import { createAdminClient } from "@/lib/supabase/admin";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -42,6 +43,65 @@ export default async function RootLayout({
       }
     : undefined;
 
+  // Build initialData for NeighborhoodProvider
+  // - If user is a staff admin (impersonationContext !== null), pass isStaffAdmin to avoid client API call
+  // - If impersonating, also fetch neighborhood data server-side to bypass RLS
+  let initialNeighborhoodData: InitialNeighborhoodData | undefined = undefined;
+
+  if (impersonationContext) {
+    // User is a staff admin - always pass isStaffAdmin to avoid client-side fetch
+    if (impersonationContext.isImpersonating && impersonationContext.impersonatedUserId) {
+      // When impersonating, fetch neighborhood data server-side to bypass RLS
+      const adminClient = createAdminClient();
+      const impersonatedUserId = impersonationContext.impersonatedUserId;
+
+      type UserProfile = { primary_neighborhood_id: string | null };
+      type MembershipWithNeighborhood = {
+        role: string;
+        neighborhood: { id: string; name: string; slug: string } | null;
+      };
+
+      const [profileResult, membershipsResult] = await Promise.all([
+        adminClient
+          .from("users")
+          .select("primary_neighborhood_id")
+          .eq("id", impersonatedUserId)
+          .single(),
+        adminClient
+          .from("memberships")
+          .select("role, neighborhood:neighborhoods(id, name, slug)")
+          .eq("user_id", impersonatedUserId)
+          .eq("status", "active")
+          .is("deleted_at", null),
+      ]);
+
+      const profile = profileResult.data as UserProfile | null;
+      const memberships = (membershipsResult.data as unknown as MembershipWithNeighborhood[]) || [];
+
+      const neighborhoods = memberships
+        .filter((m) => m.neighborhood)
+        .map((m) => m.neighborhood!);
+
+      initialNeighborhoodData = {
+        primaryNeighborhoodId: profile?.primary_neighborhood_id || null,
+        neighborhoods,
+        memberships: memberships.map((m) => ({
+          role: m.role,
+          neighborhood: m.neighborhood!,
+        })).filter((m) => m.neighborhood),
+        isStaffAdmin: true,
+      };
+    } else {
+      // Staff admin not impersonating - just pass isStaffAdmin flag
+      initialNeighborhoodData = {
+        primaryNeighborhoodId: null,
+        neighborhoods: [],
+        memberships: [],
+        isStaffAdmin: true,
+      };
+    }
+  }
+
   return (
     <html lang="en" className={nunito.variable}>
       <body style={{
@@ -51,7 +111,7 @@ export default async function RootLayout({
         flexDirection: "column",
       }}>
         <AuthProvider>
-          <NeighborhoodProvider impersonation={impersonation}>
+          <NeighborhoodProvider impersonation={impersonation} initialData={initialNeighborhoodData}>
             {impersonationContext?.isImpersonating && impersonationContext.impersonatedUser && (
               <ImpersonationBanner
                 impersonatedUser={impersonationContext.impersonatedUser}

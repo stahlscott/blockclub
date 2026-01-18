@@ -319,3 +319,14 @@
 .signOutButton:hover {
   background-color: var(--color-error-light);
 }
+
+/* Impersonation notice */
+.impersonationNotice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-warning-light, #fef3c7);
+  color: var(--color-warning-text, #92400e);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}

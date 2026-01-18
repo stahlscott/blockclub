@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
@@ -36,15 +36,14 @@ function isWithinDays(dateStr: string, days: number) {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  // Use cached getAuthUser - shared with layout/impersonation context
+  const authUser = await getAuthUser();
 
   if (!authUser) {
     redirect("/signin");
   }
+
+  const supabase = await createClient();
 
   const { isStaffAdmin: isUserStaffAdmin, isImpersonating, effectiveUserId } =
     await getAuthContext(supabase, authUser);
@@ -162,12 +161,13 @@ export default async function DashboardPage() {
   let pendingMemberRequests = 0;
 
   if (primaryNeighborhood) {
-    // Fetch data in parallel using cached functions
+    // Fetch data in parallel
+    // Pass queryClient to support impersonation (admin client bypasses RLS)
     const [items, members, posts, pendingCount] = await Promise.all([
-      getRecentItems(primaryNeighborhood.id),
-      getRecentMembers(primaryNeighborhood.id, effectiveUserId),
-      getRecentPosts(primaryNeighborhood.id),
-      isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id) : Promise.resolve(0),
+      getRecentItems(primaryNeighborhood.id, queryClient),
+      getRecentMembers(primaryNeighborhood.id, effectiveUserId, queryClient),
+      getRecentPosts(primaryNeighborhood.id, queryClient),
+      isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient) : Promise.resolve(0),
     ]);
 
     recentItems = items;

@@ -8,8 +8,9 @@
  * Impersonation state is stored in an HTTP-only cookie.
  */
 
+import { cache } from "react";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
 import type { User } from "@blockclub/shared";
@@ -26,20 +27,20 @@ export interface ImpersonationContext {
 }
 
 /**
- * Get the current impersonation context from server-side cookies.
+ * Internal implementation - use getImpersonationContext() instead.
  * Returns null if the user is not a staff admin.
  */
-export async function getImpersonationContext(): Promise<ImpersonationContext | null> {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+async function getImpersonationContextImpl(): Promise<ImpersonationContext | null> {
+  // Get auth user (cached) and cookies in parallel
+  const [authUser, cookieStore] = await Promise.all([
+    getAuthUser(),
+    cookies(),
+  ]);
 
   if (!authUser || !isStaffAdmin(authUser.email)) {
     return null;
   }
 
-  const cookieStore = await cookies();
   const impersonatingUserId = cookieStore.get(IMPERSONATION_COOKIE)?.value;
 
   if (!impersonatingUserId) {
@@ -62,7 +63,7 @@ export async function getImpersonationContext(): Promise<ImpersonationContext | 
 
   // If impersonated user doesn't exist, clear the cookie
   if (!impersonatedUser) {
-    const cookieStore = await cookies();
+    // Reuse cookieStore from above instead of calling cookies() again
     cookieStore.delete(IMPERSONATION_COOKIE);
     return {
       isImpersonating: false,
@@ -83,6 +84,13 @@ export async function getImpersonationContext(): Promise<ImpersonationContext | 
 }
 
 /**
+ * Get the current impersonation context from server-side cookies.
+ * Cached per request - multiple calls return the same result.
+ * Returns null if the user is not a staff admin.
+ */
+export const getImpersonationContext = cache(getImpersonationContextImpl);
+
+/**
  * Get the effective user ID for queries.
  * Returns the impersonated user ID if impersonating, otherwise the authenticated user ID.
  */
@@ -98,10 +106,7 @@ export async function getEffectiveUserId(): Promise<string | null> {
   }
 
   // Not a staff admin, return regular user ID
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   return user?.id || null;
 }
 
@@ -117,13 +122,11 @@ export async function getEffectiveUser(): Promise<User | null> {
   }
 
   // Fetch the actual user profile
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
 
   if (!authUser) return null;
 
+  const supabase = await createClient();
   const { data: profile } = await supabase
     .from("users")
     .select("*")

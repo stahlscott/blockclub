@@ -1,9 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Data fetching functions for the dashboard.
  * Extracted for parallel execution and future caching with "use cache" directive.
+ *
+ * All functions accept an optional Supabase client parameter to support impersonation.
+ * When impersonating, the admin client should be passed to bypass RLS.
  *
  * TODO: Enable caching when ready to adopt Suspense throughout the app:
  * 1. Enable cacheComponents: true in next.config.js
@@ -13,8 +17,8 @@ import { isStaffAdmin } from "@/lib/auth";
  * 5. Add revalidateTag() calls to relevant server actions (createItem, createPost, etc.)
  */
 
-export async function getRecentItems(neighborhoodId: string) {
-  const supabase = await createClient();
+export async function getRecentItems(neighborhoodId: string, client?: SupabaseClient) {
+  const supabase = client ?? await createClient();
 
   const { data: items } = await supabase
     .from("items")
@@ -28,8 +32,8 @@ export async function getRecentItems(neighborhoodId: string) {
   return items || [];
 }
 
-export async function getRecentMembers(neighborhoodId: string, currentUserId: string) {
-  const supabase = await createClient();
+export async function getRecentMembers(neighborhoodId: string, currentUserId: string, client?: SupabaseClient) {
+  const supabase = client ?? await createClient();
 
   const { data: members } = await supabase
     .from("memberships")
@@ -50,8 +54,8 @@ export async function getRecentMembers(neighborhoodId: string, currentUserId: st
   );
 }
 
-export async function getRecentPosts(neighborhoodId: string) {
-  const supabase = await createClient();
+export async function getRecentPosts(neighborhoodId: string, client?: SupabaseClient) {
+  const supabase = client ?? await createClient();
 
   const { data: postsData } = await supabase
     .from("posts")
@@ -64,8 +68,8 @@ export async function getRecentPosts(neighborhoodId: string) {
   return postsData || [];
 }
 
-export async function getPendingMemberRequestsCount(neighborhoodId: string) {
-  const supabase = await createClient();
+export async function getPendingMemberRequestsCount(neighborhoodId: string, client?: SupabaseClient) {
+  const supabase = client ?? await createClient();
 
   const { count } = await supabase
     .from("memberships")

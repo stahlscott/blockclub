@@ -1,7 +1,13 @@
+import { cache } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
-export async function createClient() {
+/**
+ * Create a Supabase client for server components.
+ * Cached per request - multiple calls return the same client instance.
+ */
+export const createClient = cache(async () => {
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -25,4 +31,15 @@ export async function createClient() {
       },
     }
   );
-}
+});
+
+/**
+ * Get the authenticated user from Supabase.
+ * Cached per request - multiple calls return the same result without additional network calls.
+ * This is critical for performance since getUser() makes a network request to Supabase.
+ */
+export const getAuthUser = cache(async (): Promise<User | null> => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+});
