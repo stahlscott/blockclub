@@ -76,20 +76,29 @@ import styles from "./Component.module.css";
 - Never use relative paths like `../../lib/` - use `@/lib/` instead
 
 ### Variable Declarations
-- **Always use `const`** by default for all variable declarations
-- Only use `let` when you explicitly need to reassign the variable
+- **Always use `const`** - this is the default for all variable declarations
+- **Avoid `let`** - needing `let` is a code smell that often indicates the code could be refactored into a cleaner pattern (e.g., using `.map()`, `.reduce()`, ternary expressions, or extracting a function)
 - Never use `var`
 - ESLint enforces this with the `prefer-const` rule
 
 ```typescript
-// Good
+// Good - use const with functional patterns
 const user = await getUser();
 const items = data.filter(item => item.active);
+const total = items.reduce((sum, item) => sum + item.price, 0);
+const status = isActive ? "active" : "inactive";
 
-// Only use let when reassignment is needed
-let retryCount = 0;
-while (retryCount < 3) {
-  retryCount++;
+// Bad - using let when const with a better pattern would work
+let total = 0;
+for (const item of items) {
+  total += item.price;  // Use .reduce() instead
+}
+
+let status;
+if (isActive) {
+  status = "active";  // Use ternary instead
+} else {
+  status = "inactive";
 }
 ```
 
