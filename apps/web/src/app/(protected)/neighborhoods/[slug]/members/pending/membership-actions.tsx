@@ -8,10 +8,9 @@ import styles from "./pending.module.css";
 
 interface Props {
   membershipId: string;
-  slug: string;
 }
 
-export function MembershipActions({ membershipId, slug: _slug }: Props) {
+export function MembershipActions({ membershipId }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

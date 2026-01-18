@@ -19,7 +19,7 @@ interface Props {
 
 export default async function MemberProfilePage({ params }: Props) {
   const { slug, id } = await params;
-  const { user, neighborhood, membership, isStaffAdmin, isNeighborhoodAdmin, supabase } =
+  const { user, neighborhood, membership, isStaffAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
   // Fetch the member's profile
@@ -56,7 +56,6 @@ export default async function MemberProfilePage({ params }: Props) {
     .limit(6);
 
   const isOwnProfile = user.id === id;
-  const _isAdmin = isNeighborhoodAdmin || isStaffAdmin;
 
   // Determine role change permissions
   // Can promote: staff admin or neighborhood admin (if target is member)
