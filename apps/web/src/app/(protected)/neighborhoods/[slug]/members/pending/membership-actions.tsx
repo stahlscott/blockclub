@@ -11,7 +11,7 @@ interface Props {
   slug: string;
 }
 
-export function MembershipActions({ membershipId, slug }: Props) {
+export function MembershipActions({ membershipId, slug: _slug }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

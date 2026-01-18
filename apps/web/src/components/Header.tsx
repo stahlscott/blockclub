@@ -20,7 +20,6 @@ export function Header() {
     isImpersonating,
     impersonatedUserName,
     impersonatedUserEmail,
-    impersonatedUserAvatarUrl,
   } = useNeighborhood();
 
   // When impersonating, show the impersonated user's info

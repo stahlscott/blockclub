@@ -56,7 +56,7 @@ export default async function MemberProfilePage({ params }: Props) {
     .limit(6);
 
   const isOwnProfile = user.id === id;
-  const isAdmin = isNeighborhoodAdmin || isStaffAdmin;
+  const _isAdmin = isNeighborhoodAdmin || isStaffAdmin;
 
   // Determine role change permissions
   // Can promote: staff admin or neighborhood admin (if target is member)

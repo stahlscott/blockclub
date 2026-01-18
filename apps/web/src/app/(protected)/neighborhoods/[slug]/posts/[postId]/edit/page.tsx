@@ -46,7 +46,7 @@ export default function EditPostPage() {
   const [expiresAt, setExpiresAt] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isAuthor, setIsAuthor] = useState(false);
+  const [_isAuthor, setIsAuthor] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
