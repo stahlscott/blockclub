@@ -75,6 +75,24 @@ import styles from "./Component.module.css";
 - Always use `@/` for imports within the web app (maps to `./src/`)
 - Never use relative paths like `../../lib/` - use `@/lib/` instead
 
+### Variable Declarations
+- **Always use `const`** by default for all variable declarations
+- Only use `let` when you explicitly need to reassign the variable
+- Never use `var`
+- ESLint enforces this with the `prefer-const` rule
+
+```typescript
+// Good
+const user = await getUser();
+const items = data.filter(item => item.active);
+
+// Only use let when reassignment is needed
+let retryCount = 0;
+while (retryCount < 3) {
+  retryCount++;
+}
+```
+
 ## Database Patterns
 
 ### Multi-Tenant Architecture

@@ -23,6 +23,8 @@ export default [
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      // Always use const for variables that are never reassigned
+      "prefer-const": "error",
       // Allow setState in effects for initialization from localStorage
       "react-hooks/set-state-in-effect": "off",
     },
