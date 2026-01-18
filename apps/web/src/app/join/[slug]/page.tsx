@@ -238,7 +238,7 @@ export default function PublicJoinPage() {
 
           <div className={styles.buttonGroup}>
             <Link
-              href={`/signup?redirect=/join/${slug}`}
+              href={`/signup?redirect=/join/${slug}&neighborhoodId=${neighborhood.id}`}
               className={styles.primaryButton}
             >
               Sign Up

@@ -16,7 +16,60 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // Clear the redirect cookie if it was set
+      // Get user to check for pending neighborhood
+      const { data: { user } } = await supabase.auth.getUser();
+      const pendingNeighborhoodId = user?.user_metadata?.pending_neighborhood_id;
+
+      if (pendingNeighborhoodId && user) {
+        // Ensure user profile exists (trigger may not have run yet)
+        const { data: profile } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", user.id)
+          .single();
+
+        if (!profile) {
+          // Create profile if trigger hasn't run yet
+          await supabase.from("users").insert({
+            id: user.id,
+            email: user.email!,
+            name: user.user_metadata?.name || user.email?.split("@")[0],
+            address: user.user_metadata?.address || null,
+          });
+        }
+
+        // Check for existing membership
+        const { data: existingMembership } = await supabase
+          .from("memberships")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("neighborhood_id", pendingNeighborhoodId)
+          .maybeSingle();
+
+        if (!existingMembership) {
+          // Create membership - database trigger handles auto-approval
+          await supabase.from("memberships").insert({
+            user_id: user.id,
+            neighborhood_id: pendingNeighborhoodId,
+            role: "member",
+            status: "pending",
+          });
+        }
+
+        // Clear the pending neighborhood from metadata
+        await supabase.auth.updateUser({
+          data: { pending_neighborhood_id: null }
+        });
+
+        // Redirect to dashboard instead of join page
+        const response = NextResponse.redirect(`${origin}/dashboard`);
+        if (authRedirectCookie) {
+          response.cookies.delete("authRedirect");
+        }
+        return response;
+      }
+
+      // Original redirect logic for non-invite signups
       const response = NextResponse.redirect(`${origin}${next}`);
       if (authRedirectCookie) {
         response.cookies.delete("authRedirect");

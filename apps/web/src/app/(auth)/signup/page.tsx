@@ -11,6 +11,7 @@ function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const neighborhoodId = searchParams.get("neighborhoodId");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -34,6 +35,7 @@ function SignUpForm() {
         data: {
           name,
           address,
+          pending_neighborhood_id: neighborhoodId || null,
         },
       },
     });
