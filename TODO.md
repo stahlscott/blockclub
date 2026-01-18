@@ -40,16 +40,16 @@ Neighborhood events with RSVPs.
 - [ ] Add event reminders/notifications
 - _Note: Database schema exists, UI not implemented_
 
-### FP-4: Loan Notifications
+### FP-4: Loan Notifications ✅
 
 Transactional emails for lending library events.
 
-- [ ] Install Resend SDK and create email service
-- [ ] Build user notification settings UI
-- [ ] Loan requested notification (to owner)
-- [ ] Loan approved/rejected notification (to borrower)
-- [ ] Item returned notification (to owner)
-- [ ] Due date reminders
+- [x] Install Resend SDK and create email service
+- [x] Build user notification settings UI
+- [x] Loan requested notification (to owner)
+- [x] Loan approved/rejected notification (to borrower)
+- [x] Item returned notification (to owner)
+- [x] Branded Supabase auth email templates
 
 ### FP-5: Mobile App
 
@@ -119,9 +119,16 @@ Enable `"use cache"` directive for improved performance. Requires:
 #### React 19 useActionState Migration (Low Priority)
 Convert remaining forms from manual `useState` to `useActionState`:
 - [x] `borrow-button.tsx` - converted
+- [x] `owner-actions.tsx` - loan approve/decline/return converted
 - [ ] `profile/profile-form.tsx` - complex form with dynamic arrays
 - [ ] `library/new/` - new item form
 - [ ] `posts/new/` - new post form
+
+#### Loan Due Date Reminders (Low Priority)
+Requires a periodic job scheduler (cron, Vercel cron, or Supabase pg_cron).
+- [ ] Set up periodic job infrastructure
+- [ ] Implement due date reminder emails (1 day before, day of)
+- [ ] Add reminder preferences to notification settings
 
 ---
 
