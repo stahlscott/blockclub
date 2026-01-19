@@ -613,7 +613,7 @@
 }
 
 .cancelButton:hover:not(:disabled) {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
 }
 
 .cancelButton:disabled {

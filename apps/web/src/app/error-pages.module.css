@@ -73,14 +73,18 @@
 }
 
 .secondaryButton {
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-md);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
+  border: 1px solid var(--color-border-emphasis);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .secondaryButton:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
 }

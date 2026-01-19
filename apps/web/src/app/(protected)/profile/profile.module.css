@@ -233,7 +233,7 @@
 }
 
 .removeButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
   color: var(--color-text-secondary);
 }
 
@@ -249,7 +249,7 @@
 }
 
 .addPhoneButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
 }
 
 /* Submit button */
@@ -314,8 +314,30 @@
   }
 }
 
-/* Avatar section centering */
-.avatarSection {
+/* Profile header - avatar + basic info side by side */
+.profileHeader {
   display: flex;
-  justify-content: center;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.avatarColumn {
+  flex-shrink: 0;
+}
+
+.basicInfoColumn {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .profileHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .basicInfoColumn {
+    width: 100%;
+  }
 }

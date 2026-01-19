@@ -141,7 +141,7 @@
 }
 
 .rejectButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
 }
 
 .rejectButton:disabled {

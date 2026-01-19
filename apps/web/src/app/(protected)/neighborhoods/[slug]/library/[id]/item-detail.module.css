@@ -154,7 +154,7 @@
 }
 
 .declineButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
   color: var(--color-text);
 }
 
@@ -202,7 +202,7 @@
 }
 
 .cancelButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
   color: var(--color-text);
 }
 
@@ -476,7 +476,7 @@
 }
 
 .formCancelButton:hover {
-  background-color: var(--color-background);
+  background-color: var(--color-primary-light);
   color: var(--color-text);
 }
 

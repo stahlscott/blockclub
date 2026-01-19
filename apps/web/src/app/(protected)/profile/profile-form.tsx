@@ -252,37 +252,37 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
       )}
 
       <form onSubmit={handleSubmit} className={styles.form} data-testid="profile-form">
-        {/* Profile Photo Section */}
+        {/* Profile Photo + Basic Info Section */}
         <section className={styles.section}>
-          <div className={styles.avatarSection}>
-            <AvatarUpload
-              userId={userId}
-              currentAvatarUrl={avatarUrl}
-              name={name || "User"}
-              onUploadComplete={(url) => setAvatarUrl(url)}
-              onError={(msg) => setError(msg)}
-            />
-          </div>
-        </section>
-
-        {/* Basic Info Section */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Basic Info</h2>
-          <div className={styles.inputGroup}>
-            <label htmlFor="name" className={styles.label}>
-              Household Name *
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={MAX_LENGTHS.userName}
-              className={styles.input}
-              placeholder="e.g., The Smith Family"
-              data-testid="profile-form-name-input"
-            />
+          <div className={styles.profileHeader}>
+            <div className={styles.avatarColumn}>
+              <AvatarUpload
+                userId={userId}
+                currentAvatarUrl={avatarUrl}
+                name={name || "User"}
+                onUploadComplete={(url) => setAvatarUrl(url)}
+                onError={(msg) => setError(msg)}
+              />
+            </div>
+            <div className={styles.basicInfoColumn}>
+              <h2 className={styles.sectionTitle}>Basic Info</h2>
+              <div className={styles.inputGroup}>
+                <label htmlFor="name" className={styles.label}>
+                  Household Name *
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  maxLength={MAX_LENGTHS.userName}
+                  className={styles.input}
+                  placeholder="e.g., The Smith Family"
+                  data-testid="profile-form-name-input"
+                />
+              </div>
+            </div>
           </div>
         </section>
 

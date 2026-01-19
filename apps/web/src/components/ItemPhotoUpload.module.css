@@ -61,6 +61,7 @@
 .actionButton {
   width: 24px;
   height: 24px;
+  padding: 0;
   border-radius: 50%;
   border: none;
   background-color: rgba(0, 0, 0, 0.5);
@@ -70,6 +71,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  aspect-ratio: 1;
 }
 
 .actionButton:hover {
@@ -79,6 +84,7 @@
 .removeButton {
   width: 24px;
   height: 24px;
+  padding: 0;
   border-radius: 50%;
   border: none;
   background-color: rgba(220, 38, 38, 0.8);
@@ -89,6 +95,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  aspect-ratio: 1;
 }
 
 .removeButton:hover {

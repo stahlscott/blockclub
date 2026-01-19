@@ -149,15 +149,20 @@
 
 .searchButton {
   padding: var(--space-3) var(--space-5);
-  background-color: var(--color-background);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-emphasis);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .searchButton:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
 }
 
 /* Action links */
