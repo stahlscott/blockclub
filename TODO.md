@@ -57,6 +57,7 @@ Ideas to revisit based on user feedback.
 - [ ] Add pagination for large neighborhoods
 - [ ] Implement loading skeletons [blocker: UI/UX pass]
 - [ ] Dark mode support [blocker: UI/UX pass]
+- [ ] Dashboard redesign with bulletin board design language - consider card-based layout for posts/library/directory items with rotation hover effect
 
 ---
 
