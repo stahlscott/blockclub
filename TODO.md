@@ -66,6 +66,9 @@ Ideas to revisit based on user feedback.
 - [ ] Activity/audit log
 - [ ] Next.js 16 cache components (`use cache` directive)
 - [ ] React 19 useActionState migration (profile-form, library/new, posts/new)
+- [ ] **Migrate existing forms to useActionState pattern** - Forms currently use manual useState for error/loading state. Prefer useActionState for server action forms. See CLAUDE.md for the pattern.
+- [ ] **Standardize API route return types** - Update existing API routes to use `ApiResult<T>` from `@blockclub/shared`. Currently routes return inconsistent shapes.
+- [ ] **Migrate pages to use centralized query layer** - Replace inline Supabase queries with functions from `@/lib/queries`. Start with library page as reference.
 
 ---
 
