@@ -4,6 +4,11 @@ Neighborhood community app. Live in production, onboarding initial users.
 
 ---
 
+## Contribution Request
+
+Professional UI/UX designer to help refine the look and feel of the app. If interested, please reach out to
+hello@lakewoodblock.club!
+
 ## Feature Roadmap
 
 ### LBC-1: Job Availability
@@ -15,6 +20,7 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 
 ### LBC-2: Mobile App
 Native mobile app with push notifications. Waiting for beta feedback before starting.
+Blocker: UI/UX pass
 
 - [ ] Authentication with secure token storage
 - [ ] Core features: Dashboard, Directory, Library, Posts, Profile
@@ -35,12 +41,13 @@ Build foundation for background jobs (cron) to enable time-based features.
 
 Ideas to revisit based on user feedback.
 
-- Events & Gatherings (RSVPs, calendar)
+- One-click texting/calling from the library/posts pages
 - Marketplace (buy/sell/trade within neighborhood), "free page" for giving away items - modification of library?
 - Network-wide messages / announcements
 - Integration with Local Services (city alerts, public transport updates)
 - Links to other neighborhood/local platforms (Nextdoor, Facebook Groups, Transit app)
-- One-click texting/calling from the library/posts pages
+- Events & Gatherings (RSVPs, calendar)
+- Dark mode - blocker: UI/UX pass
 
 ---
 
