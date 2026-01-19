@@ -10,9 +10,9 @@
  */
 
 export * from "./types";
+export * from "./items";
 
 // Query modules will be added here as they're created:
-// export * from "./items";
 // export * from "./memberships";
 // export * from "./posts";
 // export * from "./loans";
