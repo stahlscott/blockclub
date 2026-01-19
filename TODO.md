@@ -13,21 +13,21 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 - [ ] Build UI for posting availability
 - [ ] Create browsable list by category
 
-### LBC-2: Scheduled Tasks Infrastructure
-Build foundation for background jobs (cron) to enable time-based features.
-
-- [ ] Evaluate options: Vercel Cron, Supabase pg_cron, or external service
-- [ ] Implement scheduled task runner with logging/monitoring
-- [ ] Add loan due date reminder emails (1 day before, day of)
-- [ ] Add reminder preferences to notification settings
-
-### LBC-3: Mobile App
+### LBC-2: Mobile App
 Native mobile app with push notifications. Waiting for beta feedback before starting.
 
 - [ ] Authentication with secure token storage
 - [ ] Core features: Dashboard, Directory, Library, Posts, Profile
 - [ ] Push notifications (Expo)
 - [ ] App Store / Play Store submission
+
+### LBC-3: Scheduled Tasks Infrastructure
+Build foundation for background jobs (cron) to enable time-based features.
+
+- [ ] Evaluate options: Vercel Cron, Supabase pg_cron, or external service
+- [ ] Implement scheduled task runner with logging/monitoring
+- [ ] Add loan due date reminder emails (1 day before, day of)
+- [ ] Add reminder preferences to notification settings
 
 ---
 
