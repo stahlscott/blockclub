@@ -216,13 +216,13 @@ export default async function LibraryPage({ params, searchParams }: Props) {
           <p className={libraryStyles.emptyText}>
             {search || category
               ? "No items match your search."
-              : "Your neighbors haven't shared any items yet. Be the first!"}
+              : "Nothing here yet—add something your neighbors might need."}
           </p>
           <Link
             href={`/neighborhoods/${slug}/library/new`}
             className={libraryStyles.emptyButton}
           >
-            Add the first item
+            Share an item
           </Link>
         </div>
       )}

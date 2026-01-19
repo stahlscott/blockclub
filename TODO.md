@@ -35,6 +35,15 @@ Build foundation for background jobs (cron) to enable time-based features.
 - [ ] Add loan due date reminder emails (1 day before, day of)
 - [ ] Add reminder preferences to notification settings
 
+### LBC-4: Dashboard Redesign
+Redesign dashboard with bulletin board design language. Current layout uses list rows; explore card-based approach.
+
+- [ ] Design card-based layout for posts/library/directory items
+- [ ] Add rotation hover effect (matches library/posts cards)
+- [ ] Revisit greeting format (currently just time-of-day, no household name)
+- [ ] Design empty state treatment for each section
+- [ ] Mobile-responsive card grid
+
 ---
 
 ## Future Considerations
@@ -57,7 +66,6 @@ Ideas to revisit based on user feedback.
 - [ ] Add pagination for large neighborhoods
 - [ ] Implement loading skeletons [blocker: UI/UX pass]
 - [ ] Dark mode support [blocker: UI/UX pass]
-- [ ] Dashboard redesign with bulletin board design language - consider card-based layout for posts/library/directory items with rotation hover effect
 
 ---
 

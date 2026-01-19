@@ -151,3 +151,45 @@ export function getDaysFromNow(days: number): Date {
   date.setDate(date.getDate() + days);
   return date;
 }
+
+/**
+ * Season type for seasonal copy variations.
+ */
+export type Season = "winter" | "spring" | "summer" | "fall";
+
+/**
+ * Get the current season based on month (Northern Hemisphere).
+ *
+ * Winter: Dec-Feb, Spring: Mar-May, Summer: Jun-Aug, Fall: Sep-Nov
+ */
+export function getCurrentSeason(): Season {
+  const month = new Date().getMonth();
+  if (month >= 2 && month <= 4) return "spring";
+  if (month >= 5 && month <= 7) return "summer";
+  if (month >= 8 && month <= 10) return "fall";
+  return "winter";
+}
+
+/**
+ * Get a seasonal closing phrase for greetings/messages.
+ *
+ * @example
+ * ```typescript
+ * const closing = getSeasonalClosing();
+ * // Winter: "Stay warm out there!"
+ * // Summer: "Enjoy the sunshine!"
+ * ```
+ */
+export function getSeasonalClosing(): string {
+  const season = getCurrentSeason();
+  switch (season) {
+    case "winter":
+      return "Stay warm out there!";
+    case "spring":
+      return "Enjoy the fresh air!";
+    case "summer":
+      return "Enjoy the sunshine!";
+    case "fall":
+      return "Enjoy the crisp weather!";
+  }
+}

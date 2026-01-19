@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { getSeasonalClosing } from "@/lib/date-utils";
 import styles from "@/app/join/join.module.css";
 
 export default function JoinNeighborhoodPage() {
@@ -188,10 +189,9 @@ export default function JoinNeighborhoodPage() {
             </>
           ) : existingMembership.status === "pending" ? (
             <>
-              <div className={styles.pendingBadge}>Pending Approval</div>
+              <div className={styles.pendingBadge}>Waiting on a neighbor</div>
               <p className={styles.message}>
-                Your request to join this neighborhood is pending approval from
-                an admin.
+                Your request is in—a neighbor will let you in soon!
               </p>
               <Link href="/dashboard" className={styles.secondaryButton}>
                 Back to Dashboard
@@ -259,11 +259,10 @@ export default function JoinNeighborhoodPage() {
       <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.successIcon}>✓</div>
-          <h1 className={styles.title}>Request Sent!</h1>
+          <h1 className={styles.title}>Almost there!</h1>
           <p className={styles.message}>
-            Your request to join <strong>{neighborhood.name}</strong> has been
-            sent. An admin will review your request and you&apos;ll be notified
-            when approved.
+            Your request to join <strong>{neighborhood.name}</strong> is in.
+            A neighbor will let you in soon! {getSeasonalClosing()}
           </p>
           <Link href="/dashboard" className={styles.primaryButton}>
             Back to Dashboard
