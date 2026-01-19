@@ -1,323 +1,77 @@
-# Block Club - Project TODO
+# Block Club - Roadmap
 
-Neighborhood community app with directory + lending library.
-
-## Key Decisions
-
-- **Name:** Block Club
-- **Multi-neighborhood support:** Yes, from day one
-- **Tech stack:** Expo (mobile), Next.js (web), Supabase (backend), Turborepo (monorepo)
-- **License:** MIT (open source)
-- **Target scale:** maxing out around 25k users, low-cost hosting
-- **Supabase:** Account ready with GitHub OAuth
+Neighborhood community app. Live in production, onboarding initial users.
 
 ---
 
-## Current Status: Deployed to Production
+## Feature Roadmap
 
-The web app is live on Vercel with core features (Directory + Lending Library). Initial users are testing.
-
----
-
-## Prioritized Features
-
-### FP-2: Job Availability
-
-Allow neighbors to post availability for services.
+### LBC-1: Job Availability
+Allow neighbors to post availability for services (childcare, pet sitting, snow shoveling, lawn mowing, etc.).
 
 - [ ] Design job availability model (user, type, description, availability)
 - [ ] Build UI for posting availability
 - [ ] Create browsable list by category
-- Categories: childcare, pet sitting, snow shoveling, lawn mowing, etc.
 
-### FP-3: Events & Gatherings
+### LBC-2: Scheduled Tasks Infrastructure
+Build foundation for background jobs (cron) to enable time-based features.
 
-Neighborhood events with RSVPs.
+- [ ] Evaluate options: Vercel Cron, Supabase pg_cron, or external service
+- [ ] Implement scheduled task runner with logging/monitoring
+- [ ] Add loan due date reminder emails (1 day before, day of)
+- [ ] Add reminder preferences to notification settings
 
-- [ ] Build event creation form
-- [ ] Create event list and calendar views
-- [ ] Implement RSVP system with headcount
-- [ ] Add event reminders/notifications
-- _Note: Database schema exists, UI not implemented_
+### LBC-3: Mobile App
+Native mobile app with push notifications. Waiting for beta feedback before starting.
 
-### FP-4: Loan Notifications ✅
+- [ ] Authentication with secure token storage
+- [ ] Core features: Dashboard, Directory, Library, Posts, Profile
+- [ ] Push notifications (Expo)
+- [ ] App Store / Play Store submission
 
-Transactional emails for lending library events.
+---
 
-- [x] Install Resend SDK and create email service
-- [x] Build user notification settings UI
-- [x] Loan requested notification (to owner)
-- [x] Loan approved/rejected notification (to borrower)
-- [x] Item returned notification (to owner)
-- [x] Branded Supabase auth email templates
+## Future Considerations
 
-### FP-5: Mobile App
+Ideas to revisit based on user feedback.
 
-Native mobile app with push notifications.
-
-**Current state:** Scaffold only - Expo Router configured with a landing screen, no features implemented.
-
-**Core features to implement (matching web):**
-- [ ] Authentication (Supabase auth with secure token storage)
-- [ ] Dashboard with neighborhood switcher
-- [ ] Directory (member list, profiles, contact actions)
-- [ ] Lending Library (browse, add items, request/manage loans)
-- [ ] Posts (posts, reactions)
-- [ ] Profile editing (avatar, contact info, bio)
-- [ ] Neighborhood management (join flow, settings)
-
-**Testing (not yet implemented):**
-- [ ] Set up testing infrastructure (Jest/React Native Testing Library)
-- [ ] Add unit tests for core components and hooks
-- [ ] Add E2E tests with Detox or Maestro
-- [ ] Fix build issue with jimp-compact (CRC error on PNG processing)
-
-**Mobile-specific:**
-- [ ] Set up push notifications (Expo)
-- [ ] Implement in-app notification center
-- [ ] Add mobile-specific notification settings
-
-**Release:**
-- [ ] Build and submit iOS app to App Store
-- [ ] Build and submit Android app to Play Store
+- Events & Gatherings (RSVPs, calendar)
+- Marketplace (buy/sell/trade within neighborhood), "free page" for giving away items - modification of library?
+- Network-wide messages / announcements
+- Integration with Local Services (city alerts, public transport updates)
+- Links to other neighborhood/local platforms (Nextdoor, Facebook Groups, Transit app)
+- One-click texting/calling from the library/posts pages
 
 ---
 
 ## Small Improvements
 
-Grouped for tackling in batches.
-
-### User Account Management
-
+- [ ] Implement loading skeletons
+- [ ] Dark mode support
 - [ ] Allow users to delete their own account
-- [x] Allow users to remove themselves from a neighborhood (e.g., moved away)
-
-### Performance & Scalability
-
+- [ ] Add onboarding flow for new users
 - [ ] Add pagination for large neighborhoods
 
-### User Experience
+---
 
-- [ ] Implement proper loading skeletons
-- [ ] Add onboarding flow for new users
-- [ ] Dark mode support
+## Tech Debt
 
-### Technical Debt
-
-- [x] Add error boundaries around critical components
-- [x] Integrate Sentry for error monitoring
 - [ ] Add environment variable validation at startup
 - [ ] Activity/audit log
-
-#### Next.js 16 Cache Components (Medium Priority)
-Enable `"use cache"` directive for improved performance. Requires:
-- [ ] Enable `cacheComponents: true` in `next.config.js`
-- [ ] Add Suspense boundaries to all dynamic routes
-- [ ] Add `"use cache"` directive to `dashboard/data.ts`
-- [ ] Add `cacheTag()` calls and `revalidateTag()` to server actions
-
-#### React 19 useActionState Migration (Low Priority)
-Convert remaining forms from manual `useState` to `useActionState`:
-- [x] `borrow-button.tsx` - converted
-- [x] `owner-actions.tsx` - loan approve/decline/return converted
-- [ ] `profile/profile-form.tsx` - complex form with dynamic arrays
-- [ ] `library/new/` - new item form
-- [ ] `posts/new/` - new post form
-
-#### Loan Due Date Reminders (Low Priority)
-Requires a periodic job scheduler (cron, Vercel cron, or Supabase pg_cron).
-- [ ] Set up periodic job infrastructure
-- [ ] Implement due date reminder emails (1 day before, day of)
-- [ ] Add reminder preferences to notification settings
+- [ ] Next.js 16 cache components (`use cache` directive)
+- [ ] React 19 useActionState migration (profile-form, library/new, posts/new)
 
 ---
 
-## Ideas to Consider
+## Developer Experience
 
-- Permissions for borrowing?
-- Simple direct messaging between neighbors
-
----
-
-## Completed
-
-### Error Monitoring (Sentry)
-
-Integrated Sentry for production error tracking with full context.
-
-- [x] Install and configure @sentry/nextjs
-- [x] Add error boundaries (global, root, protected, neighborhood)
-- [x] Enrich errors with user context (ID, email)
-- [x] Enrich errors with neighborhood context (ID, slug)
-- [x] Configure source map uploads for readable stack traces
-- [x] Add session replay (10% sampling, 100% on errors)
-- [x] Filter noise (browser extensions, network errors, resize observer)
-- [x] Integrate with existing logger module
-
-### Auth Email Setup
-
-Configured Resend and Supabase for authentication emails.
-
-- [x] Create Resend account and verify domain
-- [x] Configure Supabase SMTP settings to use Resend
-- [x] Re-enable email confirmation for signup
-- [x] Customize auth email templates (signup, password reset, email change)
-
-### FP-1: Posts
-
-A place for neighborhood members to post messages (lost cat, party announcement, road closure, etc.).
-
-- [x] Create posts table (neighborhood_id, author_id, content, is_pinned, expires_at, edited_at, edited_by)
-- [x] Create post_reactions table for emoji reactions (thumbs_up, heart, pray, celebrate)
-- [x] Build posts list view with pinned posts at top
-- [x] Add post creation form with optional expiration date
-- [x] Implement emoji reactions (toggle on/off)
-- [x] Add edit/delete for post authors
-- [x] Add pin toggle and edit capability for admins
-- [x] Show "edited by [name] on [date]" when posts are edited
-- [x] Add posts to dashboard with "Recently Posted" section
-
-### Phase 1: Project Setup & Architecture
-
-- [x] Define tech stack (React Native/Expo for mobile, React for web, shared backend)
-- [x] Set up monorepo structure (apps/web, apps/mobile, packages/shared)
-- [x] Choose backend: Supabase (free tier, auth, DB, storage)
-- [x] Set up GitHub repo
-- [x] Create basic README
-
-### Phase 2: Database Schema & Backend Setup
-
-- [x] Design database schema with multi-neighborhood support
-- [x] Design neighborhood model (name, slug, description, location, settings, created_by)
-- [x] Design membership model (user + neighborhood + role)
-- [x] Set up Supabase project with tables and relationships
-- [x] Configure Row Level Security policies scoped to neighborhood membership
-- [x] Create database migration scripts
-- [x] Auto-create user profile on signup via database trigger
-- [x] Set up storage buckets for profile photos and item images
-
-### Phase 3: Authentication & User Management
-
-- [x] Implement email/password authentication
-- [x] Add invite-only registration (neighborhood admin approves new users)
-- [x] Create user profile model (name, photo, bio, contact info)
-- [x] Build neighborhood selection/switching UI for users in multiple neighborhoods
-- [x] Build profile editing UI
-
-### Phase 4: Resident Directory Feature
-
-- [x] Create household/address model linked to neighborhood and users
-- [x] Build directory list view (scoped to current neighborhood)
-- [x] Create resident profile detail view
-- [x] Add contact buttons (call, text, email)
-- [x] Add search/filter to directory
-- [x] Add sorting to directory
-- [x] Add profile fields (address, move-in year, children, pets)
-- [x] Mobile responsive profile page
-
-### Phase 5: Lending Library Feature
-
-- [x] Design item model (name, description, category, photos, owner, availability, neighborhood_id)
-- [x] Design loan model (item, borrower, dates, status)
-- [x] Build item listing UI with categories
-- [x] Create add/edit item form
-- [x] Build request/approve loan workflow
-- [x] Add loan status views (pending requests, active loans)
-- [x] Add due date tracking and overdue highlighting
-- [x] Add photo upload for items
-- [x] Add image upload for items and avatars (Supabase Storage)
-- [x] Handle missing/broken images gracefully
-- [x] Use Next.js `<Image>` component for optimized images
-
-### Phase 9: Admin & Moderation
-
-- [x] Create admin/member roles at neighborhood level
-- [x] Create staff admin role (system-wide)
-- [x] Build user approval/invitation workflow per neighborhood
-- [x] Add neighborhood creation flow (staff admin only)
-- [x] Add ability to remove items (admin moderation)
-- [x] Add ability to promote/demote members
-- [x] Hide staff admin from neighborhood member lists and counts
-
-### Pre-Deployment
-
-- [x] Fix middleware protection for all authenticated routes
-- [x] Move staff admin emails to environment variable
-- [x] Abstract error logging into a module (prep for Sentry)
-- [x] Add input validation with max lengths and error messages
-- [x] Implement soft deletes for loans and members (items use hard delete)
-- [x] Configure Vercel project
-- [x] Set environment variables in Vercel
-- [x] Configure Supabase for production (allowed redirect URLs)
-- [x] Wipe/reset Supabase database for clean start
-- [x] Test full user flow as non-admin
-
----
-
-## Future Features (Post-MVP)
-
-### Open Source Preparation
-
-- [x] Write comprehensive README with project description
-- [x] Create SELF-HOSTING.md with fork/deployment guide
-- [ ] Create CONTRIBUTING.md with development guidelines
+- [ ] Storybook component library
+- [ ] CONTRIBUTING.md with development guidelines
+- [ ] Configuration system for customization (name, logo, colors)
 - [ ] Add screenshots to README
-- [ ] Create configuration system for easy customization (name, logo, colors)
 
 ---
 
-## Data Model Overview
+## Performance & Bug Fixes
 
-```
-┌─────────────────┐       ┌─────────────────┐
-│  neighborhoods  │       │     users       │
-├─────────────────┤       ├─────────────────┤
-│ id              │       │ id              │
-│ name            │       │ email           │
-│ slug            │       │ name            │
-│ description     │       │ avatar_url      │
-│ created_by      │       │ bio             │
-└────────┬────────┘       │ address         │
-         │                │ unit            │
-         │                │ move_in_year    │
-         │                │ children        │
-         │                │ pets            │
-         │                │ primary_neighborhood_id
-         │                └────────┬────────┘
-         │    ┌─────────────────┐  │
-         └───►│   memberships   │◄─┘
-              ├─────────────────┤
-              │ user_id         │
-              │ neighborhood_id │
-              │ role (admin/member)
-              │ status          │
-              └─────────────────┘
-
-┌─────────────────┐       ┌─────────────────┐
-│     items       │       │     loans       │
-├─────────────────┤       ├─────────────────┤
-│ id              │◄──────│ item_id         │
-│ neighborhood_id │       │ borrower_id     │
-│ owner_id        │       │ status          │
-│ name            │       │ start_date      │
-│ category        │       │ due_date        │
-│ availability    │       │ returned_at     │
-│ deleted_at      │       │ deleted_at      │
-└─────────────────┘       └─────────────────┘
-```
-
-All content (items, events, childcare) is scoped to a neighborhood via `neighborhood_id`.
-
----
-
-## Admin Roles
-
-| Capability                           | Staff Admin | Neighborhood Admin    | Member   |
-| ------------------------------------ | ----------- | --------------------- | -------- |
-| Create neighborhoods                 | ✅          | ❌                    | ❌       |
-| Automatic admin in all neighborhoods | ✅          | ❌                    | ❌       |
-| Approve/reject join requests         | ✅          | ✅ (own neighborhood) | ❌       |
-| Remove members                       | ✅          | ✅ (own neighborhood) | ❌       |
-| Remove any item                      | ✅          | ✅ (own neighborhood) | Own only |
-| Promote member to admin              | ✅          | ✅ (own neighborhood) | ❌       |
-| Demote admin to member               | ✅          | ❌                    | ❌       |
+(Add items as they arise)
