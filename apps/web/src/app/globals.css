@@ -24,10 +24,10 @@
   --color-brick: #c2410c;
   --color-brick-light: #fff7ed;
 
-  /* Text */
-  --color-text: #18181b;
-  --color-text-secondary: #52525b;
-  --color-text-muted: #a1a1aa;
+  /* Text - Stone tones (warmer than zinc) */
+  --color-text: #1c1917;           /* Stone-900 (was zinc #18181b) */
+  --color-text-secondary: #57534e; /* Stone-600 (was zinc #52525b) */
+  --color-text-muted: #a8a29e;     /* Stone-400 (was zinc #a1a1aa) */
 
   /* Backgrounds */
   --color-background: #FFFEF9;     /* Warm cream (was #fafaf9) */
