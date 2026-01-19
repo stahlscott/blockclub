@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+/**
+ * DeepPartial utility type for creating partial mock objects.
+ * Allows mocking Supabase clients with only the methods needed for a test.
+ */
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
 // Track redirect and notFound calls
 const redirectMock = vi.fn();
 const notFoundMock = vi.fn();
@@ -15,8 +23,14 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
+// Type for partial Supabase client mocks
+interface MockSupabaseClient {
+  auth: { getUser: ReturnType<typeof vi.fn> };
+  from: ReturnType<typeof vi.fn>;
+}
+
 // Mock Supabase client
-const mockSupabaseClient = {
+const mockSupabaseClient: MockSupabaseClient = {
   auth: {
     getUser: vi.fn(),
   },
@@ -27,8 +41,15 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() => Promise.resolve(mockSupabaseClient)),
 }));
 
-// Mock auth context
-const mockAuthContext = {
+// Mock auth context with explicit type for queryClient
+interface MockAuthContext {
+  isStaffAdmin: boolean;
+  isImpersonating: boolean;
+  effectiveUserId: string;
+  queryClient: DeepPartial<MockSupabaseClient>;
+}
+
+const mockAuthContext: MockAuthContext = {
   isStaffAdmin: false,
   isImpersonating: false,
   effectiveUserId: "user-123",
@@ -74,7 +95,7 @@ describe("getNeighborhoodAccess", () => {
   describe("neighborhood lookup", () => {
     it("returns notFound when neighborhood does not exist", async () => {
       // Setup: neighborhood query returns null
-      const mockQueryClient = {
+      mockAuthContext.queryClient = {
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
@@ -83,7 +104,6 @@ describe("getNeighborhoodAccess", () => {
           }),
         }),
       };
-      mockAuthContext.queryClient = mockQueryClient as unknown as typeof mockSupabaseClient;
 
       await expect(getNeighborhoodAccess("nonexistent")).rejects.toThrow(
         "NOT_FOUND"
@@ -126,7 +146,7 @@ describe("getNeighborhoodAccess", () => {
         }),
       });
 
-      const mockQueryClient = {
+      mockAuthContext.queryClient = {
         from: vi.fn()
           .mockReturnValueOnce(createQueryChain(mockNeighborhood)) // neighborhoods
           .mockReturnValueOnce(createQueryChain(mockUser)) // users
@@ -144,8 +164,6 @@ describe("getNeighborhoodAccess", () => {
             }),
           }),
       };
-
-      mockAuthContext.queryClient = mockQueryClient as unknown as typeof mockSupabaseClient;
     });
 
     it("redirects to join page when membership required but not found", async () => {
@@ -161,7 +179,7 @@ describe("getNeighborhoodAccess", () => {
         }),
       });
 
-      const mockQueryClient = {
+      mockAuthContext.queryClient = {
         from: vi.fn()
           .mockReturnValueOnce(createQueryChain(mockNeighborhood))
           .mockReturnValueOnce(createQueryChain(mockUser))
@@ -179,8 +197,6 @@ describe("getNeighborhoodAccess", () => {
             }),
           }),
       };
-
-      mockAuthContext.queryClient = mockQueryClient as unknown as typeof mockSupabaseClient;
 
       await expect(getNeighborhoodAccess("test-neighborhood")).rejects.toThrow(
         "REDIRECT:/join/test-neighborhood"
@@ -204,7 +220,7 @@ describe("getNeighborhoodAccess", () => {
         }),
       });
 
-      const mockQueryClient = {
+      mockAuthContext.queryClient = {
         from: vi.fn()
           .mockReturnValueOnce(createQueryChain(mockNeighborhood))
           .mockReturnValueOnce(createQueryChain(mockUser))
@@ -222,8 +238,6 @@ describe("getNeighborhoodAccess", () => {
             }),
           }),
       };
-
-      mockAuthContext.queryClient = mockQueryClient as unknown as typeof mockSupabaseClient;
 
       // Should NOT throw - staff admins don't need membership
       const result = await getNeighborhoodAccess("test-neighborhood");
@@ -246,7 +260,7 @@ describe("getNeighborhoodAccess", () => {
         }),
       });
 
-      const mockQueryClient = {
+      mockAuthContext.queryClient = {
         from: vi.fn()
           .mockReturnValueOnce(createQueryChain(mockNeighborhood))
           .mockReturnValueOnce(createQueryChain(mockUser))
@@ -264,8 +278,6 @@ describe("getNeighborhoodAccess", () => {
             }),
           }),
       };
-
-      mockAuthContext.queryClient = mockQueryClient as unknown as typeof mockSupabaseClient;
 
       // Should throw - impersonating user needs membership
       await expect(getNeighborhoodAccess("test-neighborhood")).rejects.toThrow(

@@ -12,6 +12,24 @@ interface Neighborhood {
   slug: string;
 }
 
+// Type for membership rows from Supabase query
+// Supabase may return neighborhood as array or object depending on type inference
+interface MembershipRow {
+  role: string;
+  neighborhood: Neighborhood | Neighborhood[] | null;
+}
+
+/**
+ * Normalize membership row to extract neighborhood.
+ * Supabase may return nested relations as arrays or objects.
+ */
+function normalizeNeighborhood(row: MembershipRow): { role: string; neighborhood: Neighborhood } | null {
+  if (!row.neighborhood) return null;
+  const neighborhood = Array.isArray(row.neighborhood) ? row.neighborhood[0] : row.neighborhood;
+  if (!neighborhood) return null;
+  return { role: row.role, neighborhood };
+}
+
 interface ImpersonationState {
   isImpersonating: boolean;
   impersonatedUserId: string | null;
@@ -160,10 +178,12 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         return;
       }
 
-      // Extract neighborhoods from memberships
-      const neighborhoodList: Neighborhood[] = (memberships || [])
-        .filter((m) => m.neighborhood)
-        .map((m) => m.neighborhood as unknown as Neighborhood);
+      // Cast memberships and normalize neighborhood data (handle array/object variations)
+      const allMemberships = (memberships || []) as MembershipRow[];
+      const normalizedMemberships = allMemberships
+        .map(normalizeNeighborhood)
+        .filter((m): m is NonNullable<typeof m> => m !== null);
+      const neighborhoodList = normalizedMemberships.map((m) => m.neighborhood);
 
       setNeighborhoods(neighborhoodList);
 
@@ -183,8 +203,8 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
 
       // Check if user is admin in primary neighborhood
       if (primary) {
-        const membership = memberships?.find(
-          (m) => (m.neighborhood as unknown as Neighborhood).id === primary!.id
+        const membership = normalizedMemberships.find(
+          (m) => m.neighborhood.id === primary!.id
         );
         setIsAdmin(membership?.role === "admin");
       } else {

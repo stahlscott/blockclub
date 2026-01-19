@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { type MembershipWithNeighborhoodRow, hasNeighborhood } from "@/lib/supabase/queries";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -56,10 +57,6 @@ export default async function RootLayout({
       const impersonatedUserId = impersonationContext.impersonatedUserId;
 
       type UserProfile = { primary_neighborhood_id: string | null };
-      type MembershipWithNeighborhood = {
-        role: string;
-        neighborhood: { id: string; name: string; slug: string } | null;
-      };
 
       const [profileResult, membershipsResult] = await Promise.all([
         adminClient
@@ -69,26 +66,27 @@ export default async function RootLayout({
           .single(),
         adminClient
           .from("memberships")
-          .select("role, neighborhood:neighborhoods(id, name, slug)")
+          .select("id, role, neighborhood:neighborhoods(id, name, slug)")
           .eq("user_id", impersonatedUserId)
           .eq("status", "active")
           .is("deleted_at", null),
       ]);
 
       const profile = profileResult.data as UserProfile | null;
-      const memberships = (membershipsResult.data as unknown as MembershipWithNeighborhood[]) || [];
+      // Cast to explicit interface defined in queries.ts
+      const allMemberships = (membershipsResult.data || []) as MembershipWithNeighborhoodRow[];
+      // Filter out null neighborhoods using type guard
+      const memberships = allMemberships.filter(hasNeighborhood);
 
-      const neighborhoods = memberships
-        .filter((m) => m.neighborhood)
-        .map((m) => m.neighborhood!);
+      const neighborhoods = memberships.map((m) => m.neighborhood);
 
       initialNeighborhoodData = {
         primaryNeighborhoodId: profile?.primary_neighborhood_id || null,
         neighborhoods,
         memberships: memberships.map((m) => ({
           role: m.role,
-          neighborhood: m.neighborhood!,
-        })).filter((m) => m.neighborhood),
+          neighborhood: m.neighborhood,
+        })),
         isStaffAdmin: true,
       };
     } else {

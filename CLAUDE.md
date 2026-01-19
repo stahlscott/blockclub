@@ -102,6 +102,31 @@ if (isActive) {
 }
 ```
 
+### Type Casting
+- **Avoid `as unknown as T`** - this double-cast bypasses TypeScript's type safety entirely and is a code smell
+- When Supabase queries return data with nested joins, define explicit interface types in `lib/supabase/queries.ts` and use single `as InterfaceName` casts
+- Use type guards and type narrowing instead of casting when possible
+- If you find yourself needing `as unknown as`, consider:
+  1. Defining an explicit interface that matches the actual data shape
+  2. Using a type guard function to narrow the type safely
+  3. Checking if the upstream type definitions can be improved
+
+```typescript
+// Bad - double cast bypasses all type checking
+const data = result as unknown as MyType;
+
+// Better - single cast to explicit interface defined in queries.ts
+const data = result as LoanRequestedRow;
+
+// Best - type guard for runtime safety
+function isMyType(value: unknown): value is MyType {
+  return typeof value === 'object' && value !== null && 'id' in value;
+}
+if (isMyType(result)) {
+  // result is now typed as MyType
+}
+```
+
 ## Database Patterns
 
 ### Multi-Tenant Architecture

@@ -4,6 +4,13 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  isNotificationPreferences,
+  type LoanRequestedRow,
+  type LoanWithBorrowerRow,
+  type LoanReturnedRow,
+  type OwnerRow,
+} from "@/lib/supabase/queries";
 import { logger } from "@/lib/logger";
 import { displayDateLocal } from "@/lib/date-utils";
 import { sendEmail } from "./service";
@@ -15,59 +22,6 @@ import {
 } from "./templates";
 import type { NotificationType, LoanNotificationData } from "./types";
 import type { NotificationPreferences } from "@blockclub/shared";
-
-// Query result types for complex joins
-interface LoanRequestedQuery {
-  id: string;
-  notes: string | null;
-  borrower: { id: string; name: string };
-  item: {
-    id: string;
-    name: string;
-    owner_id: string;
-    neighborhood: { slug: string };
-  };
-}
-
-interface LoanWithBorrowerQuery {
-  id: string;
-  due_date: string | null;
-  borrower: {
-    id: string;
-    name: string;
-    email: string;
-    notification_preferences: NotificationPreferences | null;
-  };
-  item: {
-    id: string;
-    name: string;
-    owner: { id: string; name: string };
-    neighborhood: { slug: string };
-  };
-}
-
-interface LoanReturnedQuery {
-  id: string;
-  borrower: { id: string; name: string };
-  item: {
-    id: string;
-    name: string;
-    owner: {
-      id: string;
-      name: string;
-      email: string;
-      notification_preferences: NotificationPreferences | null;
-    };
-    neighborhood: { slug: string };
-  };
-}
-
-interface OwnerQuery {
-  id: string;
-  name: string;
-  email: string;
-  notification_preferences: NotificationPreferences | null;
-}
 
 /**
  * Default notification preferences for users without saved preferences
@@ -108,6 +62,13 @@ function resolveEmailAddress(
 }
 
 /**
+ * Helper to get notification preferences from Supabase JSON field.
+ */
+function getPreferences(prefs: unknown): NotificationPreferences {
+  return isNotificationPreferences(prefs) ? prefs : DEFAULT_PREFERENCES;
+}
+
+/**
  * Send a loan requested notification to the item owner.
  */
 export async function notifyLoanRequested(loanId: string): Promise<void> {
@@ -136,8 +97,8 @@ export async function notifyLoanRequested(loanId: string): Promise<void> {
       return;
     }
 
-    // Cast to expected type (Supabase doesn't infer nested joins well)
-    const loan = loanData as unknown as LoanRequestedQuery;
+    // Cast to explicit interface defined in queries.ts
+    const loan = loanData as LoanRequestedRow;
 
     // Fetch owner with notification preferences
     const { data: ownerData, error: ownerError } = await supabase
@@ -151,8 +112,8 @@ export async function notifyLoanRequested(loanId: string): Promise<void> {
       return;
     }
 
-    const owner = ownerData as unknown as OwnerQuery;
-    const prefs = owner.notification_preferences || DEFAULT_PREFERENCES;
+    const owner = ownerData as OwnerRow;
+    const prefs = getPreferences(owner.notification_preferences);
     const emailAddress = resolveEmailAddress(owner.email, prefs, "loan_requested");
 
     if (!emailAddress) {
@@ -217,8 +178,9 @@ export async function notifyLoanApproved(loanId: string): Promise<void> {
       return;
     }
 
-    const loan = loanData as unknown as LoanWithBorrowerQuery;
-    const prefs = loan.borrower.notification_preferences || DEFAULT_PREFERENCES;
+    // Cast to explicit interface defined in queries.ts
+    const loan = loanData as LoanWithBorrowerRow;
+    const prefs = getPreferences(loan.borrower.notification_preferences);
     const emailAddress = resolveEmailAddress(loan.borrower.email, prefs, "loan_approved");
 
     if (!emailAddress) {
@@ -261,7 +223,7 @@ export async function notifyLoanDeclined(loanId: string): Promise<void> {
   try {
     const supabase = createAdminClient();
 
-    // Fetch loan with all related data
+    // Fetch loan with all related data (reusing same query shape as approved)
     const { data: loanData, error } = await supabase
       .from("loans")
       .select(`
@@ -282,9 +244,9 @@ export async function notifyLoanDeclined(loanId: string): Promise<void> {
       return;
     }
 
-    // Reuse the same type (just no due_date)
-    const loan = loanData as unknown as LoanWithBorrowerQuery;
-    const prefs = loan.borrower.notification_preferences || DEFAULT_PREFERENCES;
+    // Cast to explicit interface defined in queries.ts (same shape, just no due_date)
+    const loan = loanData as Omit<LoanWithBorrowerRow, "due_date">;
+    const prefs = getPreferences(loan.borrower.notification_preferences);
     const emailAddress = resolveEmailAddress(loan.borrower.email, prefs, "loan_declined");
 
     if (!emailAddress) {
@@ -347,8 +309,9 @@ export async function notifyLoanReturned(loanId: string): Promise<void> {
       return;
     }
 
-    const loan = loanData as unknown as LoanReturnedQuery;
-    const prefs = loan.item.owner.notification_preferences || DEFAULT_PREFERENCES;
+    // Cast to explicit interface defined in queries.ts
+    const loan = loanData as LoanReturnedRow;
+    const prefs = getPreferences(loan.item.owner.notification_preferences);
     const emailAddress = resolveEmailAddress(loan.item.owner.email, prefs, "loan_returned");
 
     if (!emailAddress) {
