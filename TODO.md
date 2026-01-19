@@ -63,6 +63,26 @@ Ideas to revisit based on user feedback.
 
 ---
 
+## E2E Test Flows Needed
+
+Currently only auth flows are covered. Prioritized by user impact.
+
+### High Priority
+
+- [ ] **Lending Library: Browse & Request** - Core feature; users browsing items and requesting to borrow
+- [ ] **Lending Library: Owner Actions** - Approve/decline/return; completes the core borrowing loop
+- [ ] **Posts: View & Create** - Second core feature; community communication
+- [ ] **Join Flow** - Critical for growth; new users joining via invite link
+
+### Medium Priority
+
+- [ ] **Dashboard** - First thing users see after login
+- [ ] **Directory: Browse & View Profile** - Core community feature
+- [ ] **Profile: Edit** - Users need to set up their profile
+- [ ] **Sign Up** - New user registration flow
+
+---
+
 ## Developer Experience
 
 - [ ] Storybook component library
