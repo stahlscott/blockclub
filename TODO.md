@@ -52,8 +52,8 @@ Ideas to revisit based on user feedback.
 
 ## Small Improvements
 
-- [ ] Allow users to delete their own account
 - [ ] Add onboarding flow for new users
+- [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
 - [ ] Implement loading skeletons [blocker: UI/UX pass]
 - [ ] Dark mode support [blocker: UI/UX pass]
