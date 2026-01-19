@@ -7,7 +7,6 @@
  * Impersonation state is stored in an HTTP-only cookie.
  */
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
@@ -19,15 +18,18 @@ import { logger } from "@/lib/logger";
  * Only staff admins can call this action.
  *
  * @param targetUserId - The ID of the user to impersonate
+ * @returns Success status - caller handles navigation
  */
-export async function startImpersonation(targetUserId: string) {
+export async function startImpersonation(
+  targetUserId: string
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
   if (!authUser || !isStaffAdmin(authUser.email)) {
-    throw new Error("Unauthorized: Only staff admins can impersonate users");
+    return { success: false, error: "Unauthorized: Only staff admins can impersonate users" };
   }
 
   // Use admin client to fetch target user (bypasses RLS)
@@ -39,7 +41,7 @@ export async function startImpersonation(targetUserId: string) {
     .single();
 
   if (error || !targetUser) {
-    throw new Error("Target user not found");
+    return { success: false, error: "Target user not found" };
   }
 
   // Type assertion - we know what fields we selected
@@ -47,7 +49,7 @@ export async function startImpersonation(targetUserId: string) {
 
   // Prevent impersonating another staff admin
   if (isStaffAdmin(user.email)) {
-    throw new Error("Cannot impersonate another staff admin");
+    return { success: false, error: "Cannot impersonate another staff admin" };
   }
 
   logger.info("Staff impersonation started", {
@@ -59,21 +61,23 @@ export async function startImpersonation(targetUserId: string) {
   });
 
   await setImpersonationCookie(targetUserId);
-  redirect("/dashboard");
+  return { success: true };
 }
 
 /**
  * Stop impersonating a user and return to staff view.
  * Only staff admins can call this action.
+ *
+ * @returns Success status - caller handles navigation
  */
-export async function stopImpersonation() {
+export async function stopImpersonation(): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
   if (!authUser || !isStaffAdmin(authUser.email)) {
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
   }
 
   logger.info("Staff impersonation stopped", {
@@ -82,5 +86,5 @@ export async function stopImpersonation() {
   });
 
   await clearImpersonationCookie();
-  redirect("/staff");
+  return { success: true };
 }

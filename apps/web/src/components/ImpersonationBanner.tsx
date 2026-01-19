@@ -8,8 +8,9 @@
  * - Access staff admin panel
  */
 
-import { useTransition } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { stopImpersonation } from "@/app/actions/impersonation";
 import styles from "./ImpersonationBanner.module.css";
 
@@ -22,12 +23,17 @@ interface ImpersonationBannerProps {
 }
 
 export function ImpersonationBanner({ impersonatedUser }: ImpersonationBannerProps) {
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
 
-  const handleExit = () => {
-    startTransition(() => {
-      stopImpersonation();
-    });
+  const handleExit = async () => {
+    setIsPending(true);
+    const result = await stopImpersonation();
+    if (result.success) {
+      router.push("/staff");
+    } else {
+      setIsPending(false);
+    }
   };
 
   const displayName = impersonatedUser.name || impersonatedUser.email;

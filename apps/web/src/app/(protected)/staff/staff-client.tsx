@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -68,7 +68,7 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
     selectedNeighborhoodId: string;
   } | null>(null);
   const [isAddingMembership, setIsAddingMembership] = useState(false);
-  const [isImpersonating, startImpersonating] = useTransition();
+  const [impersonatingUserId, setImpersonatingUserId] = useState<string | null>(null);
 
   // Get neighborhood name by ID
   const getNeighborhoodName = useCallback((id: string) => {
@@ -356,16 +356,21 @@ export function StaffClient({ neighborhoods, users, stats }: StaffClientProps) {
                     </span>
                     <button
                       className={styles.impersonateButton}
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        startImpersonating(() => {
-                          startImpersonation(u.id);
-                        });
+                        setImpersonatingUserId(u.id);
+                        const result = await startImpersonation(u.id);
+                        if (result.success) {
+                          router.push("/dashboard");
+                        } else {
+                          alert(result.error || "Failed to impersonate user");
+                          setImpersonatingUserId(null);
+                        }
                       }}
-                      disabled={isImpersonating}
+                      disabled={impersonatingUserId !== null}
                       data-testid={`staff-impersonate-button-${u.id}`}
                     >
-                      {isImpersonating ? "..." : "Act as User"}
+                      {impersonatingUserId === u.id ? "..." : "Act as User"}
                     </button>
                   </div>
                 </div>

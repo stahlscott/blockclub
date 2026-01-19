@@ -9,7 +9,7 @@ on:
 env:
   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_TEST_KEY }}
-  STAFF_ADMIN_EMAILS: "test@example.com"
+  STAFF_ADMIN_EMAILS: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
 
 jobs:
   lint-and-typecheck:
