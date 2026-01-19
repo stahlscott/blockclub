@@ -30,10 +30,15 @@
   --color-text-muted: #a1a1aa;
 
   /* Backgrounds */
-  --color-background: #fafaf9;
+  --color-background: #FFFEF9;     /* Warm cream (was #fafaf9) */
   --color-surface: #ffffff;
-  --color-border: #e4e4e7;
-  --color-border-emphasis: #c4b5fd;
+  --color-border: #e7e5e4;         /* Stone-200 (was zinc #e4e4e7) */
+  --color-border-emphasis: #d6d3d1; /* Stone-300 - warm neutral (was purple #c4b5fd) */
+
+  /* Secondary - Lake Blue (for navigation, headers, structural elements) */
+  --color-secondary: #5B8A9A;
+  --color-secondary-light: #E8F1F3;
+  --color-secondary-hover: #4A7382;
 
   /* Semantic - Status */
   --color-error: #dc2626;
