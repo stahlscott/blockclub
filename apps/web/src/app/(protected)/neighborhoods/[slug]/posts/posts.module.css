@@ -52,8 +52,8 @@
 }
 
 .postCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: rotate(0.3deg);
+  box-shadow: var(--shadow-elevated);
 }
 
 .postHeader {
