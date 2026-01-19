@@ -226,18 +226,18 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: var(--space-6) var(--space-4);  /* 24px 16px on mobile */
 }
 
 @media (min-width: 640px) {
   .pageContainer {
-    padding: 2rem 1.5rem;
+    padding: var(--space-8) var(--space-6);  /* 32px 24px on tablet */
   }
 }
 
 @media (min-width: 1024px) {
   .pageContainer {
-    padding: 2rem 2rem;
+    padding: var(--space-8);  /* 32px all around on desktop */
   }
 }
 
