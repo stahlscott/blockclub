@@ -102,15 +102,15 @@ describe("impersonation constants", () => {
   // This is a sanity check that the cookie name hasn't changed
   it("uses bc_impersonating cookie name", async () => {
     // Import the actual module to verify it exists and exports correctly
-    const module = await import("../impersonation");
+    const impersonationModule = await import("../impersonation");
 
     // The module should export these functions
-    expect(typeof module.getImpersonationContext).toBe("function");
-    expect(typeof module.getEffectiveUserId).toBe("function");
-    expect(typeof module.getEffectiveUser).toBe("function");
-    expect(typeof module.isImpersonating).toBe("function");
-    expect(typeof module.setImpersonationCookie).toBe("function");
-    expect(typeof module.clearImpersonationCookie).toBe("function");
+    expect(typeof impersonationModule.getImpersonationContext).toBe("function");
+    expect(typeof impersonationModule.getEffectiveUserId).toBe("function");
+    expect(typeof impersonationModule.getEffectiveUser).toBe("function");
+    expect(typeof impersonationModule.isImpersonating).toBe("function");
+    expect(typeof impersonationModule.setImpersonationCookie).toBe("function");
+    expect(typeof impersonationModule.clearImpersonationCookie).toBe("function");
   });
 });
 

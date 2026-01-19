@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { OptimizedImage } from "./OptimizedImage";
 import {
   uploadFile,
@@ -163,10 +164,13 @@ export function ItemPhotoUpload({
 
         {pendingUploads.map((pending) => (
           <div key={pending.id} className={styles.photoItem}>
-            <img
+            <Image
               src={pending.previewUrl}
               alt="Uploading..."
+              width={120}
+              height={120}
               className={`${styles.photo} ${styles.photoUploading}`}
+              unoptimized
             />
             <div className={styles.uploadingOverlay}>
               {pending.status === "uploading" ? "Uploading..." : "Error"}
