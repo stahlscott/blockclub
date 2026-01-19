@@ -5,7 +5,7 @@ import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
-import { parseDateLocal } from "@/lib/date-utils";
+import { parseDateLocal, getSeasonalClosing } from "@/lib/date-utils";
 import {
   getCategoryEmoji,
   getCategoryColorLight,
@@ -33,6 +33,14 @@ function isWithinDays(dateStr: string, days: number) {
   const diffTime = now.getTime() - date.getTime();
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   return diffDays <= days;
+}
+
+// Get time-of-day greeting
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 export default async function DashboardPage() {
@@ -181,7 +189,9 @@ export default async function DashboardPage() {
       {primaryNeighborhood && (
         <div className={dashboardStyles.welcomeSection} data-testid="dashboard-welcome-section">
           <div>
-            <h1 className={dashboardStyles.welcome}>Welcome back!</h1>
+            <h1 className={dashboardStyles.welcome}>
+              {getGreeting()}
+            </h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
           <InviteButton slug={primaryNeighborhood.slug} variant="link" />
@@ -419,7 +429,7 @@ export default async function DashboardPage() {
                   })
                 ) : (
                   <div className={dashboardStyles.unifiedSectionEmpty}>
-                    No recent posts
+                    Nothing posted lately
                   </div>
                 )}
               </div>
@@ -484,7 +494,7 @@ export default async function DashboardPage() {
                   })
                 ) : (
                   <div className={dashboardStyles.unifiedSectionEmpty}>
-                    No recent items
+                    Nothing shared lately
                   </div>
                 )}
               </div>
@@ -550,7 +560,7 @@ export default async function DashboardPage() {
                   })
                 ) : (
                   <div className={dashboardStyles.unifiedSectionEmpty}>
-                    No recent households
+                    No one new lately
                   </div>
                 )}
               </div>
@@ -561,10 +571,10 @@ export default async function DashboardPage() {
         <section className={dashboardStyles.section}>
           <div className={dashboardStyles.emptyState}>
             <div className={dashboardStyles.emptyIllustration}>🏘️</div>
-            <h2 className={dashboardStyles.emptyTitle}>No neighborhoods yet</h2>
+            <h2 className={dashboardStyles.emptyTitle}>No neighborhood yet</h2>
             <p className={dashboardStyles.emptyText}>
-              You haven&apos;t joined any neighborhoods yet. Ask a neighbor to
-              share their invite link with you!
+              Ask a neighbor to share their invite link—or start your own
+              block club! {getSeasonalClosing()}
             </p>
           </div>
         </section>

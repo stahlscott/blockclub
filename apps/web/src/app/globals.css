@@ -24,16 +24,21 @@
   --color-brick: #c2410c;
   --color-brick-light: #fff7ed;
 
-  /* Text */
-  --color-text: #18181b;
-  --color-text-secondary: #52525b;
-  --color-text-muted: #a1a1aa;
+  /* Text - Stone tones (warmer than zinc) */
+  --color-text: #1c1917;           /* Stone-900 (was zinc #18181b) */
+  --color-text-secondary: #57534e; /* Stone-600 (was zinc #52525b) */
+  --color-text-muted: #a8a29e;     /* Stone-400 (was zinc #a1a1aa) */
 
   /* Backgrounds */
-  --color-background: #fafaf9;
+  --color-background: #FFFEF9;     /* Warm cream (was #fafaf9) */
   --color-surface: #ffffff;
-  --color-border: #e4e4e7;
-  --color-border-emphasis: #c4b5fd;
+  --color-border: #e7e5e4;         /* Stone-200 (was zinc #e4e4e7) */
+  --color-border-emphasis: #d6d3d1; /* Stone-300 - warm neutral (was purple #c4b5fd) */
+
+  /* Secondary - Lake Blue (for navigation, headers, structural elements) */
+  --color-secondary: #5B8A9A;
+  --color-secondary-light: #E8F1F3;
+  --color-secondary-hover: #4A7382;
 
   /* Semantic - Status */
   --color-error: #dc2626;
@@ -101,14 +106,21 @@
      BORDERS & SHADOWS
      ========================================================================== */
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
+  /* Border radius - 6px default for index-card feel */
+  --radius-sm: 4px;              /* Small elements, tags */
+  --radius-default: 6px;         /* Standard cards, inputs, buttons */
+  --radius-md: 6px;              /* Alias for default */
+  --radius-lg: 8px;              /* Larger containers, modals */
+  --radius-full: 9999px;         /* Avatars, pills */
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Shadows - two levels only: resting and elevated */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);           /* Minimal, barely visible */
+  --shadow-resting: 0 1px 3px rgba(0, 0, 0, 0.08);      /* Cards at rest */
+  --shadow-elevated: 0 4px 8px rgba(0, 0, 0, 0.12);     /* Hover/focus states */
+
+  /* Legacy aliases for backwards compatibility */
+  --shadow-md: var(--shadow-resting);
+  --shadow-lg: var(--shadow-elevated);
 
   /* ==========================================================================
      TRANSITIONS & ANIMATIONS
@@ -214,18 +226,18 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: var(--space-6) var(--space-4);  /* 24px 16px on mobile */
 }
 
 @media (min-width: 640px) {
   .pageContainer {
-    padding: 2rem 1.5rem;
+    padding: var(--space-8) var(--space-6);  /* 32px 24px on tablet */
   }
 }
 
 @media (min-width: 1024px) {
   .pageContainer {
-    padding: 2rem 2rem;
+    padding: var(--space-8);  /* 32px all around on desktop */
   }
 }
 

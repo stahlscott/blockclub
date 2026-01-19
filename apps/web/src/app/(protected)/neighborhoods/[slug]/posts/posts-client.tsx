@@ -151,12 +151,12 @@ export function PostsClient({
   if (posts.length === 0) {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIllustration}>💬</div>
+        <div className={styles.emptyIllustration}>📌</div>
         <p className={styles.emptyText}>
-          It&apos;s quiet here. Start a conversation with your neighbors!
+          The board is empty—pin something up for your neighbors!
         </p>
         <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
-          Create a Post
+          Post something
         </Link>
       </div>
     );

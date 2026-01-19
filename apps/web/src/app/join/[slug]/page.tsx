@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { getSeasonalClosing } from "@/lib/date-utils";
 import "@/app/globals.css";
 import styles from "../join.module.css";
 
@@ -345,11 +346,10 @@ export default function PublicJoinPage() {
       <div className="fullPageContainer">
         <div className={styles.card}>
           <div className={styles.successIcon}>✓</div>
-          <h1 className={styles.title}>Request Sent!</h1>
+          <h1 className={styles.title}>Almost there!</h1>
           <p className={styles.message}>
-            Your request to join <strong>{neighborhood.name}</strong> has been
-            sent. An admin will review your request and you&apos;ll be notified
-            when approved.
+            Your request to join <strong>{neighborhood.name}</strong> is in.
+            A neighbor will let you in soon! {getSeasonalClosing()}
           </p>
           <Link href="/dashboard" className={styles.primaryButton}>
             Go to Dashboard

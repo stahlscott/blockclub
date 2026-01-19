@@ -39,6 +39,81 @@ Block Club is a neighborhood community app built as a Turborepo monorepo.
 - **CSS variables** in globals.css for colors, spacing, shadows
 - **responsive.module.css** for grid utilities (grid2, grid3, grid4, statsRow)
 
+## Design System
+
+### Visual Philosophy: "The Community Bulletin Board"
+
+Block Club follows the principle: **clean and trustworthy as the default, with intentional moments of warmth.**
+
+The app should feel like a well-designed public library or co-op - warm but understated. Friendliness comes from clarity and respect for the user's time, not visual flourishes.
+
+**Core principles:**
+- **Quiet confidence** - Foundation is clean, functional, trustworthy
+- **Physical neighborhood metaphors** - Design elements subtly evoke bulletin boards, index cards, posted notices (felt, not seen)
+- **Local specificity** - Neighborhood name is prominent; the app feels like it belongs to *this* community
+- **Utility over engagement** - Functional, helpful, there when needed - never gamified
+
+### Color Usage
+
+| Color | Purpose |
+|-------|---------|
+| Violet (`--color-primary`) | Actions: buttons, links, interactive elements |
+| Lake Blue (`--color-secondary`) | Structure: navigation, headers, structural elements |
+| Category colors | Category indicators only (library items) |
+| Semantic colors (red/yellow/green) | Status only, never decoration |
+
+**Background:** Warm cream (`#FFFEF9`) for pages, white for cards (gains warmth by contrast).
+
+### Visual Consistency Rules
+
+- **Shadows:** Two levels only - "resting" (subtle) and "elevated" (hover/focus). No purple-tinted shadows.
+- **Border radius:** `6px` throughout for index-card feel. Full radius only for avatars and pills.
+- **Spacing:** Strict adherence to scale - page padding `space-8`, card padding `space-5`, section gaps `space-6`.
+- **Cards:** Subtle warm border + minimal shadow for paper-like feel. Cards get borders *or* heavy shadows, not both.
+
+### Component Patterns
+
+**Cards:**
+- Library items: 4px category color top-border
+- Posts: 4px left border (primary color, gold if pinned)
+- Hover: Slight rotation (0.5deg) + shadow expansion, not lift
+
+**Buttons:**
+- Primary: Clean appearance, warm shadow on hover, subtle press state
+- Keep button shadows warm/neutral, not purple-tinted
+
+**Avatars:**
+- Warm border color (stone tones)
+- Placeholder: Initial letter on consistently-assigned warm background
+
+### Voice & Copy Guidelines
+
+**Tone:** Friendly, human microcopy that sounds like a helpful neighbor.
+
+**Empty states** - Invitations, not dead ends:
+- "Nothing here yet - add something your neighbors might need"
+- "No posts yet. What's happening on your block?"
+
+**Timestamps** - Human language for recent items:
+- "Posted yesterday" / "Shared 3 days ago"
+
+**Success messages** - Neighbor-aware:
+- "Added to the library - your neighbors can see it now"
+- "You're all set - reach out to [name] to arrange pickup"
+
+**Time awareness:**
+- Greetings shift: "Good morning/afternoon/evening, [name]"
+- Seasonal touches in copy (not visuals): "Perfect weather for borrowing that tent"
+
+### Identity Architecture
+
+- **City-level:** Subtle (color palette inspired by Lake Erie, not explicitly branded)
+- **Neighborhood-level:** Prominent (neighborhood name is the visual anchor)
+
+This scales naturally for future expansion - no theming system needed.
+
+**Full design document:** `docs/plans/2026-01-19-community-bulletin-board-design.md`
+
 ## Code Conventions
 
 ### File Naming

@@ -142,8 +142,8 @@
 }
 
 .itemCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: rotate(0.3deg);
+  box-shadow: var(--shadow-elevated);
 }
 
 .itemImageContainer {
@@ -381,7 +381,7 @@
 .primaryButton:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Banners */
@@ -423,8 +423,8 @@
 }
 
 .actionCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: rotate(0.3deg);
+  box-shadow: var(--shadow-elevated);
 }
 
 .actionIcon {

@@ -227,6 +227,7 @@
 .saveDueDateButton:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .saveDueDateButton:disabled {
@@ -251,7 +252,7 @@
 .returnButton:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .returnButton:disabled {
@@ -288,6 +289,7 @@
 .editButton:hover {
   background-color: var(--color-primary-light);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .toggleButton {
@@ -305,6 +307,7 @@
 .toggleButton:hover {
   background-color: var(--color-primary-light);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .toggleButton:disabled {
@@ -351,7 +354,7 @@
 .button:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .button:disabled {
@@ -654,6 +657,7 @@
 .placeholderButton:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Legacy details - now using .detailsCard instead */
