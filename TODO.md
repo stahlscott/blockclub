@@ -20,7 +20,7 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 
 ### LBC-2: Mobile App
 Native mobile app with push notifications. Waiting for beta feedback before starting.
-Blocker: UI/UX pass
+[blocker: UI/UX pass]
 
 - [ ] Authentication with secure token storage
 - [ ] Core features: Dashboard, Directory, Library, Posts, Profile
@@ -47,17 +47,16 @@ Ideas to revisit based on user feedback.
 - Integration with Local Services (city alerts, public transport updates)
 - Links to other neighborhood/local platforms (Nextdoor, Facebook Groups, Transit app)
 - Events & Gatherings (RSVPs, calendar)
-- Dark mode - blocker: UI/UX pass
 
 ---
 
 ## Small Improvements
 
-- [ ] Implement loading skeletons
-- [ ] Dark mode support
 - [ ] Allow users to delete their own account
 - [ ] Add onboarding flow for new users
 - [ ] Add pagination for large neighborhoods
+- [ ] Implement loading skeletons [blocker: UI/UX pass]
+- [ ] Dark mode support [blocker: UI/UX pass]
 
 ---
 
@@ -95,7 +94,7 @@ Currently only auth flows are covered. Prioritized by user impact.
 - [ ] Storybook component library
 - [ ] CONTRIBUTING.md with development guidelines
 - [ ] Configuration system for customization (name, logo, colors)
-- [ ] Add screenshots to README
+- [ ] Add screenshots to README [blocker: UI/UX pass]
 
 ---
 
