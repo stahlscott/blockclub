@@ -352,6 +352,93 @@ const error = validateLength(name, "Name", MAX_LENGTHS.itemName);
 if (error) setError(error);
 ```
 
+## API Routes vs Server Actions
+
+### When to Use Server Actions
+Server actions are the **default choice** for mutations. Use them when:
+
+- The operation is triggered by a form submission
+- You need `revalidatePath()` or `redirect()` after the operation
+- The caller only needs success/failure feedback
+- Permission model is straightforward (auth + membership check)
+
+**Location:** Colocate with the page in `actions.ts` (e.g., `library/actions.ts`)
+
+**Pattern:**
+```typescript
+"use server";
+import type { ActionResult } from "@blockclub/shared";
+
+export async function createItem(data: CreateItemData): Promise<ActionResult> {
+  // ... auth, validation, mutation
+  revalidatePath(`/neighborhoods/${slug}/library`);
+  return { success: true };
+}
+```
+
+### When to Use API Routes
+Use API routes when:
+
+- **Returning data objects** - The caller needs the created/updated entity back
+- **Complex HTTP semantics** - You need specific status codes (404, 409) for client handling
+- **Non-form triggers** - Dropdown menus, confirmation dialogs, external webhooks
+- **Staff admin operations** - Operations that bypass RLS and need admin client
+- **Client-side fetching** - Data needed by client components (e.g., staff status check)
+
+**Location:** `app/api/` directory, organized by resource
+
+**Pattern:**
+```typescript
+import type { ApiResult } from "@blockclub/shared";
+
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  // ... auth, validation
+
+  if (!authorized) {
+    return NextResponse.json(
+      { success: false, error: "Forbidden", code: "FORBIDDEN" } satisfies ApiResult,
+      { status: 403 }
+    );
+  }
+
+  // ... mutation
+  return NextResponse.json({ success: true, data: updatedEntity } satisfies ApiResult<Entity>);
+}
+```
+
+### Decision Flowchart
+
+```
+Is it a form submission?
+  YES → Server Action
+  NO ↓
+
+Does it need to return the created/updated entity?
+  YES → API Route
+  NO ↓
+
+Is it a staff-admin-only operation?
+  YES → API Route (in /api/admin/)
+  NO ↓
+
+Does it need specific HTTP status codes for error handling?
+  YES → API Route
+  NO → Server Action
+```
+
+## React 19 Patterns
+
+### Form State Management
+
+**Preferred: useActionState (React 19)**
+Use for forms that submit to server actions. Provides `isPending` for free, cleaner code.
+
+**Acceptable: useState**
+Use when useActionState doesn't fit (e.g., multi-step forms, complex validation that prevented adoption). Document why in a comment if choosing this pattern.
+
+**Known limitations encountered:**
+- (Add specific issues here as they're discovered, so future LLMs understand why some forms use useState)
+
 ## Error Handling
 
 ### Supabase Queries
