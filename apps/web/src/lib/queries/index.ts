@@ -13,8 +13,8 @@ export * from "./types";
 export * from "./items";
 export * from "./memberships";
 export * from "./posts";
+export * from "./loans";
 
 // Query modules will be added here as they're created:
-// export * from "./loans";
 // export * from "./users";
 // export * from "./neighborhoods";
