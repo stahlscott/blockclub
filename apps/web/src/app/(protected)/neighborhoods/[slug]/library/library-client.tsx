@@ -58,14 +58,6 @@ export function LibraryClient({ items, slug, userId, category }: Props) {
     );
   }, [items, debouncedQuery]);
 
-  // Count items by availability
-  const availableCount = filteredItems.filter(
-    (i) => i.availability === "available"
-  ).length;
-  const borrowedCount = filteredItems.filter(
-    (i) => i.availability === "borrowed"
-  ).length;
-
   const getAvailabilityClass = (availability: string) => {
     switch (availability) {
       case "available":
