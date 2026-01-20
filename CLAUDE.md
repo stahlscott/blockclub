@@ -364,6 +364,25 @@ import {
 - Extract reusable logic into custom hooks or utilities
 - Use composition over monolithic components
 
+## Accessibility (a11y)
+
+### Core Principles
+- **Semantic HTML first** - Use `<button>`, `<nav>`, `<main>`, `<article>` over generic `<div>`
+- **Interactive elements are focusable** - Buttons, links, inputs must be keyboard accessible
+- **Color is not the only indicator** - Pair color with icons, text, or patterns
+- **Images have alt text** - Decorative images use `alt=""`
+
+### Development Workflow
+- **Storybook a11y addon** - Check the Accessibility panel for each story. Fix violations before merging.
+- **Keyboard testing** - Tab through interactive components. Focus states must be visible.
+- **Minimum contrast** - 4.5:1 for normal text, 3:1 for large text (18px+)
+
+### Common Patterns
+- Form inputs: Always pair with `<label>` using `htmlFor`
+- Icon buttons: Include `aria-label` describing the action
+- Loading states: Use `aria-busy="true"` on containers
+- Error messages: Connect to inputs via `aria-describedby`
+
 ## Package Responsibilities
 
 ### @blockclub/shared
