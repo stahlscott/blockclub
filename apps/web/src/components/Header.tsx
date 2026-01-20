@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { useNeighborhood } from "./NeighborhoodProvider";
@@ -20,6 +21,7 @@ export function Header() {
     isImpersonating,
     impersonatedUserName,
     impersonatedUserEmail,
+    userAvatarUrl,
   } = useNeighborhood();
 
   // When impersonating, show the impersonated user's info
@@ -127,7 +129,17 @@ export function Header() {
               {/* User info section */}
               <div className={styles.mobileUserSection}>
                 <div className={styles.mobileAvatar}>
-                  {displayInitial}
+                  {userAvatarUrl ? (
+                    <Image
+                      src={userAvatarUrl}
+                      alt="Profile"
+                      width={40}
+                      height={40}
+                      className={styles.mobileAvatarImage}
+                    />
+                  ) : (
+                    displayInitial
+                  )}
                 </div>
                 <div className={styles.mobileUserInfo}>
                   {isImpersonating && displayName && (

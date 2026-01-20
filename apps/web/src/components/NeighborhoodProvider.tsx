@@ -43,6 +43,7 @@ export interface InitialNeighborhoodData {
   neighborhoods: Neighborhood[];
   memberships: Array<{ role: string; neighborhood: Neighborhood }>;
   isStaffAdmin: boolean;
+  userAvatarUrl: string | null;
 }
 
 interface NeighborhoodContextType {
@@ -54,6 +55,7 @@ interface NeighborhoodContextType {
   impersonatedUserName: string | null;
   impersonatedUserEmail: string | null;
   impersonatedUserAvatarUrl: string | null;
+  userAvatarUrl: string | null;
   loading: boolean;
   switchNeighborhood: (neighborhoodId: string) => Promise<void>;
 }
@@ -67,6 +69,7 @@ const NeighborhoodContext = createContext<NeighborhoodContextType>({
   impersonatedUserName: null,
   impersonatedUserEmail: null,
   impersonatedUserAvatarUrl: null,
+  userAvatarUrl: null,
   loading: true,
   switchNeighborhood: async () => {},
 });
@@ -83,6 +86,7 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
   const [primaryNeighborhood, setPrimaryNeighborhood] = useState<Neighborhood | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaffAdmin, setIsStaffAdmin] = useState(false);
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
@@ -111,6 +115,7 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
       if (initialData) {
         setIsStaffAdmin(initialData.isStaffAdmin);
         setNeighborhoods(initialData.neighborhoods);
+        setUserAvatarUrl(initialData.userAvatarUrl);
 
         // Determine primary neighborhood from initial data
         const primary = initialData.neighborhoods.find(
@@ -154,12 +159,14 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         return;
       }
 
-      // Fetch user's profile with primary neighborhood
+      // Fetch user's profile with primary neighborhood and avatar
       const { data: profile } = await supabase
         .from("users")
-        .select("primary_neighborhood_id")
+        .select("primary_neighborhood_id, avatar_url")
         .eq("id", effectiveUserId)
         .single();
+
+      setUserAvatarUrl(profile?.avatar_url ?? null);
 
       // Fetch user's active memberships with neighborhood data
       const { data: memberships, error } = await supabase
@@ -241,6 +248,11 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
     window.location.reload();
   };
 
+  // When impersonating, use impersonated user's avatar; otherwise use current user's avatar
+  const effectiveAvatarUrl = impersonation?.isImpersonating
+    ? impersonation.impersonatedUserAvatarUrl
+    : userAvatarUrl;
+
   return (
     <NeighborhoodContext.Provider
       value={{
@@ -252,6 +264,7 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         impersonatedUserName: impersonation?.impersonatedUserName ?? null,
         impersonatedUserEmail: impersonation?.impersonatedUserEmail ?? null,
         impersonatedUserAvatarUrl: impersonation?.impersonatedUserAvatarUrl ?? null,
+        userAvatarUrl: effectiveAvatarUrl,
         loading,
         switchNeighborhood,
       }}

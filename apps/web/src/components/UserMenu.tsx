@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "./AuthProvider";
 import { useNeighborhood } from "./NeighborhoodProvider";
 import styles from "./UserMenu.module.css";
@@ -17,6 +18,7 @@ export function UserMenu() {
     isImpersonating,
     impersonatedUserName,
     impersonatedUserEmail,
+    userAvatarUrl,
   } = useNeighborhood();
   const [isOpen, setIsOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(false);
@@ -86,7 +88,17 @@ export function UserMenu() {
         data-testid="user-menu-avatar-button"
       >
         <div className={styles.avatar}>
-          {displayInitial}
+          {userAvatarUrl ? (
+            <Image
+              src={userAvatarUrl}
+              alt="Profile"
+              width={32}
+              height={32}
+              className={styles.avatarImage}
+            />
+          ) : (
+            displayInitial
+          )}
         </div>
       </button>
 
@@ -95,7 +107,17 @@ export function UserMenu() {
           {/* User info header */}
           <div className={styles.userHeader}>
             <div className={styles.avatarLarge}>
-              {displayInitial}
+              {userAvatarUrl ? (
+                <Image
+                  src={userAvatarUrl}
+                  alt="Profile"
+                  width={48}
+                  height={48}
+                  className={styles.avatarImage}
+                />
+              ) : (
+                displayInitial
+              )}
             </div>
             <div className={styles.userInfo}>
               {isImpersonating && displayName && (

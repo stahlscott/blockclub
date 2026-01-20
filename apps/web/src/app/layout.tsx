@@ -56,12 +56,12 @@ export default async function RootLayout({
       const adminClient = createAdminClient();
       const impersonatedUserId = impersonationContext.impersonatedUserId;
 
-      type UserProfile = { primary_neighborhood_id: string | null };
+      type UserProfile = { primary_neighborhood_id: string | null; avatar_url: string | null };
 
       const [profileResult, membershipsResult] = await Promise.all([
         adminClient
           .from("users")
-          .select("primary_neighborhood_id")
+          .select("primary_neighborhood_id, avatar_url")
           .eq("id", impersonatedUserId)
           .single(),
         adminClient
@@ -88,6 +88,7 @@ export default async function RootLayout({
           neighborhood: m.neighborhood,
         })),
         isStaffAdmin: true,
+        userAvatarUrl: profile?.avatar_url || null,
       };
     } else {
       // Staff admin not impersonating - just pass isStaffAdmin flag
@@ -96,6 +97,7 @@ export default async function RootLayout({
         neighborhoods: [],
         memberships: [],
         isStaffAdmin: true,
+        userAvatarUrl: null,
       };
     }
   }
