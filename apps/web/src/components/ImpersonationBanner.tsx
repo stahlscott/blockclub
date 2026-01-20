@@ -52,7 +52,7 @@ export function ImpersonationBanner({ impersonatedUser }: ImpersonationBannerPro
           <button
             onClick={handleExit}
             disabled={isPending}
-            className={styles.exitButton}
+            className={`${styles.exitButton} compact`}
             data-testid="impersonation-exit-button"
           >
             {isPending ? "Exiting..." : "Exit"}

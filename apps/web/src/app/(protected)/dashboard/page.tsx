@@ -12,6 +12,7 @@ import {
 } from "@/lib/category-utils";
 import type { ItemCategory } from "@blockclub/shared";
 import { InviteButton } from "@/components/InviteButton";
+import { Greeting } from "@/components/Greeting";
 import {
   getRecentItems,
   getRecentMembers,
@@ -33,14 +34,6 @@ function isWithinDays(dateStr: string, days: number) {
   const diffTime = now.getTime() - date.getTime();
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   return diffDays <= days;
-}
-
-// Get time-of-day greeting
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
 }
 
 export default async function DashboardPage() {
@@ -190,7 +183,7 @@ export default async function DashboardPage() {
         <div className={dashboardStyles.welcomeSection} data-testid="dashboard-welcome-section">
           <div>
             <h1 className={dashboardStyles.welcome}>
-              {getGreeting()}
+              <Greeting />
             </h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
