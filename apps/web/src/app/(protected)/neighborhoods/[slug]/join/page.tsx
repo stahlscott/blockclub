@@ -192,7 +192,7 @@ export default function JoinNeighborhoodPage() {
             <>
               <div className={styles.pendingBadge}>Waiting on a neighbor</div>
               <p className={styles.message}>
-                Your request is in—a neighbor will let you in soon!
+                Your request is in, a neighbor will let you in soon!
               </p>
               <Link href="/dashboard" className={styles.secondaryButton}>
                 Back to Dashboard

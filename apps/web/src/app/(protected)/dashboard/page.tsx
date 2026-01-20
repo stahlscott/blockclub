@@ -648,7 +648,7 @@ export default async function DashboardPage() {
             <div className={dashboardStyles.emptyIllustration}>🏘️</div>
             <h2 className={dashboardStyles.emptyTitle}>No neighborhood yet</h2>
             <p className={dashboardStyles.emptyText}>
-              Ask a neighbor to share their invite link—or start your own
+              Ask a neighbor to share their invite link, or start your own
               block club! {getSeasonalClosing()}
             </p>
           </div>

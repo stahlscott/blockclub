@@ -153,7 +153,7 @@ export function PostsClient({
       <div className={styles.empty}>
         <div className={styles.emptyIllustration}>📌</div>
         <p className={styles.emptyText}>
-          The board is empty—pin something up for your neighbors!
+          The board is empty, pin something up for your neighbors!
         </p>
         <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
           Post something

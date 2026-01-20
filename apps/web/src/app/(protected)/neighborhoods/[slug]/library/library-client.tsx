@@ -150,7 +150,7 @@ export function LibraryClient({ items, slug, userId, category }: Props) {
           <p className={libraryStyles.emptyText}>
             {searchQuery || category
               ? "No items match your search."
-              : "Nothing here yet—add something your neighbors might need."}
+              : "Nothing here yet, add something your neighbors might need."}
           </p>
           <Link
             href={`/neighborhoods/${slug}/library/new`}
