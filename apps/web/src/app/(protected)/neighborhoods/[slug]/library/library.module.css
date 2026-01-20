@@ -201,7 +201,7 @@
 
 /* Category color coding */
 .cardTools { border-top-color: var(--color-park); }
-.cardKitchen { border-top-color: var(--color-brick); }
+.cardKitchen { border-top-color: var(--color-kitchen); }
 .cardOutdoor { border-top-color: var(--color-lake); }
 .cardBaby { border-top-color: #ec4899; }
 .cardBooks { border-top-color: var(--color-primary); }
