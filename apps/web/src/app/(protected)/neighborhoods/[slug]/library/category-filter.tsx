@@ -12,18 +12,17 @@ interface Category {
 interface Props {
   categories: Category[];
   currentCategory?: string;
-  search?: string;
   slug: string;
 }
 
-export function CategoryFilter({ categories, currentCategory, search, slug }: Props) {
+export function CategoryFilter({ categories, currentCategory, slug }: Props) {
   const router = useRouter();
 
   const buildHref = (categoryValue: string) => {
     if (categoryValue === "all") {
-      return `/neighborhoods/${slug}/library${search ? `?search=${search}` : ""}`;
+      return `/neighborhoods/${slug}/library`;
     }
-    return `/neighborhoods/${slug}/library?category=${categoryValue}${search ? `&search=${search}` : ""}`;
+    return `/neighborhoods/${slug}/library?category=${categoryValue}`;
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
