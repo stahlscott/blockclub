@@ -4,25 +4,25 @@
      COLORS
      ========================================================================== */
 
-  /* Primary - Violet (main brand color, warmer tone) */
-  --color-primary: #8b5cf6;
-  --color-primary-dark: #7c3aed;
-  --color-primary-hover: #7c3aed;
-  --color-primary-active: #6d28d9;
-  --color-primary-light: #f5f3ff;
+  /* Primary - Warm Rust Brick (neighborhood brick streets) */
+  --color-primary: #A65D4C;
+  --color-primary-dark: #8B4D3F;
+  --color-primary-hover: #8B4D3F;
+  --color-primary-active: #7A4236;
+  --color-primary-light: #FDF5F3;
 
-  /* Accent - Gold (reserved for special moments, celebrations) */
-  --color-accent: #fbbf24;
-  --color-accent-hover: #f59e0b;
-  --color-accent-text: #78350f;
+  /* Accent - Sunny Yellow (celebrations, NEW badges, pinned posts) */
+  --color-accent: #EAB308;
+  --color-accent-hover: #CA9A06;
+  --color-accent-text: #713F12;
 
   /* Community palette - Great Lakes & Brick Streets */
   --color-lake: #0891b2;
   --color-lake-light: #ecfeff;
   --color-park: #059669;
   --color-park-light: #ecfdf5;
-  --color-brick: #c2410c;
-  --color-brick-light: #fff7ed;
+  --color-kitchen: #8B4567;
+  --color-kitchen-light: #F9F0F4;
 
   /* Text - Stone tones (warmer than zinc) */
   --color-text: #1c1917;           /* Stone-900 (was zinc #18181b) */
@@ -50,9 +50,9 @@
   --color-warning: #f59e0b;
   --color-warning-light: #fef3c7;
   --color-warning-border: #fcd34d;
-  --color-info: #7c3aed;
-  --color-info-light: #f3f0ff;
-  --color-info-border: #c4b5fd;
+  --color-info: #5B8A9A;
+  --color-info-light: #E8F1F3;
+  --color-info-border: #A8C5CF;
 
   /* Semantic - Item Availability */
   --color-available: #dcfce7;

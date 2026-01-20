@@ -98,7 +98,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexWrap: "wrap",
   },
   primaryButton: {
-    backgroundColor: "#7c3aed",
+    backgroundColor: "#A65D4C",
     color: "#ffffff",
     padding: "0.75rem 1.5rem",
     borderRadius: "8px",

@@ -45,7 +45,7 @@ function baseTemplate({
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 32px 24px; text-align: center;">
+            <td style="background: linear-gradient(135deg, #A65D4C 0%, #8B4D3F 100%); padding: 32px 24px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600; letter-spacing: -0.02em;">Block Club</h1>
             </td>
           </tr>
@@ -56,7 +56,7 @@ function baseTemplate({
               ${body}
               ${ctaText && ctaUrl ? `
                 <p style="margin-top: 24px;">
-                  <a href="${ctaUrl}" style="display: inline-block; padding: 14px 28px; background: #8b5cf6; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500;">${ctaText}</a>
+                  <a href="${ctaUrl}" style="display: inline-block; padding: 14px 28px; background: #A65D4C; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500;">${ctaText}</a>
                 </p>
               ` : ""}
             </td>
@@ -68,7 +68,7 @@ function baseTemplate({
               <p style="margin: 0;">
                 You received this because you're a member of a Block Club neighborhood.
                 <br>
-                <a href="${settingsUrl}" style="color: #8b5cf6; text-decoration: none;">Manage notification preferences</a>
+                <a href="${settingsUrl}" style="color: #A65D4C; text-decoration: none;">Manage notification preferences</a>
               </p>
             </td>
           </tr>
