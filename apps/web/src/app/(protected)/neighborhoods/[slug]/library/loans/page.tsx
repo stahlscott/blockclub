@@ -39,10 +39,19 @@ export default async function MyLoansPage({ params }: Props) {
 
   return (
     <div className={libraryStyles.container}>
-      <Link href="/dashboard" className={libraryStyles.backButton}>
-        <ArrowLeft className={libraryStyles.backButtonIcon} />
-        Dashboard
-      </Link>
+      <div className={libraryStyles.topRow}>
+        <Link href="/dashboard" className={libraryStyles.backButton}>
+          <ArrowLeft className={libraryStyles.backButtonIcon} />
+          Dashboard
+        </Link>
+        <Link
+          href={`/neighborhoods/${slug}/library/new`}
+          className={libraryStyles.addButton}
+          data-testid="library-mine-add-item-button"
+        >
+          + Add Item
+        </Link>
+      </div>
       <div className={libraryStyles.headerRow}>
         <div>
           <h1 className={libraryStyles.title}>Lending Library</h1>

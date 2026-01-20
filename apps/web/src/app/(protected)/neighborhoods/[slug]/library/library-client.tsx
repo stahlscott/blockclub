@@ -95,10 +95,6 @@ export function LibraryClient({ items, slug, userId, category }: Props) {
 
   return (
     <>
-      <p className={libraryStyles.subtitle}>
-        {availableCount} available, {borrowedCount} borrowed
-      </p>
-
       <div className={libraryStyles.searchWrapper}>
         <Search className={libraryStyles.searchIcon} />
         <input
