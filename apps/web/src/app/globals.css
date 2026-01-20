@@ -11,6 +11,11 @@
   --color-primary-active: #7A4236;
   --color-primary-light: #FDF5F3;
 
+  /* Secondary - Lake Blue (for navigation, headers, structural elements) */
+  --color-secondary: #5B8A9A;
+  --color-secondary-light: #E8F1F3;
+  --color-secondary-hover: #4A7382;
+
   /* Accent - Sunny Yellow (celebrations, NEW badges, pinned posts) */
   --color-accent: #EAB308;
   --color-accent-hover: #CA9A06;
@@ -34,11 +39,6 @@
   --color-surface: #ffffff;
   --color-border: #e7e5e4;         /* Stone-200 (was zinc #e4e4e7) */
   --color-border-emphasis: #d6d3d1; /* Stone-300 - warm neutral (was purple #c4b5fd) */
-
-  /* Secondary - Lake Blue (for navigation, headers, structural elements) */
-  --color-secondary: #5B8A9A;
-  --color-secondary-light: #E8F1F3;
-  --color-secondary-hover: #4A7382;
 
   /* Semantic - Status */
   --color-error: #dc2626;
