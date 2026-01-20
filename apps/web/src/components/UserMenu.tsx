@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { User, Settings, Shield, LogOut } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { useNeighborhood } from "./NeighborhoodProvider";
 import styles from "./UserMenu.module.css";
@@ -136,9 +137,11 @@ export function UserMenu() {
 
           {/* Navigation links */}
           <Link href="/profile" className={styles.menuItem} onClick={handleLinkClick} data-testid="user-menu-profile-link">
+            <User className={styles.menuIcon} />
             Edit Profile
           </Link>
           <Link href="/settings" className={styles.menuItem} onClick={handleLinkClick} data-testid="user-menu-settings-link">
+            <Settings className={styles.menuIcon} />
             Account Settings
           </Link>
 
@@ -157,6 +160,7 @@ export function UserMenu() {
               )}
               {isStaffAdmin && (
                 <Link href="/staff" className={styles.menuItem} onClick={handleLinkClick}>
+                  <Shield className={styles.menuIcon} />
                   Staff Admin
                 </Link>
               )}
@@ -202,6 +206,7 @@ export function UserMenu() {
 
           {/* Sign out */}
           <button className={styles.signOutItem} onClick={signOut} data-testid="user-menu-signout-button">
+            <LogOut className={styles.menuIcon} />
             Sign Out
           </button>
         </div>

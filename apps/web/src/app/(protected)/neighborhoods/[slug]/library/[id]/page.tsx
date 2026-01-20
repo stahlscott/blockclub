@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import {
@@ -65,8 +66,9 @@ export default async function ItemDetailPage({ params }: Props) {
 
   return (
     <div className={styles.pageContainer}>
-      <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
-        &larr; Back to Library
+      <Link href={`/neighborhoods/${slug}/library`} className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Back to Library
       </Link>
 
       <div className={styles.detailLayout}>

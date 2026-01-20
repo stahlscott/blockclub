@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
 import { MembershipActions } from "./membership-actions";
@@ -66,8 +67,9 @@ export default async function PendingMembersPage({ params }: Props) {
   return (
     <div className={pendingStyles.container}>
       <div className={pendingStyles.header}>
-        <Link href="/dashboard" className={pendingStyles.backLink}>
-          &larr; Dashboard
+        <Link href="/dashboard" className={pendingStyles.backButton}>
+          <ArrowLeft className={pendingStyles.backButtonIcon} />
+          Dashboard
         </Link>
         <h1 className={pendingStyles.title}>Pending Requests</h1>
         <p className={pendingStyles.subtitle}>

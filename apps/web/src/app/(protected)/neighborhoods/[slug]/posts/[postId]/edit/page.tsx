@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -212,8 +213,9 @@ export default function EditPostPage() {
   if (error && !post) {
     return (
       <div className={styles.container}>
-        <Link href={`/neighborhoods/${slug}/posts`} className={styles.backLink}>
-          &larr; Back to Posts
+        <Link href={`/neighborhoods/${slug}/posts`} className={styles.backButton}>
+          <ArrowLeft className={styles.backButtonIcon} />
+          Back to Posts
         </Link>
         <div className={styles.card}>
           <p className={styles.error}>{error}</p>
@@ -224,94 +226,97 @@ export default function EditPostPage() {
 
   return (
     <div className={styles.container}>
-      <Link href={`/neighborhoods/${slug}/posts`} className={styles.backLink}>
-        &larr; Back to Posts
+      <Link href={`/neighborhoods/${slug}/posts`} className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Back to Posts
       </Link>
 
-      <div className={styles.card}>
-        <h1 className={styles.titleNoSubtitle}>Edit Post</h1>
+      <h1 className={styles.pageTitle}>Edit Post</h1>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+      <form onSubmit={handleSubmit}>
+        {error && <div className={styles.error}>{error}</div>}
 
-          <div className={styles.field}>
-            <label htmlFor="content" className={styles.label}>
-              Message *
-            </label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={6}
-              required
-              maxLength={MAX_LENGTHS.postContent}
-              className={styles.textarea}
-            />
-            <span className={styles.charCount}>
-              {content.length}/{MAX_LENGTHS.postContent}
-            </span>
-          </div>
-
-          {userId && (
-            <PostImageUpload
-              userId={userId}
-              imageUrl={imageUrl}
-              onImageChange={setImageUrl}
-              onError={setError}
-            />
-          )}
-
-          <div className={styles.field}>
-            <label htmlFor="expiresAt" className={styles.label}>
-              Expiration Date (optional)
-            </label>
-            <input
-              id="expiresAt"
-              type="date"
-              value={expiresAt}
-              onChange={(e) => setExpiresAt(e.target.value)}
-              min={minDate}
-              className={styles.input}
-            />
-            <span className={styles.hint}>
-              Post will be automatically hidden after this date
-            </span>
-          </div>
-
-          {isAdmin && (
+        <div className={styles.card}>
+          <div className={styles.form}>
             <div className={styles.field}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={isPinned}
-                  onChange={(e) => setIsPinned(e.target.checked)}
-                  className={styles.checkbox}
-                />
-                Pin this post to the top
+              <label htmlFor="content" className={styles.label}>
+                Message <span className={styles.required}>*</span>
               </label>
-              <span className={styles.hint}>
-                Pinned posts appear at the top of the posts list
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={6}
+                required
+                maxLength={MAX_LENGTHS.postContent}
+                className={styles.textarea}
+              />
+              <span className={styles.charCount}>
+                {content.length}/{MAX_LENGTHS.postContent}
               </span>
             </div>
-          )}
 
-          <div className={styles.actions}>
-            <Link
-              href={`/neighborhoods/${slug}/posts`}
-              className={styles.cancelButton}
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={saving || !content.trim()}
-              className={styles.submitButton}
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
+            {userId && (
+              <PostImageUpload
+                userId={userId}
+                imageUrl={imageUrl}
+                onImageChange={setImageUrl}
+                onError={setError}
+              />
+            )}
+
+            <div className={styles.field}>
+              <label htmlFor="expiresAt" className={styles.label}>
+                Expiration Date (optional)
+              </label>
+              <input
+                id="expiresAt"
+                type="date"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+                min={minDate}
+                className={styles.input}
+              />
+              <span className={styles.hint}>
+                Post will be automatically hidden after this date
+              </span>
+            </div>
+
+            {isAdmin && (
+              <div className={styles.field}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={isPinned}
+                    onChange={(e) => setIsPinned(e.target.checked)}
+                    className={styles.checkbox}
+                  />
+                  Pin this post to the top
+                </label>
+                <span className={styles.hint}>
+                  Pinned posts appear at the top of the posts list
+                </span>
+              </div>
+            )}
           </div>
-        </form>
-      </div>
+        </div>
+
+        <div className={styles.actions}>
+          <Link
+            href={`/neighborhoods/${slug}/posts`}
+            className={styles.cancelButton}
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={saving || !content.trim()}
+            className={styles.submitButton}
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

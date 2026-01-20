@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { PostsClient } from "./posts-client";
 import type { PostReactionType } from "@blockclub/shared";
@@ -72,8 +73,9 @@ export default async function PostsPage({ params }: Props) {
 
   return (
     <div className={styles.container}>
-      <Link href="/dashboard" className={styles.backLink}>
-        &larr; Dashboard
+      <Link href="/dashboard" className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Dashboard
       </Link>
       <div className={styles.headerRow}>
         <div>

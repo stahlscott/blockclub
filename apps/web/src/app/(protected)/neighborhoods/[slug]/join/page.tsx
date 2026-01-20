@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { getSeasonalClosing } from "@/lib/date-utils";
@@ -217,8 +218,9 @@ export default function JoinNeighborhoodPage() {
     return (
       <div className={styles.container}>
         <div className={styles.card}>
-          <Link href="/dashboard" className={styles.backLink}>
-            &larr; Back to Dashboard
+          <Link href="/dashboard" className={styles.backButton}>
+            <ArrowLeft className={styles.backButtonIcon} />
+            Back to Dashboard
           </Link>
 
           <h1 className={styles.title}>Rejoin {neighborhood.name}</h1>
@@ -275,8 +277,9 @@ export default function JoinNeighborhoodPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <Link href="/dashboard" className={styles.backLink}>
-          &larr; Back to Dashboard
+        <Link href="/dashboard" className={styles.backButton}>
+          <ArrowLeft className={styles.backButtonIcon} />
+          Back to Dashboard
         </Link>
 
         <h1 className={styles.title}>Join {neighborhood.name}</h1>

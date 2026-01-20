@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import styles from "./settings.module.css";
@@ -149,8 +150,9 @@ export function SettingsClient({
 
   return (
     <div className={styles.container}>
-      <Link href="/dashboard" className={styles.backLink}>
-        &larr; Back to Dashboard
+      <Link href="/dashboard" className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Dashboard
       </Link>
 
       <h1 className={styles.title}>Account Settings</h1>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -114,93 +115,96 @@ export default function EditItemPage() {
     <div className={styles.container}>
       <Link
         href={`/neighborhoods/${slug}/library/${id}`}
-        className={styles.backLink}
+        className={styles.backButton}
       >
-        &larr; Back to Item
+        <ArrowLeft className={styles.backButtonIcon} />
+        Back to Item
       </Link>
 
-      <div className={styles.card}>
-        <h1 className={styles.titleNoSubtitle}>Edit Item</h1>
+      <h1 className={styles.pageTitle}>Edit Item</h1>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+      <form onSubmit={handleSubmit}>
+        {error && <div className={styles.error}>{error}</div>}
 
-          <div className={styles.field}>
-            <label htmlFor="name" className={styles.label}>
-              Item Name *
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={MAX_LENGTHS.itemName}
-              className={styles.input}
-            />
-          </div>
+        <div className={styles.card}>
+          <div className={styles.form}>
+            <div className={styles.field}>
+              <label htmlFor="name" className={styles.label}>
+                Item Name <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                maxLength={MAX_LENGTHS.itemName}
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.field}>
-            <label htmlFor="category" className={styles.label}>
-              Category *
-            </label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as ItemCategory)}
-              required
-              className={styles.select}
-            >
-              {ITEM_CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className={styles.field}>
+              <label htmlFor="category" className={styles.label}>
+                Category <span className={styles.required}>*</span>
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value as ItemCategory)}
+                required
+                className={styles.select}
+              >
+                {ITEM_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className={styles.field}>
-            <label htmlFor="description" className={styles.label}>
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add details about the item..."
-              rows={4}
-              maxLength={MAX_LENGTHS.itemDescription}
-              className={styles.textarea}
-            />
-            {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
-              <span className={styles.charCount}>
-                {description.length}/{MAX_LENGTHS.itemDescription}
-              </span>
+            <div className={styles.field}>
+              <label htmlFor="description" className={styles.label}>
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add details about the item..."
+                rows={4}
+                maxLength={MAX_LENGTHS.itemDescription}
+                className={styles.textarea}
+              />
+              {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
+                <span className={styles.charCount}>
+                  {description.length}/{MAX_LENGTHS.itemDescription}
+                </span>
+              )}
+            </div>
+
+            {userId && (
+              <ItemPhotoUpload
+                userId={userId}
+                photos={photoUrls}
+                onPhotosChange={setPhotoUrls}
+                onError={setError}
+              />
             )}
           </div>
+        </div>
 
-          {userId && (
-            <ItemPhotoUpload
-              userId={userId}
-              photos={photoUrls}
-              onPhotosChange={setPhotoUrls}
-              onError={setError}
-            />
-          )}
-
-          <div className={styles.actions}>
-            <Link
-              href={`/neighborhoods/${slug}/library/${id}`}
-              className={styles.cancelButton}
-            >
-              Cancel
-            </Link>
-            <button type="submit" disabled={saving} className={styles.submitButton}>
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className={styles.actions}>
+          <Link
+            href={`/neighborhoods/${slug}/library/${id}`}
+            className={styles.cancelButton}
+          >
+            Cancel
+          </Link>
+          <button type="submit" disabled={saving} className={styles.submitButton}>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

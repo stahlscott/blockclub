@@ -134,7 +134,7 @@
 .menuItem {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-3);
   width: 100%;
   padding: var(--space-3) var(--space-4);
   background: none;
@@ -149,8 +149,14 @@
 }
 
 .menuItem:hover {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
+  background-color: var(--color-warm-hover, #F0EDE8);
+}
+
+.menuIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
 }
 
 .chevron {
@@ -182,35 +188,40 @@
 }
 
 .switcherOption:hover {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
+  background-color: var(--color-secondary-light, #E8F4F8);
+  color: var(--color-secondary);
 }
 
 .switcherOptionActive {
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-weight: var(--font-weight-medium);
 }
 
 .checkmark {
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-weight: var(--font-weight-bold);
 }
 
 .signOutItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   width: 100%;
   padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
-  color: var(--color-text-secondary);
+  color: var(--color-primary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+
+.signOutItem .menuIcon {
+  color: var(--color-primary);
 }
 
 .signOutItem:hover {
-  background-color: var(--color-error-light);
-  color: var(--color-error);
+  background-color: var(--color-primary-light);
 }

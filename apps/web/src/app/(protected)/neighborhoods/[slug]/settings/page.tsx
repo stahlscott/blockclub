@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -202,8 +203,9 @@ export default function NeighborhoodSettingsPage() {
 
   return (
     <div className={styles.container}>
-      <Link href="/dashboard" className={styles.backLink}>
-        &larr; Back to Dashboard
+      <Link href="/dashboard" className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Dashboard
       </Link>
 
       <div className={styles.card}>

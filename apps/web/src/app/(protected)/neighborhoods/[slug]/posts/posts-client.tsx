@@ -172,10 +172,6 @@ export function PostsClient({
 
       {pinnedPosts.length > 0 && (
         <div className={styles.pinnedSection}>
-          <div className={styles.pinnedHeader}>
-            <span className={styles.pinnedIcon}>{"\uD83D\uDCCC"}</span>
-            <span>Pinned</span>
-          </div>
           {pinnedPosts.map((post) => (
             <PostCard
               key={post.id}
@@ -264,6 +260,12 @@ const PostCard = memo(function PostCard({
 
   return (
     <article className={styles.postCard}>
+      {post.is_pinned && (
+        <div className={styles.pinnedHeader}>
+          <span className={styles.pinnedIcon}>📌</span>
+          <span>Pinned</span>
+        </div>
+      )}
       <div className={styles.postHeader}>
         <Link
           href={`/neighborhoods/${slug}/members/${post.author.id}`}

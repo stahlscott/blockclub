@@ -1,16 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { MessageSquare, Package, Users, ArrowRight } from "lucide-react";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
-import { parseDateLocal, getSeasonalClosing } from "@/lib/date-utils";
-import {
-  getCategoryEmoji,
-  getCategoryColorLight,
-} from "@/lib/category-utils";
-import type { ItemCategory } from "@blockclub/shared";
+import { parseDateLocal, getSeasonalClosing, formatRelativeTime } from "@/lib/date-utils";
+import { Card, CardContent } from "@/components/ui/card";
 import { InviteButton } from "@/components/InviteButton";
 import { Greeting } from "@/components/Greeting";
 import {
@@ -18,6 +15,7 @@ import {
   getRecentMembers,
   getRecentPosts,
   getPendingMemberRequestsCount,
+  getDashboardStats,
 } from "./data";
 import dashboardStyles from "./dashboard.module.css";
 
@@ -34,6 +32,27 @@ function isWithinDays(dateStr: string, days: number) {
   const diffTime = now.getTime() - date.getTime();
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   return diffDays <= days;
+}
+
+// Warm avatar background colors based on name hash
+const AVATAR_COLORS = [
+  "#E8D5CE", // warm stone
+  "#D5C4B9", // taupe
+  "#C9B8A8", // sand
+  "#DED1C3", // cream
+  "#E5DAD0", // light tan
+  "#D4C5B5", // wheat
+  "#CFC4B8", // mushroom
+  "#E2D4C8", // blush stone
+];
+
+function getAvatarColor(name: string | null | undefined): string {
+  if (!name) return AVATAR_COLORS[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 export default async function DashboardPage() {
@@ -160,21 +179,24 @@ export default async function DashboardPage() {
   let recentMembers: any[] = [];
   let recentPosts: any[] = [];
   let pendingMemberRequests = 0;
+  let stats = { postsCount: 0, itemsCount: 0, neighborsCount: 0 };
 
   if (primaryNeighborhood) {
     // Fetch data in parallel
     // Pass queryClient to support impersonation (admin client bypasses RLS)
-    const [items, members, posts, pendingCount] = await Promise.all([
+    const [items, members, posts, pendingCount, dashboardStats] = await Promise.all([
       getRecentItems(primaryNeighborhood.id, queryClient),
       getRecentMembers(primaryNeighborhood.id, effectiveUserId, queryClient),
       getRecentPosts(primaryNeighborhood.id, queryClient),
       isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient) : Promise.resolve(0),
+      getDashboardStats(primaryNeighborhood.id, queryClient),
     ]);
 
     recentItems = items;
     recentMembers = members;
     recentPosts = posts;
     pendingMemberRequests = pendingCount;
+    stats = dashboardStats;
   }
 
   return (
@@ -188,6 +210,65 @@ export default async function DashboardPage() {
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
           <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+        </div>
+      )}
+
+      {/* Stat Cards - Figma layout: label on top, number below, icon on right */}
+      {primaryNeighborhood && (
+        <div className={dashboardStyles.statsGrid}>
+          <Link
+            href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
+            className={dashboardStyles.statCardLink}
+            data-testid="dashboard-stat-posts"
+          >
+            <Card className={dashboardStyles.statCard}>
+              <CardContent className={dashboardStyles.statCardContent}>
+                <div className={dashboardStyles.statInfo}>
+                  <span className={dashboardStyles.statLabel}>Active Posts</span>
+                  <span className={dashboardStyles.statValue}>{stats.postsCount}</span>
+                </div>
+                <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#FDEBD0" }}>
+                  <MessageSquare className={dashboardStyles.statIcon} style={{ color: "#A65D4C" }} />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link
+            href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
+            className={dashboardStyles.statCardLink}
+            data-testid="dashboard-stat-library"
+          >
+            <Card className={dashboardStyles.statCard}>
+              <CardContent className={dashboardStyles.statCardContent}>
+                <div className={dashboardStyles.statInfo}>
+                  <span className={dashboardStyles.statLabel}>Items Available</span>
+                  <span className={dashboardStyles.statValue}>{stats.itemsCount}</span>
+                </div>
+                <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#D5F0E3" }}>
+                  <Package className={dashboardStyles.statIcon} style={{ color: "#059669" }} />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link
+            href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+            className={dashboardStyles.statCardLink}
+            data-testid="dashboard-stat-directory"
+          >
+            <Card className={dashboardStyles.statCard}>
+              <CardContent className={dashboardStyles.statCardContent}>
+                <div className={dashboardStyles.statInfo}>
+                  <span className={dashboardStyles.statLabel}>Neighbors</span>
+                  <span className={dashboardStyles.statValue}>{stats.neighborsCount}</span>
+                </div>
+                <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#E0EEF2" }}>
+                  <Users className={dashboardStyles.statIcon} style={{ color: "#5B8A9A" }} />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       )}
 
@@ -364,84 +445,172 @@ export default async function DashboardPage() {
             </Link>
           )}
 
-          {/* Unified Sections Grid */}
-          <div className={dashboardStyles.unifiedGrid}>
-            {/* Posts Section */}
-            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-posts-section">
-              <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                className={dashboardStyles.unifiedSectionHeader}
-                data-testid="dashboard-posts-link"
-              >
-                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
-                  <span className={dashboardStyles.unifiedSectionIcon}>📝</span>
-                  <h2 className={dashboardStyles.unifiedSectionTitle}>Posts</h2>
+          {/* Figma Layout: Posts + Directory row, then Library full-width */}
+          <div className={dashboardStyles.sectionsContainer}>
+            {/* Top Row: Recent Posts + Directory */}
+            <div className={dashboardStyles.topRow}>
+              {/* Recent Posts Section */}
+              <div className={`${dashboardStyles.sectionCard} ${dashboardStyles.postsSection}`} data-testid="dashboard-posts-section">
+                <div className={dashboardStyles.sectionHeader}>
+                  <div className={dashboardStyles.sectionHeaderLeft}>
+                    <div className={dashboardStyles.sectionTitleRow}>
+                      <MessageSquare className={dashboardStyles.sectionIcon} />
+                      <h2 className={dashboardStyles.sectionTitleText}>Recent Posts</h2>
+                    </div>
+                    <p className={dashboardStyles.sectionSubtitle}>
+                      {stats.postsCount} post{stats.postsCount !== 1 ? "s" : ""} in your neighborhood
+                    </p>
+                  </div>
+                  <Link
+                    href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
+                    className={dashboardStyles.viewAllLink}
+                    data-testid="dashboard-posts-link"
+                  >
+                    View all <ArrowRight className={dashboardStyles.viewAllArrow} />
+                  </Link>
                 </div>
-                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
-              </Link>
-              <div className={dashboardStyles.unifiedSectionContent}>
-                {recentPosts.length > 0 ? (
-                  recentPosts.slice(0, 3).map((post: any) => {
-                    const isNew = post.created_at && isWithinDays(post.created_at, 3);
-                    return (
-                      <Link
-                        key={post.id}
-                        href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
-                        className={dashboardStyles.unifiedItemRow}
-                      >
-                        <div className={dashboardStyles.unifiedItemInfo}>
-                          {post.author?.avatar_url ? (
-                            <Image
-                              src={post.author.avatar_url}
-                              alt={post.author.name || "Author"}
-                              width={32}
-                              height={32}
-                              className={dashboardStyles.unifiedItemAvatar}
-                            />
-                          ) : (
-                            <div className={dashboardStyles.unifiedItemAvatarPlaceholder}>
-                              {getInitial(post.author?.name)}
+                <div className={dashboardStyles.sectionContent}>
+                  {recentPosts.length > 0 ? (
+                    recentPosts.slice(0, 3).map((post: any) => {
+                      const timeAgo = post.created_at ? formatRelativeTime(post.created_at) : "";
+                      return (
+                        <Link
+                          key={post.id}
+                          href={`/neighborhoods/${primaryNeighborhood.slug}/posts`}
+                          className={dashboardStyles.itemCard}
+                        >
+                          <div
+                            className={dashboardStyles.itemCardAvatar}
+                            style={{ backgroundColor: getAvatarColor(post.author?.name) }}
+                          >
+                            {post.author?.avatar_url ? (
+                              <Image
+                                src={post.author.avatar_url}
+                                alt={post.author.name || "Author"}
+                                width={40}
+                                height={40}
+                                className={dashboardStyles.itemCardAvatarImage}
+                              />
+                            ) : (
+                              getInitial(post.author?.name)
+                            )}
+                          </div>
+                          <div className={dashboardStyles.itemCardContent}>
+                            <div className={dashboardStyles.itemCardHeader}>
+                              <span className={dashboardStyles.itemCardName}>
+                                {post.author?.name || "Unknown"}
+                              </span>
+                              <span className={dashboardStyles.itemCardMeta}>{timeAgo}</span>
                             </div>
-                          )}
-                          <div className={dashboardStyles.unifiedItemDetails}>
-                            <span className={dashboardStyles.unifiedItemName}>
-                              {post.author?.name || "Unknown"}
+                            <p className={dashboardStyles.itemCardPreview}>
+                              {post.content.length > 60
+                                ? post.content.slice(0, 60) + "..."
+                                : post.content}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })
+                  ) : (
+                    <div className={dashboardStyles.sectionEmpty}>
+                      Nothing posted lately
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Directory Section */}
+              <div className={dashboardStyles.sectionCard} data-testid="dashboard-directory-section">
+                <div className={dashboardStyles.sectionHeader}>
+                  <div className={dashboardStyles.sectionHeaderLeft}>
+                    <div className={dashboardStyles.sectionTitleRow}>
+                      <Users className={dashboardStyles.sectionIcon} />
+                      <h2 className={dashboardStyles.sectionTitleText}>Directory</h2>
+                    </div>
+                    <p className={dashboardStyles.sectionSubtitle}>
+                      {stats.neighborsCount} household{stats.neighborsCount !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
+                    className={dashboardStyles.viewAllLink}
+                    data-testid="dashboard-directory-link"
+                  >
+                    View all <ArrowRight className={dashboardStyles.viewAllArrow} />
+                  </Link>
+                </div>
+                <div className={dashboardStyles.sectionContent}>
+                  {recentMembers.length > 0 ? (
+                    recentMembers.slice(0, 3).map((membership: any) => {
+                      const isNew = membership.joined_at && isWithinDays(membership.joined_at, 14);
+                      return (
+                        <Link
+                          key={membership.id}
+                          href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
+                          className={dashboardStyles.memberCard}
+                        >
+                          <div
+                            className={dashboardStyles.memberCardAvatar}
+                            style={{ backgroundColor: getAvatarColor(membership.user?.name) }}
+                          >
+                            {membership.user?.avatar_url ? (
+                              <Image
+                                src={membership.user.avatar_url}
+                                alt={membership.user.name || "Member"}
+                                width={48}
+                                height={48}
+                                className={dashboardStyles.memberCardAvatarImage}
+                              />
+                            ) : (
+                              getInitial(membership.user?.name)
+                            )}
+                          </div>
+                          <div className={dashboardStyles.memberCardContent}>
+                            <span className={dashboardStyles.memberCardName}>
+                              {membership.user?.name || "Unknown"}
                               {isNew && (
-                                <span className={dashboardStyles.newBadgeInline}>New</span>
+                                <span className={dashboardStyles.newBadgeInline} style={{ marginLeft: '8px' }}>New</span>
                               )}
                             </span>
-                            <span className={dashboardStyles.unifiedItemMeta}>
-                              {post.content.length > 50
-                                ? post.content.slice(0, 50) + "..."
-                                : post.content}
-                            </span>
+                            {membership.user?.address && (
+                              <span className={dashboardStyles.memberCardAddress}>
+                                {membership.user.address}
+                              </span>
+                            )}
                           </div>
-                        </div>
-                      </Link>
-                    );
-                  })
-                ) : (
-                  <div className={dashboardStyles.unifiedSectionEmpty}>
-                    Nothing posted lately
-                  </div>
-                )}
+                        </Link>
+                      );
+                    })
+                  ) : (
+                    <div className={dashboardStyles.sectionEmpty}>
+                      No one new lately
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Library Section */}
-            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-library-section">
-              <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
-                className={dashboardStyles.unifiedSectionHeader}
-                data-testid="dashboard-library-link"
-              >
-                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
-                  <span className={dashboardStyles.unifiedSectionIcon}>📚</span>
-                  <h2 className={dashboardStyles.unifiedSectionTitle}>Library</h2>
+            {/* Lending Library Section - Full Width */}
+            <div className={dashboardStyles.sectionCard} data-testid="dashboard-library-section">
+              <div className={dashboardStyles.sectionHeader}>
+                <div className={dashboardStyles.sectionHeaderLeft}>
+                  <div className={dashboardStyles.sectionTitleRow}>
+                    <Package className={dashboardStyles.sectionIcon} />
+                    <h2 className={dashboardStyles.sectionTitleText}>Lending Library</h2>
+                  </div>
+                  <p className={dashboardStyles.sectionSubtitle}>
+                    {stats.itemsCount} item{stats.itemsCount !== 1 ? "s" : ""} available
+                  </p>
                 </div>
-                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
-              </Link>
-              <div className={dashboardStyles.unifiedSectionContent}>
+                <Link
+                  href={`/neighborhoods/${primaryNeighborhood.slug}/library`}
+                  className={dashboardStyles.viewAllLink}
+                  data-testid="dashboard-library-link"
+                >
+                  View all <ArrowRight className={dashboardStyles.viewAllArrow} />
+                </Link>
+              </div>
+              <div className={dashboardStyles.libraryGrid}>
                 {recentItems.length > 0 ? (
                   recentItems.slice(0, 3).map((item: any) => {
                     const isNew = item.created_at && isWithinDays(item.created_at, 14);
@@ -449,111 +618,24 @@ export default async function DashboardPage() {
                       <Link
                         key={item.id}
                         href={`/neighborhoods/${primaryNeighborhood.slug}/library/${item.id}`}
-                        className={dashboardStyles.unifiedItemRow}
+                        className={dashboardStyles.libraryItemCard}
                       >
-                        <div className={dashboardStyles.unifiedItemInfo}>
-                          {item.photo_urls && item.photo_urls.length > 0 ? (
-                            <Image
-                              src={item.photo_urls[0]}
-                              alt={item.name}
-                              width={40}
-                              height={40}
-                              className={dashboardStyles.unifiedItemImage}
-                            />
-                          ) : (
-                            <div
-                              className={dashboardStyles.unifiedItemImagePlaceholder}
-                              style={{
-                                background: `linear-gradient(180deg, ${getCategoryColorLight(item.category as ItemCategory)} 0%, var(--color-surface) 100%)`,
-                              }}
-                            >
-                              {getCategoryEmoji(item.category as ItemCategory)}
-                            </div>
+                        <div className={dashboardStyles.libraryItemHeader}>
+                          <span className={dashboardStyles.libraryItemName}>{item.name}</span>
+                          {isNew && (
+                            <span className={dashboardStyles.newBadgeInline}>New</span>
                           )}
-                          <div className={dashboardStyles.unifiedItemDetails}>
-                            <span className={dashboardStyles.unifiedItemName}>
-                              {item.name}
-                              {isNew && (
-                                <span className={dashboardStyles.newBadgeInline}>New</span>
-                              )}
-                            </span>
-                            <span className={dashboardStyles.unifiedItemMeta}>
-                              {item.owner?.name || "Unknown"}
-                            </span>
-                          </div>
                         </div>
+                        <span className={dashboardStyles.libraryItemOwner}>
+                          by {item.owner?.name || "Unknown"}
+                        </span>
+                        <span className={dashboardStyles.libraryItemStatus}>Available</span>
                       </Link>
                     );
                   })
                 ) : (
-                  <div className={dashboardStyles.unifiedSectionEmpty}>
+                  <div className={dashboardStyles.sectionEmpty}>
                     Nothing shared lately
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Directory Section */}
-            <div className={dashboardStyles.unifiedSection} data-testid="dashboard-directory-section">
-              <Link
-                href={`/neighborhoods/${primaryNeighborhood.slug}/directory`}
-                className={dashboardStyles.unifiedSectionHeader}
-                data-testid="dashboard-directory-link"
-              >
-                <div className={dashboardStyles.unifiedSectionHeaderLeft}>
-                  <span className={dashboardStyles.unifiedSectionIcon}>👥</span>
-                  <h2 className={dashboardStyles.unifiedSectionTitle}>Directory</h2>
-                </div>
-                <span className={dashboardStyles.unifiedSectionArrow}>&rarr;</span>
-              </Link>
-              <div className={dashboardStyles.unifiedSectionContent}>
-                {recentMembers.length > 0 ? (
-                  recentMembers.slice(0, 3).map((membership: any) => {
-                    const isNew = membership.joined_at && isWithinDays(membership.joined_at, 14);
-                    return (
-                      <Link
-                        key={membership.id}
-                        href={`/neighborhoods/${primaryNeighborhood.slug}/members/${membership.user?.id}`}
-                        className={dashboardStyles.unifiedItemRow}
-                      >
-                        <div className={dashboardStyles.unifiedItemInfo}>
-                          {membership.user?.avatar_url ? (
-                            <Image
-                              src={membership.user.avatar_url}
-                              alt={membership.user.name || "Member"}
-                              width={32}
-                              height={32}
-                              className={dashboardStyles.unifiedItemAvatar}
-                            />
-                          ) : (
-                            <div className={dashboardStyles.unifiedItemAvatarPlaceholder}>
-                              {getInitial(membership.user?.name)}
-                            </div>
-                          )}
-                          <div className={dashboardStyles.unifiedItemDetails}>
-                            <span className={dashboardStyles.unifiedItemName}>
-                              {membership.user?.name || "Unknown"}
-                              {isNew && (
-                                <span className={dashboardStyles.newBadgeInline}>New</span>
-                              )}
-                            </span>
-                            {membership.joined_at && (
-                              <span className={dashboardStyles.unifiedItemMeta}>
-                                Joined{" "}
-                                {new Date(membership.joined_at).toLocaleDateString(
-                                  "en-US",
-                                  { month: "short", day: "numeric" }
-                                )}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })
-                ) : (
-                  <div className={dashboardStyles.unifiedSectionEmpty}>
-                    No one new lately
                   </div>
                 )}
               </div>

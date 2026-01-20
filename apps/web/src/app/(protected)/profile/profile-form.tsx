@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { ProfileGalleryUpload } from "@/components/ProfileGalleryUpload";
@@ -237,8 +238,9 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
 
   return (
     <div className={styles.container}>
-      <Link href="/dashboard" className={styles.backLink}>
-        &larr; Back to Dashboard
+      <Link href="/dashboard" className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Back to Dashboard
       </Link>
 
       <h1 className={styles.title}>
@@ -252,42 +254,40 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
       )}
 
       <form onSubmit={handleSubmit} className={styles.form} data-testid="profile-form">
-        {/* Profile Photo + Basic Info Section */}
-        <section className={styles.section}>
-          <div className={styles.profileHeader}>
-            <div className={styles.avatarColumn}>
-              <AvatarUpload
-                userId={userId}
-                currentAvatarUrl={avatarUrl}
-                name={name || "User"}
-                onUploadComplete={(url) => setAvatarUrl(url)}
-                onError={(msg) => setError(msg)}
-              />
-            </div>
-            <div className={styles.basicInfoColumn}>
-              <h2 className={styles.sectionTitle}>Basic Info</h2>
-              <div className={styles.inputGroup}>
-                <label htmlFor="name" className={styles.label}>
-                  Household Name *
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  maxLength={MAX_LENGTHS.userName}
-                  className={styles.input}
-                  placeholder="e.g., The Smith Family"
-                  data-testid="profile-form-name-input"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Profile Photo Card */}
+        <div className={styles.avatarCard}>
+          <AvatarUpload
+            userId={userId}
+            currentAvatarUrl={avatarUrl}
+            name={name || "User"}
+            onUploadComplete={(url) => setAvatarUrl(url)}
+            onError={(msg) => setError(msg)}
+          />
+        </div>
 
-        {/* Address Section */}
-        <section className={styles.section}>
+        {/* Basic Info Card */}
+        <div className={styles.sectionCard}>
+          <h2 className={styles.sectionTitle}>Basic Info</h2>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name" className={styles.label}>
+              Household Name *
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              maxLength={MAX_LENGTHS.userName}
+              className={styles.input}
+              placeholder="e.g., The Smith Family"
+              data-testid="profile-form-name-input"
+            />
+          </div>
+        </div>
+
+        {/* Address Card */}
+        <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>Address</h2>
           <div className={styles.threeColumn}>
             <div className={styles.inputGroup}>
@@ -338,10 +338,10 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               />
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Contact Section */}
-        <section className={styles.section}>
+        {/* Contact Card */}
+        <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>Contact</h2>
           <div className={styles.twoColumn}>
             <div className={styles.inputGroup}>
@@ -441,10 +441,10 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Household Section */}
-        <section className={styles.section}>
+        {/* Household Card */}
+        <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>Household</h2>
           <div className={styles.twoColumn}>
             <div className={styles.inputGroup}>
@@ -481,10 +481,10 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               <span className={styles.hint}>Pets in your household</span>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* About Section */}
-        <section className={styles.section}>
+        {/* About Card */}
+        <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>About</h2>
           <div className={styles.inputGroup}>
             <label htmlFor="bio" className={styles.label}>
@@ -506,10 +506,10 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               </span>
             )}
           </div>
-        </section>
+        </div>
 
-        {/* Photos Section */}
-        <section className={styles.section}>
+        {/* Photos Card */}
+        <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>Photos</h2>
           <ProfileGalleryUpload
             userId={userId}
@@ -517,21 +517,31 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
             onPhotosChange={setPhotoUrls}
             onError={setError}
           />
-        </section>
+        </div>
 
         {error && <p className={styles.error} data-testid="profile-form-error">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={buttonState === 'saving'}
-          className={`${styles.button} ${buttonState === 'success' ? styles.buttonSuccess : ''} ${buttonState === 'error' ? styles.buttonError : ''}`}
-          data-testid="profile-form-submit-button"
-        >
-          {buttonState === 'saving' ? "Saving..." :
-           buttonState === 'success' ? "Saved!" :
-           buttonState === 'error' ? "Failed - Try Again" :
-           "Save Changes"}
-        </button>
+        {/* Action Buttons */}
+        <div className={styles.actions}>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className={styles.cancelButton}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={buttonState === 'saving'}
+            className={`${styles.button} ${buttonState === 'success' ? styles.buttonSuccess : ''} ${buttonState === 'error' ? styles.buttonError : ''}`}
+            data-testid="profile-form-submit-button"
+          >
+            {buttonState === 'saving' ? "Saving..." :
+             buttonState === 'success' ? "Saved!" :
+             buttonState === 'error' ? "Failed - Try Again" :
+             "Save Changes"}
+          </button>
+        </div>
       </form>
     </div>
   );

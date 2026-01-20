@@ -1,15 +1,16 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   getCategoryEmoji,
-  getCategoryColorLight,
   FILTER_CATEGORIES,
   type FilterCategoryOption,
 } from "@/lib/category-utils";
 import responsive from "@/app/responsive.module.css";
 import libraryStyles from "./library.module.css";
 import { CategoryFilter } from "./category-filter";
+import { LibraryTabs } from "./library-tabs";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -96,8 +97,9 @@ export default async function LibraryPage({ params, searchParams }: Props) {
 
   return (
     <div className={libraryStyles.container}>
-      <Link href="/dashboard" className={libraryStyles.backLink}>
-        &larr; Dashboard
+      <Link href="/dashboard" className={libraryStyles.backButton}>
+        <ArrowLeft className={libraryStyles.backButtonIcon} />
+        Dashboard
       </Link>
       <div className={libraryStyles.headerRow}>
         <div>
@@ -114,6 +116,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
           + Add Item
         </Link>
       </div>
+
+      <LibraryTabs slug={slug} />
 
       <div className={libraryStyles.filters}>
         <form method="GET" className={libraryStyles.searchForm} data-testid="library-search-form">
@@ -141,23 +145,6 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         )}
       </div>
 
-      <div className={libraryStyles.actions}>
-        <Link
-          href={`/neighborhoods/${slug}/library/mine`}
-          className={libraryStyles.secondaryLink}
-          data-testid="library-my-items-link"
-        >
-          My Items
-        </Link>
-        <Link
-          href={`/neighborhoods/${slug}/library/loans`}
-          className={libraryStyles.secondaryLink}
-          data-testid="library-my-loans-link"
-        >
-          My Loans
-        </Link>
-      </div>
-
       {items && items.length > 0 ? (
         <div className={responsive.gridAuto}>
           {items.map((item: any) => (
@@ -172,21 +159,14 @@ export default async function LibraryPage({ params, searchParams }: Props) {
                   src={item.photo_urls?.[0]}
                   alt={item.name}
                   width={200}
-                  height={140}
+                  height={200}
                   className={libraryStyles.image}
                   borderRadius="var(--radius-lg) var(--radius-lg) 0 0"
                   fallback={
-                    <div
-                      className={libraryStyles.imagePlaceholder}
-                      style={{
-                        background: `linear-gradient(180deg, ${getCategoryColorLight(item.category)} 0%, var(--color-surface) 100%)`,
-                      }}
-                    >
-                      <div className={libraryStyles.placeholderCircle}>
-                        <span className={libraryStyles.placeholderIcon}>
-                          {getCategoryEmoji(item.category)}
-                        </span>
-                      </div>
+                    <div className={libraryStyles.imagePlaceholder}>
+                      <span className={libraryStyles.placeholderIcon}>
+                        {getCategoryEmoji(item.category)}
+                      </span>
                     </div>
                   }
                 />

@@ -40,7 +40,7 @@ export async function getRecentMembers(neighborhoodId: string, currentUserId: st
     .select(
       `
       *,
-      user:users!memberships_user_id_fkey(id, name, email, avatar_url)
+      user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)
     `
     )
     .eq("neighborhood_id", neighborhoodId)
@@ -78,4 +78,40 @@ export async function getPendingMemberRequestsCount(neighborhoodId: string, clie
     .eq("status", "pending");
 
   return count || 0;
+}
+
+/**
+ * Dashboard stat counts - for stat cards display
+ */
+export async function getDashboardStats(neighborhoodId: string, client?: SupabaseClient) {
+  const supabase = client ?? await createClient();
+
+  // Fetch all counts in parallel
+  const [postsResult, itemsResult, membersResult] = await Promise.all([
+    // Active posts (not deleted)
+    supabase
+      .from("posts")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhoodId)
+      .is("deleted_at", null),
+    // Available items (not deleted, available status)
+    supabase
+      .from("items")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhoodId)
+      .eq("availability", "available")
+      .is("deleted_at", null),
+    // Active members
+    supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhoodId)
+      .eq("status", "active"),
+  ]);
+
+  return {
+    postsCount: postsResult.count || 0,
+    itemsCount: itemsResult.count || 0,
+    neighborsCount: membersResult.count || 0,
+  };
 }

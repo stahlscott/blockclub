@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { RoleActions } from "./role-actions";
 import { MoveOutActions } from "./move-out-actions";
@@ -73,8 +74,9 @@ export default async function MemberProfilePage({ params }: Props) {
 
   return (
     <div className={profileStyles.container}>
-      <Link href={`/neighborhoods/${slug}/directory`} className={profileStyles.backLink}>
-        &larr; Back to Directory
+      <Link href={`/neighborhoods/${slug}/directory`} className={profileStyles.backButton}>
+        <ArrowLeft className={profileStyles.backButtonIcon} />
+        Back to Directory
       </Link>
 
       <div className={profileStyles.profileHeader}>
@@ -130,7 +132,7 @@ export default async function MemberProfilePage({ params }: Props) {
           <div className={profileStyles.familyGrid}>
             {member.children && (
               <div className={profileStyles.familyCard}>
-                <span className={profileStyles.familyIcon}>👶</span>
+                <span className={`${profileStyles.familyIcon} ${profileStyles.familyIconChildren}`}>👶</span>
                 <div className={profileStyles.familyContent}>
                   <span className={profileStyles.familyLabel}>Children</span>
                   <span className={profileStyles.familyValue}>{member.children}</span>
@@ -139,7 +141,7 @@ export default async function MemberProfilePage({ params }: Props) {
             )}
             {member.pets && (
               <div className={profileStyles.familyCard}>
-                <span className={profileStyles.familyIcon}>🐾</span>
+                <span className={`${profileStyles.familyIcon} ${profileStyles.familyIconPets}`}>🐾</span>
                 <div className={profileStyles.familyContent}>
                   <span className={profileStyles.familyLabel}>Pets</span>
                   <span className={profileStyles.familyValue}>{member.pets}</span>
@@ -162,10 +164,12 @@ export default async function MemberProfilePage({ params }: Props) {
             ? member.phones.map(
                   (phone: { label: string; number: string }, index: number) => (
                     <div key={index} className={profileStyles.phoneCard}>
-                      <span className={profileStyles.contactIcon}>📱</span>
-                      <span className={profileStyles.contactLabel}>
-                        {phone.label || "Phone"}
-                      </span>
+                      <div className={profileStyles.contactHeader}>
+                        <span className={profileStyles.contactIcon}>📱</span>
+                        <span className={profileStyles.contactLabel}>
+                          {phone.label || "Phone"}
+                        </span>
+                      </div>
                       <span className={profileStyles.phoneNumber}>
                         {phone.number.replace(
                           /(\d{3})(\d{3})(\d{4})/,
@@ -185,8 +189,10 @@ export default async function MemberProfilePage({ params }: Props) {
                 )
             : member.phone && (
                 <div className={profileStyles.phoneCard}>
-                  <span className={profileStyles.contactIcon}>📱</span>
-                  <span className={profileStyles.contactLabel}>Phone</span>
+                  <div className={profileStyles.contactHeader}>
+                    <span className={profileStyles.contactIcon}>📱</span>
+                    <span className={profileStyles.contactLabel}>Phone</span>
+                  </div>
                   <span className={profileStyles.phoneNumber}>{member.phone}</span>
                   <div className={profileStyles.phoneActions}>
                     <a href={`tel:${member.phone}`} className={profileStyles.phoneActionButton}>
@@ -203,10 +209,12 @@ export default async function MemberProfilePage({ params }: Props) {
             member.emails.map(
               (emailEntry: { label: string; email: string }, index: number) => (
                 <div key={`email-${index}`} className={profileStyles.phoneCard}>
-                  <span className={profileStyles.contactIcon}>📧</span>
-                  <span className={profileStyles.contactLabel}>
-                    {emailEntry.label || "Email"}
-                  </span>
+                  <div className={profileStyles.contactHeader}>
+                    <span className={profileStyles.contactIcon}>📧</span>
+                    <span className={profileStyles.contactLabel}>
+                      {emailEntry.label || "Email"}
+                    </span>
+                  </div>
                   <a href={`mailto:${emailEntry.email}`} className={profileStyles.contactLink}>
                     {emailEntry.email}
                   </a>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -103,8 +104,9 @@ export function NewNeighborhoodForm() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <Link href="/staff" className={styles.backLink}>
-          &larr; Back to Staff Panel
+        <Link href="/staff" className={styles.backButton}>
+          <ArrowLeft className={styles.backButtonIcon} />
+          Back to Staff Panel
         </Link>
 
         <h1 className={styles.title}>Create a Neighborhood</h1>

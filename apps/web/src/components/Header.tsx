@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { MessageSquare, Package, Users, LayoutDashboard, Menu, X, User, Settings, Shield, LogOut } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { useNeighborhood } from "./NeighborhoodProvider";
 import { UserMenu } from "./UserMenu";
@@ -81,6 +82,7 @@ export function Header() {
                     className={`${styles.navLink} ${isActive(postsLink) ? styles.navLinkActive : ""}`}
                     data-testid="header-posts-link"
                   >
+                    <MessageSquare className={styles.navIcon} />
                     Posts
                   </Link>
                   <Link
@@ -88,6 +90,7 @@ export function Header() {
                     className={`${styles.navLink} ${isActive(libraryLink) ? styles.navLinkActive : ""}`}
                     data-testid="header-library-link"
                   >
+                    <Package className={styles.navIcon} />
                     Library
                   </Link>
                   <Link
@@ -95,6 +98,7 @@ export function Header() {
                     className={`${styles.navLink} ${isActive(directoryLink) ? styles.navLinkActive : ""}`}
                     data-testid="header-directory-link"
                   >
+                    <Users className={styles.navIcon} />
                     Directory
                   </Link>
                 </div>
@@ -115,7 +119,7 @@ export function Header() {
           aria-label="Toggle menu"
           data-testid="header-mobile-menu-button"
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
@@ -156,17 +160,21 @@ export function Header() {
 
               {/* Main navigation */}
               <Link href="/dashboard" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-dashboard-link">
+                <LayoutDashboard className={styles.mobileNavIcon} />
                 Dashboard
               </Link>
               {shouldShowNeighborhoodNav && (
                 <>
                   <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-posts-link">
+                    <MessageSquare className={styles.mobileNavIcon} />
                     Posts
                   </Link>
                   <Link href={libraryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-library-link">
+                    <Package className={styles.mobileNavIcon} />
                     Library
                   </Link>
                   <Link href={directoryLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-directory-link">
+                    <Users className={styles.mobileNavIcon} />
                     Directory
                   </Link>
                 </>
@@ -176,9 +184,11 @@ export function Header() {
 
               {/* Account links */}
               <Link href="/profile" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-profile-link">
+                <User className={styles.mobileNavIcon} />
                 Edit Profile
               </Link>
               <Link href="/settings" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-settings-link">
+                <Settings className={styles.mobileNavIcon} />
                 Account Settings
               </Link>
 
@@ -192,11 +202,13 @@ export function Header() {
                       className={styles.mobileNavLink}
                       onClick={() => setMenuOpen(false)}
                     >
+                      <Shield className={styles.mobileNavIcon} />
                       Neighborhood Admin
                     </Link>
                   )}
                   {isStaffAdmin && (
                     <Link href="/staff" className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                      <Shield className={styles.mobileNavIcon} />
                       Staff Admin
                     </Link>
                   )}
@@ -240,6 +252,7 @@ export function Header() {
               <div className={styles.mobileDivider} />
 
               <button onClick={() => { signOut(); setMenuOpen(false); }} className={styles.mobileSignOutButton} data-testid="header-mobile-signout-button">
+                <LogOut className={styles.mobileNavIcon} />
                 Sign Out
               </button>
             </>

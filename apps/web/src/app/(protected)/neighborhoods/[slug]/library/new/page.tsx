@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ITEM_CATEGORIES } from "@/lib/category-utils";
@@ -62,105 +63,108 @@ export default function NewItemPage() {
 
   return (
     <div className={styles.container}>
-      <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
-        &larr; Back to Library
+      <Link href={`/neighborhoods/${slug}/library`} className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Back to Library
       </Link>
 
-      <div className={styles.card}>
-        <h1 className={styles.title}>Add Item to Library</h1>
-        <p className={styles.subtitle}>
-          Share something with your neighbors that they can borrow
-        </p>
+      <h1 className={styles.pageTitle}>Add Item to Library</h1>
+      <p className={styles.pageSubtitle}>
+        Share something with your neighbors that they can borrow
+      </p>
 
-        <form onSubmit={handleSubmit} className={styles.form} data-testid="library-new-item-form">
-          {error && <div className={styles.error} data-testid="library-new-item-form-error">{error}</div>}
+      <form onSubmit={handleSubmit} data-testid="library-new-item-form">
+        {error && <div className={styles.error} data-testid="library-new-item-form-error">{error}</div>}
 
-          <div className={styles.field}>
-            <label htmlFor="name" className={styles.label}>
-              Item Name *
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., circular saw, kayak, board games"
-              required
-              maxLength={MAX_LENGTHS.itemName}
-              className={styles.input}
-              data-testid="library-new-item-name-input"
-            />
-          </div>
+        <div className={styles.card}>
+          <div className={styles.form}>
+            <div className={styles.field}>
+              <label htmlFor="name" className={styles.label}>
+                Item Name <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., circular saw, kayak, board games"
+                required
+                maxLength={MAX_LENGTHS.itemName}
+                className={styles.input}
+                data-testid="library-new-item-name-input"
+              />
+            </div>
 
-          <div className={styles.field}>
-            <label htmlFor="category" className={styles.label}>
-              Category *
-            </label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as ItemCategory)}
-              required
-              className={styles.select}
-              data-testid="library-new-item-category-select"
-            >
-              {ITEM_CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className={styles.field}>
+              <label htmlFor="category" className={styles.label}>
+                Category <span className={styles.required}>*</span>
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value as ItemCategory)}
+                required
+                className={styles.select}
+                data-testid="library-new-item-category-select"
+              >
+                {ITEM_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className={styles.field}>
-            <label htmlFor="description" className={styles.label}>
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add details about the item, condition, or any borrowing notes..."
-              rows={4}
-              maxLength={MAX_LENGTHS.itemDescription}
-              className={styles.textarea}
-              data-testid="library-new-item-description-input"
-            />
-            {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
-              <span className={styles.charCount}>
-                {description.length}/{MAX_LENGTHS.itemDescription}
-              </span>
+            <div className={styles.field}>
+              <label htmlFor="description" className={styles.label}>
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add details about the item, condition, or any borrowing notes..."
+                rows={4}
+                maxLength={MAX_LENGTHS.itemDescription}
+                className={styles.textarea}
+                data-testid="library-new-item-description-input"
+              />
+              {description.length > MAX_LENGTHS.itemDescription * 0.8 && (
+                <span className={styles.charCount}>
+                  {description.length}/{MAX_LENGTHS.itemDescription}
+                </span>
+              )}
+            </div>
+
+            {userId && (
+              <ItemPhotoUpload
+                userId={userId}
+                photos={photoUrls}
+                onPhotosChange={setPhotoUrls}
+                onError={setError}
+              />
             )}
           </div>
+        </div>
 
-          {userId && (
-            <ItemPhotoUpload
-              userId={userId}
-              photos={photoUrls}
-              onPhotosChange={setPhotoUrls}
-              onError={setError}
-            />
-          )}
-
-          <div className={styles.actions}>
-            <Link
-              href={`/neighborhoods/${slug}/library`}
-              className={styles.cancelButton}
-              data-testid="library-new-item-cancel-button"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={isPending}
-              className={styles.submitButton}
-              data-testid="library-new-item-submit-button"
-            >
-              {isPending ? "Adding..." : "Add Item"}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className={styles.actions}>
+          <Link
+            href={`/neighborhoods/${slug}/library`}
+            className={styles.cancelButton}
+            data-testid="library-new-item-cancel-button"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={isPending}
+            className={styles.submitButton}
+            data-testid="library-new-item-submit-button"
+          >
+            {isPending ? "Adding..." : "Add Item"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

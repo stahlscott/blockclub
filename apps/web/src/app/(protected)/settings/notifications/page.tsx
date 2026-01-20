@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { getAuthContext } from "@/lib/auth-context";
@@ -51,8 +52,9 @@ export default async function NotificationSettingsPage() {
 
   return (
     <div className={styles.container}>
-      <Link href="/settings" className={styles.backLink}>
-        &larr; Back to Settings
+      <Link href="/settings" className={styles.backButton}>
+        <ArrowLeft className={styles.backButtonIcon} />
+        Settings
       </Link>
 
       <h1 className={styles.title}>Notification Settings</h1>

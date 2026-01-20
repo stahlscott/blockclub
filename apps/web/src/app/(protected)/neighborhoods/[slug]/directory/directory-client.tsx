@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft, Search, MapPin } from "lucide-react";
 import styles from "./directory.module.css";
 
 interface PhoneEntry {
@@ -87,6 +88,31 @@ function stripThePrefix(name: string | null | undefined): string {
 function getInitial(name: string | null | undefined): string {
   const stripped = stripThePrefix(name);
   return stripped.charAt(0)?.toUpperCase() || "?";
+}
+
+// Avatar background colors - cycle through based on initial
+const AVATAR_COLORS = [
+  styles.avatarGray,
+  styles.avatarBrick,
+  styles.avatarRose,
+  styles.avatarSage,
+  styles.avatarBlush,
+  styles.avatarSlate,
+  styles.avatarTaupe,
+];
+
+function getAvatarColorClass(name: string | null | undefined): string {
+  const initial = getInitial(name);
+  const charCode = initial.charCodeAt(0) || 0;
+  return AVATAR_COLORS[charCode % AVATAR_COLORS.length];
+}
+
+// Check if member joined within the last 30 days
+function isNewMember(joinedAt: string): boolean {
+  const joinDate = new Date(joinedAt);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return joinDate > thirtyDaysAgo;
 }
 
 export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
@@ -204,8 +230,9 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <Link href="/dashboard" className={styles.backLink}>
-            &larr; Dashboard
+          <Link href="/dashboard" className={styles.backButton}>
+            <ArrowLeft className={styles.backButtonIcon} />
+            Dashboard
           </Link>
           <h1 className={styles.title}>Neighborhood Directory</h1>
           <p className={styles.subtitle}>
@@ -215,13 +242,16 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
       </div>
 
       <div className={styles.controls}>
-        <input
-          type="text"
-          placeholder="Search members..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className={styles.searchInput}
-        />
+        <div className={styles.searchWrapper}>
+          <Search className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search members..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
         <div className={styles.sortWrapper}>
           <span className={styles.sortLabel}>Sort by:</span>
           <select
@@ -240,50 +270,60 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
 
       {filteredMembers.length > 0 ? (
         <div className={styles.memberGrid}>
-          {filteredMembers.map((member) => (
-            <Link
-              key={member.id}
-              href={`/neighborhoods/${slug}/members/${member.user.id}`}
-              className={styles.memberCard}
-            >
-              <div className={styles.avatar}>
-                {member.user.avatar_url ? (
-                  <Image
-                    src={member.user.avatar_url}
-                    alt={member.user.name}
-                    width={56}
-                    height={56}
-                    className={styles.avatarImg}
-                  />
-                ) : (
-                  <span className={styles.avatarInitial}>
-                    {getInitial(member.user.name)}
-                  </span>
-                )}
-              </div>
-              <div className={styles.memberInfo}>
-                <h3 className={styles.memberName}>
-                  {member.user.name}
-                  {member.role === "admin" && (
-                    <span className={styles.adminBadge}>Admin</span>
+          {filteredMembers.map((member) => {
+            const isNew = isNewMember(member.joined_at);
+            const showNewBadge = isNew && member.role !== "admin";
+
+            return (
+              <Link
+                key={member.id}
+                href={`/neighborhoods/${slug}/members/${member.user.id}`}
+                className={styles.memberCard}
+              >
+                <div className={`${styles.avatar} ${!member.user.avatar_url ? getAvatarColorClass(member.user.name) : ""}`}>
+                  {member.user.avatar_url ? (
+                    <Image
+                      src={member.user.avatar_url}
+                      alt={member.user.name}
+                      width={80}
+                      height={80}
+                      className={styles.avatarImg}
+                    />
+                  ) : (
+                    <span className={styles.avatarInitial}>
+                      {getInitial(member.user.name)}
+                    </span>
                   )}
-                </h3>
-                {member.user.address && (
-                  <p className={styles.memberAddress}>
-                    {member.user.address}
-                    {member.user.unit && `, ${member.user.unit}`}
-                  </p>
-                )}
-                {member.user.bio && (
-                  <p className={styles.memberBio}>
-                    {member.user.bio.length > 80
-                      ? `${member.user.bio.substring(0, 80)}...`
-                      : member.user.bio}
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
+                </div>
+                <div className={styles.memberInfo}>
+                  <h3 className={styles.memberName}>{member.user.name}</h3>
+
+                  {(member.role === "admin" || showNewBadge) && (
+                    <div className={styles.badgeRow}>
+                      {member.role === "admin" && (
+                        <span className={styles.adminBadge}>Admin</span>
+                      )}
+                      {showNewBadge && (
+                        <span className={styles.newBadge}>New</span>
+                      )}
+                    </div>
+                  )}
+
+                  {member.user.address && (
+                    <p className={styles.memberAddress}>
+                      <MapPin className={styles.addressIcon} />
+                      {member.user.address}
+                      {member.user.unit && `, ${member.user.unit}`}
+                    </p>
+                  )}
+
+                  {member.user.bio && (
+                    <p className={styles.memberBio}>{member.user.bio}</p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       ) : debouncedQuery ? (
         <div className={styles.emptyState}>

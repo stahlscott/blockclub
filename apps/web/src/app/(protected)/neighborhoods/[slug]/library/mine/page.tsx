@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import {
   getCategoryEmoji,
@@ -7,6 +8,8 @@ import {
 } from "@/lib/category-utils";
 import type { ItemCategory } from "@blockclub/shared";
 import styles from "../library-pages.module.css";
+import libraryStyles from "../library.module.css";
+import { LibraryTabs } from "../library-tabs";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -53,26 +56,29 @@ export default async function MyItemsPage({ params }: Props) {
   };
 
   return (
-    <div className={styles.container}>
-      <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
-        &larr; Back to Library
+    <div className={libraryStyles.container}>
+      <Link href="/dashboard" className={libraryStyles.backButton}>
+        <ArrowLeft className={libraryStyles.backButtonIcon} />
+        Dashboard
       </Link>
-      <div className={styles.headerRow}>
+      <div className={libraryStyles.headerRow}>
         <div>
-          <h1 className={styles.title}>My Items</h1>
-          <p className={styles.subtitle}>
+          <h1 className={libraryStyles.title}>Lending Library</h1>
+          <p className={libraryStyles.subtitle}>
             {items?.length || 0} item{items?.length !== 1 ? "s" : ""}{" "}
             you&apos;re sharing
           </p>
         </div>
         <Link
           href={`/neighborhoods/${slug}/library/new`}
-          className={styles.addButton}
+          className={libraryStyles.addButton}
           data-testid="library-mine-add-item-button"
         >
           + Add Item
         </Link>
       </div>
+
+      <LibraryTabs slug={slug} />
 
       {items && items.length > 0 ? (
         <div className={styles.list}>

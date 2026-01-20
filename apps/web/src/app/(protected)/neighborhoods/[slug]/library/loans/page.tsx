@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import styles from "../library-pages.module.css";
+import libraryStyles from "../library.module.css";
+import { LibraryTabs } from "../library-tabs";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -35,16 +38,21 @@ export default async function MyLoansPage({ params }: Props) {
   );
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <Link href={`/neighborhoods/${slug}/library`} className={styles.backLink}>
-          &larr; Back to Library
-        </Link>
-        <h1 className={styles.title}>My Loans</h1>
-        <p className={styles.subtitle}>
-          Items you&apos;re borrowing or have borrowed
-        </p>
+    <div className={libraryStyles.container}>
+      <Link href="/dashboard" className={libraryStyles.backButton}>
+        <ArrowLeft className={libraryStyles.backButtonIcon} />
+        Dashboard
+      </Link>
+      <div className={libraryStyles.headerRow}>
+        <div>
+          <h1 className={libraryStyles.title}>Lending Library</h1>
+          <p className={libraryStyles.subtitle}>
+            Items you&apos;re borrowing or have borrowed
+          </p>
+        </div>
       </div>
+
+      <LibraryTabs slug={slug} />
 
       {activeLoans.length > 0 && (
         <section className={styles.section}>

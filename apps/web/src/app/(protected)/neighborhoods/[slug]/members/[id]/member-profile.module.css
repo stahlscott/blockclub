@@ -1,11 +1,11 @@
 .profileHeader {
   display: flex;
   gap: var(--space-6);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
   padding: var(--space-6);
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
 }
 
 .profileInfo {
@@ -25,11 +25,12 @@
 
 .adminBadge {
   font-size: 0.625rem;
-  font-weight: var(--font-weight-medium);
-  background-color: var(--color-warning-light);
-  color: var(--color-borrowed-text);
+  font-weight: var(--font-weight-semibold);
+  background-color: #FFF4E6;
+  color: #8B6E5F;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
@@ -81,16 +82,30 @@
   padding: var(--space-6) var(--space-4);
 }
 
-.backLink {
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   color: var(--color-text-secondary);
   text-decoration: none;
   font-size: var(--font-size-sm);
-  display: inline-block;
-  margin-bottom: var(--space-2);
+  font-weight: var(--font-weight-medium);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  margin-bottom: var(--space-4);
 }
 
-.backLink:hover {
-  color: var(--color-text);
+.backButton:hover {
+  background-color: var(--color-warm-hover, #F0EDE8);
+}
+
+.backButtonIcon {
+  width: 16px;
+  height: 16px;
 }
 
 /* Avatar */
@@ -144,28 +159,42 @@
 
 /* Family section */
 .familySection {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
 }
 
 .familyGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .familyCard {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-4);
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
 }
 
 .familyIcon {
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
   flex-shrink: 0;
+  border-radius: var(--radius-md);
+}
+
+.familyIconChildren {
+  background-color: #FFF4E6;
+}
+
+.familyIconPets {
+  background-color: #D6EDE3;
 }
 
 .familyContent {
@@ -188,13 +217,18 @@
 
 /* Contact section */
 .contactSection {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
 }
 
 .sectionTitle {
   margin: 0 0 var(--space-4) 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -203,7 +237,7 @@
 .sectionTitle::before {
   content: "";
   width: 4px;
-  height: 1em;
+  height: 1.25em;
   background: var(--color-secondary);
   border-radius: 2px;
 }
@@ -217,29 +251,35 @@
 .phoneCard {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   padding: var(--space-4);
-  background-color: var(--color-surface);
+  background: linear-gradient(to bottom right, white, var(--color-warm-bg, #F8F7F5));
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
   overflow: hidden;
 }
 
+.contactHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .contactIcon {
-  font-size: 1.5rem;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
 }
 
 .contactLabel {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .phoneNumber {
   font-size: var(--font-size-sm);
   color: var(--color-text);
-  text-align: center;
 }
 
 .contactLink {
@@ -258,48 +298,55 @@
 .phoneActions {
   display: flex;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
 }
 
 .phoneActionButton {
+  flex: 1;
   padding: var(--space-2) var(--space-3);
   background-color: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-border-emphasis);
+  color: var(--color-text);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  transition: background-color 0.15s ease;
+  text-align: center;
+  transition: background-color var(--transition-fast);
 }
 
 .phoneActionButton:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-warm-hover, #F0EDE8);
 }
 
 /* Items section */
 .itemsSection {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
 }
 
 .itemGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
 }
 
 .itemCard {
   display: block;
   padding: var(--space-4);
   background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
   text-decoration: none;
   color: inherit;
+  transition: box-shadow var(--transition-fast);
 }
 
 .itemCard:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .itemName {
@@ -321,30 +368,30 @@
 }
 
 .itemCategory {
-  font-size: 0.6875rem;
+  font-size: var(--font-size-xs);
   background-color: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-border-emphasis);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-warm-border, #E5DDD5);
   padding: 2px var(--space-2);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   text-transform: capitalize;
 }
 
 .itemStatus {
-  font-size: 0.6875rem;
+  font-size: var(--font-size-xs);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   text-transform: capitalize;
 }
 
 .itemStatusAvailable {
-  background-color: var(--color-success-light);
-  color: var(--color-available-text);
+  background-color: #B8D4C8;
+  color: #2D5F4F;
 }
 
 .itemStatusUnavailable {
-  background-color: var(--color-error-light);
-  color: var(--color-unavailable-text);
+  background-color: #FFE8B8;
+  color: #8B6E00;
 }
 
 /* Member since */

@@ -84,10 +84,10 @@
 }
 
 .optionActive {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-secondary-light, #E8F4F8);
 }
 
 .checkmark {
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-weight: var(--font-weight-bold);
 }
