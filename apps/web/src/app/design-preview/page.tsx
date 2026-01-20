@@ -37,8 +37,8 @@ const fonts = [
 
 // Current chosen theme colors
 const colors = {
-  primary: "#7c3aed",
-  primaryLight: "#f3f0ff",
+  primary: "#A65D4C",
+  primaryLight: "#FDF5F3",
   background: "#fafaf9",
   surface: "#ffffff",
   text: "#18181b",
