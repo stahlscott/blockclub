@@ -78,6 +78,7 @@ Ideas to revisit based on user feedback.
 - [ ] **Migrate existing forms to useActionState pattern** - Forms currently use manual useState for error/loading state. Prefer useActionState for server action forms. See CLAUDE.md for the pattern.
 - [ ] **Standardize API route return types** - Update existing API routes to use `ApiResult<T>` from `@blockclub/shared`. Currently routes return inconsistent shapes.
 - [ ] **Migrate pages to use centralized query layer** - Replace inline Supabase queries with functions from `@/lib/queries`. Start with library page as reference.
+- [ ] **Accessibility audit of existing components** - Run axe-core or Lighthouse on key pages. Prioritize: signin, dashboard, library. Add missing labels, fix contrast issues, ensure keyboard navigation.
 
 ---
 
@@ -103,7 +104,7 @@ Currently only auth flows are covered. Prioritized by user impact.
 
 ## Developer Experience
 
-- [ ] Storybook component library
+- [x] Storybook component library
 - [ ] CONTRIBUTING.md with development guidelines
 - [ ] Configuration system for customization (name, logo, colors)
 - [ ] Add screenshots to README [blocker: UI/UX pass]
