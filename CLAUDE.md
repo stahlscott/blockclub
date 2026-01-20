@@ -57,7 +57,8 @@ The app should feel like a well-designed public library or co-op - warm but unde
 
 | Color | Purpose |
 |-------|---------|
-| Violet (`--color-primary`) | Actions: buttons, links, interactive elements |
+| Brick (`--color-primary`) | Actions: buttons, links, interactive elements |
+| Sunny Yellow (`--color-accent`) | Celebrations: NEW badges, pinned posts, milestones |
 | Lake Blue (`--color-secondary`) | Structure: navigation, headers, structural elements |
 | Category colors | Category indicators only (library items) |
 | Semantic colors (red/yellow/green) | Status only, never decoration |
@@ -66,7 +67,7 @@ The app should feel like a well-designed public library or co-op - warm but unde
 
 ### Visual Consistency Rules
 
-- **Shadows:** Two levels only - "resting" (subtle) and "elevated" (hover/focus). No purple-tinted shadows.
+- **Shadows:** Two levels only - "resting" (subtle) and "elevated" (hover/focus). No brick-tinted shadows.
 - **Border radius:** `6px` throughout for index-card feel. Full radius only for avatars and pills.
 - **Spacing:** Strict adherence to scale - page padding `space-8`, card padding `space-5`, section gaps `space-6`.
 - **Cards:** Subtle warm border + minimal shadow for paper-like feel. Cards get borders *or* heavy shadows, not both.
@@ -80,7 +81,7 @@ The app should feel like a well-designed public library or co-op - warm but unde
 
 **Buttons:**
 - Primary: Clean appearance, warm shadow on hover, subtle press state
-- Keep button shadows warm/neutral, not purple-tinted
+- Keep button shadows warm/neutral, not brick-tinted
 
 **Avatars:**
 - Warm border color (stone tones)
@@ -113,6 +114,8 @@ The app should feel like a well-designed public library or co-op - warm but unde
 This scales naturally for future expansion - no theming system needed.
 
 **Full design document:** `docs/plans/2026-01-19-community-bulletin-board-design.md`
+
+**Color scheme document:** `docs/plans/2026-01-19-brick-color-scheme-design.md`
 
 ## Code Conventions
 
