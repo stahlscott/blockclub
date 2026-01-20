@@ -1,0 +1,306 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.meta {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.actAsAdminButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.actAsAdminButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.actAsAdminButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settingsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color var(--transition-fast);
+}
+
+.settingsLink:hover {
+  border-color: var(--color-border-emphasis);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.searchInput {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  width: 250px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.filterTabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.filterTab {
+  padding: var(--space-1) var(--space-3);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterTab:hover {
+  border-color: var(--color-border-emphasis);
+}
+
+.filterTabActive {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.memberCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.memberDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.memberName {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.adminBadge {
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.pendingBadge {
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  background: var(--color-warning-light);
+  color: var(--color-borrowed-text);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.memberEmail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.memberMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.memberActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.actionButton {
+  padding: var(--space-1) var(--space-3);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.actionButton:hover:not(:disabled) {
+  border-color: var(--color-border-emphasis);
+  color: var(--color-text);
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.approveButton {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.approveButton:hover:not(:disabled) {
+  background: var(--color-success);
+  color: white;
+}
+
+.declineButton {
+  color: var(--color-error);
+  border-color: var(--color-error-light);
+}
+
+.declineButton:hover:not(:disabled) {
+  background: var(--color-error-light);
+}
+
+.removeButton {
+  color: var(--color-error);
+  border-color: transparent;
+}
+
+.removeButton:hover:not(:disabled) {
+  border-color: var(--color-error-light);
+  background: var(--color-error-light);
+}
+
+.emptyState {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.quickLinks {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.quickLink {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.quickLink:hover {
+  text-decoration: underline;
+}
