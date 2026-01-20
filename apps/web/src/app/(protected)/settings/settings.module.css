@@ -48,7 +48,7 @@
   content: "";
   width: 4px;
   height: 1em;
-  background: var(--color-primary);
+  background: var(--color-secondary);
   border-radius: 2px;
 }
 
