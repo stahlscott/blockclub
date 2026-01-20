@@ -11,17 +11,20 @@ interface SettingsClientProps {
   initialMembershipId: string | null;
   initialNeighborhoodName: string | null;
   isImpersonating: boolean;
+  userEmail: string;
 }
 
 export function SettingsClient({
   initialMembershipId,
   initialNeighborhoodName,
   isImpersonating,
+  userEmail,
 }: SettingsClientProps) {
   const router = useRouter();
   const { signOut } = useAuth();
   const [membershipId] = useState<string | null>(initialMembershipId);
   const [neighborhoodName] = useState<string | null>(initialNeighborhoodName);
+  const [currentEmail] = useState(userEmail);
 
   // Leave neighborhood state
   const [leaving, setLeaving] = useState(false);
@@ -33,6 +36,13 @@ export function SettingsClient({
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // Email change state
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [changingEmail, setChangingEmail] = useState(false);
 
   const handleLeaveNeighborhood = async () => {
     if (!membershipId) return;
@@ -101,6 +111,42 @@ export function SettingsClient({
     setChangingPassword(false);
   };
 
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError(null);
+    setEmailSuccess(false);
+
+    if (!newEmail.trim()) {
+      setEmailError("Please enter an email address");
+      return;
+    }
+
+    if (newEmail === currentEmail) {
+      setEmailError("New email is the same as current email");
+      return;
+    }
+
+    setChangingEmail(true);
+
+    const supabase = createClient();
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      email: newEmail,
+    });
+
+    if (updateError) {
+      setEmailError(updateError.message);
+    } else {
+      setEmailSuccess(true);
+      setShowChangeEmail(false);
+      setNewEmail("");
+      // Note: The email won't actually change until they click the confirmation link
+      // sent to the new address, so we don't update currentEmail here
+    }
+
+    setChangingEmail(false);
+  };
+
   return (
     <div className={styles.container}>
       <Link href="/dashboard" className={styles.backLink}>
@@ -130,6 +176,81 @@ export function SettingsClient({
           Manage notification preferences &rarr;
         </Link>
       </div>
+
+      {!isImpersonating && (
+        <div className={styles.card} data-testid="settings-email-section">
+          <h2 className={styles.sectionTitle}>Email Address</h2>
+          <p className={styles.emailDisplay}>
+            Your current email: <span className={styles.emailValue} data-testid="settings-current-email">{currentEmail}</span>
+          </p>
+
+          {emailSuccess && (
+            <p className={styles.success} data-testid="settings-email-success">
+              Check your new email address for a confirmation link.
+            </p>
+          )}
+
+          {!showChangeEmail ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShowChangeEmail(true);
+                setNewEmail(currentEmail);
+                setEmailSuccess(false);
+              }}
+              className={styles.changeEmailButton}
+              data-testid="settings-change-email-button"
+            >
+              Change email address
+            </button>
+          ) : (
+            <form onSubmit={handleEmailChange} className={styles.changeEmailForm}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="newEmailInput" className={styles.label}>
+                  New email address
+                </label>
+                <input
+                  id="newEmailInput"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  required
+                  className={styles.input}
+                  placeholder="new@email.com"
+                  data-testid="settings-new-email-input"
+                />
+              </div>
+              {emailError && (
+                <p className={styles.error} data-testid="settings-email-error">
+                  {emailError}
+                </p>
+              )}
+              <div className={styles.buttonRow}>
+                <button
+                  type="submit"
+                  disabled={changingEmail}
+                  className={styles.button}
+                  data-testid="settings-update-email-button"
+                >
+                  {changingEmail ? "Updating..." : "Update email"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangeEmail(false);
+                    setNewEmail("");
+                    setEmailError(null);
+                  }}
+                  className={styles.secondaryButton}
+                  data-testid="settings-cancel-email-button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
 
       {!isImpersonating && (
         <div className={styles.card}>
