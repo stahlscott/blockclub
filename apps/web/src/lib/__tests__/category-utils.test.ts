@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   getCategoryEmoji,
-  getCategoryColor,
   getCategoryColorLight,
   ITEM_CATEGORIES,
   FILTER_CATEGORIES,
@@ -24,25 +23,6 @@ describe("getCategoryEmoji", () => {
 
   it("returns fallback emoji for unknown category", () => {
     expect(getCategoryEmoji("unknown" as ItemCategory)).toBe("📦");
-  });
-});
-
-describe("getCategoryColor", () => {
-  it("returns correct color for each category", () => {
-    expect(getCategoryColor("tools")).toBe("var(--color-park)");
-    expect(getCategoryColor("kitchen")).toBe("var(--color-brick)");
-    expect(getCategoryColor("outdoor")).toBe("var(--color-lake)");
-    expect(getCategoryColor("sports")).toBe("var(--color-park)");
-    expect(getCategoryColor("games")).toBe("var(--color-accent)");
-    expect(getCategoryColor("electronics")).toBe("#6366f1");
-    expect(getCategoryColor("books")).toBe("var(--color-primary)");
-    expect(getCategoryColor("baby")).toBe("#ec4899");
-    expect(getCategoryColor("travel")).toBe("var(--color-lake)");
-    expect(getCategoryColor("other")).toBe("var(--color-text-muted)");
-  });
-
-  it("returns fallback color for unknown category", () => {
-    expect(getCategoryColor("unknown" as ItemCategory)).toBe("var(--color-text-muted)");
   });
 });
 
