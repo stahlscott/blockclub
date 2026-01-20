@@ -1,131 +1,110 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import { StaffClient } from "./staff-client";
+import responsive from "@/app/responsive.module.css";
 
-// Types for admin queries
-interface NeighborhoodRow {
-  id: string;
-  name: string;
-  slug: string;
-  created_at: string;
-}
-
-interface UserRow {
-  id: string;
-  name: string | null;
-  email: string;
-  avatar_url: string | null;
-  created_at: string;
-  memberships: { id: string; neighborhood_id: string; status: string }[];
-}
-
-export default async function StaffPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/signin");
-  }
-
-  // Only staff admins can access this page
-  if (!isStaffAdmin(user.email)) {
-    logger.warn("Non-staff admin attempted to access /staff", { userId: user.id, email: user.email });
-    redirect("/dashboard");
-  }
-
-  // Use admin client to bypass RLS and get all data
+async function getStats() {
   const adminSupabase = createAdminClient();
 
-  // Fetch statistics
-  // Note: Use !memberships_user_id_fkey to specify which FK to use (there are multiple user references)
-  const [neighborhoodsResult, usersResult, itemsResult] = await Promise.all([
-    adminSupabase.from("neighborhoods").select("*"),
-    adminSupabase.from("users").select("*, memberships!memberships_user_id_fkey(id, neighborhood_id, status)"),
+  const [neighborhoods, users, items] = await Promise.all([
+    adminSupabase.from("neighborhoods").select("*", { count: "exact", head: true }),
+    adminSupabase.from("users").select("*", { count: "exact", head: true }),
     adminSupabase.from("items").select("*", { count: "exact", head: true }),
   ]);
 
-  const neighborhoods = (neighborhoodsResult.data || []) as NeighborhoodRow[];
-  const users = (usersResult.data || []) as UserRow[];
-  const totalItems = itemsResult.count || 0;
+  return {
+    neighborhoodCount: neighborhoods.count || 0,
+    userCount: users.count || 0,
+    itemCount: items.count || 0,
+  };
+}
 
-  if (neighborhoodsResult.error) {
-    logger.error("Error fetching neighborhoods for admin", neighborhoodsResult.error);
-  }
-  if (usersResult.error) {
-    logger.error("Error fetching users for admin", usersResult.error);
-  }
+const styles: { [key: string]: React.CSSProperties } = {
+  statsRow: {
+    display: "flex",
+    gap: "var(--space-4)",
+    marginBottom: "var(--space-8)",
+  },
+  stat: {
+    background: "var(--color-surface)",
+    padding: "var(--space-5)",
+    borderRadius: "var(--radius-lg)",
+    border: "1px solid var(--color-border)",
+    textAlign: "center",
+    minWidth: "120px",
+  },
+  statValue: {
+    display: "block",
+    fontSize: "var(--font-size-2xl)",
+    fontWeight: 600,
+    color: "var(--color-text)",
+  },
+  statLabel: {
+    fontSize: "var(--font-size-sm)",
+    color: "var(--color-text-secondary)",
+  },
+  sectionTitle: {
+    fontSize: "var(--font-size-lg)",
+    fontWeight: 600,
+    marginBottom: "var(--space-4)",
+  },
+  actionCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-3)",
+    padding: "var(--space-4)",
+    background: "var(--color-surface)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    textDecoration: "none",
+    color: "var(--color-text)",
+    transition: "border-color var(--transition-fast)",
+  },
+};
 
-  // Enrich neighborhoods with member and item counts
-  const neighborhoodIds = neighborhoods.map((n) => n.id);
-
-  const [membershipCounts, itemCounts] = await Promise.all([
-    adminSupabase
-      .from("memberships")
-      .select("neighborhood_id")
-      .in("neighborhood_id", neighborhoodIds.length > 0 ? neighborhoodIds : [""])
-      .eq("status", "active"),
-    adminSupabase
-      .from("items")
-      .select("neighborhood_id")
-      .in("neighborhood_id", neighborhoodIds.length > 0 ? neighborhoodIds : [""]),
-  ]);
-
-  // Create lookup maps for counts
-  const memberCountMap: Record<string, number> = {};
-  const itemCountMap: Record<string, number> = {};
-
-  ((membershipCounts.data || []) as { neighborhood_id: string }[]).forEach((m) => {
-    memberCountMap[m.neighborhood_id] = (memberCountMap[m.neighborhood_id] || 0) + 1;
-  });
-
-  ((itemCounts.data || []) as { neighborhood_id: string }[]).forEach((i) => {
-    itemCountMap[i.neighborhood_id] = (itemCountMap[i.neighborhood_id] || 0) + 1;
-  });
-
-  const enrichedNeighborhoods = neighborhoods.map((n) => ({
-    ...n,
-    memberCount: memberCountMap[n.id] || 0,
-    itemCount: itemCountMap[n.id] || 0,
-  }));
-
-  // Enrich users with membership count and primary neighborhood
-  const enrichedUsers = users.map((u) => {
-    const activeMemberships = (u.memberships || []).filter((m) => m.status === "active");
-    const primaryNeighborhoodId = activeMemberships[0]?.neighborhood_id;
-    const primaryNeighborhood = primaryNeighborhoodId
-      ? neighborhoods.find((n) => n.id === primaryNeighborhoodId)
-      : null;
-
-    return {
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      avatar_url: u.avatar_url,
-      created_at: u.created_at,
-      membershipCount: activeMemberships.length,
-      primaryNeighborhood: primaryNeighborhood?.name || null,
-      memberships: u.memberships || [],
-    };
-  });
-
-  // Filter out staff admins from the user list - they shouldn't appear in the user list
-  const nonStaffUsers = enrichedUsers.filter((u) => !isStaffAdmin(u.email));
+export default async function StaffOverviewPage() {
+  const stats = await getStats();
 
   return (
-    <StaffClient
-      neighborhoods={enrichedNeighborhoods}
-      users={nonStaffUsers}
-      stats={{
-        neighborhoodCount: neighborhoods.length,
-        userCount: nonStaffUsers.length,
-        totalItems,
-      }}
-    />
+    <div>
+      <div style={styles.statsRow}>
+        <div style={styles.stat}>
+          <span style={styles.statValue}>{stats.neighborhoodCount}</span>
+          <span style={styles.statLabel}>Neighborhoods</span>
+        </div>
+        <div style={styles.stat}>
+          <span style={styles.statValue}>{stats.userCount}</span>
+          <span style={styles.statLabel}>Users</span>
+        </div>
+        <div style={styles.stat}>
+          <span style={styles.statValue}>{stats.itemCount}</span>
+          <span style={styles.statLabel}>Items</span>
+        </div>
+      </div>
+
+      <h2 style={styles.sectionTitle}>Quick Actions</h2>
+      <div className={responsive.grid3}>
+        <Link
+          href="/staff/neighborhoods"
+          style={styles.actionCard}
+          data-testid="staff-overview-neighborhoods-link"
+        >
+          <span>View Neighborhoods</span>
+        </Link>
+        <Link
+          href="/staff/users"
+          style={styles.actionCard}
+          data-testid="staff-overview-users-link"
+        >
+          <span>Find User</span>
+        </Link>
+        <Link
+          href="/neighborhoods/new"
+          style={styles.actionCard}
+          data-testid="staff-overview-new-neighborhood-link"
+        >
+          <span>New Neighborhood</span>
+        </Link>
+      </div>
+    </div>
   );
 }
