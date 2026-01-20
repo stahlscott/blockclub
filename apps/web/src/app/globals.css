@@ -61,7 +61,33 @@
   /* Accent - Sunny Yellow (celebrations, NEW badges, pinned posts) */
   --color-accent: #EAB308;
   --color-accent-hover: #CA9A06;
+  --color-accent-light: #FFF9F0;
+  --color-accent-light-hover: #FFF5E6;
+  --color-accent-border: #F4D19B;
+  --color-accent-border-hover: #E8C78A;
   --color-accent-text: #713F12;
+
+  /* Warm badge variant (admin badges, subtle) */
+  --color-badge-warm-bg: #FFF4E6;
+  --color-badge-warm-text: #8B6E5F;
+
+  /* New member badge (green/sage) */
+  --color-badge-new-bg: #D6EDE3;
+  --color-badge-new-text: #2D5F4F;
+  --color-badge-new-border: #B8D4C8;
+
+  /* Avatar placeholder colors - warm palette for initials */
+  --color-avatar-gray: #A8A8A8;
+  --color-avatar-brick: #C89B8C;
+  --color-avatar-rose: #D4A5A5;
+  --color-avatar-sage: #8BAAA8;
+  --color-avatar-blush: #E8B4B8;
+  --color-avatar-slate: #8B9EAA;
+  --color-avatar-taupe: #A89B8C;
+
+  /* Heart/Like reactions (red, distinct from errors) */
+  --color-heart: #ef4444;
+  --color-heart-hover: #dc2626;
 
   /* Community palette - Great Lakes & Brick Streets */
   --color-lake: #0891b2;
@@ -81,8 +107,11 @@
   --color-surface: #ffffff;
   --color-border: #e7e5e4;         /* Stone-200 (was zinc #e4e4e7) */
   --color-border-emphasis: #d6d3d1; /* Stone-300 - warm neutral (was purple #c4b5fd) */
+  --color-warm-border-hover: #C9BFB5; /* Darker warm border for hover states */
+  --color-avatar-placeholder: #E8D5CE; /* Warm peach for avatar fallbacks */
 
   /* Semantic - Status */
+  --color-required: #8B3A3A;       /* Required field indicator (warm red) */
   --color-error: #dc2626;
   --color-error-light: #fef2f2;
   --color-error-border: #fca5a5;
@@ -103,6 +132,12 @@
   --color-borrowed-text: #92400e;
   --color-unavailable: #fee2e2;
   --color-unavailable-text: #991b1b;
+
+  /* Status badges (profile cards) */
+  --color-status-available-bg: #B8D4C8;
+  --color-status-available-text: #2D5F4F;
+  --color-status-unavailable-bg: #FFE8B8;
+  --color-status-unavailable-text: #8B6E00;
 
   /* ==========================================================================
      SPACING (4px grid)

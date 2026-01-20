@@ -22,9 +22,9 @@
 }
 
 .pinnedSection .postCard {
-  background-color: #FFF9F0;
-  border: 1px solid #F4D19B;
-  border-left: 4px solid #C4941A;
+  background-color: var(--color-accent-light);
+  border: 1px solid var(--color-accent-border);
+  border-left: 4px solid var(--color-accent-hover);
 }
 
 .pinnedHeader {
@@ -34,7 +34,7 @@
   margin-bottom: var(--space-3);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: #C4941A;
+  color: var(--color-accent-hover);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -89,8 +89,8 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  background-color: #E8D5CE;
-  border: 2px solid var(--color-warm-border, #E5DDD5);
+  background-color: var(--color-avatar-placeholder);
+  border: 2px solid var(--color-warm-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +189,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  color: #ef4444;
+  color: var(--color-heart);
 }
 
 .heartButton {
@@ -211,11 +211,11 @@
 }
 
 .heartButtonActive {
-  color: #ef4444;
+  color: var(--color-heart);
 }
 
 .heartButtonActive:hover {
-  color: #dc2626;
+  color: var(--color-heart-hover);
 }
 
 .heartButtonLoading {

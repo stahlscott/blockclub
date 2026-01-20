@@ -47,7 +47,7 @@
 }
 
 .description {
-  color: #444;
+  color: var(--color-text-secondary);
   margin-bottom: var(--space-2);
   font-size: var(--font-size-base);
 }
@@ -65,7 +65,7 @@
 }
 
 .ctaText {
-  color: #444;
+  color: var(--color-text-secondary);
   margin-bottom: var(--space-6);
   font-size: 0.95rem;
 }
@@ -187,7 +187,7 @@
 }
 
 .backButton:hover {
-  background-color: var(--color-warm-hover, #F0EDE8);
+  background-color: var(--color-warm-hover);
 }
 
 .backButtonIcon {

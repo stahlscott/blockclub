@@ -5,7 +5,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
 }
 
 .profileInfo {
@@ -26,11 +26,11 @@
 .adminBadge {
   font-size: 0.625rem;
   font-weight: var(--font-weight-semibold);
-  background-color: #FFF4E6;
-  color: #8B6E5F;
+  background-color: var(--color-badge-warm-bg);
+  color: var(--color-badge-warm-text);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
@@ -100,7 +100,7 @@
 }
 
 .backButton:hover {
-  background-color: var(--color-warm-hover, #F0EDE8);
+  background-color: var(--color-warm-hover);
 }
 
 .backButtonIcon {
@@ -163,7 +163,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
 }
 
 .familyGrid {
@@ -190,11 +190,11 @@
 }
 
 .familyIconChildren {
-  background-color: #FFF4E6;
+  background-color: var(--color-badge-warm-bg);
 }
 
 .familyIconPets {
-  background-color: #D6EDE3;
+  background-color: var(--color-badge-new-bg);
 }
 
 .familyContent {
@@ -221,7 +221,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
 }
 
 .sectionTitle {
@@ -253,9 +253,9 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
-  background: linear-gradient(to bottom right, white, var(--color-warm-bg, #F8F7F5));
+  background: linear-gradient(to bottom right, white, var(--color-warm-bg));
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
   overflow: hidden;
 }
 
@@ -306,7 +306,7 @@
   padding: var(--space-2) var(--space-3);
   background-color: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: var(--font-size-xs);
@@ -316,7 +316,7 @@
 }
 
 .phoneActionButton:hover {
-  background-color: var(--color-warm-hover, #F0EDE8);
+  background-color: var(--color-warm-hover);
 }
 
 /* Items section */
@@ -325,7 +325,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
 }
 
 .itemGrid {
@@ -339,7 +339,7 @@
   padding: var(--space-4);
   background-color: var(--color-surface);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
   text-decoration: none;
   color: inherit;
   transition: box-shadow var(--transition-fast);
@@ -371,7 +371,7 @@
   font-size: var(--font-size-xs);
   background-color: var(--color-surface);
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-warm-border, #E5DDD5);
+  border: 1px solid var(--color-warm-border);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   text-transform: capitalize;
@@ -385,13 +385,13 @@
 }
 
 .itemStatusAvailable {
-  background-color: #B8D4C8;
-  color: #2D5F4F;
+  background-color: var(--color-status-available-bg);
+  color: var(--color-status-available-text);
 }
 
 .itemStatusUnavailable {
-  background-color: #FFE8B8;
-  color: #8B6E00;
+  background-color: var(--color-status-unavailable-bg);
+  color: var(--color-status-unavailable-text);
 }
 
 /* Member since */

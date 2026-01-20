@@ -48,7 +48,7 @@
 }
 
 .required {
-  color: #8B3A3A;
+  color: var(--color-required);
 }
 
 .card {
@@ -170,7 +170,7 @@
 
 .submitButton {
   padding: var(--space-3) var(--space-8);
-  background-color: #8B6E5F;
+  background-color: var(--color-primary);
   color: var(--color-surface);
   border: none;
   border-radius: var(--radius-md);
@@ -181,7 +181,7 @@
 }
 
 .submitButton:hover {
-  background-color: #6F5749;
+  background-color: var(--color-primary-hover);
 }
 
 .submitButton:disabled {
