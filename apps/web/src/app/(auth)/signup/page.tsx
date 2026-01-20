@@ -25,11 +25,6 @@ function SignUpForm() {
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);
 
-  // Change email state
-  const [showChangeEmail, setShowChangeEmail] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
-  const [changeEmailLoading, setChangeEmailLoading] = useState(false);
-  const [changeEmailError, setChangeEmailError] = useState<string | null>(null);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,36 +102,6 @@ function SignUpForm() {
     setResendLoading(false);
   };
 
-  const handleChangeEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setChangeEmailLoading(true);
-    setChangeEmailError(null);
-
-    if (!newEmail.trim()) {
-      setChangeEmailError("Please enter an email address");
-      setChangeEmailLoading(false);
-      return;
-    }
-
-    const supabase = createClient();
-
-    const { error: updateErr } = await supabase.auth.updateUser({
-      email: newEmail,
-    });
-
-    if (updateErr) {
-      setChangeEmailError(updateErr.message);
-    } else {
-      // Update the displayed email and reset the form
-      setEmail(newEmail);
-      setNewEmail("");
-      setShowChangeEmail(false);
-      setResendSuccess(true);
-      setTimeout(() => setResendSuccess(false), 5000);
-    }
-
-    setChangeEmailLoading(false);
-  };
 
   if (success) {
     return (
@@ -175,64 +140,13 @@ function SignUpForm() {
               )}
             </div>
 
-            {/* Change email */}
-            {!showChangeEmail ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setShowChangeEmail(true);
-                  setNewEmail(email);
-                }}
-                className={styles.changeEmailLink}
-                data-testid="signup-change-email-link"
-              >
-                Wrong email? Update it
-              </button>
-            ) : (
-              <form onSubmit={handleChangeEmail} className={styles.changeEmailForm}>
-                <div className={styles.inputGroup}>
-                  <label htmlFor="newEmail" className={styles.label}>
-                    New email address
-                  </label>
-                  <input
-                    id="newEmail"
-                    type="email"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    required
-                    className={styles.input}
-                    placeholder="correct@email.com"
-                    data-testid="signup-new-email-input"
-                  />
-                </div>
-                {changeEmailError && (
-                  <p className={styles.error} data-testid="signup-change-email-error">
-                    {changeEmailError}
-                  </p>
-                )}
-                <div className={styles.buttonRow}>
-                  <button
-                    type="submit"
-                    disabled={changeEmailLoading}
-                    className={styles.button}
-                    data-testid="signup-update-email-button"
-                  >
-                    {changeEmailLoading ? "Updating..." : "Update email"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowChangeEmail(false);
-                      setNewEmail("");
-                      setChangeEmailError(null);
-                    }}
-                    className={styles.secondaryButton}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
+            <p className={styles.hint}>
+              Wrong email? You&apos;ll need to{" "}
+              <Link href="/signup" className={styles.link}>
+                sign up again
+              </Link>{" "}
+              with the correct address.
+            </p>
           </div>
 
           <p className={styles.footer}>
