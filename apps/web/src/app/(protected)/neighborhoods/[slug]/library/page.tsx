@@ -97,17 +97,11 @@ export default async function LibraryPage({ params, searchParams }: Props) {
 
   return (
     <div className={libraryStyles.container}>
-      <Link href="/dashboard" className={libraryStyles.backButton}>
-        <ArrowLeft className={libraryStyles.backButtonIcon} />
-        Dashboard
-      </Link>
-      <div className={libraryStyles.headerRow}>
-        <div>
-          <h1 className={libraryStyles.title}>Lending Library</h1>
-          <p className={libraryStyles.subtitle}>
-            {availableCount} available, {borrowedCount} borrowed
-          </p>
-        </div>
+      <div className={libraryStyles.topRow}>
+        <Link href="/dashboard" className={libraryStyles.backButton}>
+          <ArrowLeft className={libraryStyles.backButtonIcon} />
+          Dashboard
+        </Link>
         <Link
           href={`/neighborhoods/${slug}/library/new`}
           className={libraryStyles.addButton}
@@ -115,6 +109,12 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         >
           + Add Item
         </Link>
+      </div>
+      <div className={libraryStyles.header}>
+        <h1 className={libraryStyles.title}>Lending Library</h1>
+        <p className={libraryStyles.subtitle}>
+          {availableCount} available, {borrowedCount} borrowed
+        </p>
       </div>
 
       <LibraryTabs slug={slug} />

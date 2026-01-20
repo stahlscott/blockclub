@@ -73,21 +73,21 @@ export default async function PostsPage({ params }: Props) {
 
   return (
     <div className={styles.container}>
-      <Link href="/dashboard" className={styles.backButton}>
-        <ArrowLeft className={styles.backButtonIcon} />
-        Dashboard
-      </Link>
-      <div className={styles.headerRow}>
-        <div>
-          <h1 className={styles.title}>Posts</h1>
-          <p className={styles.subtitle}>
-            {postsWithReactions.length} post
-            {postsWithReactions.length !== 1 ? "s" : ""} in {neighborhood.name}
-          </p>
-        </div>
+      <div className={styles.topRow}>
+        <Link href="/dashboard" className={styles.backButton}>
+          <ArrowLeft className={styles.backButtonIcon} />
+          Dashboard
+        </Link>
         <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.newButton} data-testid="posts-new-post-button">
           + New Post
         </Link>
+      </div>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Posts</h1>
+        <p className={styles.subtitle}>
+          {postsWithReactions.length} post
+          {postsWithReactions.length !== 1 ? "s" : ""} in {neighborhood.name}
+        </p>
       </div>
 
       <PostsClient
