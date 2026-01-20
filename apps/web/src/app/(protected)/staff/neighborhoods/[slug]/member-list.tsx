@@ -111,6 +111,7 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
         <input
           type="search"
           placeholder="Search members..."
+          aria-label="Search members by name or email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={styles.searchInput}
@@ -118,10 +119,12 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
         />
       </div>
 
-      <div className={styles.filterTabs}>
+      <div className={styles.filterTabs} role="tablist" aria-label="Filter members by status">
         <button
           className={`${styles.filterTab} ${filter === "all" ? styles.filterTabActive : ""}`}
           onClick={() => setFilter("all")}
+          role="tab"
+          aria-selected={filter === "all"}
           data-testid="filter-tab-all"
         >
           All ({members.length})
@@ -129,6 +132,8 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
         <button
           className={`${styles.filterTab} ${filter === "active" ? styles.filterTabActive : ""}`}
           onClick={() => setFilter("active")}
+          role="tab"
+          aria-selected={filter === "active"}
           data-testid="filter-tab-active"
         >
           Active ({activeCount})
@@ -136,6 +141,8 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
         <button
           className={`${styles.filterTab} ${filter === "pending" ? styles.filterTabActive : ""}`}
           onClick={() => setFilter("pending")}
+          role="tab"
+          aria-selected={filter === "pending"}
           data-testid="filter-tab-pending"
         >
           Pending ({pendingCount})

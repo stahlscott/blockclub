@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
+
 export async function approveMembership(
   membershipId: string,
   neighborhoodSlug: string
@@ -19,9 +20,9 @@ export async function approveMembership(
   }
 
   const adminSupabase = createAdminClient();
-    const { error } = await (adminSupabase as any)
+  const { error } = await adminSupabase
     .from("memberships")
-    .update({ status: "active" })
+    .update({ status: "active" } as never)
     .eq("id", membershipId);
 
   if (error) {
@@ -47,9 +48,9 @@ export async function declineMembership(
   }
 
   const adminSupabase = createAdminClient();
-    const { error } = await (adminSupabase as any)
+  const { error } = await adminSupabase
     .from("memberships")
-    .update({ status: "inactive", deleted_at: new Date().toISOString() })
+    .update({ status: "inactive", deleted_at: new Date().toISOString() } as never)
     .eq("id", membershipId);
 
   if (error) {
@@ -75,9 +76,9 @@ export async function removeMembership(
   }
 
   const adminSupabase = createAdminClient();
-    const { error } = await (adminSupabase as any)
+  const { error } = await adminSupabase
     .from("memberships")
-    .update({ status: "inactive", deleted_at: new Date().toISOString() })
+    .update({ status: "inactive", deleted_at: new Date().toISOString() } as never)
     .eq("id", membershipId);
 
   if (error) {
