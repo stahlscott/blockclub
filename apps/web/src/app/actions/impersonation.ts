@@ -18,11 +18,13 @@ import { logger } from "@/lib/logger";
  * Only staff admins can call this action.
  *
  * @param targetUserId - The ID of the user to impersonate
- * @returns Success status - caller handles navigation
+ * @param redirectTo - Optional path to redirect to after impersonation (default: /dashboard)
+ * @returns Success status with redirect path - caller handles navigation
  */
 export async function startImpersonation(
-  targetUserId: string
-): Promise<{ success: boolean; error?: string }> {
+  targetUserId: string,
+  redirectTo?: string
+): Promise<{ success: boolean; error?: string; redirectTo?: string }> {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -61,7 +63,7 @@ export async function startImpersonation(
   });
 
   await setImpersonationCookie(targetUserId);
-  return { success: true };
+  return { success: true, redirectTo: redirectTo || "/dashboard" };
 }
 
 /**
