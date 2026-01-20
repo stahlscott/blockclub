@@ -14,7 +14,9 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@blockclub/shared": "*",
@@ -31,6 +33,8 @@
     "@eslint/eslintrc": "^3.3.3",
     "@next/eslint-plugin-next": "^16.1.3",
     "@playwright/test": "^1.41.0",
+    "@storybook/addon-a11y": "^10.1.11",
+    "@storybook/nextjs": "^10.1.11",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.5.0",
@@ -46,6 +50,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^24.0.0",
+    "storybook": "^10.1.11",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.53.0",
     "vitest": "^4.0.17"
