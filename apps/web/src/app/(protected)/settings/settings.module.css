@@ -330,3 +330,66 @@
   font-size: var(--font-size-sm);
   text-align: center;
 }
+
+/* Email section */
+.emailDisplay {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.emailValue {
+  font-weight: var(--font-weight-medium);
+}
+
+.changeEmailButton {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-emphasis);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.changeEmailButton:hover {
+  background-color: var(--color-primary-light);
+}
+
+.changeEmailForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.buttonRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.buttonRow .button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.secondaryButton {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-background);
+}

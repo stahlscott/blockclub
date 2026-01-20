@@ -20,6 +20,17 @@ function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Resend confirmation state
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  // Change email state
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [changeEmailLoading, setChangeEmailLoading] = useState(false);
+  const [changeEmailError, setChangeEmailError] = useState<string | null>(null);
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -73,20 +84,162 @@ function SignUpForm() {
     setLoading(false);
   };
 
+  const handleResendConfirmation = async () => {
+    setResendLoading(true);
+    setResendSuccess(false);
+    setResendError(null);
+
+    const supabase = createClient();
+
+    const { error: resendErr } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    });
+
+    if (resendErr) {
+      setResendError(resendErr.message);
+    } else {
+      setResendSuccess(true);
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setResendSuccess(false), 5000);
+    }
+
+    setResendLoading(false);
+  };
+
+  const handleChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangeEmailLoading(true);
+    setChangeEmailError(null);
+
+    if (!newEmail.trim()) {
+      setChangeEmailError("Please enter an email address");
+      setChangeEmailLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
+
+    const { error: updateErr } = await supabase.auth.updateUser({
+      email: newEmail,
+    });
+
+    if (updateErr) {
+      setChangeEmailError(updateErr.message);
+    } else {
+      // Update the displayed email and reset the form
+      setEmail(newEmail);
+      setNewEmail("");
+      setShowChangeEmail(false);
+      setResendSuccess(true);
+      setTimeout(() => setResendSuccess(false), 5000);
+    }
+
+    setChangeEmailLoading(false);
+  };
+
   if (success) {
     return (
       <div className="fullPageContainer">
         <div className={styles.card}>
           <h1 className={styles.title}>Check your email</h1>
           <p className={styles.text}>
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>.
+            We&apos;ve sent a confirmation link to{" "}
+            <span className={styles.emailDisplay}>{email}</span>.
           </p>
           <p className={styles.text}>
             Click the link in the email to activate your account.
           </p>
-          <Link href="/signin" className={styles.link}>
-            Back to sign in
-          </Link>
+
+          <div className={styles.successActions}>
+            {/* Resend confirmation */}
+            <div>
+              <button
+                type="button"
+                onClick={handleResendConfirmation}
+                disabled={resendLoading}
+                className={styles.resendButton}
+                data-testid="signup-resend-confirmation-button"
+              >
+                {resendLoading ? "Sending..." : "Resend confirmation email"}
+              </button>
+              {resendSuccess && (
+                <p className={styles.success} data-testid="signup-resend-success">
+                  Confirmation email sent!
+                </p>
+              )}
+              {resendError && (
+                <p className={styles.error} data-testid="signup-resend-error">
+                  {resendError}
+                </p>
+              )}
+            </div>
+
+            {/* Change email */}
+            {!showChangeEmail ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowChangeEmail(true);
+                  setNewEmail(email);
+                }}
+                className={styles.changeEmailLink}
+                data-testid="signup-change-email-link"
+              >
+                Wrong email? Update it
+              </button>
+            ) : (
+              <form onSubmit={handleChangeEmail} className={styles.changeEmailForm}>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="newEmail" className={styles.label}>
+                    New email address
+                  </label>
+                  <input
+                    id="newEmail"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    required
+                    className={styles.input}
+                    placeholder="correct@email.com"
+                    data-testid="signup-new-email-input"
+                  />
+                </div>
+                {changeEmailError && (
+                  <p className={styles.error} data-testid="signup-change-email-error">
+                    {changeEmailError}
+                  </p>
+                )}
+                <div className={styles.buttonRow}>
+                  <button
+                    type="submit"
+                    disabled={changeEmailLoading}
+                    className={styles.button}
+                    data-testid="signup-update-email-button"
+                  >
+                    {changeEmailLoading ? "Updating..." : "Update email"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowChangeEmail(false);
+                      setNewEmail("");
+                      setChangeEmailError(null);
+                    }}
+                    className={styles.secondaryButton}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          <p className={styles.footer}>
+            <Link href="/signin" className={styles.link}>
+              &larr; Back to sign in
+            </Link>
+          </p>
         </div>
       </div>
     );

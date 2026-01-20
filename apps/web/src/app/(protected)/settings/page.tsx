@@ -84,6 +84,7 @@ export default async function SettingsPage() {
       initialMembershipId={membershipId}
       initialNeighborhoodName={neighborhoodName}
       isImpersonating={isImpersonating}
+      userEmail={authUser.email || ""}
     />
   );
 }

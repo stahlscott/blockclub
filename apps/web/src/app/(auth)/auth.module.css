@@ -127,3 +127,64 @@
   color: var(--color-text-secondary);
   margin-bottom: var(--space-4);
 }
+
+.changeEmailLink {
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.changeEmailLink:hover {
+  text-decoration: underline;
+}
+
+.changeEmailForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.buttonRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.buttonRow .button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.secondaryButton {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-background);
+}
+
+.emailDisplay {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.successActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
