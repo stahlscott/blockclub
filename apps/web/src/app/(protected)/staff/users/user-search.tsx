@@ -172,7 +172,8 @@ export function UserSearch() {
                     className={styles.impersonateButton}
                     onClick={() => handleImpersonate(user.id)}
                     disabled={loadingAction !== null}
-                    data-testid={`impersonate-button-${user.id}`}
+                    aria-label={`Impersonate ${user.name || user.email}`}
+                    data-testid={`staff-impersonate-button-${user.id}`}
                   >
                     {loadingAction === `impersonate-${user.id}`
                       ? "..."

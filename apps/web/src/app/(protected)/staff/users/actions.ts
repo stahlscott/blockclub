@@ -118,13 +118,14 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
   const typedMemberships = (memberships || []) as MembershipRow[];
 
   // Group memberships by user
-  const membershipsByUser: Record<string, UserMembership[]> = {};
-  for (const m of typedMemberships) {
-    if (!membershipsByUser[m.user_id]) {
-      membershipsByUser[m.user_id] = [];
+  const membershipsByUser = typedMemberships.reduce<
+    Record<string, UserMembership[]>
+  >((acc, m) => {
+    if (!acc[m.user_id]) {
+      acc[m.user_id] = [];
     }
     if (m.neighborhood) {
-      membershipsByUser[m.user_id].push({
+      acc[m.user_id].push({
         membership_id: m.id,
         neighborhood_id: m.neighborhood_id,
         neighborhood_name: m.neighborhood.name,
@@ -133,7 +134,8 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
         status: m.status,
       });
     }
-  }
+    return acc;
+  }, {});
 
   // Build results
   return nonStaffUsers.map((user) => ({
