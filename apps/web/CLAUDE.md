@@ -69,19 +69,19 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 ### CSS Variables (globals.css)
 ```css
-/* Primary - Violet (main brand, warmer tone) */
---color-primary: #8b5cf6       /* Primary buttons, links */
---color-primary-hover: #7c3aed /* Hover state */
---color-primary-light: #f5f3ff /* Subtle backgrounds, empty states */
+/* Primary - Warm Rust Brick (neighborhood identity) */
+--color-primary: #A65D4C       /* Primary buttons, links */
+--color-primary-hover: #8B4D3F /* Hover state */
+--color-primary-light: #FDF5F3 /* Subtle backgrounds, empty states */
 
-/* Accent - Gold (celebrations, new items, milestones) */
---color-accent: #fbbf24        /* "NEW" badges, celebratory moments */
---color-accent-text: #78350f   /* Text on accent background */
+/* Accent - Sunny Yellow (celebrations, NEW badges) */
+--color-accent: #EAB308        /* "NEW" badges, celebratory moments */
+--color-accent-text: #713F12   /* Text on accent background */
 
-/* Community - Great Lakes & Brick Streets */
+/* Community - Great Lakes & Neighborhood */
 --color-lake: #0891b2          /* Outdoor, travel categories */
 --color-park: #059669          /* Tools, sports categories */
---color-brick: #c2410c         /* Kitchen category */
+--color-kitchen: #8B4567       /* Kitchen category (plum) */
 
 /* Text */
 --color-text: #18181b          /* Body text */
@@ -92,7 +92,7 @@ const styles: { [key: string]: React.CSSProperties } = {
 --color-background: #fafaf9    /* Page background */
 --color-surface: #ffffff       /* Card backgrounds */
 --color-border: #e4e4e7        /* Standard borders */
---color-border-emphasis: #c4b5fd /* Purple-tinted (outlined buttons, pills) */
+--color-border-emphasis: #D4A59A /* Brick-tinted (outlined buttons, pills) */
 
 /* Transitions */
 --transition-fast: 150ms ease  /* Hover states, micro-interactions */
@@ -101,16 +101,16 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 ### Button Styling Patterns
 ```css
-/* Primary button - solid purple */
+/* Primary button - solid brick */
 background: var(--color-primary);
 color: white;
 
-/* Secondary/Outlined button - purple border */
+/* Secondary/Outlined button - brick border */
 background: white;
 border: 1px solid var(--color-border-emphasis);
 color: var(--color-primary);
 
-/* Accent button - gold (use sparingly for celebrations) */
+/* Accent button - sunny yellow (use sparingly for celebrations) */
 background: var(--color-accent);
 color: var(--color-accent-text);
 ```
@@ -136,7 +136,7 @@ import responsive from "@/app/responsive.module.css";
 ### Design Philosophy
 Block Club's visual design reflects its community context: a progressive Cleveland streetcar suburb with brick streets, parks, and Great Lakes proximity. The design aims for warmth and approachability over corporate polish.
 
-- **Warm violet primary** instead of cold purple - feels more inviting
+- **Warm brick primary** instead of cold colors - feels more inviting and grounded
 - **Community palette** (lake cyan, park green, brick orange) - connects to local character
 - **Gold accents for celebration** - new members, new items, milestones
 - **Subtle animations** - hover lifts and transitions add life without distraction
@@ -145,11 +145,11 @@ Block Club's visual design reflects its community context: a progressive Clevela
 
 | Color | When to Use |
 |-------|-------------|
-| Primary (violet) | Buttons, links, active states, section title indicators |
-| Accent (gold) | "NEW" badges, celebration moments, pinned post borders |
+| Primary (brick) | Buttons, links, active states, section title indicators |
+| Accent (sunny yellow) | "NEW" badges, celebration moments, pinned post borders |
 | Lake (cyan) | Outdoor/travel categories, water-related imagery |
 | Park (green) | Tools/sports categories, nature-related imagery |
-| Brick (orange) | Kitchen category, warmth accents |
+| Kitchen (plum) | Kitchen category |
 
 ### Visual Patterns
 
@@ -166,7 +166,7 @@ box-shadow: var(--shadow-lg);
 Primary buttons lift with a colored shadow:
 ```css
 transform: translateY(-1px);
-box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+box-shadow: 0 4px 12px rgba(166, 93, 76, 0.25);
 ```
 
 **Section Titles**
