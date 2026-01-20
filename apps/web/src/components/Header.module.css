@@ -201,7 +201,6 @@
 }
 
 .mobileUserEmail {
-  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   white-space: nowrap;
