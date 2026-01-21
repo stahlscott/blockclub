@@ -50,19 +50,20 @@ test.describe('Staff Impersonation', () => {
     // Should see the staff admin page
     await expect(page.getByRole('heading', { name: 'Staff Admin' })).toBeVisible();
 
-    // Should see the tabs
-    await expect(page.getByTestId('staff-tab-overview')).toBeVisible();
-    await expect(page.getByTestId('staff-tab-neighborhoods')).toBeVisible();
-    await expect(page.getByTestId('staff-tab-users')).toBeVisible();
+    // Should see the navigation links
+    await expect(page.getByTestId('staff-nav-overview-link')).toBeVisible();
+    await expect(page.getByTestId('staff-nav-neighborhoods-link')).toBeVisible();
+    await expect(page.getByTestId('staff-nav-users-link')).toBeVisible();
   });
 
   test('can impersonate a user and exit without errors', async ({ page }) => {
-    await page.goto('/staff', { waitUntil: 'networkidle' });
+    // Navigate to Users page
+    await page.goto('/staff/users', { waitUntil: 'networkidle' });
 
-    // Switch to Users tab
-    await page.getByTestId('staff-tab-users').click();
+    // Search for a user (requires at least 2 characters)
+    await page.getByTestId('user-search-input').fill('test');
 
-    // Wait for users list to load - find the first impersonate button
+    // Wait for search results to load - find the first impersonate button
     const impersonateButton = page.locator('[data-testid^="staff-impersonate-button-"]').first();
     await expect(impersonateButton).toBeVisible({ timeout: 10000 });
 
@@ -97,10 +98,9 @@ test.describe('Staff Impersonation', () => {
   });
 
   test('can navigate to staff panel while impersonating', async ({ page }) => {
-    await page.goto('/staff', { waitUntil: 'networkidle' });
-
-    // Switch to Users tab
-    await page.getByTestId('staff-tab-users').click();
+    // Navigate to Users page and search
+    await page.goto('/staff/users', { waitUntil: 'networkidle' });
+    await page.getByTestId('user-search-input').fill('test');
 
     // Impersonate the first user
     const impersonateButton = page.locator('[data-testid^="staff-impersonate-button-"]').first();
@@ -125,10 +125,11 @@ test.describe('Staff Impersonation', () => {
   });
 
   test('impersonation persists across page navigation', async ({ page }) => {
-    await page.goto('/staff', { waitUntil: 'networkidle' });
+    // Navigate to Users page and search
+    await page.goto('/staff/users', { waitUntil: 'networkidle' });
+    await page.getByTestId('user-search-input').fill('test');
 
-    // Switch to Users tab and impersonate
-    await page.getByTestId('staff-tab-users').click();
+    // Impersonate a user
     const impersonateButton = page.locator('[data-testid^="staff-impersonate-button-"]').first();
     await expect(impersonateButton).toBeVisible({ timeout: 10000 });
     await impersonateButton.click();
