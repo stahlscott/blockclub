@@ -280,7 +280,9 @@ export type NeighborhoodUpdate = Partial<
 >;
 
 export type MembershipInsert = Omit<Membership, "id" | "joined_at">;
-export type MembershipUpdate = Partial<Pick<Membership, "role" | "status">>;
+export type MembershipUpdate = Partial<
+  Pick<Membership, "role" | "status" | "deleted_at">
+>;
 
 export type ItemInsert = Omit<Item, "id" | "created_at" | "updated_at">;
 export type ItemUpdate = Partial<

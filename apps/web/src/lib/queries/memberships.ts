@@ -30,6 +30,7 @@ export async function getActiveMembership(
   neighborhoodId: string,
   userId: string
 ) {
+  // Use maybeSingle() to return null instead of throwing when no membership exists
   const result = await client
     .from("memberships")
     .select(MEMBERSHIP_WITH_USER_SELECT)
@@ -37,7 +38,7 @@ export async function getActiveMembership(
     .eq("user_id", userId)
     .eq("status", "active")
     .is("deleted_at", null)
-    .single();
+    .maybeSingle();
 
   return result as { data: MembershipWithUser | null; error: typeof result.error };
 }
@@ -49,7 +50,7 @@ export async function getActiveMembership(
 export async function getMembersByNeighborhood(
   client: Client,
   neighborhoodId: string,
-  options?: { role?: MembershipRole; status?: "active" | "pending" }
+  options?: { role?: MembershipRole; status?: "active" | "pending" | "all" }
 ) {
   let query = client
     .from("memberships")
@@ -62,9 +63,12 @@ export async function getMembersByNeighborhood(
     query = query.eq("role", options.role);
   }
 
+  // Filter by status unless "all" is specified
   // Default to active if not specified
   const status = options?.status ?? "active";
-  query = query.eq("status", status);
+  if (status !== "all") {
+    query = query.eq("status", status);
+  }
 
   const result = await query;
   return result as { data: MembershipWithUser[] | null; error: typeof result.error };
@@ -102,6 +106,7 @@ export async function checkMembership(
   neighborhoodId: string,
   userId: string
 ): Promise<{ isMember: boolean; role: MembershipRole | null }> {
+  // Use maybeSingle() to avoid throwing when no membership exists
   const { data } = await client
     .from("memberships")
     .select("role")
@@ -109,7 +114,7 @@ export async function checkMembership(
     .eq("user_id", userId)
     .eq("status", "active")
     .is("deleted_at", null)
-    .single();
+    .maybeSingle();
 
   const row = data as { role: MembershipRole } | null;
   return {

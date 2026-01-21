@@ -4,11 +4,6 @@ Neighborhood community app. Live in production, onboarding initial users.
 
 ---
 
-## Contribution Request
-
-Professional UI/UX designer to help refine the look and feel of the app. If interested, please reach out to
-hello@lakewoodblock.club!
-
 ## Feature Roadmap
 
 ### LBC-1: Job Availability
@@ -20,7 +15,6 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 
 ### LBC-2: Mobile App
 Native mobile app with push notifications. Waiting for beta feedback before starting.
-[blocker: UI/UX pass]
 
 - [ ] Authentication with secure token storage
 - [ ] Core features: Dashboard, Directory, Library, Posts, Profile
@@ -35,14 +29,22 @@ Build foundation for background jobs (cron) to enable time-based features.
 - [ ] Add loan due date reminder emails (1 day before, day of)
 - [ ] Add reminder preferences to notification settings
 
-### LBC-4: Dashboard Redesign
-Redesign dashboard with bulletin board design language. Current layout uses list rows; explore card-based approach.
+### LBC-5: Staff admin page overhaul ✓
+Redesign and improve the staff admin interface for better usability.
 
-- [ ] Design card-based layout for posts/library/directory items
-- [ ] Add rotation hover effect (matches library/posts cards)
-- [ ] Revisit greeting format (currently just time-of-day, no household name)
-- [ ] Design empty state treatment for each section
-- [ ] Mobile-responsive card grid
+- [x] More functional sorting of users, grouping by neighborhoods, etc
+- [x] Click into neighborhoods to get a list of neighborhood-specific users
+- [x] Maybe a neighborhood level "act as admin" that impersonates the admin straight to their dashboard
+- [x] Split into routes?
+
+### LBC-6: "How To"/"Guide" Page
+Community-curated list of important information - trash day, block party date, local resources, etc.
+
+TODO: Define exact scope and features.
+Name TBD. "Neighborhood Notes", "Community Highlights", etc.
+The name itself could be a definable by the admin - "How To Detroit Ave", "Maple St. Guide", etc.
+
+Is this community-editable, or admin-only? Or is that an admin choice?
 
 ---
 
@@ -61,11 +63,10 @@ Ideas to revisit based on user feedback.
 
 ## Small Improvements
 
-- [ ] Add onboarding flow for new users
 - [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
-- [ ] Implement loading skeletons [blocker: UI/UX pass]
-- [ ] Dark mode support [blocker: UI/UX pass]
+- [ ] Implement loading skeletons
+- [ ] Dark mode support
 
 ---
 
