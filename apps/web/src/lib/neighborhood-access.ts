@@ -77,6 +77,7 @@ export async function getNeighborhoodAccess(
   }
 
   // Check membership (for impersonated user if impersonating)
+  // Use maybeSingle() since staff admins may not have a membership
   const { data: membership } = await queryClient
     .from("memberships")
     .select("*")
@@ -84,7 +85,7 @@ export async function getNeighborhoodAccess(
     .eq("user_id", effectiveUserId)
     .eq("status", "active")
     .is("deleted_at", null)
-    .single();
+    .maybeSingle();
 
   // Determine if user has access
   // Staff admins always have access, impersonating users need membership
