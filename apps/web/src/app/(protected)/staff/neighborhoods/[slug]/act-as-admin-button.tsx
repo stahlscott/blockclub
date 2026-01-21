@@ -7,13 +7,9 @@ import styles from "./detail.module.css";
 
 interface ActAsAdminButtonProps {
   adminUserId: string | null;
-  neighborhoodSlug: string;
 }
 
-export function ActAsAdminButton({
-  adminUserId,
-  neighborhoodSlug,
-}: ActAsAdminButtonProps) {
+export function ActAsAdminButton({ adminUserId }: ActAsAdminButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -21,10 +17,7 @@ export function ActAsAdminButton({
     if (!adminUserId) return;
 
     setLoading(true);
-    const result = await startImpersonation(
-      adminUserId,
-      `/neighborhoods/${neighborhoodSlug}`
-    );
+    const result = await startImpersonation(adminUserId, "/dashboard");
     if (result.success && result.redirectTo) {
       router.push(result.redirectTo);
     } else {

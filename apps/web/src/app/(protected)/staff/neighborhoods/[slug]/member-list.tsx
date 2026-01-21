@@ -64,10 +64,7 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
 
   const handleImpersonate = async (userId: string) => {
     setLoadingAction(`impersonate-${userId}`);
-    const result = await startImpersonation(
-      userId,
-      `/neighborhoods/${neighborhoodSlug}`
-    );
+    const result = await startImpersonation(userId, "/dashboard");
     if (result.success && result.redirectTo) {
       router.push(result.redirectTo);
     } else {
@@ -196,16 +193,6 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
               {member.status === "pending" ? (
                 <>
                   <button
-                    className={`${styles.actionButton} ${styles.approveButton}`}
-                    onClick={() => handleApprove(member.membership_id)}
-                    disabled={loadingAction !== null}
-                    data-testid={`approve-button-${member.membership_id}`}
-                  >
-                    {loadingAction === `approve-${member.membership_id}`
-                      ? "..."
-                      : "Approve"}
-                  </button>
-                  <button
                     className={`${styles.actionButton} ${styles.declineButton}`}
                     onClick={() => handleDecline(member.membership_id)}
                     disabled={loadingAction !== null}
@@ -215,19 +202,19 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
                       ? "..."
                       : "Decline"}
                   </button>
+                  <button
+                    className={`${styles.actionButton} ${styles.approveButton}`}
+                    onClick={() => handleApprove(member.membership_id)}
+                    disabled={loadingAction !== null}
+                    data-testid={`approve-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `approve-${member.membership_id}`
+                      ? "..."
+                      : "Approve"}
+                  </button>
                 </>
               ) : (
                 <>
-                  <button
-                    className={styles.actionButton}
-                    onClick={() => handleImpersonate(member.id)}
-                    disabled={loadingAction !== null}
-                    data-testid={`impersonate-button-${member.id}`}
-                  >
-                    {loadingAction === `impersonate-${member.id}`
-                      ? "..."
-                      : "Act as User"}
-                  </button>
                   {member.role !== "admin" && (
                     <button
                       className={`${styles.actionButton} ${styles.removeButton}`}
@@ -245,6 +232,16 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
                         : "Remove"}
                     </button>
                   )}
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleImpersonate(member.id)}
+                    disabled={loadingAction !== null}
+                    data-testid={`impersonate-button-${member.id}`}
+                  >
+                    {loadingAction === `impersonate-${member.id}`
+                      ? "..."
+                      : "Act as User"}
+                  </button>
                 </>
               )}
             </div>

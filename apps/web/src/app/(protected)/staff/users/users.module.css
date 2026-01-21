@@ -194,3 +194,34 @@
   color: var(--color-text-secondary);
   margin-bottom: var(--space-4);
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .searchInput {
+    max-width: 100%;
+  }
+
+  .userCard {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .userInfo {
+    width: 100%;
+  }
+
+  .userDetails {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .userEmail {
+    word-break: break-all;
+  }
+
+  .userActions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

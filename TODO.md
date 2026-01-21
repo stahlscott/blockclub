@@ -63,7 +63,6 @@ Ideas to revisit based on user feedback.
 
 ## Small Improvements
 
-- [ ] Set default "admin approval" to false for new neighborhoods
 - [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
 - [ ] Implement loading skeletons

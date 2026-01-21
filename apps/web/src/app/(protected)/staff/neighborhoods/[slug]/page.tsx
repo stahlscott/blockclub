@@ -23,17 +23,19 @@ interface NeighborhoodRow {
   slug: string;
 }
 
-interface MembershipRow {
+interface MembershipQueryRow {
   id: string;
+  user_id: string;
   role: string;
   status: string;
-  created_at: string;
-  user: {
-    id: string;
-    name: string | null;
-    email: string;
-    avatar_url: string | null;
-  };
+  joined_at: string;
+}
+
+interface UserQueryRow {
+  id: string;
+  name: string | null;
+  email: string;
+  avatar_url: string | null;
 }
 
 async function getNeighborhoodWithMembers(slug: string) {
@@ -50,34 +52,54 @@ async function getNeighborhoodWithMembers(slug: string) {
 
   const neighborhood = neighborhoodData as NeighborhoodRow;
 
-  // Get members
-  const { data: membershipsData } = await adminSupabase
+  // Get memberships (without user join - use separate queries like staff/users search)
+  const { data: membershipsRaw, error: membershipsError } = await adminSupabase
     .from("memberships")
-    .select(
-      `
-      id,
-      role,
-      status,
-      created_at,
-      user:users(id, name, email, avatar_url)
-    `
-    )
+    .select("id, user_id, role, status, joined_at")
     .eq("neighborhood_id", neighborhood.id)
     .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+    .order("joined_at", { ascending: false });
 
-  const memberships = (membershipsData || []) as MembershipRow[];
+  console.log("Memberships query result:", {
+    count: membershipsRaw?.length,
+    error: membershipsError,
+    neighborhoodId: neighborhood.id
+  });
 
-  const members: MemberRow[] = memberships.map((m) => ({
-    id: m.user.id,
-    name: m.user.name,
-    email: m.user.email,
-    avatar_url: m.user.avatar_url,
-    membership_id: m.id,
-    role: m.role,
-    status: m.status,
-    joined_at: m.created_at,
-  }));
+  const membershipsData = (membershipsRaw || []) as MembershipQueryRow[];
+
+  if (membershipsData.length === 0) {
+    return {
+      neighborhood,
+      members: [],
+      itemCount: 0,
+      adminUserId: null,
+    };
+  }
+
+  // Get users separately (same pattern as staff/users search)
+  const userIds = membershipsData.map((m) => m.user_id);
+  const { data: usersRaw } = await adminSupabase
+    .from("users")
+    .select("id, name, email, avatar_url")
+    .in("id", userIds);
+
+  const usersData = (usersRaw || []) as UserQueryRow[];
+  const usersMap = new Map(usersData.map((u) => [u.id, u]));
+
+  const members: MemberRow[] = membershipsData.map((m) => {
+    const user = usersMap.get(m.user_id);
+    return {
+      id: user?.id || m.user_id,
+      name: user?.name || null,
+      email: user?.email || "unknown",
+      avatar_url: user?.avatar_url || null,
+      membership_id: m.id,
+      role: m.role,
+      status: m.status,
+      joined_at: m.joined_at,
+    };
+  });
 
   // Get counts
   const { count: itemCount } = await adminSupabase
@@ -134,10 +156,7 @@ export default async function NeighborhoodDetailPage({
           </div>
         </div>
         <div className={styles.headerActions}>
-          <ActAsAdminButton
-            adminUserId={adminUserId}
-            neighborhoodSlug={slug}
-          />
+          <ActAsAdminButton adminUserId={adminUserId} />
           <Link
             href={`/neighborhoods/${slug}/settings`}
             className={styles.settingsLink}

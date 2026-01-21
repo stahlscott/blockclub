@@ -106,3 +106,15 @@
   text-align: center;
   color: var(--color-text-secondary);
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .hideOnMobile {
+    display: none;
+  }
+
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr auto;
+  }
+}

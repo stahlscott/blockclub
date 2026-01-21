@@ -19,19 +19,19 @@ export function NeighborhoodsTable({ neighborhoods }: NeighborhoodsTableProps) {
     <div className={styles.table} data-testid="staff-neighborhoods-table">
       <div className={styles.tableHeader}>
         <span>Name</span>
-        <span>Slug</span>
-        <span className={styles.centeredHeader}>Members</span>
-        <span className={styles.centeredHeader}>Items</span>
-        <span>Created</span>
+        <span className={styles.hideOnMobile}>Slug</span>
+        <span className={`${styles.centeredHeader} ${styles.hideOnMobile}`}>Members</span>
+        <span className={`${styles.centeredHeader} ${styles.hideOnMobile}`}>Items</span>
+        <span className={styles.hideOnMobile}>Created</span>
         <span></span>
       </div>
       {neighborhoods.map((n) => (
         <div key={n.id} className={styles.tableRow} data-testid={`staff-neighborhoods-row-${n.slug}`}>
           <span className={styles.name}>{n.name}</span>
-          <span className={styles.slug}>{n.slug}</span>
-          <span className={styles.count}>{n.memberCount}</span>
-          <span className={styles.count}>{n.itemCount}</span>
-          <span className={styles.date}>
+          <span className={`${styles.slug} ${styles.hideOnMobile}`}>{n.slug}</span>
+          <span className={`${styles.count} ${styles.hideOnMobile}`}>{n.memberCount}</span>
+          <span className={`${styles.count} ${styles.hideOnMobile}`}>{n.itemCount}</span>
+          <span className={`${styles.date} ${styles.hideOnMobile}`}>
             {new Date(n.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
