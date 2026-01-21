@@ -29,13 +29,13 @@ Build foundation for background jobs (cron) to enable time-based features.
 - [ ] Add loan due date reminder emails (1 day before, day of)
 - [ ] Add reminder preferences to notification settings
 
-### LBC-5: Staff admin page overhaul
+### LBC-5: Staff admin page overhaul ✓
 Redesign and improve the staff admin interface for better usability.
 
-- [ ] More functional sorting of users, grouping by neighborhoods, etc
-- [ ] Click into neighborhoods to get a list of neighborhood-specific users
-- [ ] Maybe a neighborhood level "act as admin" that impersonates the admin straight to their dashboard
-- [ ] Split into routes?
+- [x] More functional sorting of users, grouping by neighborhoods, etc
+- [x] Click into neighborhoods to get a list of neighborhood-specific users
+- [x] Maybe a neighborhood level "act as admin" that impersonates the admin straight to their dashboard
+- [x] Split into routes?
 
 ### LBC-6: "How To"/"Guide" Page
 Community-curated list of important information - trash day, block party date, local resources, etc.
