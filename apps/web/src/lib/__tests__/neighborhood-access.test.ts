@@ -156,7 +156,7 @@ describe("getNeighborhoodAccess", () => {
                 eq: vi.fn().mockReturnValue({
                   eq: vi.fn().mockReturnValue({
                     is: vi.fn().mockReturnValue({
-                      single: vi.fn().mockResolvedValue({ data: mockMembership }),
+                      maybeSingle: vi.fn().mockResolvedValue({ data: mockMembership }),
                     }),
                   }),
                 }),
@@ -189,7 +189,7 @@ describe("getNeighborhoodAccess", () => {
                 eq: vi.fn().mockReturnValue({
                   eq: vi.fn().mockReturnValue({
                     is: vi.fn().mockReturnValue({
-                      single: vi.fn().mockResolvedValue({ data: null }), // No membership
+                      maybeSingle: vi.fn().mockResolvedValue({ data: null }), // No membership
                     }),
                   }),
                 }),
@@ -230,7 +230,7 @@ describe("getNeighborhoodAccess", () => {
                 eq: vi.fn().mockReturnValue({
                   eq: vi.fn().mockReturnValue({
                     is: vi.fn().mockReturnValue({
-                      single: vi.fn().mockResolvedValue({ data: null }), // No membership
+                      maybeSingle: vi.fn().mockResolvedValue({ data: null }), // No membership
                     }),
                   }),
                 }),
@@ -270,7 +270,7 @@ describe("getNeighborhoodAccess", () => {
                 eq: vi.fn().mockReturnValue({
                   eq: vi.fn().mockReturnValue({
                     is: vi.fn().mockReturnValue({
-                      single: vi.fn().mockResolvedValue({ data: null }), // No membership
+                      maybeSingle: vi.fn().mockResolvedValue({ data: null }), // No membership
                     }),
                   }),
                 }),
