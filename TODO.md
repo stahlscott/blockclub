@@ -7,6 +7,7 @@ Neighborhood community app. Live in production, onboarding initial users.
 ## Feature Roadmap
 
 ### LBC-1: Job Availability
+Medium priority
 Allow neighbors to post availability for services (childcare, pet sitting, snow shoveling, lawn mowing, etc.).
 
 - [ ] Design job availability model (user, type, description, availability)
@@ -14,6 +15,7 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 - [ ] Create browsable list by category
 
 ### LBC-2: Mobile App
+Medium priority
 Native mobile app with push notifications. Waiting for beta feedback before starting.
 
 - [ ] Authentication with secure token storage
@@ -22,6 +24,7 @@ Native mobile app with push notifications. Waiting for beta feedback before star
 - [ ] App Store / Play Store submission
 
 ### LBC-3: Scheduled Tasks Infrastructure
+Low priority
 Build foundation for background jobs (cron) to enable time-based features.
 
 - [ ] Evaluate options: Vercel Cron, Supabase pg_cron, or external service
@@ -38,6 +41,7 @@ Redesign and improve the staff admin interface for better usability.
 - [x] Split into routes?
 
 ### LBC-6: "How To"/"Guide" Page
+High priority
 Community-curated list of important information - trash day, block party date, local resources, etc.
 
 TODO: Define exact scope and features.
