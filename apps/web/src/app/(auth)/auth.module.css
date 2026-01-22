@@ -123,6 +123,18 @@
   text-decoration: underline;
 }
 
+.forgotPasswordLink {
+  align-self: flex-end;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  margin-top: var(--space-1);
+}
+
+.forgotPasswordLink:hover {
+  text-decoration: underline;
+}
+
 .text {
   color: var(--color-text-secondary);
   margin-bottom: var(--space-4);

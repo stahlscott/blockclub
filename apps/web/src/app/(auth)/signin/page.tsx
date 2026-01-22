@@ -105,6 +105,13 @@ function SignInForm() {
               placeholder="Your password"
               data-testid="signin-form-password-input"
             />
+            <a
+              href="/forgot-password"
+              className={styles.forgotPasswordLink}
+              data-testid="signin-form-forgot-password-link"
+            >
+              Forgot password?
+            </a>
           </div>
 
           {error && <p className={styles.error} data-testid="signin-form-error">{error}</p>}

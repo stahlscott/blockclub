@@ -32,6 +32,7 @@ export function SettingsClient({
   const [leaveError, setLeaveError] = useState<string | null>(null);
 
   // Password change state
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -82,7 +83,7 @@ export function SettingsClient({
     setPasswordError(null);
     setPasswordSuccess(false);
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setPasswordError("Password must be at least 8 characters");
       return;
     }
@@ -255,52 +256,96 @@ export function SettingsClient({
       )}
 
       {!isImpersonating && (
-        <div className={styles.card}>
-          <h2 className={styles.sectionTitle}>Change Password</h2>
+        <div className={styles.card} data-testid="settings-password-section">
+          <h2 className={styles.sectionTitle}>Password</h2>
+          <p className={styles.signOutHint}>
+            Update your account password.
+          </p>
 
-          <form onSubmit={handlePasswordChange} className={styles.form} data-testid="settings-password-form">
-            <div className={styles.inputGroup}>
-              <label htmlFor="newPassword" className={styles.label}>
-                New Password
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
-                className={styles.input}
-                placeholder="At least 8 characters"
-                data-testid="settings-new-password-input"
-              />
-            </div>
+          {passwordSuccess && (
+            <p className={styles.success} data-testid="settings-password-success">
+              Password changed successfully!
+            </p>
+          )}
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="confirmPassword" className={styles.label}>
-                Confirm New Password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className={styles.input}
-                placeholder="Re-enter new password"
-                data-testid="settings-confirm-password-input"
-              />
-            </div>
-
-            {passwordError && <p className={styles.error} data-testid="settings-password-error">{passwordError}</p>}
-            {passwordSuccess && (
-              <p className={styles.success} data-testid="settings-password-success">Password changed successfully!</p>
-            )}
-
-            <button type="submit" disabled={changingPassword} className={styles.button} data-testid="settings-change-password-button">
-              {changingPassword ? "Changing..." : "Change Password"}
+          {!showChangePassword ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShowChangePassword(true);
+                setPasswordSuccess(false);
+              }}
+              className={styles.changeEmailButton}
+              data-testid="settings-change-password-button"
+            >
+              Change password
             </button>
-          </form>
+          ) : (
+            <form onSubmit={handlePasswordChange} className={styles.changeEmailForm} data-testid="settings-password-form">
+              <div className={styles.inputGroup}>
+                <label htmlFor="newPassword" className={styles.label}>
+                  New password
+                </label>
+                <input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className={styles.input}
+                  placeholder="At least 8 characters"
+                  data-testid="settings-new-password-input"
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="confirmPassword" className={styles.label}>
+                  Confirm new password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={styles.input}
+                  placeholder="Re-enter new password"
+                  data-testid="settings-confirm-password-input"
+                />
+              </div>
+
+              {passwordError && (
+                <p className={styles.error} data-testid="settings-password-error">
+                  {passwordError}
+                </p>
+              )}
+
+              <div className={styles.buttonRow}>
+                <button
+                  type="submit"
+                  disabled={changingPassword}
+                  className={styles.button}
+                  data-testid="settings-update-password-button"
+                >
+                  {changingPassword ? "Updating..." : "Update password"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangePassword(false);
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setPasswordError(null);
+                  }}
+                  className={styles.secondaryButton}
+                  data-testid="settings-cancel-password-button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       )}
 

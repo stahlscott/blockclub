@@ -228,7 +228,7 @@ function SignUpForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
               className={styles.input}
               placeholder="At least 8 characters"
               data-testid="signup-form-password-input"

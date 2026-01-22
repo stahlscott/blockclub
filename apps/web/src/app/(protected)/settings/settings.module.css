@@ -378,9 +378,8 @@
   flex-direction: column;
   gap: var(--space-3);
   margin-top: var(--space-3);
-  padding: var(--space-4);
-  background-color: var(--color-background);
-  border-radius: var(--radius-md);
+  padding: var(--space-4) 0;
+  background-color: transparent;
 }
 
 .buttonRow {
