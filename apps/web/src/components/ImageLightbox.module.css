@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-lightbox);
   padding: var(--space-4);
   animation: fadeIn var(--transition-fast);
 }
@@ -67,7 +67,7 @@
   font-size: var(--font-size-2xl);
   cursor: pointer;
   transition: background-color var(--transition-fast), transform var(--transition-fast);
-  z-index: 10;
+  z-index: var(--z-local);
 }
 
 .closeButton:hover {

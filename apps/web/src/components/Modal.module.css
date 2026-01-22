@@ -1,0 +1,152 @@
+/* Modal Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Overlay animations */
+.overlay[data-state="open"] {
+  animation: fadeIn 200ms ease-out;
+}
+
+.overlay[data-state="closed"] {
+  animation: fadeOut 200ms ease-in;
+}
+
+/* Modal Content */
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-modal);
+  width: 100%;
+  max-width: calc(100% - 2rem);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: var(--space-6);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  outline: none;
+}
+
+@media (min-width: 640px) {
+  .content {
+    max-width: 500px;
+  }
+}
+
+/* Content animations */
+.content[data-state="open"] {
+  animation: zoomFadeIn 200ms ease-out;
+}
+
+.content[data-state="closed"] {
+  animation: zoomFadeOut 200ms ease-in;
+}
+
+/* Close button */
+.closeButton {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+}
+
+.closeButton:hover {
+  opacity: 1;
+  background-color: var(--color-border);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+/* Title */
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  margin: 0;
+  padding-right: var(--space-8); /* Space for close button */
+}
+
+/* Description */
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes zoomFadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .overlay[data-state="open"],
+  .overlay[data-state="closed"],
+  .content[data-state="open"],
+  .content[data-state="closed"] {
+    animation: none;
+  }
+}

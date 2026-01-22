@@ -7,7 +7,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { parseDateLocal, getSeasonalClosing, formatRelativeTime } from "@/lib/date-utils";
-import { Card, CardContent } from "@/components/ui/card";
 import { InviteButton } from "@/components/InviteButton";
 import { Greeting } from "@/components/Greeting";
 import {
@@ -229,8 +228,8 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-posts"
           >
-            <Card className={dashboardStyles.statCard}>
-              <CardContent className={dashboardStyles.statCardContent}>
+            <div className={dashboardStyles.statCard}>
+              <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Active Posts</span>
                   <span className={dashboardStyles.statValue}>{stats.postsCount}</span>
@@ -238,8 +237,8 @@ export default async function DashboardPage() {
                 <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#FDEBD0" }}>
                   <MessageSquare className={dashboardStyles.statIcon} style={{ color: "#A65D4C" }} />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
 
           <Link
@@ -247,8 +246,8 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-library"
           >
-            <Card className={dashboardStyles.statCard}>
-              <CardContent className={dashboardStyles.statCardContent}>
+            <div className={dashboardStyles.statCard}>
+              <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Items Available</span>
                   <span className={dashboardStyles.statValue}>{stats.itemsCount}</span>
@@ -256,8 +255,8 @@ export default async function DashboardPage() {
                 <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#D5F0E3" }}>
                   <Package className={dashboardStyles.statIcon} style={{ color: "#059669" }} />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
 
           <Link
@@ -265,8 +264,8 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-directory"
           >
-            <Card className={dashboardStyles.statCard}>
-              <CardContent className={dashboardStyles.statCardContent}>
+            <div className={dashboardStyles.statCard}>
+              <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Neighbors</span>
                   <span className={dashboardStyles.statValue}>{stats.neighborsCount}</span>
@@ -274,8 +273,8 @@ export default async function DashboardPage() {
                 <div className={dashboardStyles.statIconWrapper} style={{ backgroundColor: "#E0EEF2" }}>
                   <Users className={dashboardStyles.statIcon} style={{ color: "#5B8A9A" }} />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
         </div>
       )}

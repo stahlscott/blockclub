@@ -1,45 +1,3 @@
-/* Tailwind CSS v4 */
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-/* Configure Tailwind theme using existing CSS variables */
-@theme {
-  /* Colors - map to existing CSS variables */
-  --color-primary: #A65D4C;
-  --color-primary-hover: #8B4D3F;
-  --color-primary-light: #FDF5F3;
-
-  --color-secondary: #5B8A9A;
-  --color-secondary-light: #E8F1F3;
-
-  --color-accent: #EAB308;
-  --color-accent-text: #713F12;
-
-  /* Figma Make warm neutrals */
-  --color-warm-bg: #F8F7F5;
-  --color-warm-border: #E5DDD5;
-  --color-warm-hover: #F0EDE8;
-
-  /* Text colors */
-  --color-text-primary: #3B3B3B;
-  --color-text-secondary: #6B6B6B;
-  --color-text-muted: #a8a29e;
-
-  /* Backgrounds */
-  --color-background: #FFFEF9;
-  --color-surface: #ffffff;
-  --color-border: #e7e5e4;
-
-  /* Border radius */
-  --radius-sm: 4px;
-  --radius-default: 6px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-full: 9999px;
-}
-
 /* Global styles and CSS variables */
 :root {
   /* ==========================================================================
@@ -152,6 +110,20 @@
   --space-8: 2rem;      /* 32px */
   --space-10: 2.5rem;   /* 40px */
   --space-12: 3rem;     /* 48px */
+
+  /* ==========================================================================
+     Z-INDEX SCALE
+     Use these variables for consistent stacking order across the app.
+     ========================================================================== */
+
+  --z-local: 10;        /* Local stacking within a component's context */
+  --z-dropdown: 100;    /* Dropdowns, menus that appear inline */
+  --z-sticky: 100;      /* Sticky headers, fixed navigation */
+  --z-modal: 200;       /* Modals, dialogs, overlays */
+  --z-popover: 300;     /* Popovers, tooltips above modals */
+  --z-lightbox: 1000;   /* Fullscreen image viewers */
+  --z-banner: 9000;     /* System banners (impersonation, alerts) */
+  --z-max: 9999;        /* Emergency override - use sparingly */
 
   /* ==========================================================================
      TYPOGRAPHY
@@ -439,11 +411,12 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Base styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
 }

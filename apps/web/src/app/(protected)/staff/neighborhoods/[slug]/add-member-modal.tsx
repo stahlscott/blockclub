@@ -4,12 +4,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalTrigger,
+} from "@/components/Modal";
 import { searchUsers, type UserSearchResult } from "../../users/actions";
 import styles from "./detail.module.css";
 
@@ -106,19 +106,19 @@ export function AddMemberModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Modal open={open} onOpenChange={setOpen}>
+      <ModalTrigger asChild>
         <button
           className={styles.addMemberButton}
           data-testid="add-member-button"
         >
           + Add Member
         </button>
-      </DialogTrigger>
-      <DialogContent className={styles.addMemberModal}>
-        <DialogHeader>
-          <DialogTitle>Add Member to Neighborhood</DialogTitle>
-        </DialogHeader>
+      </ModalTrigger>
+      <ModalContent className={styles.addMemberModal}>
+        <ModalHeader>
+          <ModalTitle>Add Member to Neighborhood</ModalTitle>
+        </ModalHeader>
 
         <div className={styles.modalSearchContainer}>
           <input
@@ -199,7 +199,7 @@ export function AddMemberModal({
             ))}
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </ModalContent>
+    </Modal>
   );
 }
