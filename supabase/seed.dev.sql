@@ -269,6 +269,60 @@ BEGIN
         'Thanks for letting us borrow this for our camping trip!'
     );
 
+    -- ============================================================================
+    -- CREATE NEIGHBORHOOD GUIDE
+    -- ============================================================================
+    INSERT INTO public.neighborhood_guides (neighborhood_id, title, content, updated_by)
+    VALUES (
+        neighborhood_id,
+        'Maplewood Heights Community Guide',
+        '<h2>Welcome to Maplewood Heights!</h2>
+<p>This guide contains helpful information for all residents. If you have suggestions for what to include, reach out to Sarah Johnson.</p>
+
+<h3>Garbage &amp; Recycling</h3>
+<ul>
+<li><strong>Trash pickup:</strong> Every Monday morning (put bins out by 7am)</li>
+<li><strong>Recycling:</strong> Every other Wednesday (blue bins)</li>
+<li><strong>Yard waste:</strong> First Saturday of each month, April through November</li>
+<li><strong>Bulk pickup:</strong> Call 311 to schedule (free, up to 3 items per month)</li>
+</ul>
+
+<h3>Important Contacts</h3>
+<ol>
+<li><strong>City Services:</strong> 311 (non-emergency)</li>
+<li><strong>Police Non-Emergency:</strong> (555) 123-4567</li>
+<li><strong>Water/Sewer Emergency:</strong> (555) 987-6543</li>
+<li><strong>Power Outages:</strong> Report at <a href="https://example.com/power">example.com/power</a></li>
+</ol>
+
+<h3>Community Guidelines</h3>
+<p>We''re a friendly neighborhood! A few things that help us all get along:</p>
+<ul>
+<li>Keep music at reasonable levels after 10pm</li>
+<li>Pick up after your pets</li>
+<li>Park in your driveway when possible (street parking gets tight)</li>
+<li>Let neighbors know before hosting large gatherings</li>
+</ul>
+
+<h3>Annual Events</h3>
+<ul>
+<li><strong>Block Party:</strong> Usually late July at the Garcias'' (watch for announcements)</li>
+<li><strong>Garage Sale Weekend:</strong> First weekend of June</li>
+<li><strong>Holiday Decorating:</strong> We do a friendly competition in December!</li>
+<li><strong>Spring Cleanup:</strong> Mid-April - we tackle common areas together</li>
+</ul>
+
+<h3>Local Recommendations</h3>
+<p>Neighbors'' favorite spots nearby:</p>
+<ul>
+<li><strong>Coffee:</strong> Maple Bean Café (3 blocks east)</li>
+<li><strong>Pizza:</strong> Tony''s on Main - they deliver!</li>
+<li><strong>Hardware:</strong> Johnson''s True Value (locally owned, very helpful)</li>
+<li><strong>Groceries:</strong> Fresh Market or Aldi on Cedar Ave</li>
+</ul>',
+        sarah_id
+    );
+
 END $$;
 
 -- Show results
@@ -277,3 +331,4 @@ SELECT 'Neighborhood: ' || name || ' (slug: ' || slug || ')' AS neighborhood FRO
 SELECT 'Members: ' || COUNT(*)::text AS members FROM public.memberships m JOIN public.neighborhoods n ON m.neighborhood_id = n.id WHERE n.slug = 'maplewood-heights';
 SELECT 'Items: ' || COUNT(*)::text AS items FROM public.items i JOIN public.neighborhoods n ON i.neighborhood_id = n.id WHERE n.slug = 'maplewood-heights';
 SELECT 'Posts: ' || COUNT(*)::text AS posts FROM public.posts p JOIN public.neighborhoods n ON p.neighborhood_id = n.id WHERE n.slug = 'maplewood-heights';
+SELECT 'Guide: ' || COALESCE(title, '(none)') AS guide FROM public.neighborhood_guides g JOIN public.neighborhoods n ON g.neighborhood_id = n.id WHERE n.slug = 'maplewood-heights';
