@@ -185,6 +185,24 @@ export interface Loan {
 }
 
 // ============================================================================
+// NEIGHBORHOOD GUIDE
+// ============================================================================
+
+/**
+ * Editable neighborhood guide page.
+ * One guide per neighborhood, managed by admins.
+ * Content stored as HTML from Tiptap rich text editor.
+ */
+export interface NeighborhoodGuide {
+  id: string;
+  neighborhood_id: string;
+  title: string;
+  content: string; // HTML content from Tiptap
+  updated_at: string;
+  updated_by: string | null;
+}
+
+// ============================================================================
 // POSTS
 // ============================================================================
 
@@ -254,6 +272,11 @@ export interface PostWithReactions extends PostWithAuthor {
   user_reactions: PostReactionType[];
 }
 
+/** Neighborhood guide with the user who last updated it */
+export interface NeighborhoodGuideWithUpdatedBy extends NeighborhoodGuide {
+  updated_by_user: User | null;
+}
+
 // ============================================================================
 // INSERT/UPDATE TYPES (for mutations)
 // ============================================================================
@@ -317,6 +340,16 @@ export type PostReactionInsert = {
   reaction: PostReactionType;
 };
 
+export type NeighborhoodGuideInsert = {
+  neighborhood_id: string;
+  title?: string;
+  content?: string;
+  updated_by?: string | null;
+};
+export type NeighborhoodGuideUpdate = Partial<
+  Pick<NeighborhoodGuide, "title" | "content" | "updated_by">
+>;
+
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
 // ============================================================================
@@ -358,6 +391,11 @@ export interface Database {
         Row: PostReaction;
         Insert: PostReactionInsert;
         Update: never;
+      };
+      neighborhood_guides: {
+        Row: NeighborhoodGuide;
+        Insert: NeighborhoodGuideInsert;
+        Update: NeighborhoodGuideUpdate;
       };
     };
     Enums: {

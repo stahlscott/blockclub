@@ -1,0 +1,277 @@
+/* RichTextEditor styles */
+
+.container {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+/* Toolbar */
+.menuBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  flex-wrap: wrap;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.menuButton:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.menuButton.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Link input */
+.linkInput {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.linkUrlInput {
+  width: 180px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+}
+
+.linkUrlInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.linkConfirmButton,
+.linkCancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: background var(--transition-fast);
+}
+
+.linkConfirmButton {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.linkConfirmButton:hover {
+  background: var(--color-success);
+  color: white;
+}
+
+.linkCancelButton {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.linkCancelButton:hover {
+  background: var(--color-error);
+  color: white;
+}
+
+/* Editor content area */
+.editorContent {
+  min-height: 200px;
+  padding: var(--space-4);
+}
+
+.editorContent.readOnly {
+  min-height: auto;
+  padding: 0;
+}
+
+.editor {
+  outline: none;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+.editor:focus {
+  outline: none;
+}
+
+/* Placeholder */
+.placeholder {
+  position: absolute;
+  top: calc(48px + var(--space-4)); /* menuBar height + padding */
+  left: var(--space-4);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  font-size: var(--font-size-base);
+}
+
+/* Read-only content renderer */
+.readOnlyContent {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+/* Content styles (applies to both editor and read-only) */
+.editor h2,
+.readOnlyContent h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin: var(--space-6) 0 var(--space-3) 0;
+  color: var(--color-text);
+}
+
+.editor h2:first-child,
+.readOnlyContent h2:first-child {
+  margin-top: 0;
+}
+
+.editor h3,
+.readOnlyContent h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: var(--space-5) 0 var(--space-2) 0;
+  color: var(--color-text);
+}
+
+.editor p,
+.readOnlyContent p {
+  margin: 0 0 var(--space-3) 0;
+}
+
+.editor p:last-child,
+.readOnlyContent p:last-child {
+  margin-bottom: 0;
+}
+
+.editor ul,
+.readOnlyContent ul {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+  list-style-type: disc;
+}
+
+.editor ol,
+.readOnlyContent ol {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+  list-style-type: decimal;
+}
+
+.editor li,
+.readOnlyContent li {
+  margin-bottom: var(--space-1);
+  display: list-item;
+}
+
+.editor strong,
+.readOnlyContent strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.editor em,
+.readOnlyContent em {
+  font-style: italic;
+}
+
+/* Link styles */
+.link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--color-primary-hover);
+}
+
+/* ProseMirror specific overrides */
+.editorContent :global(.ProseMirror) {
+  outline: none;
+}
+
+.editorContent :global(.ProseMirror) > *:first-child {
+  margin-top: 0;
+}
+
+.editorContent :global(.ProseMirror) ul {
+  list-style-type: disc;
+  padding-left: var(--space-6);
+  margin: var(--space-3) 0;
+}
+
+.editorContent :global(.ProseMirror) ol {
+  list-style-type: decimal;
+  padding-left: var(--space-6);
+  margin: var(--space-3) 0;
+}
+
+.editorContent :global(.ProseMirror) li {
+  display: list-item;
+  margin-bottom: var(--space-1);
+}
+
+.readOnlyContent :global(.ProseMirror) {
+  outline: none;
+}
+
+.readOnlyContent :global(.ProseMirror) ul {
+  list-style-type: disc;
+  padding-left: var(--space-6);
+  margin: var(--space-3) 0;
+}
+
+.readOnlyContent :global(.ProseMirror) ol {
+  list-style-type: decimal;
+  padding-left: var(--space-6);
+  margin: var(--space-3) 0;
+}
+
+.readOnlyContent :global(.ProseMirror) li {
+  display: list-item;
+  margin-bottom: var(--space-1);
+}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Package, Users, LayoutDashboard, Menu, X, User, Settings, Shield, LogOut } from "lucide-react";
+import { MessageSquare, Package, Users, LayoutDashboard, Menu, X, User, Settings, Shield, LogOut, BookOpen } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { useNeighborhood } from "./NeighborhoodProvider";
 import { UserMenu } from "./UserMenu";
@@ -45,6 +45,7 @@ export function Header() {
 
   // Build neighborhood-specific links
   const postsLink = activeSlug ? `/neighborhoods/${activeSlug}/posts` : null;
+  const guideLink = activeSlug ? `/neighborhoods/${activeSlug}/guide` : null;
   const libraryLink = activeSlug ? `/neighborhoods/${activeSlug}/library` : null;
   const directoryLink = activeSlug ? `/neighborhoods/${activeSlug}/directory` : null;
 
@@ -77,6 +78,14 @@ export function Header() {
               {/* Staff admins without impersonation don't see this */}
               {shouldShowNeighborhoodNav && (
                 <div className={styles.neighborhoodNav}>
+                  <Link
+                    href={guideLink!}
+                    className={`${styles.navLink} ${isActive(guideLink) ? styles.navLinkActive : ""}`}
+                    data-testid="header-guide-link"
+                  >
+                    <BookOpen className={styles.navIcon} />
+                    Guide
+                  </Link>
                   <Link
                     href={postsLink!}
                     className={`${styles.navLink} ${isActive(postsLink) ? styles.navLinkActive : ""}`}
@@ -165,6 +174,10 @@ export function Header() {
               </Link>
               {shouldShowNeighborhoodNav && (
                 <>
+                  <Link href={guideLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-guide-link">
+                    <BookOpen className={styles.mobileNavIcon} />
+                    Guide
+                  </Link>
                   <Link href={postsLink!} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)} data-testid="header-mobile-posts-link">
                     <MessageSquare className={styles.mobileNavIcon} />
                     Posts

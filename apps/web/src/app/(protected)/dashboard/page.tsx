@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageSquare, Package, Users, ArrowRight } from "lucide-react";
+import { MessageSquare, Package, Users, ArrowRight, BookOpen } from "lucide-react";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
@@ -180,16 +180,23 @@ export default async function DashboardPage() {
   let recentPosts: any[] = [];
   let pendingMemberRequests = 0;
   let stats = { postsCount: 0, itemsCount: 0, neighborsCount: 0 };
+  let guide: { title: string; content: string } | null = null;
 
   if (primaryNeighborhood) {
     // Fetch data in parallel
     // Pass queryClient to support impersonation (admin client bypasses RLS)
-    const [items, members, posts, pendingCount, dashboardStats] = await Promise.all([
+    const [items, members, posts, pendingCount, dashboardStats, guideData] = await Promise.all([
       getRecentItems(primaryNeighborhood.id, queryClient),
       getRecentMembers(primaryNeighborhood.id, effectiveUserId, queryClient),
       getRecentPosts(primaryNeighborhood.id, queryClient),
       isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient) : Promise.resolve(0),
       getDashboardStats(primaryNeighborhood.id, queryClient),
+      queryClient
+        .from("neighborhood_guides")
+        .select("title, content")
+        .eq("neighborhood_id", primaryNeighborhood.id)
+        .maybeSingle()
+        .then(({ data }) => data),
     ]);
 
     recentItems = items;
@@ -197,6 +204,7 @@ export default async function DashboardPage() {
     recentPosts = posts;
     pendingMemberRequests = pendingCount;
     stats = dashboardStats;
+    guide = guideData;
   }
 
   return (
@@ -270,6 +278,28 @@ export default async function DashboardPage() {
             </Card>
           </Link>
         </div>
+      )}
+
+      {/* Guide Card - shows when guide has content */}
+      {primaryNeighborhood && guide && guide.content && guide.content.trim() !== "" && (
+        <Link
+          href={`/neighborhoods/${primaryNeighborhood.slug}/guide`}
+          className={dashboardStyles.guideCard}
+          data-testid="dashboard-guide-card"
+        >
+          <div className={dashboardStyles.guideIconWrapper}>
+            <BookOpen className={dashboardStyles.guideIcon} />
+          </div>
+          <div className={dashboardStyles.guideContent}>
+            <h3 className={dashboardStyles.guideTitle}>{guide.title}</h3>
+            <p className={dashboardStyles.guideSubtitle}>
+              Important information and frequently asked questions for our community
+            </p>
+          </div>
+          <span className={dashboardStyles.guideLink}>
+            View Guide <ArrowRight className={dashboardStyles.guideLinkArrow} />
+          </span>
+        </Link>
       )}
 
       {/* Borrow Requests Banner */}
