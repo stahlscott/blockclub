@@ -6,25 +6,56 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { startImpersonation } from "@/app/actions/impersonation";
-import { searchUsers, type UserSearchResult } from "./actions";
+import {
+  searchUsers,
+  getAllUsers,
+  type UserSearchResult,
+  type PaginatedUsersResult,
+} from "./actions";
 import styles from "./users.module.css";
+
+const PAGE_SIZE = 20;
 
 export function UserSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserSearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+
+  // Load initial user list
+  const loadUsers = useCallback(async (page: number) => {
+    setIsLoading(true);
+    const result: PaginatedUsersResult = await getAllUsers(page, PAGE_SIZE);
+    setResults(result.users);
+    setCurrentPage(result.page);
+    setTotalPages(result.totalPages);
+    setTotalCount(result.totalCount);
+    setIsLoading(false);
+  }, []);
+
+  // Load initial data on mount
+  useEffect(() => {
+    loadUsers(1);
+  }, [loadUsers]);
+
   const performSearch = useCallback(async (searchQuery: string) => {
     if (searchQuery.length < 2) {
-      setResults([]);
+      // Return to paginated list
+      setIsSearchMode(false);
       setHasSearched(false);
       return;
     }
 
+    setIsSearchMode(true);
     setIsLoading(true);
     const searchResults = await searchUsers(searchQuery);
     setResults(searchResults);
@@ -37,6 +68,16 @@ export function UserSearch() {
       clearTimeout(debounceRef.current);
     }
 
+    if (query.length < 2) {
+      // Clear search mode and reload paginated list
+      if (isSearchMode) {
+        setIsSearchMode(false);
+        loadUsers(1);
+      }
+      setHasSearched(false);
+      return;
+    }
+
     debounceRef.current = setTimeout(() => {
       performSearch(query);
     }, 300);
@@ -46,7 +87,19 @@ export function UserSearch() {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query, performSearch]);
+  }, [query, performSearch, isSearchMode, loadUsers]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      loadUsers(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      loadUsers(currentPage + 1);
+    }
+  };
 
   const getInitial = (name: string | null) => {
     if (!name) return "?";
@@ -67,16 +120,16 @@ export function UserSearch() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Find User</h2>
+        <h2 className={styles.title}>Users</h2>
         <p className={styles.subtitle}>
-          Search for users across all neighborhoods by name or email
+          Browse all users or search by name or email
         </p>
       </div>
 
       <div className={styles.searchContainer}>
         <input
           type="search"
-          placeholder="Enter a name or email to search..."
+          placeholder="Search by name or email..."
           aria-label="Search users by name or email"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -86,25 +139,25 @@ export function UserSearch() {
       </div>
 
       {isLoading && (
-        <div className={styles.loadingState}>Searching...</div>
+        <div className={styles.loadingState}>Loading...</div>
       )}
 
-      {!isLoading && !hasSearched && query.length < 2 && (
-        <div className={styles.emptyState}>
-          Enter at least 2 characters to search for users
-        </div>
-      )}
-
-      {!isLoading && hasSearched && results.length === 0 && (
+      {!isLoading && isSearchMode && hasSearched && results.length === 0 && (
         <div className={styles.emptyState}>
           No users found matching &quot;{query}&quot;
         </div>
       )}
 
+      {!isLoading && !isSearchMode && results.length === 0 && (
+        <div className={styles.emptyState}>No users found</div>
+      )}
+
       {!isLoading && results.length > 0 && (
         <>
           <div className={styles.resultsCount}>
-            Found {results.length} user{results.length !== 1 ? "s" : ""}
+            {isSearchMode
+              ? `Found ${results.length} user${results.length !== 1 ? "s" : ""}`
+              : `Showing ${results.length} of ${totalCount} users`}
           </div>
           <div className={styles.resultsList} data-testid="user-search-results">
             {results.map((user) => (
@@ -183,6 +236,31 @@ export function UserSearch() {
               </div>
             ))}
           </div>
+
+          {/* Pagination controls - only show when not in search mode */}
+          {!isSearchMode && totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                className={styles.paginationButton}
+                onClick={handlePrevPage}
+                disabled={currentPage <= 1}
+                data-testid="pagination-prev"
+              >
+                ← Previous
+              </button>
+              <span className={styles.paginationInfo}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className={styles.paginationButton}
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages}
+                data-testid="pagination-next"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

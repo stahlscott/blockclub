@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MemberList } from "./member-list";
 import { ActAsAdminButton } from "./act-as-admin-button";
+import { AddMemberModal } from "./add-member-modal";
 import { InviteButton } from "@/components/InviteButton";
 import styles from "./detail.module.css";
 
@@ -135,6 +136,10 @@ export default async function NeighborhoodDetailPage({
 
   const { neighborhood, members, itemCount, adminUserId } = data;
   const activeCount = members.filter((m) => m.status === "active").length;
+  const adminCount = members.filter(
+    (m) => m.role === "admin" && m.status === "active"
+  ).length;
+  const existingMemberIds = members.map((m) => m.id);
 
   return (
     <div>
@@ -156,6 +161,10 @@ export default async function NeighborhoodDetailPage({
           </div>
         </div>
         <div className={styles.headerActions}>
+          <AddMemberModal
+            neighborhoodId={neighborhood.id}
+            existingMemberIds={existingMemberIds}
+          />
           <ActAsAdminButton adminUserId={adminUserId} />
           <Link
             href={`/neighborhoods/${slug}/settings`}
@@ -167,7 +176,11 @@ export default async function NeighborhoodDetailPage({
         </div>
       </div>
 
-      <MemberList members={members} neighborhoodSlug={slug} />
+      <MemberList
+        members={members}
+        neighborhoodSlug={slug}
+        adminCount={adminCount}
+      />
 
       <div className={styles.quickLinks}>
         <InviteButton slug={slug} variant="text" />

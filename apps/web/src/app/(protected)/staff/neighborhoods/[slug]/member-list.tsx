@@ -25,11 +25,16 @@ interface Member {
 interface MemberListProps {
   members: Member[];
   neighborhoodSlug: string;
+  adminCount: number;
 }
 
 type FilterStatus = "all" | "active" | "pending";
 
-export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
+export function MemberList({
+  members,
+  neighborhoodSlug,
+  adminCount,
+}: MemberListProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterStatus>("all");
@@ -97,6 +102,48 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
     const result = await removeMembership(membershipId, neighborhoodSlug);
     if (!result.success) {
       alert(result.error || "Failed to remove");
+    }
+    setLoadingAction(null);
+  };
+
+  const handlePromote = async (membershipId: string, memberName: string) => {
+    if (!confirm(`Promote ${memberName} to admin?`)) return;
+    setLoadingAction(`promote-${membershipId}`);
+    try {
+      const response = await fetch(`/api/memberships/${membershipId}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "admin" }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error || "Failed to promote");
+      } else {
+        router.refresh();
+      }
+    } catch {
+      alert("Failed to promote member");
+    }
+    setLoadingAction(null);
+  };
+
+  const handleDemote = async (membershipId: string, memberName: string) => {
+    if (!confirm(`Demote ${memberName} from admin to member?`)) return;
+    setLoadingAction(`demote-${membershipId}`);
+    try {
+      const response = await fetch(`/api/memberships/${membershipId}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "member" }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error || "Failed to demote");
+      } else {
+        router.refresh();
+      }
+    } catch {
+      alert("Failed to demote admin");
     }
     setLoadingAction(null);
   };
@@ -192,6 +239,17 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
             <div className={styles.memberActions}>
               {member.status === "pending" ? (
                 <>
+                  {/* Pending: [Approve][Decline][Act as User (disabled)] */}
+                  <button
+                    className={`${styles.actionButton} ${styles.approveButton}`}
+                    onClick={() => handleApprove(member.membership_id)}
+                    disabled={loadingAction !== null}
+                    data-testid={`approve-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `approve-${member.membership_id}`
+                      ? "..."
+                      : "Approve"}
+                  </button>
                   <button
                     className={`${styles.actionButton} ${styles.declineButton}`}
                     onClick={() => handleDecline(member.membership_id)}
@@ -203,35 +261,97 @@ export function MemberList({ members, neighborhoodSlug }: MemberListProps) {
                       : "Decline"}
                   </button>
                   <button
-                    className={`${styles.actionButton} ${styles.approveButton}`}
-                    onClick={() => handleApprove(member.membership_id)}
-                    disabled={loadingAction !== null}
-                    data-testid={`approve-button-${member.membership_id}`}
+                    className={styles.actionButton}
+                    disabled
+                    title="Approve member first to act as them"
+                    data-testid={`impersonate-button-${member.id}`}
                   >
-                    {loadingAction === `approve-${member.membership_id}`
+                    Act as User
+                  </button>
+                </>
+              ) : member.role === "admin" ? (
+                <>
+                  {/* Admin: [Demote][Remove][Act as User] - disable Demote & Remove if last admin */}
+                  <button
+                    className={`${styles.actionButton} ${styles.demoteButton}`}
+                    onClick={() =>
+                      handleDemote(
+                        member.membership_id,
+                        member.name || member.email
+                      )
+                    }
+                    disabled={loadingAction !== null || adminCount <= 1}
+                    title={
+                      adminCount <= 1 ? "Cannot demote last admin" : undefined
+                    }
+                    data-testid={`demote-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `demote-${member.membership_id}`
                       ? "..."
-                      : "Approve"}
+                      : "Demote"}
+                  </button>
+                  <button
+                    className={`${styles.actionButton} ${styles.removeButton}`}
+                    onClick={() =>
+                      handleRemove(
+                        member.membership_id,
+                        member.name || member.email
+                      )
+                    }
+                    disabled={loadingAction !== null || adminCount <= 1}
+                    title={
+                      adminCount <= 1 ? "Cannot remove last admin" : undefined
+                    }
+                    data-testid={`remove-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `remove-${member.membership_id}`
+                      ? "..."
+                      : "Remove"}
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleImpersonate(member.id)}
+                    disabled={loadingAction !== null}
+                    data-testid={`impersonate-button-${member.id}`}
+                  >
+                    {loadingAction === `impersonate-${member.id}`
+                      ? "..."
+                      : "Act as User"}
                   </button>
                 </>
               ) : (
                 <>
-                  {member.role !== "admin" && (
-                    <button
-                      className={`${styles.actionButton} ${styles.removeButton}`}
-                      onClick={() =>
-                        handleRemove(
-                          member.membership_id,
-                          member.name || member.email
-                        )
-                      }
-                      disabled={loadingAction !== null}
-                      data-testid={`remove-button-${member.membership_id}`}
-                    >
-                      {loadingAction === `remove-${member.membership_id}`
-                        ? "..."
-                        : "Remove"}
-                    </button>
-                  )}
+                  {/* Active non-admin: [Promote][Remove][Act as User] */}
+                  <button
+                    className={`${styles.actionButton} ${styles.promoteButton}`}
+                    onClick={() =>
+                      handlePromote(
+                        member.membership_id,
+                        member.name || member.email
+                      )
+                    }
+                    disabled={loadingAction !== null}
+                    data-testid={`promote-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `promote-${member.membership_id}`
+                      ? "..."
+                      : "Promote"}
+                  </button>
+                  <button
+                    className={`${styles.actionButton} ${styles.removeButton}`}
+                    onClick={() =>
+                      handleRemove(
+                        member.membership_id,
+                        member.name || member.email
+                      )
+                    }
+                    disabled={loadingAction !== null}
+                    data-testid={`remove-button-${member.membership_id}`}
+                  >
+                    {loadingAction === `remove-${member.membership_id}`
+                      ? "..."
+                      : "Remove"}
+                  </button>
                   <button
                     className={styles.actionButton}
                     onClick={() => handleImpersonate(member.id)}

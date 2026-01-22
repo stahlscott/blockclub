@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+interface MembershipRow {
+  id: string;
+  user_id: string;
+  neighborhood_id: string;
+  role: string;
+  status: string;
+  neighborhood: unknown;
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
@@ -31,34 +41,42 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
+  const userIsStaffAdmin = isStaffAdmin(user.email);
+
+  // Use admin client for staff admins to bypass RLS (they aren't members of neighborhoods)
+  const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
+
   // Fetch the target membership
-  const { data: targetMembership, error: fetchError } = await supabase
+  const { data: targetMembershipData, error: fetchError } = await queryClient
     .from("memberships")
     .select("*, neighborhood:neighborhoods(*)")
     .eq("id", membershipId)
     .single();
 
-  if (fetchError || !targetMembership) {
+  if (fetchError || !targetMembershipData) {
     return NextResponse.json(
       { error: "Membership not found" },
       { status: 404 }
     );
   }
 
+  const targetMembership = targetMembershipData as MembershipRow;
   const neighborhoodId = targetMembership.neighborhood_id;
   const currentRole = targetMembership.role;
-  const userIsStaffAdmin = isStaffAdmin(user.email);
 
-  // Check if user is a neighborhood admin
-  const { data: userMembership } = await supabase
-    .from("memberships")
-    .select("role")
-    .eq("neighborhood_id", neighborhoodId)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
+  // Check if user is a neighborhood admin (only needed for non-staff admins)
+  let isNeighborhoodAdmin = false;
+  if (!userIsStaffAdmin) {
+    const { data: userMembership } = await supabase
+      .from("memberships")
+      .select("role")
+      .eq("neighborhood_id", neighborhoodId)
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .single();
 
-  const isNeighborhoodAdmin = userMembership?.role === "admin";
+    isNeighborhoodAdmin = userMembership?.role === "admin";
+  }
 
   // Permission checks
   if (role === "admin" && currentRole === "member") {
@@ -84,9 +102,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   // Update the role
   // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
-  const { data: updatedMembership, error: updateError } = await supabase
+  const { data: updatedMembership, error: updateError } = await queryClient
     .from("memberships")
-    .update({ role })
+    .update({ role } as never)
     .eq("id", membershipId)
     .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
     .single();
