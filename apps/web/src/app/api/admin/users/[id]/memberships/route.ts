@@ -81,20 +81,32 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Neighborhood not found" }, { status: 404 });
   }
 
-  // Check if membership already exists
-  const { data: existingMembership } = await adminSupabase
+  // Check if active (non-deleted) membership already exists
+  const { data: activeMembership } = await adminSupabase
     .from("memberships")
     .select("id, status")
     .eq("user_id", userId)
     .eq("neighborhood_id", neighborhood_id)
+    .is("deleted_at", null)
     .single();
 
-  if (existingMembership) {
+  if (activeMembership) {
     return NextResponse.json(
       { error: "User is already a member of this neighborhood" },
       { status: 400 }
     );
   }
+
+  // Check if a soft-deleted membership exists (user was previously removed)
+  const { data: deletedMembershipData } = await adminSupabase
+    .from("memberships")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("neighborhood_id", neighborhood_id)
+    .not("deleted_at", "is", null)
+    .single();
+
+  const deletedMembership = deletedMembershipData as { id: string } | null;
 
   logger.info("Staff admin adding user to neighborhood", {
     adminId: user.id,
@@ -103,25 +115,47 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     targetUserEmail: targetUser.email,
     neighborhoodId: neighborhood_id,
     neighborhoodName: neighborhood.name,
+    reactivating: !!deletedMembership,
   });
 
-  // Create the membership (active status, member role)
-  const { error: insertError } = await adminSupabase
-    .from("memberships")
-    .insert({
-      user_id: userId,
-      neighborhood_id: neighborhood_id,
-      role: "member",
-      status: "active",
-      joined_at: new Date().toISOString(),
-    } as never);
+  if (deletedMembership) {
+    // Reactivate the soft-deleted membership
+    const { error: updateError } = await adminSupabase
+      .from("memberships")
+      .update({
+        status: "active",
+        role: "member",
+        deleted_at: null,
+        joined_at: new Date().toISOString(),
+      } as never)
+      .eq("id", deletedMembership.id);
 
-  if (insertError) {
-    logger.error("Error creating membership", insertError, { userId, neighborhood_id });
-    return NextResponse.json(
-      { error: "Failed to add user to neighborhood" },
-      { status: 500 }
-    );
+    if (updateError) {
+      logger.error("Error reactivating membership", updateError, { userId, neighborhood_id });
+      return NextResponse.json(
+        { error: "Failed to add user to neighborhood" },
+        { status: 500 }
+      );
+    }
+  } else {
+    // Create a new membership
+    const { error: insertError } = await adminSupabase
+      .from("memberships")
+      .insert({
+        user_id: userId,
+        neighborhood_id: neighborhood_id,
+        role: "member",
+        status: "active",
+        joined_at: new Date().toISOString(),
+      } as never);
+
+    if (insertError) {
+      logger.error("Error creating membership", insertError, { userId, neighborhood_id });
+      return NextResponse.json(
+        { error: "Failed to add user to neighborhood" },
+        { status: 500 }
+      );
+    }
   }
 
   logger.info("User added to neighborhood successfully", {

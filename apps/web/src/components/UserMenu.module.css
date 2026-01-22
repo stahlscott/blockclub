@@ -148,8 +148,13 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.menuItem:hover {
+.menuItem:hover:not(:disabled) {
   background-color: var(--color-warm-hover, #F0EDE8);
+}
+
+.menuItem:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .menuIcon {
@@ -172,6 +177,13 @@
   background-color: var(--color-background);
 }
 
+.switcherError {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-error, #DC2626);
+  background-color: var(--color-error-light, #FEF2F2);
+}
+
 .switcherOption {
   display: flex;
   align-items: center;
@@ -187,9 +199,14 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.switcherOption:hover {
+.switcherOption:hover:not(:disabled) {
   background-color: var(--color-secondary-light, #E8F4F8);
   color: var(--color-secondary);
+}
+
+.switcherOption:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .switcherOptionActive {

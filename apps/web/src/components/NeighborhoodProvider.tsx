@@ -57,6 +57,8 @@ interface NeighborhoodContextType {
   impersonatedUserAvatarUrl: string | null;
   userAvatarUrl: string | null;
   loading: boolean;
+  switching: boolean;
+  switchError: string | null;
   switchNeighborhood: (neighborhoodId: string) => Promise<void>;
 }
 
@@ -71,6 +73,8 @@ const NeighborhoodContext = createContext<NeighborhoodContextType>({
   impersonatedUserAvatarUrl: null,
   userAvatarUrl: null,
   loading: true,
+  switching: false,
+  switchError: null,
   switchNeighborhood: async () => {},
 });
 
@@ -88,6 +92,8 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
   const [isStaffAdmin, setIsStaffAdmin] = useState(false);
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [switching, setSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
   // Determine which user ID to use for queries
@@ -229,18 +235,37 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
       return;
     }
 
+    setSwitching(true);
+    setSwitchError(null);
+
     addBreadcrumb("Switching neighborhood", "action", {
       fromNeighborhoodId: primaryNeighborhood?.id,
       toNeighborhoodId: neighborhoodId,
     });
 
-    const { error } = await supabase
+    // Update the database and verify the change was applied
+    const { error, data } = await supabase
       .from("users")
       .update({ primary_neighborhood_id: neighborhoodId })
-      .eq("id", user.id);
+      .eq("id", user.id)
+      .select("primary_neighborhood_id")
+      .single();
 
     if (error) {
       logger.error("Failed to switch neighborhood", error);
+      setSwitchError("Failed to switch neighborhood. Please try again.");
+      setSwitching(false);
+      return;
+    }
+
+    // Verify the update was applied
+    if (data?.primary_neighborhood_id !== neighborhoodId) {
+      logger.error("Neighborhood switch verification failed", {
+        expected: neighborhoodId,
+        actual: data?.primary_neighborhood_id,
+      });
+      setSwitchError("Failed to switch neighborhood. Please try again.");
+      setSwitching(false);
       return;
     }
 
@@ -266,6 +291,8 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         impersonatedUserAvatarUrl: impersonation?.impersonatedUserAvatarUrl ?? null,
         userAvatarUrl: effectiveAvatarUrl,
         loading,
+        switching,
+        switchError,
         switchNeighborhood,
       }}
     >

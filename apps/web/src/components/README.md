@@ -7,8 +7,9 @@ Shared React components used across the web application.
 | Component | Type | Purpose |
 |-----------|------|---------|
 | `AuthProvider` | Context | Client-side auth state management |
+| `NeighborhoodProvider` | Context | Neighborhood state and switching logic |
 | `Header` | Layout | Global navigation with mobile support |
-| `NeighborhoodSwitcher` | Feature | Dropdown to switch primary neighborhood |
+| `UserMenu` | Feature | User dropdown with neighborhood switching |
 | `InviteButton` | Feature | Copy invite link to clipboard |
 | `OptimizedImage` | UI | Next.js Image wrapper with fallback |
 | `AvatarUpload` | Form | User avatar upload with preview |
@@ -112,5 +113,5 @@ components/
 ├── ui/        # Primitives (Button, Card, Badge, Input)
 ├── layout/    # Layout components (Header, PageContainer)
 ├── forms/     # Form components (AvatarUpload, FormField)
-└── features/  # Feature-specific (NeighborhoodSwitcher, InviteButton)
+└── features/  # Feature-specific (UserMenu, InviteButton)
 ```

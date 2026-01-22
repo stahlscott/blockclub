@@ -14,6 +14,8 @@ export function UserMenu() {
     primaryNeighborhood,
     neighborhoods,
     switchNeighborhood,
+    switching,
+    switchError,
     isAdmin,
     isStaffAdmin,
     isImpersonating,
@@ -174,8 +176,9 @@ export function UserMenu() {
               <button
                 className={styles.menuItem}
                 onClick={() => setShowSwitcher(!showSwitcher)}
+                disabled={switching}
               >
-                <span>Switch Neighborhood</span>
+                <span>{switching ? "Switching..." : "Switch Neighborhood"}</span>
                 <span className={`${styles.chevron} ${showSwitcher ? styles.chevronOpen : ""}`}>
                   &#9662;
                 </span>
@@ -183,6 +186,9 @@ export function UserMenu() {
 
               {showSwitcher && (
                 <div className={styles.switcherList}>
+                  {switchError && (
+                    <div className={styles.switcherError}>{switchError}</div>
+                  )}
                   {neighborhoods.map((neighborhood) => (
                     <button
                       key={neighborhood.id}
@@ -190,6 +196,7 @@ export function UserMenu() {
                         neighborhood.id === primaryNeighborhood?.id ? styles.switcherOptionActive : ""
                       }`}
                       onClick={() => handleSwitchNeighborhood(neighborhood.id)}
+                      disabled={switching}
                     >
                       <span>{neighborhood.name}</span>
                       {neighborhood.id === primaryNeighborhood?.id && (

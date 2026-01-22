@@ -17,6 +17,8 @@ export function Header() {
     neighborhoods,
     loading: neighborhoodLoading,
     switchNeighborhood,
+    switching,
+    switchError,
     isAdmin,
     isStaffAdmin,
     isImpersonating,
@@ -235,14 +237,18 @@ export function Header() {
                   <button
                     className={styles.mobileSwitcherToggle}
                     onClick={() => setShowMobileSwitcher(!showMobileSwitcher)}
+                    disabled={switching}
                   >
-                    <span>Switch Neighborhood</span>
+                    <span>{switching ? "Switching..." : "Switch Neighborhood"}</span>
                     <span className={`${styles.chevron} ${showMobileSwitcher ? styles.chevronOpen : ""}`}>
                       ▼
                     </span>
                   </button>
                   {showMobileSwitcher && (
                     <div className={styles.mobileSwitcherList}>
+                      {switchError && (
+                        <div className={styles.mobileSwitcherError}>{switchError}</div>
+                      )}
                       {neighborhoods.map((neighborhood) => (
                         <button
                           key={neighborhood.id}
@@ -250,6 +256,7 @@ export function Header() {
                             neighborhood.id === primaryNeighborhood?.id ? styles.mobileSwitcherOptionActive : ""
                           }`}
                           onClick={() => handleMobileSwitch(neighborhood.id)}
+                          disabled={switching}
                         >
                           <span>{neighborhood.name}</span>
                           {neighborhood.id === primaryNeighborhood?.id && (
