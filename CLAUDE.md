@@ -39,6 +39,13 @@ Block Club is a neighborhood community app built as a Turborepo monorepo.
 - **CSS variables** in globals.css for colors, spacing, shadows
 - **responsive.module.css** for grid utilities (grid2, grid3, grid4, statsRow)
 
+### Layout Philosophy
+- **Flexbox and CSS Grid only** - Never use floats, tables for layout, or absolute positioning for layout flow
+- **Flexbox** for one-dimensional layouts (rows OR columns): navbars, button groups, card content
+- **CSS Grid** for two-dimensional layouts (rows AND columns): page layouts, card grids, form layouts
+- **Gap property** over margins for spacing between flex/grid children
+- **No magic numbers** - Use CSS variables (`--space-*`) for all spacing
+
 ## Design System
 
 ### Visual Philosophy: "The Community Bulletin Board"
@@ -371,17 +378,52 @@ import {
 - **Interactive elements are focusable** - Buttons, links, inputs must be keyboard accessible
 - **Color is not the only indicator** - Pair color with icons, text, or patterns
 - **Images have alt text** - Decorative images use `alt=""`
+- **Never disable zoom** - Do not set `maximum-scale=1` in viewport meta
+
+### Automated Testing
+- **ESLint jsx-a11y** - Enabled with recommended rules. Catches issues at dev time.
+- **Playwright axe-core** - E2E tests in `e2e/accessibility.spec.ts` scan pages for WCAG violations.
+- **Storybook a11y addon** - Check the Accessibility panel for each story.
 
 ### Development Workflow
-- **Storybook a11y addon** - Check the Accessibility panel for each story. Fix violations before merging.
+- Run `npm run lint` - jsx-a11y rules catch common issues (missing labels, invalid ARIA, etc.)
+- Run `npx playwright test accessibility.spec.ts` - Full page audits against WCAG 2.1 AA
 - **Keyboard testing** - Tab through interactive components. Focus states must be visible.
 - **Minimum contrast** - 4.5:1 for normal text, 3:1 for large text (18px+)
 
 ### Common Patterns
-- Form inputs: Always pair with `<label>` using `htmlFor`
-- Icon buttons: Include `aria-label` describing the action
-- Loading states: Use `aria-busy="true"` on containers
-- Error messages: Connect to inputs via `aria-describedby`
+```typescript
+// Form inputs: Always pair with <label>
+<label htmlFor="email">Email</label>
+<input id="email" type="email" />
+
+// Icon buttons: Include aria-label
+<button aria-label="Close modal" onClick={onClose}>×</button>
+
+// Grouped controls: Use role="group" with aria-labelledby
+<div role="group" aria-labelledby="phones-label">
+  <span id="phones-label">Phone Numbers</span>
+  {/* inputs */}
+</div>
+
+// Links in text: Must have underline or 3:1 contrast with surrounding text
+<p>Already have an account? <a href="/signin">Sign in</a></p>
+
+// Modal backdrops: Keyboard access via close button + Escape, not backdrop click
+// eslint-disable-next-line jsx-a11y/click-events-have-key-events -- Backdrop click is supplementary
+<div onClick={handleBackdropClick} role="dialog" aria-modal="true">
+
+// Navigation links (not tabs): Use aria-current, not role="tab"
+<nav aria-label="Library sections">
+  <Link href="/library" aria-current={isActive ? "page" : undefined}>All Items</Link>
+</nav>
+```
+
+### What NOT to Do
+- Don't use `<div>` with `onClick` - use `<button>` instead
+- Don't use `role="tablist"` for navigation links to different URLs
+- Don't use `<label>` as a heading for a group of controls - use `<span>` with `aria-labelledby`
+- Don't rely on color alone to convey meaning (error states, active tabs, etc.)
 
 ## Package Responsibilities
 

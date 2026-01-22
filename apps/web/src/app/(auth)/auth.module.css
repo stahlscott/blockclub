@@ -116,11 +116,13 @@
 
 .link {
   color: var(--color-primary);
-  text-decoration: none;
+  /* Underline required for a11y: links in text must be distinguishable
+     without relying on color alone (WCAG 1.4.1 Use of Color) */
+  text-decoration: underline;
 }
 
 .link:hover {
-  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .forgotPasswordLink {

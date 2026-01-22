@@ -100,8 +100,8 @@ export function ProfileGalleryUpload({
   const canAddMore = photoUrls.length < MAX_PHOTOS;
 
   return (
-    <div className={styles.container}>
-      <label className={styles.label}>Photos</label>
+    <div className={styles.container} role="group" aria-labelledby="profile-photos-label">
+      <span id="profile-photos-label" className={styles.label}>Photos</span>
       <span className={styles.hint}>
         Share photos of your family, pets, garden, or home (up to {MAX_PHOTOS})
       </span>

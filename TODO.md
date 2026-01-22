@@ -40,15 +40,14 @@ Redesign and improve the staff admin interface for better usability.
 - [x] Maybe a neighborhood level "act as admin" that impersonates the admin straight to their dashboard
 - [x] Split into routes?
 
-### LBC-6: "How To"/"Guide" Page
-High priority
+### LBC-6: Neighborhood Guide ✓
 Community-curated list of important information - trash day, block party date, local resources, etc.
 
-TODO: Define exact scope and features.
-Name TBD. "Neighborhood Notes", "Community Highlights", etc.
-The name itself could be a definable by the admin - "How To Detroit Ave", "Maple St. Guide", etc.
-
-Is this community-editable, or admin-only? Or is that an admin choice?
+- [x] Database schema for guide entries (title, content, category, pinned)
+- [x] Admin UI for creating/editing/deleting guide entries
+- [x] Public guide page for all neighborhood members
+- [x] Category-based organization with pinning support
+- [x] Admin-configurable guide title per neighborhood
 
 ---
 
@@ -67,9 +66,9 @@ Ideas to revisit based on user feedback.
 
 ## Small Improvements
 
+- [ ] Implement loading skeletons
 - [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
-- [ ] Implement loading skeletons
 - [ ] Dark mode support
 
 ---
@@ -83,7 +82,7 @@ Ideas to revisit based on user feedback.
 - [ ] **Migrate existing forms to useActionState pattern** - Forms currently use manual useState for error/loading state. Prefer useActionState for server action forms. See CLAUDE.md for the pattern.
 - [ ] **Standardize API route return types** - Update existing API routes to use `ApiResult<T>` from `@blockclub/shared`. Currently routes return inconsistent shapes.
 - [ ] **Migrate pages to use centralized query layer** - Replace inline Supabase queries with functions from `@/lib/queries`. Start with library page as reference.
-- [ ] **Accessibility audit of existing components** - Run axe-core or Lighthouse on key pages. Prioritize: signin, dashboard, library. Add missing labels, fix contrast issues, ensure keyboard navigation.
+- [x] **Accessibility audit of existing components** - Run axe-core or Lighthouse on key pages. Prioritize: signin, dashboard, library. Add missing labels, fix contrast issues, ensure keyboard navigation.
 
 ---
 
@@ -112,7 +111,7 @@ Currently only auth flows are covered. Prioritized by user impact.
 - [x] Storybook component library
 - [ ] CONTRIBUTING.md with development guidelines
 - [ ] Configuration system for customization (name, logo, colors)
-- [ ] Add screenshots to README [blocker: UI/UX pass]
+- [ ] Add screenshots to README
 
 ---
 

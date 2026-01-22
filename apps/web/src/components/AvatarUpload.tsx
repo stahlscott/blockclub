@@ -87,9 +87,12 @@ export function AvatarUpload({
 
   return (
     <div className={styles.container} data-testid="avatar-upload">
-      <div
+      <button
+        type="button"
         className={styles.avatarWrapper}
         onClick={() => !uploading && fileInputRef.current?.click()}
+        disabled={uploading}
+        aria-label="Change profile photo"
         data-testid="avatar-upload-trigger"
       >
         {displayUrl ? (
@@ -111,7 +114,7 @@ export function AvatarUpload({
         <div className={styles.overlay}>
           {uploading ? "Uploading..." : "Change Photo"}
         </div>
-      </div>
+      </button>
       <input
         ref={fileInputRef}
         type="file"

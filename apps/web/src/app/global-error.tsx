@@ -23,7 +23,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   }, [error]);
 
   return (
-    <html>
+    <html lang="en">
       <body>
         <div style={styles.container}>
           <div style={styles.card}>

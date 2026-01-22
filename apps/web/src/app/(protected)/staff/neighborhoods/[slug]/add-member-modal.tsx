@@ -128,6 +128,7 @@ export function AddMemberModal({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className={styles.modalSearchInput}
+            // eslint-disable-next-line jsx-a11y/no-autofocus -- Intentional: focus search input when modal opens for immediate use
             autoFocus
             data-testid="add-member-search-input"
           />

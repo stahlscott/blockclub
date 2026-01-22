@@ -1,6 +1,7 @@
 import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import hooksPlugin from "eslint-plugin-react-hooks";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import tseslint from "typescript-eslint";
 
 export default [
@@ -14,12 +15,14 @@ export default [
       react: reactPlugin,
       "react-hooks": hooksPlugin,
       "@next/next": nextPlugin,
+      "jsx-a11y": jsxA11yPlugin,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...hooksPlugin.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
+      ...jsxA11yPlugin.configs.recommended.rules,
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],

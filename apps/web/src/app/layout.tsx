@@ -25,7 +25,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // Note: Do not set maximumScale=1 as it prevents pinch-to-zoom
+  // This violates WCAG 2.1 Success Criterion 1.4.4 (Resize text)
 };
 
 export default async function RootLayout({

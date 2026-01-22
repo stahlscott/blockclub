@@ -26,14 +26,13 @@ export function LibraryTabs({ slug }: Props) {
   };
 
   return (
-    <nav className={styles.tabs} role="tablist">
+    <nav className={styles.tabs} aria-label="Library sections">
       {tabs.map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}
           className={`${styles.tab} ${isActive(tab) ? styles.tabActive : ""}`}
-          role="tab"
-          aria-selected={isActive(tab)}
+          aria-current={isActive(tab) ? "page" : undefined}
         >
           {tab.label}
         </Link>

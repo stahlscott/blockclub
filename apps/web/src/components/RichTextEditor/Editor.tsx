@@ -130,6 +130,7 @@ function MenuBar({ editor }: MenuBarProps) {
                 }
               }}
               className={styles.linkUrlInput}
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- Intentional: focus URL input when link popup appears for immediate use
               autoFocus
             />
             <button

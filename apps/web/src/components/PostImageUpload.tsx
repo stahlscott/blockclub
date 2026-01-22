@@ -67,8 +67,8 @@ export function PostImageUpload({
   };
 
   return (
-    <div className={styles.container}>
-      <label className={styles.label}>Photo (optional)</label>
+    <div className={styles.container} role="group" aria-labelledby="post-image-label">
+      <span id="post-image-label" className={styles.label}>Photo (optional)</span>
 
       {imageUrl ? (
         <div className={styles.preview}>

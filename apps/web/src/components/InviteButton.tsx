@@ -79,6 +79,7 @@ export function InviteButton({ slug, variant = "card" }: InviteButtonProps) {
   };
 
   const modal = showModal && (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- Backdrop click is supplementary; keyboard users use Escape or close button
     <div
       className={styles.overlay}
       onClick={handleBackdropClick}

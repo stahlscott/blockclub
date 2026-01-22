@@ -121,8 +121,8 @@ export function ItemPhotoUpload({
   const canAddMore = photos.length + pendingUploads.length < maxPhotos;
 
   return (
-    <div className={styles.container}>
-      <label className={styles.label}>Photos</label>
+    <div className={styles.container} role="group" aria-labelledby="item-photos-label">
+      <span id="item-photos-label" className={styles.label}>Photos</span>
       <p className={styles.hint}>
         Add up to {maxPhotos} photos. First photo will be the cover image.
       </p>

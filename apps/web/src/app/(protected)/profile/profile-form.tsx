@@ -344,8 +344,8 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
         <div className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>Contact</h2>
           <div className={styles.twoColumn}>
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Phone Numbers</label>
+            <div className={styles.inputGroup} role="group" aria-labelledby="phone-numbers-label">
+              <span id="phone-numbers-label" className={styles.label}>Phone Numbers</span>
               <span className={styles.hint}>
                 Visible to neighbors.
               </span>
@@ -393,8 +393,8 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               </div>
             </div>
 
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Email Addresses</label>
+            <div className={styles.inputGroup} role="group" aria-labelledby="email-addresses-label">
+              <span id="email-addresses-label" className={styles.label}>Email Addresses</span>
               <span className={styles.hint}>
                 Visible to neighbors.
               </span>
