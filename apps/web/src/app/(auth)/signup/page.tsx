@@ -230,7 +230,7 @@ function SignUpForm() {
               required
               minLength={6}
               className={styles.input}
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               data-testid="signup-form-password-input"
             />
           </div>

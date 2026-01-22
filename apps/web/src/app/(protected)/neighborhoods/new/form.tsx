@@ -151,7 +151,7 @@ export function NewNeighborhoodForm() {
               onChange={(e) => setDescription(e.target.value)}
               maxLength={MAX_LENGTHS.neighborhoodDescription}
               className={styles.textarea}
-              placeholder="Tell potential members about your neighborhood..."
+              placeholder="Tell us about your neighborhood"
               rows={3}
             />
             {description.length > MAX_LENGTHS.neighborhoodDescription * 0.8 && (

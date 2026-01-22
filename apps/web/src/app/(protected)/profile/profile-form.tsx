@@ -496,7 +496,7 @@ export function ProfileForm({ userId, profile, isImpersonating, impersonatedUser
               onChange={(e) => setBio(e.target.value)}
               maxLength={MAX_LENGTHS.userBio}
               className={styles.textarea}
-              placeholder="Tell your neighbors a bit about yourselves..."
+              placeholder="Tell your neighbors a bit about yourselves! Where do you work? What are your hobbies? Any fun facts?"
               rows={4}
               data-testid="profile-form-bio-input"
             />

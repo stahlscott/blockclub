@@ -83,7 +83,7 @@ export function SettingsClient({
     setPasswordSuccess(false);
 
     if (newPassword.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+      setPasswordError("Password must be at least 8 characters");
       return;
     }
 
@@ -271,7 +271,7 @@ export function SettingsClient({
                 required
                 minLength={6}
                 className={styles.input}
-                placeholder="At least 6 characters"
+                placeholder="At least 8 characters"
                 data-testid="settings-new-password-input"
               />
             </div>
