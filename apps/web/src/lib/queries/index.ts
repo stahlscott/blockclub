@@ -15,6 +15,4 @@ export * from "./memberships";
 export * from "./posts";
 export * from "./loans";
 export * from "./neighborhoods";
-
-// Query modules will be added here as they're created:
-// export * from "./users";
+export * from "./users";
