@@ -238,6 +238,27 @@ LoanStatus: "requested" | "approved" | "active" | "returned" | "cancelled"
 - `memberships`, `items`, `loans`, `posts` use `deleted_at` column
 - Filter with `.is("deleted_at", null)` in queries
 
+### Centralized Query Layer
+All Supabase queries should use the centralized query layer at `@/lib/queries/`:
+
+```typescript
+import { getItemsByNeighborhood, getMembersByNeighborhood } from "@/lib/queries";
+
+// Instead of inline queries like:
+// const { data } = await supabase.from("items").select("*")...
+
+// Use the query layer:
+const { data, error } = await getItemsByNeighborhood(supabase, neighborhoodId);
+```
+
+**Benefits:**
+- Consistent soft delete filtering
+- Standard joins and select patterns
+- Typed return values
+- Single source of truth for query logic
+
+**Query modules:** `items.ts`, `loans.ts`, `memberships.ts`, `neighborhoods.ts`, `posts.ts`, `users.ts`
+
 ## Common Patterns
 
 ### Authentication Flow
@@ -428,20 +449,26 @@ import {
 ## Package Responsibilities
 
 ### @blockclub/shared
-- TypeScript type definitions matching Supabase schema
-- Insert/Update type variants for mutations
-- Joined types for queries with relations (e.g., `ItemWithOwner`)
-- **Do not put** UI components, React code, or web-specific utilities here
+Platform-agnostic code shared between web and mobile:
+- **Types** - TypeScript definitions matching Supabase schema, Insert/Update variants, joined types
+- **Date utilities** - `parseDateLocal`, `formatRelativeTime`, `isOverdue`, `daysBetween`, etc.
+- **Validation** - `MAX_LENGTHS`, `validateLength`, `validateRequired`, `validatePhone`, `validateEmail`
+- **Loan logic** - State machine (`canTransitionLoan`, `getNextLoanStatus`), status helpers, action permissions
+- **Permissions** - `isAdmin`, `canEditItem`, `canDeletePost`, `canManageLoanRequest`, etc.
+
+**Do not put:** UI components, React code, Supabase client code, or platform-specific utilities
 
 ### apps/web
 - All React components and pages
-- Supabase client configuration
-- Business logic and utilities
+- Supabase client configuration (`@/lib/supabase/`)
+- Centralized query layer (`@/lib/queries/`) - uses shared types but depends on web's Supabase client
+- Web-specific utilities (seasonal greetings, etc.)
 - Styling (CSS Modules, globals.css)
 
 ### apps/mobile
 - Expo/React Native code (currently scaffold only)
-- Will share types from @blockclub/shared
+- Will import shared logic from `@blockclub/shared`
+- Will have its own query layer using mobile Supabase client
 - Will have its own styling approach (React Native StyleSheet)
 
 ## Testing
