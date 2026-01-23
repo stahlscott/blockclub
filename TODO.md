@@ -16,12 +16,15 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 
 ### LBC-2: Mobile App
 Medium priority
-Native mobile app with push notifications. Waiting for beta feedback before starting.
+**Prerequisite:** LBC-7 (Shared Infrastructure)
 
-- [ ] Authentication with secure token storage
-- [ ] Core features: Dashboard, Directory, Library, Posts, Profile
-- [ ] Push notifications (Expo)
-- [ ] App Store / Play Store submission
+Native Expo/React Native app with full user features and neighborhood admin capabilities. Staff admin remains web-only. Prioritizes native feel and App Store presence over offline support.
+
+- [ ] **Phase 2: Foundation** - Expo setup, auth flow (email/password + biometric), navigation shell
+- [ ] **Phase 3: Core Features** - Dashboard, Directory, Library (full borrow flow), Posts, Profile, Guide
+- [ ] **Phase 4: Polish & Ship** - Push notifications (Expo), App Store / Play Store submission
+
+See `docs/plans/2026-01-23-shared-infrastructure-design.md` for detailed breakdown.
 
 ### LBC-3: Scheduled Tasks Infrastructure
 Low priority
@@ -48,6 +51,16 @@ Community-curated list of important information - trash day, block party date, l
 - [x] Public guide page for all neighborhood members
 - [x] Category-based organization with pinning support
 - [x] Admin-configurable guide title per neighborhood
+
+### LBC-7: Shared Infrastructure
+High priority (prerequisite for LBC-2)
+Extract shared logic and centralize queries to prepare for mobile app development.
+
+- [ ] **1A: Centralize Supabase Queries** - Create `@/lib/queries/` with typed domain functions
+- [ ] **1B: Extract Shared Logic** - Move validation, date-utils, permissions, loan logic to `@blockclub/shared`
+- [ ] **Testing** - Unit tests for all shared logic with >90% coverage
+
+See `docs/plans/2026-01-23-shared-infrastructure-design.md` for full design.
 
 ---
 
@@ -81,7 +94,7 @@ Ideas to revisit based on user feedback.
 - [ ] React 19 useActionState migration (profile-form, library/new, posts/new)
 - [ ] **Migrate existing forms to useActionState pattern** - Forms currently use manual useState for error/loading state. Prefer useActionState for server action forms. See CLAUDE.md for the pattern.
 - [ ] **Standardize API route return types** - Update existing API routes to use `ApiResult<T>` from `@blockclub/shared`. Currently routes return inconsistent shapes.
-- [ ] **Migrate pages to use centralized query layer** - Replace inline Supabase queries with functions from `@/lib/queries`. Start with library page as reference.
+- [ ] **Migrate pages to use centralized query layer** - See LBC-7 (Shared Infrastructure)
 - [x] **Accessibility audit of existing components** - Run axe-core or Lighthouse on key pages. Prioritize: signin, dashboard, library. Add missing labels, fix contrast issues, ensure keyboard navigation.
 
 ---
