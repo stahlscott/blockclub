@@ -8,17 +8,20 @@ The neighborhood community app powering [lakewoodblock.club](https://lakewoodblo
 
 - **Resident Directory** - Find and connect with neighbors, with search and multiple sort options (address, name, move-in year, join date)
 - **Lending Library** - Share tools, kitchen items, and more with neighbors across 10 categories
+- **Bulletin Board** - Share updates, questions, and announcements with your neighborhood
+- **Neighborhood Guide** - Community-curated information (trash day, local resources, block party dates)
 - **Multi-Neighborhood Support** - Join multiple neighborhoods with a single account, set a primary neighborhood
 - **Member Profiles** - Address, unit, move-in year, children, pets, bio, multiple phone numbers and emails with labels
 - **Invite System** - Share invite links to bring neighbors into your community
 - **Admin Controls** - Approve new members, manage roles, moderate content
-- **Account Settings** - Change password, copy invite links
+- **Account Settings** - Change password, notification preferences, copy invite links
+- **PWA Support** - Add to home screen for a native app-like experience on mobile
 
 ## Tech Stack
 
 - **Monorepo**: Turborepo
-- **Web**: Next.js 15 (React)
-- **Mobile**: Expo (React Native) - scaffold only
+- **Web**: Next.js 16 (React 19)
+- **Mobile**: Expo (React Native) - scaffold only, PWA approach preferred
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Language**: TypeScript
 
@@ -34,7 +37,7 @@ blockclub/
 │   │       └── lib/      # Utilities, Supabase client
 │   └── mobile/           # Expo mobile application (scaffold)
 ├── packages/
-│   └── shared/           # Shared types and Supabase client
+│   └── shared/           # Shared types, validation, date utils, permissions, loan logic
 ├── supabase/
 │   └── migrations/       # Database schema migrations
 ├── turbo.json            # Turborepo configuration
