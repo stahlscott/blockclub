@@ -1,0 +1,17 @@
+/* Staff layout container - matches main app container pattern */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+.title {
+  margin-bottom: var(--space-6);
+}

@@ -20,8 +20,6 @@ async function getStats() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   statsRow: {
-    display: "flex",
-    gap: "var(--space-4)",
     marginBottom: "var(--space-8)",
   },
   stat: {
@@ -30,7 +28,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "var(--radius-lg)",
     border: "1px solid var(--color-border)",
     textAlign: "center",
-    minWidth: "120px",
   },
   statValue: {
     display: "block",
@@ -66,7 +63,7 @@ export default async function StaffOverviewPage() {
 
   return (
     <div>
-      <div style={styles.statsRow}>
+      <div className={responsive.grid3} style={styles.statsRow}>
         <div style={styles.stat}>
           <span style={styles.statValue}>{stats.neighborhoodCount}</span>
           <span style={styles.statLabel}>Neighborhoods</span>

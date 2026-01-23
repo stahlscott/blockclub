@@ -65,6 +65,7 @@
   --color-surface: #ffffff;
   --color-border: #e7e5e4;         /* Stone-200 (was zinc #e4e4e7) */
   --color-border-emphasis: #d6d3d1; /* Stone-300 - warm neutral (was purple #c4b5fd) */
+  --color-warm-border: #E5DDD5;    /* Warm neutral border for cards */
   --color-warm-border-hover: #C9BFB5; /* Darker warm border for hover states */
   --color-avatar-placeholder: #E8D5CE; /* Warm peach for avatar fallbacks */
 

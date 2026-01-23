@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { StaffNav } from "./staff-nav";
+import styles from "./staff-layout.module.css";
 
 export default async function StaffLayout({
   children,
@@ -27,8 +28,8 @@ export default async function StaffLayout({
   }
 
   return (
-    <div style={{ padding: "var(--space-8) var(--space-4)" }}>
-      <h1 style={{ marginBottom: "var(--space-6)" }}>Staff Admin</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Staff Admin</h1>
       <StaffNav />
       {children}
     </div>

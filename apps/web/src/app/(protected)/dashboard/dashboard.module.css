@@ -548,7 +548,7 @@
 @media (min-width: 1024px) {
   .topRow {
     grid-template-columns: repeat(3, 1fr);  /* Same 3-column grid as statsGrid */
-    align-items: start;
+    align-items: stretch;  /* Cards match height */
   }
 }
 
