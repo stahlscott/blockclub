@@ -15,10 +15,15 @@ Allow neighbors to post availability for services (childcare, pet sitting, snow 
 - [ ] Create browsable list by category
 
 ### LBC-2: Mobile App
-Medium priority
-**Prerequisite:** LBC-7 (Shared Infrastructure)
+**Status:** On hold
+**Prerequisite:** LBC-7 (Shared Infrastructure) ✓
 
 Native Expo/React Native app with full user features and neighborhood admin capabilities. Staff admin remains web-only. Prioritizes native feel and App Store presence over offline support.
+
+**On hold rationale:** PWA support was added (Jan 2026) providing "Add to Home Screen" functionality. This gives users a native-like experience without the maintenance burden of a separate codebase. Will revisit native app development when:
+- Web feature set stabilizes (less active development)
+- Users request native-specific features (push notifications, offline)
+- App Store presence becomes a priority
 
 - [ ] **Phase 2: Foundation** - Expo setup, auth flow (email/password + biometric), navigation shell
 - [ ] **Phase 3: Core Features** - Dashboard, Directory, Library (full borrow flow), Posts, Profile, Guide
@@ -83,6 +88,13 @@ Ideas to revisit based on user feedback.
 - [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
 - [ ] Dark mode support
+- [ ] **PWA icons** - Replace placeholder "BC" icons with professional designs
+  - `public/favicon.svg` - Browser tab icon (SVG)
+  - `public/icons/icon-192.png` - Android home screen (192×192)
+  - `public/icons/icon-512.png` - Android splash/install (512×512)
+  - `public/icons/icon-maskable-512.png` - Android adaptive icon (512×512, needs ~20% safe zone padding)
+  - `public/icons/apple-touch-icon.png` - iOS home screen (180×180)
+  - Preview maskable icon at https://maskable.app to ensure it crops well
 
 ---
 
