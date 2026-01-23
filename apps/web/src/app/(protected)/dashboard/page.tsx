@@ -33,16 +33,15 @@ function isWithinDays(dateStr: string, days: number) {
   return diffDays <= days;
 }
 
-// Warm avatar background colors based on name hash
+// Avatar background colors - matches directory page palette
 const AVATAR_COLORS = [
-  "#E8D5CE", // warm stone
-  "#D5C4B9", // taupe
-  "#C9B8A8", // sand
-  "#DED1C3", // cream
-  "#E5DAD0", // light tan
-  "#D4C5B5", // wheat
-  "#CFC4B8", // mushroom
-  "#E2D4C8", // blush stone
+  "#A8A8A8", // gray
+  "#C89B8C", // brick
+  "#D4A5A5", // rose
+  "#8BAAA8", // sage
+  "#E8B4B8", // blush
+  "#8B9EAA", // slate
+  "#A89B8C", // taupe
 ];
 
 function getAvatarColor(name: string | null | undefined): string {
@@ -228,7 +227,7 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-posts"
           >
-            <div className={dashboardStyles.statCard}>
+            <div className={`${dashboardStyles.statCard} ${dashboardStyles.statCardPosts}`}>
               <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Active Posts</span>
@@ -246,7 +245,7 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-library"
           >
-            <div className={dashboardStyles.statCard}>
+            <div className={`${dashboardStyles.statCard} ${dashboardStyles.statCardLibrary}`}>
               <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Items Available</span>
@@ -264,7 +263,7 @@ export default async function DashboardPage() {
             className={dashboardStyles.statCardLink}
             data-testid="dashboard-stat-directory"
           >
-            <div className={dashboardStyles.statCard}>
+            <div className={`${dashboardStyles.statCard} ${dashboardStyles.statCardDirectory}`}>
               <div className={dashboardStyles.statCardContent}>
                 <div className={dashboardStyles.statInfo}>
                   <span className={dashboardStyles.statLabel}>Neighbors</span>

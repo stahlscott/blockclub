@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="12" fill="#A65D4C"/>
-  <text x="50" y="62" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="#FFFEF9" text-anchor="middle">BC</text>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="6" fill="#4A7C7E"/>
+  <path d="M8 18L10 16V25H8V18Z" fill="white"/>
+  <path d="M10 16L16 11L22 16V25H10V16Z" fill="white"/>
+  <path d="M22 18L24 16V25H22V18Z" fill="#8B6E5F"/>
+  <rect x="13" y="19" width="2" height="3" fill="#4A7C7E"/>
+  <rect x="17" y="19" width="2" height="3" fill="#4A7C7E"/>
+  <rect x="14" y="14" width="2" height="2" fill="#4A7C7E"/>
+  <rect x="18" y="14" width="2" height="2" fill="#4A7C7E"/>
+  <path d="M16 11L14 12.5V10.5L16 9L18 10.5V12.5L16 11Z" fill="#8B6E5F"/>
+  <rect x="7" y="25" width="18" height="1" fill="#8B6E5F"/>
 </svg>

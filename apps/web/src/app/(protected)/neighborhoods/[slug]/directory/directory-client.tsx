@@ -90,7 +90,7 @@ function getInitial(name: string | null | undefined): string {
   return stripped.charAt(0)?.toUpperCase() || "?";
 }
 
-// Avatar background colors - cycle through based on initial
+// Avatar background colors - cycle through based on name hash
 const AVATAR_COLORS = [
   styles.avatarGray,
   styles.avatarBrick,
@@ -102,9 +102,13 @@ const AVATAR_COLORS = [
 ];
 
 function getAvatarColorClass(name: string | null | undefined): string {
-  const initial = getInitial(name);
-  const charCode = initial.charCodeAt(0) || 0;
-  return AVATAR_COLORS[charCode % AVATAR_COLORS.length];
+  if (!name) return AVATAR_COLORS[0];
+  // Hash the full name for consistent colors across pages
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 // Check if member joined within the last 30 days
