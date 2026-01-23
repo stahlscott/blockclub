@@ -88,6 +88,13 @@ Ideas to revisit based on user feedback.
 - [ ] Allow users to delete their own account
 - [ ] Add pagination for large neighborhoods
 - [ ] Dark mode support
+- [ ] **PWA icons** - Replace placeholder "BC" icons with professional designs
+  - `public/favicon.svg` - Browser tab icon (SVG)
+  - `public/icons/icon-192.png` - Android home screen (192×192)
+  - `public/icons/icon-512.png` - Android splash/install (512×512)
+  - `public/icons/icon-maskable-512.png` - Android adaptive icon (512×512, needs ~20% safe zone padding)
+  - `public/icons/apple-touch-icon.png` - iOS home screen (180×180)
+  - Preview maskable icon at https://maskable.app to ensure it crops well
 
 ---
 
