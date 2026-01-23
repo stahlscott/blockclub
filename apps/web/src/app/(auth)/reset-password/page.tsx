@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
         </form>
 
         <p className={styles.footer}>
-          <Link href="/signin" className={styles.link}>
+          <Link href="/signin" className={styles.link} data-testid="reset-password-form-signin-link">
             Back to sign in
           </Link>
         </p>

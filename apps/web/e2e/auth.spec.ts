@@ -176,7 +176,7 @@ test.describe('Magic Link Sign In', () => {
     }
 
     // Click "Use a different email"
-    await page.getByRole('button', { name: 'Use a different email' }).click();
+    await page.getByTestId('signin-magic-link-different-email-button').click();
 
     // Should be back on magic link form
     await expect(page.getByTestId('signin-magic-link-form')).toBeVisible();
@@ -246,7 +246,7 @@ test.describe('Forgot Password', () => {
   test('back to sign in link works', async ({ page }) => {
     await page.goto('/forgot-password');
 
-    await page.getByRole('main').getByRole('link', { name: 'Sign in' }).click();
+    await page.getByTestId('forgot-password-form-signin-link').click();
     await expect(page).toHaveURL('/signin');
   });
 });
@@ -284,7 +284,7 @@ test.describe('Reset Password', () => {
   test('back to sign in link works', async ({ page }) => {
     await page.goto('/reset-password');
 
-    await page.getByRole('link', { name: 'Back to sign in' }).click();
+    await page.getByTestId('reset-password-form-signin-link').click();
     await expect(page).toHaveURL('/signin');
   });
 });

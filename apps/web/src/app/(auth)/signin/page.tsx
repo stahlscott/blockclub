@@ -121,6 +121,7 @@ function SignInForm() {
               type="button"
               onClick={() => setMagicLinkSent(false)}
               className={styles.secondaryButton}
+              data-testid="signin-magic-link-different-email-button"
             >
               Use a different email
             </button>

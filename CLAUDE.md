@@ -509,6 +509,12 @@ All interactive elements should have `data-testid` attributes for testing.
 - For list items: include database ID for uniqueness
 - Not needed for: static text, images, decorative elements
 
+**E2E Test Selectors:**
+- **Prefer `getByTestId()`** for reliable element selection in Playwright tests
+- Test IDs are stable across text changes, localization, and UI refactors
+- Use role-based selectors (`getByRole`, `getByLabel`) only when explicitly testing accessibility
+- Fixtures and helpers should always use test IDs for maximum stability
+
 ## Environment Variables
 
 Required in `apps/web/.env.local`:

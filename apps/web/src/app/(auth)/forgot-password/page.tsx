@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
           <p className={styles.hint}>
             Click the link in the email to reset your password. If you don&apos;t see it, check your spam folder.
           </p>
-          <Link href="/signin" className={styles.link}>
+          <Link href="/signin" className={styles.link} data-testid="forgot-password-success-signin-link">
             Back to sign in
           </Link>
         </div>
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
 
         <p className={styles.footer}>
           Remember your password?{" "}
-          <Link href="/signin" className={styles.link}>
+          <Link href="/signin" className={styles.link} data-testid="forgot-password-form-signin-link">
             Sign in
           </Link>
         </p>

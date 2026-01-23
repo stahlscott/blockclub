@@ -140,23 +140,20 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
     // First go to dashboard to get the neighborhood context
     await expect(page).toHaveURL('/dashboard');
 
-    // Find and click on the library link from the navigation or dashboard
+    // Find and click on the library link from the header navigation
     // The library is at /neighborhoods/[slug]/library
-    const libraryLink = page.getByRole('link', { name: /library/i });
+    const libraryLink = page.getByTestId('header-library-link');
+    const mobileLibraryLink = page.getByTestId('header-mobile-library-link');
 
-    // If there's a library link visible, click it; otherwise try navigating via sidebar
+    // If there's a library link visible (desktop or mobile), click it
     if (await libraryLink.isVisible()) {
       await libraryLink.click();
+    } else if (await mobileLibraryLink.isVisible()) {
+      await mobileLibraryLink.click();
     } else {
-      // Try to find it in the header navigation
-      const navLibrary = page.getByRole('navigation').getByRole('link', { name: /library/i });
-      if (await navLibrary.isVisible()) {
-        await navLibrary.click();
-      } else {
-        // Skip if we can't find the library link
-        authenticatedTest.skip();
-        return;
-      }
+      // Skip if we can't find the library link
+      authenticatedTest.skip();
+      return;
     }
 
     // Wait for library page to load
