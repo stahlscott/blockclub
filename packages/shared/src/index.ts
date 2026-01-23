@@ -13,6 +13,9 @@ export * from "./validation";
 // Loan business logic
 export * from "./loans";
 
+// Permissions
+export * from "./permissions";
+
 // Supabase client
 export { getSupabaseClient } from "./supabase";
 export type { SupabaseClient } from "./supabase";
