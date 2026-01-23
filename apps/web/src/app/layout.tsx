@@ -19,7 +19,25 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "Block Club",
-  description: "A neighborhood community app for Lakewood, Ohio",
+  description: "A neighborhood community app for sharing, borrowing, and connecting with neighbors",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Block Club",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -27,6 +45,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Note: Do not set maximumScale=1 as it prevents pinch-to-zoom
   // This violates WCAG 2.1 Success Criterion 1.4.4 (Resize text)
+  themeColor: "#A65D4C",
 };
 
 export default async function RootLayout({
