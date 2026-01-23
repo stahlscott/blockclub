@@ -52,13 +52,13 @@ Community-curated list of important information - trash day, block party date, l
 - [x] Category-based organization with pinning support
 - [x] Admin-configurable guide title per neighborhood
 
-### LBC-7: Shared Infrastructure
+### LBC-7: Shared Infrastructure ✓
 High priority (prerequisite for LBC-2)
 Extract shared logic and centralize queries to prepare for mobile app development.
 
-- [ ] **1A: Centralize Supabase Queries** - Create `@/lib/queries/` with typed domain functions
-- [ ] **1B: Extract Shared Logic** - Move validation, date-utils, permissions, loan logic to `@blockclub/shared`
-- [ ] **Testing** - Unit tests for all shared logic with >90% coverage
+- [x] **1A: Centralize Supabase Queries** - Create `@/lib/queries/` with typed domain functions
+- [x] **1B: Extract Shared Logic** - Move validation, date-utils, permissions, loan logic to `@blockclub/shared`
+- [x] **Testing** - Unit tests for all shared logic with >90% coverage
 
 See `docs/plans/2026-01-23-shared-infrastructure-design.md` for full design.
 
