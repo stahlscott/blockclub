@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
   const { effectiveUserId, isImpersonating, queryClient } = await getAuthContext(supabase, authUser);
   const isUserStaffAdmin = isStaffAdmin(authUser.email);
 
-  if (isUserStaffAdmin && !isImpersonating) {
+  if (isUserStaffAdmin) {
     return <>{children}</>;
   }
 
