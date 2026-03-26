@@ -66,7 +66,34 @@ function SignUpForm() {
 
       if (data.session) {
         // User is signed in (no email confirmation required)
-        router.push(redirectTo);
+        // If signing up via invite link, auto-create the membership
+        // (mirrors the callback route logic for the email-confirmation path)
+        if (neighborhoodId) {
+          const { data: existingMembership } = await supabase
+            .from("memberships")
+            .select("id")
+            .eq("user_id", data.user.id)
+            .eq("neighborhood_id", neighborhoodId)
+            .maybeSingle();
+
+          if (!existingMembership) {
+            await supabase.from("memberships").insert({
+              user_id: data.user.id,
+              neighborhood_id: neighborhoodId,
+              role: "member",
+              status: "pending",
+            });
+          }
+
+          // Clear pending metadata since we handled it
+          await supabase.auth.updateUser({
+            data: { pending_neighborhood_id: null },
+          });
+
+          router.push("/dashboard");
+        } else {
+          router.push(redirectTo);
+        }
       } else {
         // Email confirmation required - store redirect in cookie for after confirmation
         if (redirectTo !== "/dashboard") {
