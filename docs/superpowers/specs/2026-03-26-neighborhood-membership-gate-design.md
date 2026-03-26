@@ -53,7 +53,10 @@ The bug we're fixing is exactly what happens with per-page enforcement: it's eas
 - Secondary text: "Don't have a link? Ask a neighbor who's already on Block Club to share their invite."
 - Sign-out link
 
-**Invite link handling:** The input accepts a full URL (e.g., `https://blockclub.app/join/lakewood-heights`). On submit, extract the slug and redirect to `/join/[slug]`.
+**Invite link handling:** The input accepts either a full URL or a bare slug. Parsing logic:
+1. If the input contains `/join/`, extract the slug from the path (works regardless of domain — `lakewoodblock.club`, `blockclub.vercel.app`, `localhost:3000`, etc.)
+2. Otherwise, treat the entire trimmed input as a slug (e.g., `lakewood-heights`)
+3. Redirect to `/join/[slug]`
 
 ### 3. `/waiting` page — pending memberships only
 
