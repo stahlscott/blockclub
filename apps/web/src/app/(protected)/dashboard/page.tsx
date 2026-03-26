@@ -6,7 +6,7 @@ import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
-import { parseDateLocal, getSeasonalClosing, formatRelativeTime } from "@/lib/date-utils";
+import { parseDateLocal, formatRelativeTime } from "@/lib/date-utils";
 import { InviteButton } from "@/components/InviteButton";
 import { Greeting } from "@/components/Greeting";
 import {
@@ -455,8 +455,8 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Main Content: Unified Neighborhood View OR Empty State */}
-      {primaryNeighborhood ? (
+      {/* Main Content: Unified Neighborhood View */}
+      {primaryNeighborhood && (
         <>
           {/* Admin Banner for Pending Membership Requests */}
           {isAdmin && pendingMemberRequests > 0 && (
@@ -670,17 +670,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </>
-      ) : (
-        <section className={dashboardStyles.section}>
-          <div className={dashboardStyles.emptyState}>
-            <div className={dashboardStyles.emptyIllustration}>🏘️</div>
-            <h2 className={dashboardStyles.emptyTitle}>No neighborhood yet</h2>
-            <p className={dashboardStyles.emptyText}>
-              Ask a neighbor to share their invite link, or start your own
-              block club! {getSeasonalClosing()}
-            </p>
-          </div>
-        </section>
       )}
 
     </div>
