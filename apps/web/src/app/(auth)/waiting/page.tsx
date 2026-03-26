@@ -33,7 +33,7 @@ export default async function WaitingPage() {
       if (Array.isArray(neighborhood)) return neighborhood[0]?.name;
       return (neighborhood as { name: string } | null)?.name;
     })
-    .filter(Boolean) as string[];
+    .filter((name): name is string => Boolean(name));
 
   return (
     <div className="fullPageContainer">

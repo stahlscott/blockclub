@@ -6,9 +6,9 @@ import styles from "../auth.module.css";
 
 export function SignOutButton() {
   const router = useRouter();
-  const supabase = createClient();
 
   async function handleSignOut() {
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/signin");
   }
