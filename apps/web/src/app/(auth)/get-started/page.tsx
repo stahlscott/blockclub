@@ -13,9 +13,9 @@ function GetStartedForm() {
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
         router.push("/signin");
@@ -24,7 +24,7 @@ function GetStartedForm() {
       setUserName(user.user_metadata?.name || null);
       setLoading(false);
     });
-  }, []);
+  }, [router]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,6 +40,7 @@ function GetStartedForm() {
   }
 
   async function handleSignOut() {
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/signin");
   }
