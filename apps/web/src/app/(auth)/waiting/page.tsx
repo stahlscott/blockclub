@@ -5,11 +5,6 @@ import "@/app/globals.css";
 import styles from "../auth.module.css";
 import { SignOutButton } from "./SignOutButton";
 
-interface PendingMembership {
-  id: string;
-  neighborhood: { name: string } | null;
-}
-
 export default async function WaitingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,9 +26,14 @@ export default async function WaitingPage() {
     redirect("/dashboard");
   }
 
-  const neighborhoodNames = (pendingMemberships as PendingMembership[])
-    .map((m) => m.neighborhood?.name)
-    .filter(Boolean);
+  // Supabase returns joined neighborhood as { name }[] — extract first element's name
+  const neighborhoodNames = pendingMemberships
+    .map((m) => {
+      const neighborhood = m.neighborhood;
+      if (Array.isArray(neighborhood)) return neighborhood[0]?.name;
+      return (neighborhood as { name: string } | null)?.name;
+    })
+    .filter(Boolean) as string[];
 
   return (
     <div className="fullPageContainer">
