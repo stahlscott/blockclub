@@ -34,7 +34,8 @@ export default async function PostsPage({ params }: Props) {
       .from("memberships")
       .select("*", { count: "exact", head: true })
       .eq("neighborhood_id", neighborhood.id)
-      .eq("status", "active"),
+      .eq("status", "active")
+      .is("deleted_at", null),
   ]);
 
   // Fetch all reactions for these posts

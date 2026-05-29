@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import styles from "@/components/InviteButton.module.css";
 
@@ -14,10 +14,13 @@ export function useInvite(slug: string): UseInviteReturn {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const url =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/join/${slug}`
-      : `/join/${slug}`;
+  const url = useMemo(
+    () =>
+      typeof window !== "undefined"
+        ? `${window.location.origin}/join/${slug}`
+        : `/join/${slug}`,
+    [slug]
+  );
 
   const handleCopy = async () => {
     try {

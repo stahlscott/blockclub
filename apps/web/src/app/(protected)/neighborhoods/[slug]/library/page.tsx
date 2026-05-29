@@ -43,7 +43,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
       .from("memberships")
       .select("*", { count: "exact", head: true })
       .eq("neighborhood_id", neighborhood.id)
-      .eq("status", "active"),
+      .eq("status", "active")
+      .is("deleted_at", null),
   ]);
 
   // Compute which categories have items

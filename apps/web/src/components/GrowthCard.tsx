@@ -28,10 +28,10 @@ const AVATAR_COLORS = [
 
 function getAvatarColor(name: string | null | undefined): string {
   if (!name) return AVATAR_COLORS[0];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
+  const hash = name.split("").reduce(
+    (acc, char) => char.charCodeAt(0) + ((acc << 5) - acc),
+    0
+  );
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
