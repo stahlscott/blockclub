@@ -32,12 +32,19 @@ export default async function LibraryPage({ params, searchParams }: Props) {
 
   // Fetch all items (no category filter) to determine available categories
   // Note: Use !items_owner_id_fkey to specify which FK to use (there are multiple user references)
-  const { data: allItems } = await supabase
-    .from("items")
-    .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url)")
-    .eq("neighborhood_id", neighborhood.id)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+  const [{ data: allItems }, { count: memberCount }] = await Promise.all([
+    supabase
+      .from("items")
+      .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url)")
+      .eq("neighborhood_id", neighborhood.id)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "active"),
+  ]);
 
   // Compute which categories have items
   const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);
@@ -85,6 +92,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         slug={slug}
         userId={user.id}
         category={category}
+        memberCount={memberCount || 0}
+        totalItemCount={allItems?.length || 0}
       />
     </div>
   );
