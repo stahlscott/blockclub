@@ -34,6 +34,7 @@ export default async function DirectoryPage({ params }: Props) {
       slug={slug}
       neighborhoodName={neighborhood.name}
       members={filteredMembers}
+      memberCount={filteredMembers.length}
     />
   );
 }
