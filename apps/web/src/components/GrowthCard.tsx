@@ -74,6 +74,7 @@ export function GrowthCard({ slug, memberCount, members }: GrowthCardProps) {
                   title={member.user?.name || "Neighbor"}
                 >
                   {member.user?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- 28px avatar in a stack; next/image adds unnecessary complexity
                     <img
                       src={member.user.avatar_url}
                       alt=""
