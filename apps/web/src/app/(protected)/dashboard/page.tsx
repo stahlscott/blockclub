@@ -217,7 +217,9 @@ export default async function DashboardPage() {
             </h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
-          <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          {!isInGrowthMode(stats.neighborsCount) && (
+            <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          )}
         </div>
       )}
 

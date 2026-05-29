@@ -6,7 +6,7 @@ import styles from "./InviteNudge.module.css";
 type NudgeSection = "library" | "posts" | "directory";
 
 const NUDGE_COPY: Record<NudgeSection, string> = {
-  library: "Know someone who\u2019d lend their tools? Share Block Club with them",
+  library: "Your neighbors might have things to share too \u2014 invite them to Block Club",
   posts: "A livelier board starts with more neighbors",
   directory: "The more neighbors who join, the more useful Block Club becomes",
 };
