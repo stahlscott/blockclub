@@ -8,7 +8,9 @@ import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { parseDateLocal, formatRelativeTime } from "@/lib/date-utils";
 import { InviteButton } from "@/components/InviteButton";
+import { GrowthCard } from "@/components/GrowthCard";
 import { Greeting } from "@/components/Greeting";
+import { isInGrowthMode } from "@/lib/growth";
 import {
   getRecentItems,
   getRecentMembers,
@@ -215,8 +217,18 @@ export default async function DashboardPage() {
             </h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
-          <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          {!isInGrowthMode(stats.neighborsCount) && (
+            <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          )}
         </div>
+      )}
+
+      {primaryNeighborhood && isInGrowthMode(stats.neighborsCount) && (
+        <GrowthCard
+          slug={primaryNeighborhood.slug}
+          memberCount={stats.neighborsCount}
+          members={recentMembers}
+        />
       )}
 
       {/* Stat Cards - Figma layout: label on top, number below, icon on right */}

@@ -14,21 +14,29 @@ export default async function PostsPage({ params }: Props) {
   const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  // Fetch posts with author info
+  // Fetch posts with author info and member count in parallel
   // Note: RLS handles filtering deleted/expired posts for regular users
   // Admin client bypasses RLS for staff admins
-  const { data: posts } = await supabase
-    .from("posts")
-    .select(
+  const [{ data: posts }, { count: memberCount }] = await Promise.all([
+    supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        author:users!author_id(id, name, avatar_url),
+        editor:users!edited_by(id, name)
       `
-      *,
-      author:users!author_id(id, name, avatar_url),
-      editor:users!edited_by(id, name)
-    `
-    )
-    .eq("neighborhood_id", neighborhood.id)
-    .order("is_pinned", { ascending: false })
-    .order("created_at", { ascending: false });
+      )
+      .eq("neighborhood_id", neighborhood.id)
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "active")
+      .is("deleted_at", null),
+  ]);
 
   // Fetch all reactions for these posts
   const postIds = posts?.map((p) => p.id) || [];
@@ -96,6 +104,7 @@ export default async function PostsPage({ params }: Props) {
         isAdmin={isNeighborhoodAdmin}
         slug={slug}
         neighborhoodId={neighborhood.id}
+        memberCount={memberCount || 0}
       />
     </div>
   );

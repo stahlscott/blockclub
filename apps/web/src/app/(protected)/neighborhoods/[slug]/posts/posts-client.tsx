@@ -7,7 +7,10 @@ import { createClient } from "@/lib/supabase/client";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { logger } from "@/lib/logger";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import { InviteNudge } from "@/components/InviteNudge";
 import { formatRelativeTime, formatDate } from "@/lib/date-utils";
+import { isInGrowthMode, shouldShowContentNudge } from "@/lib/growth";
+import { useInvite } from "@/lib/hooks/useInvite";
 import type { PostReactionType } from "@blockclub/shared";
 import styles from "./posts.module.css";
 
@@ -40,6 +43,7 @@ interface Props {
   isAdmin: boolean;
   slug: string;
   neighborhoodId: string;
+  memberCount: number;
 }
 
 function getInitial(name: string | null | undefined): string {
@@ -52,12 +56,15 @@ export function PostsClient({
   currentUserId,
   isAdmin,
   slug,
+  memberCount,
 }: Props) {
   const router = useRouter();
   const [loadingReaction, setLoadingReaction] = useState<string | null>(null);
   const [deletingPost, setDeletingPost] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const { handleInvite, modal: inviteModal } = useInvite(slug);
+  const growthMode = isInGrowthMode(memberCount);
 
   const toggleReaction = useCallback(async (postId: string, reactionType: PostReactionType) => {
     const post = posts.find((p) => p.id === postId);
@@ -150,15 +157,31 @@ export function PostsClient({
 
   if (posts.length === 0) {
     return (
-      <div className={styles.empty}>
-        <div className={styles.emptyIllustration}>📌</div>
-        <p className={styles.emptyText}>
-          The board is empty, pin something up for your neighbors!
-        </p>
-        <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
-          Post something
-        </Link>
-      </div>
+      <>
+        <div className={styles.empty}>
+          <div className={styles.emptyIllustration}>📌</div>
+          <p className={styles.emptyText}>
+            The board is empty, pin something up for your neighbors!
+          </p>
+          <Link href={`/neighborhoods/${slug}/posts/new`} className={styles.emptyButton}>
+            Post something
+          </Link>
+          {growthMode && (
+            <p className={styles.emptyInvite}>
+              or{" "}
+              <button
+                onClick={handleInvite}
+                className={styles.emptyInviteButton}
+                type="button"
+              >
+                invite neighbors
+              </button>
+              {" "}to start the conversation
+            </p>
+          )}
+        </div>
+        {inviteModal}
+      </>
     );
   }
 
@@ -167,53 +190,60 @@ export function PostsClient({
   const regularPosts = posts.filter((p) => !p.is_pinned);
 
   return (
-    <div className={styles.postList}>
-      {error && <div className={styles.error}>{error}</div>}
+    <>
+      <div className={styles.postList}>
+        {error && <div className={styles.error}>{error}</div>}
 
-      {pinnedPosts.length > 0 && (
-        <div className={styles.pinnedSection}>
-          {pinnedPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUserId={currentUserId}
-              isAdmin={isAdmin}
-              slug={slug}
-              loadingReaction={loadingReaction}
-              deletingPost={deletingPost}
-              onToggleReaction={toggleReaction}
-              onDelete={handleDelete}
-              onTogglePin={handleTogglePin}
-              onImageClick={setLightboxImage}
-            />
-          ))}
-        </div>
+        {pinnedPosts.length > 0 && (
+          <div className={styles.pinnedSection}>
+            {pinnedPosts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUserId={currentUserId}
+                isAdmin={isAdmin}
+                slug={slug}
+                loadingReaction={loadingReaction}
+                deletingPost={deletingPost}
+                onToggleReaction={toggleReaction}
+                onDelete={handleDelete}
+                onTogglePin={handleTogglePin}
+                onImageClick={setLightboxImage}
+              />
+            ))}
+          </div>
+        )}
+
+        {regularPosts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            currentUserId={currentUserId}
+            isAdmin={isAdmin}
+            slug={slug}
+            loadingReaction={loadingReaction}
+            deletingPost={deletingPost}
+            onToggleReaction={toggleReaction}
+            onDelete={handleDelete}
+            onTogglePin={handleTogglePin}
+            onImageClick={setLightboxImage}
+          />
+        ))}
+
+        {lightboxImage && (
+          <ImageLightbox
+            src={lightboxImage}
+            alt="Post image"
+            onClose={() => setLightboxImage(null)}
+          />
+        )}
+      </div>
+
+      {growthMode && shouldShowContentNudge(posts.length, "posts") && (
+        <InviteNudge slug={slug} section="posts" />
       )}
-
-      {regularPosts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          currentUserId={currentUserId}
-          isAdmin={isAdmin}
-          slug={slug}
-          loadingReaction={loadingReaction}
-          deletingPost={deletingPost}
-          onToggleReaction={toggleReaction}
-          onDelete={handleDelete}
-          onTogglePin={handleTogglePin}
-          onImageClick={setLightboxImage}
-        />
-      ))}
-
-      {lightboxImage && (
-        <ImageLightbox
-          src={lightboxImage}
-          alt="Post image"
-          onClose={() => setLightboxImage(null)}
-        />
-      )}
-    </div>
+      {inviteModal}
+    </>
   );
 }
 
