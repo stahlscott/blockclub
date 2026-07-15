@@ -171,17 +171,81 @@ export interface Item {
   deleted_at: string | null;
 }
 
+export interface LoanOperationResult {
+  success: boolean;
+  reason: string;
+  loan_id: string | null;
+  item_id: string | null;
+  affected_loan_count: number;
+  affected_item_count: number;
+}
+
+export interface MoveOutResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  affected_item_count: number;
+  cancelled_loan_count: number;
+  returned_loan_count: number;
+}
+
+export interface ItemRemovalResult {
+  success: boolean;
+  reason: string;
+  item_id: string | null;
+  affected_item_count: number;
+  cancelled_loan_count: number;
+}
+
+export interface PostOperationResult {
+  success: boolean;
+  reason: string;
+  post_id: string | null;
+  affected_post_count: number;
+}
+
+export interface PostReactionOperationResult {
+  success: boolean;
+  reason: string;
+  post_id: string | null;
+  reaction: PostReactionType;
+  active: boolean;
+  affected_reaction_count: number;
+}
+
+export interface MembershipModerationResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  neighborhood_id: string | null;
+  status: MembershipStatus | null;
+  deleted_at: string | null;
+  affected_membership_count: number;
+}
+
+export type LoanClosureReason =
+  | "borrower_returned"
+  | "borrower_cancelled"
+  | "owner_declined"
+  | "administrative_move_out"
+  | "administrative_item_removal"
+  | "staff_correction";
+
 export interface Loan {
   id: string;
   item_id: string;
   borrower_id: string;
   status: LoanStatus;
   requested_at: string;
+  created_at: string;
   start_date: string | null;
   due_date: string | null;
   returned_at: string | null;
   notes: string | null;
   deleted_at: string | null;
+  staff_actor_id: string | null;
+  closure_reason: LoanClosureReason | null;
+  closed_by_user_id: string | null;
 }
 
 // ============================================================================
@@ -315,9 +379,12 @@ export type ItemUpdate = Partial<
   >
 >;
 
-export type LoanInsert = Omit<Loan, "id" | "requested_at">;
+export type LoanInsert = Omit<
+  Loan,
+  "id" | "requested_at" | "created_at" | "staff_actor_id" | "closure_reason" | "closed_by_user_id"
+>;
 export type LoanUpdate = Partial<
-  Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">
+  Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes" | "deleted_at" | "staff_actor_id" | "closure_reason" | "closed_by_user_id">
 >;
 
 export type PostInsert = {
@@ -396,6 +463,56 @@ export interface Database {
         Row: NeighborhoodGuide;
         Insert: NeighborhoodGuideInsert;
         Update: NeighborhoodGuideUpdate;
+      };
+    };
+    Functions: {
+      approve_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      activate_loan: {
+        Args: { p_loan_id: string; p_start_date: string; p_due_date?: string | null };
+        Returns: LoanOperationResult;
+      };
+      return_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      decline_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      cancel_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      move_out_membership: {
+        Args: { p_membership_id: string };
+        Returns: MoveOutResult;
+      };
+      soft_delete_item: {
+        Args: { p_item_id: string };
+        Returns: ItemRemovalResult;
+      };
+      soft_delete_post: {
+        Args: { p_post_id: string };
+        Returns: PostOperationResult;
+      };
+      set_post_pin: {
+        Args: { p_post_id: string; p_is_pinned: boolean };
+        Returns: PostOperationResult;
+      };
+      update_post: {
+        Args: { p_post_id: string; p_content: string; p_image_url: string | null; p_expires_at: string | null; p_is_pinned?: boolean | null };
+        Returns: PostOperationResult;
+      };
+      toggle_post_reaction: {
+        Args: { p_post_id: string; p_reaction: PostReactionType };
+        Returns: PostReactionOperationResult;
+      };
+      moderate_pending_membership: {
+        Args: { p_membership_id: string; p_decision: string };
+        Returns: MembershipModerationResult;
       };
     };
     Enums: {

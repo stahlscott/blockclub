@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 import { getSeasonalClosing } from "@/lib/date-utils";
+import { requestMembership, rejoinMembership } from "../actions";
 import "@/app/globals.css";
 import styles from "../join.module.css";
 
@@ -73,68 +73,14 @@ export default function PublicJoinPage() {
     setSubmitting(true);
     setError(null);
 
-    const supabase = createClient();
-
-    // Ensure user profile exists (might not if email confirmation happened on different device)
-    const { data: existingProfile } = await supabase
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (!existingProfile) {
-      // Create the user profile
-      const { error: profileError } = await supabase.from("users").insert({
-        id: user.id,
-        email: user.email!,
-        name:
-          user.user_metadata?.name || user.email?.split("@")[0] || "New User",
-        address: user.user_metadata?.address || null,
-        avatar_url: null,
-        bio: null,
-        phone: null,
-      });
-
-      if (profileError) {
-        logger.error("Error creating profile", profileError);
-        setError("Failed to create your profile. Please try again.");
-        setSubmitting(false);
-        return;
-      }
-    }
-
-    // Always insert as pending - database AFTER INSERT trigger handles auto-approval
-    const { data: inserted, error: joinError } = await supabase
-      .from("memberships")
-      .insert({
-        user_id: user.id,
-        neighborhood_id: neighborhood.id,
-        role: "member",
-        status: "pending",
-      })
-      .select("id")
-      .single();
-
-    if (joinError) {
-      setError(joinError.message);
+    const result = await requestMembership({ neighborhoodId: neighborhood.id });
+    if (!result.success) {
+      setError(result.error);
       setSubmitting(false);
       return;
     }
-
-    // Re-fetch to get the status after the AFTER INSERT trigger ran
-    const { data: membership } = await supabase
-      .from("memberships")
-      .select("status")
-      .eq("id", inserted.id)
-      .single();
-
-    // Check if trigger promoted to active
-    if (membership?.status === "active") {
-      router.push("/dashboard");
-    } else {
-      setSuccess(true);
-    }
-
+    if (result.data.status === "active") router.push("/dashboard");
+    else setSuccess(true);
     setSubmitting(false);
   };
 
@@ -144,41 +90,14 @@ export default function PublicJoinPage() {
     setSubmitting(true);
     setError(null);
 
-    const supabase = createClient();
-
-    // For rejoin (UPDATE), we keep the app logic since the INSERT trigger won't fire
-    // First member always gets auto-approved, even if require_approval is true
-    const { count: activeMemberCount } = await supabase
-      .from("memberships")
-      .select("*", { count: "exact", head: true })
-      .eq("neighborhood_id", neighborhood.id)
-      .eq("status", "active")
-      .is("deleted_at", null);
-
-    const isFirstMember = activeMemberCount === 0;
-    const requiresApproval =
-      !isFirstMember && neighborhood.settings?.require_approval !== false;
-
-    // Update existing membership status back to pending or active
-    const { error: updateError } = await supabase
-      .from("memberships")
-      .update({
-        status: requiresApproval ? "pending" : "active",
-      })
-      .eq("id", existingMembership.id);
-
-    if (updateError) {
-      setError(updateError.message);
+    const result = await rejoinMembership({ membershipId: existingMembership.id });
+    if (!result.success) {
+      setError(result.error);
       setSubmitting(false);
       return;
     }
-
-    if (!requiresApproval) {
-      router.push("/dashboard");
-    } else {
-      setSuccess(true);
-    }
-
+    if (result.data.status === "active") router.push("/dashboard");
+    else setSuccess(true);
     setSubmitting(false);
   };
 

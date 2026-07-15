@@ -24,7 +24,7 @@ interface Props {
 
 export default async function ItemDetailPage({ params }: Props) {
   const { slug, id } = await params;
-  const { user, neighborhood, isStaffAdmin, isNeighborhoodAdmin, supabase } =
+  const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
   // Fetch item with owner
@@ -34,6 +34,7 @@ export default async function ItemDetailPage({ params }: Props) {
     .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url, phone)")
     .eq("id", id)
     .eq("neighborhood_id", neighborhood.id)
+    .is("deleted_at", null)
     .single();
 
   if (!item) {
@@ -41,10 +42,10 @@ export default async function ItemDetailPage({ params }: Props) {
   }
 
   const isOwner = item.owner_id === user.id;
-  const isAdmin = isNeighborhoodAdmin || isStaffAdmin;
-
-  // Admin can remove items they don't own
-  const canRemoveItem = isAdmin && !isOwner;
+  // Ordinary item removal is available to active neighborhood admins. Staff
+  // physical teardown remains a separate staff-only operation until the
+  // impersonation-aware mutation boundary is implemented.
+  const canRemoveItem = isNeighborhoodAdmin && !isOwner;
 
   // Fetch active loan for this item
   // Note: Use FK hint for ambiguous relationship (loans has multiple user FKs)
@@ -52,7 +53,9 @@ export default async function ItemDetailPage({ params }: Props) {
     .from("loans")
     .select("*, borrower:users!loans_borrower_id_fkey(id, name)")
     .eq("item_id", id)
+    .eq("items.neighborhood_id", neighborhood.id)
     .in("status", ["requested", "approved", "active"])
+    .is("deleted_at", null)
     .single();
 
   // Check if current user has a pending request
@@ -61,7 +64,9 @@ export default async function ItemDetailPage({ params }: Props) {
     .select("*")
     .eq("item_id", id)
     .eq("borrower_id", user.id)
+    .eq("items.neighborhood_id", neighborhood.id)
     .in("status", ["requested", "approved", "active"])
+    .is("deleted_at", null)
     .single();
 
   return (

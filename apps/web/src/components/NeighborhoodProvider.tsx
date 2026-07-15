@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { switchNeighborhood as saveNeighborhood } from "@/app/actions/neighborhood";
 import { useAuth } from "./AuthProvider";
 import { logger } from "@/lib/logger";
 import { setSentryNeighborhood, addBreadcrumb } from "@/lib/sentry";
@@ -243,33 +244,15 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
       toNeighborhoodId: neighborhoodId,
     });
 
-    // Update the database and verify the change was applied
-    const { error, data } = await supabase
-      .from("users")
-      .update({ primary_neighborhood_id: neighborhoodId })
-      .eq("id", user.id)
-      .select("primary_neighborhood_id")
-      .single();
-
-    if (error) {
-      logger.error("Failed to switch neighborhood", error);
-      setSwitchError("Failed to switch neighborhood. Please try again.");
+    const result = await saveNeighborhood(neighborhoodId);
+    if (!result.success) {
+      logger.error("Failed to switch neighborhood", { error: result.error, neighborhoodId });
+      setSwitchError(result.error || "Failed to switch neighborhood. Please try again.");
       setSwitching(false);
       return;
     }
 
-    // Verify the update was applied
-    if (data?.primary_neighborhood_id !== neighborhoodId) {
-      logger.error("Neighborhood switch verification failed", {
-        expected: neighborhoodId,
-        actual: data?.primary_neighborhood_id,
-      });
-      setSwitchError("Failed to switch neighborhood. Please try again.");
-      setSwitching(false);
-      return;
-    }
-
-    // Hard refresh to reload server components with new data
+    // Hard refresh to reload server components with the effective user's data.
     window.location.reload();
   };
 

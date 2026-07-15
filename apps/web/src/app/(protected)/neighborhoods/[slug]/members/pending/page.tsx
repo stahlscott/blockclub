@@ -62,6 +62,7 @@ export default async function PendingMembersPage({ params }: Props) {
     .select("*, user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)")
     .eq("neighborhood_id", neighborhood.id)
     .eq("status", "pending")
+    .is("deleted_at", null)
     .order("joined_at", { ascending: true });
 
   return (
@@ -134,7 +135,7 @@ export default async function PendingMembersPage({ params }: Props) {
                     </p>
                   </div>
                 </div>
-                <MembershipActions membershipId={member.id} />
+                <MembershipActions membershipId={member.id} neighborhoodSlug={slug} />
               </div>
             );
           })}

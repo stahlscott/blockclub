@@ -2,62 +2,36 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
+import { moderateMembership } from "./actions";
 import styles from "./pending.module.css";
 
 interface Props {
   membershipId: string;
+  neighborhoodSlug: string;
 }
 
-export function MembershipActions({ membershipId }: Props) {
+export function MembershipActions({ membershipId, neighborhoodSlug }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleAction(action: "approve" | "reject") {
+  async function handleAction(decision: "approve" | "decline") {
     setLoading(true);
-
-    try {
-      const supabase = createClient();
-
-      if (action === "approve") {
-        const { error } = await supabase
-          .from("memberships")
-          .update({ status: "active" })
-          .eq("id", membershipId);
-
-        if (error) {
-          logger.error("Error approving", error, { membershipId });
-          alert("Failed to approve membership");
-          return;
-        }
-      } else {
-        // Soft delete: set deleted_at instead of actually deleting
-        const { error } = await supabase
-          .from("memberships")
-          .update({ deleted_at: new Date().toISOString(), status: "inactive" })
-          .eq("id", membershipId);
-
-        if (error) {
-          logger.error("Error rejecting", error, { membershipId });
-          alert("Failed to reject membership");
-          return;
-        }
-      }
-
+    setError(null);
+    const result = await moderateMembership({ membershipId, neighborhoodSlug, decision });
+    if (!result.success) {
+      setError(result.error);
+    } else {
       router.refresh();
-    } catch (err) {
-      logger.error("Error", err, { membershipId });
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (
     <div className={styles.actions}>
+      {error && <p className={styles.error}>{error}</p>}
       <button
-        onClick={() => handleAction("reject")}
+        onClick={() => handleAction("decline")}
         disabled={loading}
         className={styles.rejectButton}
         data-testid={`pending-member-decline-${membershipId}`}

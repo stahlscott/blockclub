@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { updatePost } from "../../actions";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { PostImageUpload } from "@/components/PostImageUpload";
 import styles from "../../post-form.module.css";
@@ -108,6 +109,8 @@ export default function EditPostPage() {
           .from("posts")
           .select("*")
           .eq("id", postId)
+          .eq("neighborhood_id", neighborhood.id)
+          .is("deleted_at", null)
           .single();
 
         if (postError || !postData) {
@@ -145,48 +148,16 @@ export default function EditPostPage() {
     setSaving(true);
 
     try {
-      const supabase = createClient();
-
-      // Get current user for edited_by
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      // Build update object
-      const updateData: {
-        content: string;
-        image_url: string | null;
-        expires_at: string | null;
-        edited_at: string;
-        edited_by: string;
-        is_pinned?: boolean;
-      } = {
-        content: content.trim(),
-        image_url: imageUrl,
-        expires_at: expiresAt
-          ? new Date(expiresAt + "T23:59:59").toISOString()
-          : null,
-        edited_at: new Date().toISOString(),
-        edited_by: user.id,
-      };
-
-      // Only admins can change pin status
-      if (isAdmin) {
-        updateData.is_pinned = isPinned;
-      }
-
-      const { error: updateError } = await supabase
-        .from("posts")
-        .update(updateData)
-        .eq("id", postId);
-
-      if (updateError) {
-        logger.error("Update error", updateError);
-        setError(updateError.message);
+      const result = await updatePost({
+        slug,
+        postId,
+        content,
+        imageUrl,
+        expiresAt,
+        ...(isAdmin ? { isPinned } : {}),
+      });
+      if (!result.success) {
+        setError(result.error);
         return;
       }
 

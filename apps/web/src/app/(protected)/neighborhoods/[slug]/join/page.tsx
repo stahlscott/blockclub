@@ -5,8 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 import { getSeasonalClosing } from "@/lib/date-utils";
+import { requestMembership, rejoinMembership } from "@/app/join/actions";
 import styles from "@/app/join/join.module.css";
 
 export default function JoinNeighborhoodPage() {
@@ -65,100 +65,32 @@ export default function JoinNeighborhoodPage() {
   }, [slug, router]);
 
   const handleJoinRequest = async () => {
+    if (!neighborhood) return;
     setSubmitting(true);
     setError(null);
-
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setError("You must be logged in");
+    const result = await requestMembership({ neighborhoodId: neighborhood.id });
+    if (!result.success) {
+      setError(result.error);
       setSubmitting(false);
       return;
     }
-
-    // Ensure user profile exists (might not if email confirmation happened on different device)
-    const { data: existingProfile } = await supabase
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (!existingProfile) {
-      // Create the user profile
-      const { error: profileError } = await supabase.from("users").insert({
-        id: user.id,
-        email: user.email!,
-        name:
-          user.user_metadata?.name || user.email?.split("@")[0] || "New User",
-        avatar_url: null,
-        bio: null,
-        phone: null,
-      });
-
-      if (profileError) {
-        logger.error("Error creating profile", profileError);
-        setError("Failed to create your profile. Please try again.");
-        setSubmitting(false);
-        return;
-      }
-    }
-
-    const requiresApproval = neighborhood.settings?.require_approval !== false;
-
-    const { error: joinError } = await supabase.from("memberships").insert({
-      user_id: user.id,
-      neighborhood_id: neighborhood.id,
-      role: "member",
-      status: requiresApproval ? "pending" : "active",
-    });
-
-    if (joinError) {
-      setError(joinError.message);
-      setSubmitting(false);
-      return;
-    }
-
-    if (requiresApproval) {
-      setSuccess(true);
-    } else {
-      router.push("/dashboard");
-    }
-
+    if (result.data.status === "active") router.push("/dashboard");
+    else setSuccess(true);
     setSubmitting(false);
   };
 
   const handleRejoinRequest = async () => {
     if (!existingMembership) return;
-
     setSubmitting(true);
     setError(null);
-
-    const supabase = createClient();
-    const requiresApproval = neighborhood.settings?.require_approval !== false;
-
-    // Update existing membership status back to pending or active
-    const { error: updateError } = await supabase
-      .from("memberships")
-      .update({
-        status: requiresApproval ? "pending" : "active",
-      })
-      .eq("id", existingMembership.id);
-
-    if (updateError) {
-      setError(updateError.message);
+    const result = await rejoinMembership({ membershipId: existingMembership.id });
+    if (!result.success) {
+      setError(result.error);
       setSubmitting(false);
       return;
     }
-
-    if (requiresApproval) {
-      setSuccess(true);
-    } else {
-      router.push("/dashboard");
-    }
-
+    if (result.data.status === "active") router.push("/dashboard");
+    else setSuccess(true);
     setSubmitting(false);
   };
 

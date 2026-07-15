@@ -3,12 +3,15 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
+import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
 import { notifyLoanRequested } from "@/lib/email/notifications";
 
 export interface RequestLoanState {
   success?: boolean;
   error?: string;
+  conflict?: boolean;
 }
 
 export async function requestLoan(
@@ -23,58 +26,87 @@ export async function requestLoan(
     return { error: "Missing required fields" };
   }
 
+  const notesError = notes ? validateLength(notes, "Loan notes", MAX_LENGTHS.loanNotes) : null;
+  if (notesError) return { error: notesError };
+
   const supabase = await createClient();
 
   const {
-    data: { user },
+    data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!authUser) {
     redirect("/signin");
   }
 
+  const { effectiveUserId, queryClient, isStaffAdmin, isImpersonating } =
+    await getAuthContext(supabase, authUser);
+
   // Verify the item exists and is available
-  const { data: item } = await supabase
+  const { data: item } = await queryClient
     .from("items")
-    .select("id, availability, neighborhood_id")
+    .select("id, owner_id, availability, neighborhood_id")
     .eq("id", itemId)
+    .is("deleted_at", null)
     .single();
 
   if (!item) {
     return { error: "Item not found" };
   }
 
+  if (item.owner_id === effectiveUserId) {
+    return { error: "You cannot borrow your own item" };
+  }
+
   if (item.availability !== "available") {
     return { error: "Item is not available for borrowing" };
   }
 
+  const { data: membership } = await queryClient
+    .from("memberships")
+    .select("id")
+    .eq("user_id", effectiveUserId)
+    .eq("neighborhood_id", item.neighborhood_id)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!membership) return { error: "You must be an active neighborhood member to borrow items" };
+
   // Check if user already has a pending/active request for this item
-  const { data: existingLoan } = await supabase
+  const { data: existingLoan } = await queryClient
     .from("loans")
     .select("id, status")
     .eq("item_id", itemId)
-    .eq("borrower_id", user.id)
+    .eq("borrower_id", effectiveUserId)
     .in("status", ["requested", "approved", "active"])
-    .single();
+    .is("deleted_at", null)
+    .maybeSingle();
 
   if (existingLoan) {
     return { error: "You already have an active request for this item" };
   }
 
-  const { data: newLoan, error: insertError } = await supabase
+  const insertData: Record<string, unknown> = {
+    item_id: itemId,
+    borrower_id: effectiveUserId,
+    status: "requested",
+    notes,
+    deleted_at: null,
+  };
+  if (isStaffAdmin && isImpersonating) insertData.staff_actor_id = authUser.id;
+
+  const { data: newLoan, error: insertError } = await queryClient
     .from("loans")
-    .insert({
-      item_id: itemId,
-      borrower_id: user.id,
-      status: "requested",
-      notes,
-    })
+    .insert(insertData)
     .select("id")
-    .single();
+    .maybeSingle();
 
   if (insertError) {
     logger.error("Loan request error", insertError, { itemId });
     return { error: insertError.message };
+  }
+  if (!newLoan?.id) {
+    return { error: "The loan request was not created. Please refresh and try again.", conflict: true };
   }
 
   // Send notification to item owner (fire-and-forget)

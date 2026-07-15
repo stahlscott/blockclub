@@ -3,9 +3,9 @@
 import { useState, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { logger } from "@/lib/logger";
+import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/Modal";
+import { deletePost, setPostPinned, togglePostReaction } from "./actions";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { formatRelativeTime, formatDate } from "@/lib/date-utils";
 import type { PostReactionType } from "@blockclub/shared";
@@ -56,97 +56,52 @@ export function PostsClient({
   const router = useRouter();
   const [loadingReaction, setLoadingReaction] = useState<string | null>(null);
   const [deletingPost, setDeletingPost] = useState<string | null>(null);
+  const [deleteDialogPostId, setDeleteDialogPostId] = useState<string | null>(null);
+  const [loadingPin, setLoadingPin] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   const toggleReaction = useCallback(async (postId: string, reactionType: PostReactionType) => {
-    const post = posts.find((p) => p.id === postId);
-    if (!post) return;
-
-    const hasReacted = post.user_reactions.includes(reactionType);
     setLoadingReaction(`${postId}-${reactionType}`);
     setError("");
-
-    try {
-      const supabase = createClient();
-
-      if (hasReacted) {
-        // Remove reaction
-        const { error: deleteError } = await supabase
-          .from("post_reactions")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", currentUserId)
-          .eq("reaction", reactionType);
-
-        if (deleteError) throw deleteError;
-      } else {
-        // Add reaction
-        const { error: insertError } = await supabase
-          .from("post_reactions")
-          .insert({
-            post_id: postId,
-            user_id: currentUserId,
-            reaction: reactionType,
-          });
-
-        if (insertError) throw insertError;
-      }
-
+    const result = await togglePostReaction({ slug, postId, reaction: reactionType });
+    if (!result.success) {
+      setError(result.error);
+    } else {
       router.refresh();
-    } catch (err: any) {
-      logger.error("Error toggling reaction", err, { postId, reactionType });
-      setError("Failed to update reaction");
-    } finally {
-      setLoadingReaction(null);
     }
-  }, [posts, currentUserId, router]);
+    setLoadingReaction(null);
+  }, [router, slug]);
+
+  const requestDelete = useCallback((postId: string) => {
+    setDeleteDialogPostId(postId);
+    setError("");
+  }, []);
 
   const handleDelete = useCallback(async (postId: string) => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
-
     setDeletingPost(postId);
     setError("");
-
-    try {
-      const supabase = createClient();
-
-      // Hard delete (soft delete via UPDATE was failing due to RLS issues)
-      const { error: deleteError } = await supabase
-        .from("posts")
-        .delete()
-        .eq("id", postId);
-
-      if (deleteError) throw deleteError;
-
+    const result = await deletePost({ slug, postId });
+    if (!result.success) {
+      setError(result.error);
+    } else {
+      setDeleteDialogPostId(null);
       router.refresh();
-    } catch (err: any) {
-      logger.error("Error deleting post", err, { postId });
-      setError("Failed to delete post");
-    } finally {
-      setDeletingPost(null);
     }
-  }, [router]);
+    setDeletingPost(null);
+  }, [router, slug]);
 
   const handleTogglePin = useCallback(async (postId: string, currentlyPinned: boolean) => {
+    setLoadingPin(postId);
     setError("");
-
-    try {
-      const supabase = createClient();
-
-      const { error: updateError } = await supabase
-        .from("posts")
-        .update({ is_pinned: !currentlyPinned })
-        .eq("id", postId);
-
-      if (updateError) throw updateError;
-
+    const result = await setPostPinned({ slug, postId, pinned: !currentlyPinned });
+    if (!result.success) {
+      setError(result.error);
+    } else {
       router.refresh();
-    } catch (err: any) {
-      logger.error("Error toggling pin", err, { postId });
-      setError("Failed to update pin status");
     }
-  }, [router]);
+    setLoadingPin(null);
+  }, [router, slug]);
 
   if (posts.length === 0) {
     return (
@@ -181,8 +136,9 @@ export function PostsClient({
               slug={slug}
               loadingReaction={loadingReaction}
               deletingPost={deletingPost}
+              loadingPin={loadingPin}
               onToggleReaction={toggleReaction}
-              onDelete={handleDelete}
+              onDelete={requestDelete}
               onTogglePin={handleTogglePin}
               onImageClick={setLightboxImage}
             />
@@ -199,8 +155,9 @@ export function PostsClient({
           slug={slug}
           loadingReaction={loadingReaction}
           deletingPost={deletingPost}
+          loadingPin={loadingPin}
           onToggleReaction={toggleReaction}
-          onDelete={handleDelete}
+          onDelete={requestDelete}
           onTogglePin={handleTogglePin}
           onImageClick={setLightboxImage}
         />
@@ -213,6 +170,31 @@ export function PostsClient({
           onClose={() => setLightboxImage(null)}
         />
       )}
+
+      <Modal open={deleteDialogPostId !== null} onOpenChange={(open) => !open && setDeleteDialogPostId(null)}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>Delete this post?</ModalTitle>
+            <ModalDescription>
+              The post will be hidden from the neighborhood board. Its reactions and history will be preserved.
+            </ModalDescription>
+          </ModalHeader>
+          <div className={styles.actionsRight}>
+            <button type="button" className={styles.actionButton} onClick={() => setDeleteDialogPostId(null)} disabled={deletingPost !== null}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={styles.deleteButton}
+              onClick={() => deleteDialogPostId && handleDelete(deleteDialogPostId)}
+              disabled={deletingPost !== null}
+              data-testid="posts-delete-confirm-button"
+            >
+              {deletingPost ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
@@ -224,6 +206,7 @@ interface PostCardProps {
   slug: string;
   loadingReaction: string | null;
   deletingPost: string | null;
+  loadingPin: string | null;
   onToggleReaction: (postId: string, reactionType: PostReactionType) => void;
   onDelete: (postId: string) => void;
   onTogglePin: (postId: string, currentlyPinned: boolean) => void;
@@ -237,6 +220,7 @@ const PostCard = memo(function PostCard({
   slug,
   loadingReaction,
   deletingPost,
+  loadingPin,
   onToggleReaction,
   onDelete,
   onTogglePin,
@@ -329,9 +313,11 @@ const PostCard = memo(function PostCard({
         ) : (
           // Non-authors can interact
           <button
+            type="button"
             onClick={() => onToggleReaction(post.id, "heart")}
             disabled={isHeartLoading}
-            title="Love"
+            aria-label={hasReactedHeart ? "Remove heart reaction" : "React with heart"}
+            aria-pressed={hasReactedHeart}
             className={getHeartClassName()}
           >
             <span className={styles.heartEmoji}>{hasReactedHeart ? "\u2764\uFE0F" : "\uD83E\uDD0D"}</span>
@@ -349,10 +335,12 @@ const PostCard = memo(function PostCard({
           <div className={styles.actionsLeft}>
             {canPin && (
               <button
+                type="button"
                 onClick={() => onTogglePin(post.id, post.is_pinned)}
                 className={styles.actionButton}
+                disabled={loadingPin === post.id}
               >
-                {post.is_pinned ? "Unpin" : "Pin"}
+                {loadingPin === post.id ? "Saving..." : post.is_pinned ? "Unpin" : "Pin"}
               </button>
             )}
           </div>

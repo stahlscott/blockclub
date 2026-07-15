@@ -70,6 +70,27 @@ export async function deleteFile(
 /**
  * Extract storage path from public URL
  */
+export function isAllowedStorageImageUrl(
+  value: string | null | undefined,
+  storageOrigin: string,
+  bucket: "avatars" | "items" | "posts" = "posts",
+): boolean {
+  if (!value) return true;
+
+  try {
+    const url = new URL(value);
+    const origin = new URL(storageOrigin).origin;
+    return (
+      url.origin === origin &&
+      (url.protocol === "https:" || new URL(storageOrigin).protocol === "http:") &&
+      url.pathname.startsWith(`/storage/v1/object/public/${bucket}/`) &&
+      url.pathname.length > `/storage/v1/object/public/${bucket}/`.length
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function getPathFromUrl(
   url: string,
   bucket: "avatars" | "items" | "posts"

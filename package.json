@@ -18,7 +18,8 @@
     "clean": "turbo clean && rm -rf node_modules",
     "test": "turbo test --filter=@blockclub/web --filter=@blockclub/shared",
     "test:unit": "turbo test:unit --filter=@blockclub/web --filter=@blockclub/shared",
-    "test:integration": "turbo test:integration --filter=@blockclub/web",
+    "test:integration": "node scripts/integration-preflight.mjs",
+    "check:integration-preflight": "node scripts/integration-preflight.mjs --check-only",
     "test:e2e": "turbo test:e2e --filter=@blockclub/web",
     "test:coverage": "turbo test:coverage --filter=@blockclub/web --filter=@blockclub/shared"
   },

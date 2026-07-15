@@ -20,6 +20,9 @@ export const MAX_LENGTHS = {
   // Post fields
   postContent: 2000,
 
+  // Loan fields
+  loanNotes: 1000,
+
   // General
   address: 200,
   phone: 20,

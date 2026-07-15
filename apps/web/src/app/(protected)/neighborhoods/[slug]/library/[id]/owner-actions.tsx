@@ -1,17 +1,30 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalHeader,
+  ModalTitle,
+  ModalTrigger,
+} from "@/components/Modal";
+import { softDeleteItem } from "./owner-mutation-actions";
 import { formatDateLocal, displayDateLocal, getDaysFromNow } from "@/lib/date-utils";
 import {
   approveLoan,
+  activateLoan,
   declineLoan,
   markLoanReturned,
   type LoanActionState,
 } from "./loan-actions";
+import {
+  toggleItemAvailability,
+  updateLoanDueDate,
+  type OwnerMutationState,
+} from "./owner-mutation-actions";
 import styles from "./item-detail.module.css";
 
 interface Props {
@@ -39,6 +52,7 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
   // Local UI state
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Default due date is 2 weeks from today, or use existing due date for active loans
   const defaultDueDate = activeLoan?.due_date || formatDateLocal(getDaysFromNow(14));
@@ -54,6 +68,11 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
     FormData
   >(approveLoan, {});
 
+  const [activateState, activateAction, activatePending] = useActionState<
+    LoanActionState,
+    FormData
+  >(activateLoan, {});
+
   const [declineState, declineAction, declinePending] = useActionState<
     LoanActionState,
     FormData
@@ -63,90 +82,29 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
     LoanActionState,
     FormData
   >(markLoanReturned, {});
+  const [dueDateState, dueDateAction, dueDatePending] = useActionState<OwnerMutationState, FormData>(updateLoanDueDate, {});
+  const [availabilityState, availabilityAction, availabilityPending] = useActionState<OwnerMutationState, FormData>(toggleItemAvailability, {});
 
   // Combined loading state
-  const isActionPending = approvePending || declinePending || returnPending || loading;
+  const isActionPending = approvePending || activatePending || declinePending || returnPending || dueDatePending || availabilityPending || loading;
+
+  const [deleteState, deleteAction, deletePending] = useActionState<OwnerMutationState, FormData>(softDeleteItem, {});
 
   // Combined error state
-  const error = localError || approveState.error || declineState.error || returnState.error;
+  const error = localError || approveState.error || activateState.error || declineState.error || returnState.error || dueDateState.error || availabilityState.error || deleteState.error;
 
-  // Client-side handlers for non-notification actions
-  async function handleUpdateDueDate() {
-    setLocalError("");
-    setLoading(true);
-
-    try {
-      const supabase = createClient();
-
-      const { error: updateError } = await supabase
-        .from("loans")
-        .update({ due_date: noDueDate ? null : dueDate })
-        .eq("id", activeLoan!.id);
-
-      if (updateError) throw updateError;
-
-      setIsEditingDueDate(false);
-      router.refresh();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
-      logger.error("Error updating due date", err, { itemId: item.id });
-      setLocalError(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleToggleAvailability() {
-    setLocalError("");
-    setLoading(true);
-
-    try {
-      const supabase = createClient();
-      const newStatus = item.availability === "available" ? "unavailable" : "available";
-
-      const { error: updateError } = await supabase
-        .from("items")
-        .update({ availability: newStatus })
-        .eq("id", item.id);
-
-      if (updateError) throw updateError;
-
-      router.refresh();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
-      logger.error("Error updating availability", err, { itemId: item.id });
-      setLocalError(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this item?")) return;
-
-    setLocalError("");
-    setLoading(true);
-
-    try {
-      const supabase = createClient();
-
-      const { error: deleteError } = await supabase
-        .from("items")
-        .delete()
-        .eq("id", item.id);
-
-      if (deleteError) throw deleteError;
-
+  useEffect(() => {
+    if (deleteState.success) {
       router.push(`/neighborhoods/${slug}/library`);
       router.refresh();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
-      logger.error("Error deleting item", err, { itemId: item.id });
-      setLocalError(message);
-    } finally {
-      setLoading(false);
     }
-  }
+    if (deleteState.error) setLoading(false);
+  }, [deleteState.error, deleteState.success, router, slug]);
+
+  const handleDelete = () => {
+    setLocalError("");
+    setDeleteDialogOpen(false);
+  };
 
   return (
     <div className={styles.container}>
@@ -162,32 +120,6 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
           {activeLoan.notes && (
             <p className={styles.requestNotes}>&ldquo;{activeLoan.notes}&rdquo;</p>
           )}
-          <div className={styles.dueDateSection}>
-            <label htmlFor="dueDate" className={styles.dueDateLabel}>
-              Due date
-            </label>
-            <input
-              type="date"
-              id="dueDate"
-              name="dueDate"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              min={formatDateLocal(new Date())}
-              className={styles.dueDateInput}
-              style={{ opacity: noDueDate ? 0.5 : 1 }}
-              disabled={noDueDate}
-              form="approve-form"
-            />
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={noDueDate}
-                onChange={(e) => setNoDueDate(e.target.checked)}
-                className={styles.checkbox}
-              />
-              No due date (return when done)
-            </label>
-          </div>
           <div className={styles.requestActions}>
             {/* Decline form */}
             <form action={declineAction}>
@@ -209,8 +141,6 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               <input type="hidden" name="loanId" value={activeLoan.id} />
               <input type="hidden" name="itemId" value={item.id} />
               <input type="hidden" name="slug" value={slug} />
-              <input type="hidden" name="dueDate" value={dueDate} />
-              <input type="hidden" name="noDueDate" value={noDueDate ? "true" : "false"} />
               <button
                 type="submit"
                 className={styles.approveButton}
@@ -221,6 +151,55 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
               </button>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Approved loan awaiting owner-confirmed pickup */}
+      {activeLoan && activeLoan.status === "approved" && (
+        <div className={styles.requestCard}>
+          <h3 className={styles.requestTitle}>Approved — confirm pickup</h3>
+          <p className={styles.requestText}>
+            Confirm when <strong>{activeLoan.borrower?.name}</strong> has picked up this item.
+          </p>
+          <div className={styles.dueDateSection}>
+            <label htmlFor="pickupDueDate" className={styles.dueDateLabel}>Due date</label>
+            <input
+              type="date"
+              id="pickupDueDate"
+              name="dueDate"
+              value={dueDate}
+              onChange={(event) => setDueDate(event.target.value)}
+              min={formatDateLocal(new Date())}
+              className={styles.dueDateInput}
+              style={{ opacity: noDueDate ? 0.5 : 1 }}
+              disabled={noDueDate}
+              form="activate-form"
+            />
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={noDueDate}
+                onChange={(event) => setNoDueDate(event.target.checked)}
+                className={styles.checkbox}
+              />
+              No due date (return when done)
+            </label>
+          </div>
+          <form id="activate-form" action={activateAction}>
+            <input type="hidden" name="loanId" value={activeLoan.id} />
+            <input type="hidden" name="itemId" value={item.id} />
+            <input type="hidden" name="slug" value={slug} />
+            <input type="hidden" name="dueDate" value={dueDate} />
+            <input type="hidden" name="noDueDate" value={noDueDate ? "true" : "false"} />
+            <button
+              type="submit"
+              className={styles.approveButton}
+              disabled={isActionPending}
+              data-testid="library-item-pickup-button"
+            >
+              {activatePending ? "Confirming pickup..." : "Confirm Pickup"}
+            </button>
+          </form>
         </div>
       )}
 
@@ -271,13 +250,20 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={handleUpdateDueDate}
-                  className={styles.saveDueDateButton}
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save"}
-                </button>
+                <form action={dueDateAction}>
+                  <input type="hidden" name="loanId" value={activeLoan.id} />
+                  <input type="hidden" name="itemId" value={item.id} />
+                  <input type="hidden" name="slug" value={slug} />
+                  <input type="hidden" name="dueDate" value={dueDate} />
+                  <input type="hidden" name="noDueDate" value={noDueDate ? "true" : "false"} />
+                  <button
+                    type="submit"
+                    className={styles.saveDueDateButton}
+                    disabled={isActionPending}
+                  >
+                    {dueDatePending ? "Saving..." : "Save"}
+                  </button>
+                </form>
               </div>
             </div>
           ) : (
@@ -325,24 +311,62 @@ export function OwnerActions({ item, slug, activeLoan }: Props) {
         </Link>
 
         {!activeLoan && item.availability !== "borrowed" && (
-          <button
-            onClick={handleToggleAvailability}
-            className={styles.toggleButton}
-            disabled={loading}
-            data-testid="library-item-toggle-availability-button"
-          >
-            {item.availability === "available" ? "Mark Unavailable" : "Mark Available"}
-          </button>
+          <form action={availabilityAction}>
+            <input type="hidden" name="itemId" value={item.id} />
+            <input type="hidden" name="slug" value={slug} />
+            <button
+              type="submit"
+              className={styles.toggleButton}
+              disabled={isActionPending}
+              data-testid="library-item-toggle-availability-button"
+            >
+              {availabilityPending ? "Saving..." : item.availability === "available" ? "Mark Unavailable" : "Mark Available"}
+            </button>
+          </form>
         )}
 
-        <button
-          onClick={handleDelete}
-          className={styles.deleteButton}
-          disabled={loading || !!activeLoan}
-          data-testid="library-item-delete-button"
-        >
-          Delete Item
-        </button>
+        <Modal open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <ModalTrigger asChild>
+            <button
+              type="button"
+              className={styles.deleteButton}
+              disabled={loading || !!activeLoan || deletePending}
+              data-testid="library-item-delete-button"
+            >
+              Delete Item
+            </button>
+          </ModalTrigger>
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>Delete {item.id ? "this item" : "item"}?</ModalTitle>
+              <ModalDescription>
+                The item will be removed from the library. Existing loan history will be preserved; open requests will be cancelled.
+              </ModalDescription>
+            </ModalHeader>
+            <div className={styles.requestActions}>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={deletePending}
+              >
+                Cancel
+              </button>
+              <form action={deleteAction} onSubmit={handleDelete}>
+                <input type="hidden" name="itemId" value={item.id} />
+                <input type="hidden" name="slug" value={slug} />
+                <button
+                  type="submit"
+                  className={styles.deleteButton}
+                  disabled={deletePending}
+                  data-testid="library-item-delete-confirm-button"
+                >
+                  {deletePending ? "Deleting..." : "Delete Item"}
+                </button>
+              </form>
+            </div>
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   );
