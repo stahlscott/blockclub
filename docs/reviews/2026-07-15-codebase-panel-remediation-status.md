@@ -9,7 +9,7 @@
 
 The remediation has a working database/RLS and integration-test foundation, but the full remediation plan is not complete. The previous membership-moderation blocker is resolved. The repository is at a safe stopping point for a new implementation session focused on query centralization and protected-mutation inventory closure.
 
-The current working tree is intentionally an uncommitted checkpoint. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
+The current working tree includes a committed Phase 4A checkpoint. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
 
 ## Verified checkpoint
 
@@ -107,7 +107,7 @@ Stop when all intended application query consumers are migrated, the deprecated 
 - Historical review reports are immutable.
 - The pre-remediation mutation inventory is intentionally historical and should not be edited to make it appear current.
 - Migrations through `00030` are additive and pass clean local reset.
-- The working tree contains the remediation implementation and test changes but has not been committed by this checkpoint.
+- The remediation foundation is committed at `3693285`; the Phase 4A read migration is committed at `bc699bc`.
 - The previous saved goal is terminally marked blocked in session metadata. Continue with a new bounded goal for the next session rather than relying on that stale goal state.
 
 ## Completion standard
