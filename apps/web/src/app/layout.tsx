@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { type MembershipWithNeighborhoodRow, hasNeighborhood } from "@/lib/supabase/queries";
+import { type MembershipWithNeighborhood as MembershipWithNeighborhoodRow, hasNeighborhood } from "@/lib/queries";
 import "./globals.css";
 
 const nunito = Nunito({

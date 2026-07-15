@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getPostsByNeighborhood } from "@/lib/queries";
 import { PostsClient } from "./posts-client";
 import type { PostReactionType } from "@blockclub/shared";
 import styles from "./posts-page.module.css";
@@ -14,21 +15,7 @@ export default async function PostsPage({ params }: Props) {
   const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  // Fetch posts with author info
-  // Note: RLS handles filtering deleted/expired posts for regular users
-  // Admin client bypasses RLS for staff admins
-  const { data: posts } = await supabase
-    .from("posts")
-    .select(
-      `
-      *,
-      author:users!author_id(id, name, avatar_url),
-      editor:users!edited_by(id, name)
-    `
-    )
-    .eq("neighborhood_id", neighborhood.id)
-    .order("is_pinned", { ascending: false })
-    .order("created_at", { ascending: false });
+  const { data: posts } = await getPostsByNeighborhood(supabase, neighborhood.id);
 
   // Fetch all reactions for these posts
   const postIds = posts?.map((p) => p.id) || [];

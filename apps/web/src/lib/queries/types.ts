@@ -12,6 +12,7 @@ import type {
   Loan,
   Post,
   NotificationPreferences,
+  User,
 } from "@blockclub/shared";
 
 // ============================================================================
@@ -85,9 +86,10 @@ export interface LoanWithItemAndOwner extends Loan {
 // POST QUERY TYPES
 // ============================================================================
 
-/** Post with author info */
+/** Post with author and optional editor info */
 export interface PostWithAuthor extends Post {
   author: UserSummary;
+  editor?: User | null;
 }
 
 // ============================================================================

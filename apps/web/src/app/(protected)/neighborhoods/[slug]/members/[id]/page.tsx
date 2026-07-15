@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getItemsByOwner, getUserById, getActiveMembership } from "@/lib/queries";
 import { RoleActions } from "./role-actions";
 import { MoveOutActions } from "./move-out-actions";
 import { ProfileGallery } from "@/components/ProfileGallery";
@@ -23,38 +24,15 @@ export default async function MemberProfilePage({ params }: Props) {
   const { user, neighborhood, membership, isStaffAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  // Fetch the member's profile
-  const { data: member } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [{ data: member }, { data: memberMembership }, { data: items }] = await Promise.all([
+    getUserById(supabase, id),
+    getActiveMembership(supabase, neighborhood.id, id),
+    getItemsByOwner(supabase, neighborhood.id, id, { limit: 6 }),
+  ]);
 
-  if (!member) {
+  if (!member || !memberMembership) {
     notFound();
   }
-
-  // Fetch member's membership for this neighborhood
-  const { data: memberMembership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", id)
-    .eq("status", "active")
-    .single();
-
-  if (!memberMembership) {
-    notFound();
-  }
-
-  // Fetch member's items in this neighborhood
-  const { data: items } = await supabase
-    .from("items")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("owner_id", id)
-    .order("created_at", { ascending: false })
-    .limit(6);
 
   const isOwnProfile = user.id === id;
 

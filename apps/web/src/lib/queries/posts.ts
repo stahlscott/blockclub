@@ -12,7 +12,8 @@ type Client = SupabaseClient<Database>;
 // Standard select for posts with author
 const POST_WITH_AUTHOR_SELECT = `
   *,
-  author:users!posts_author_id_fkey(id, name, avatar_url)
+  author:users!posts_author_id_fkey(id, name, avatar_url),
+  editor:users!edited_by(id, name, avatar_url)
 ` as const;
 
 /**

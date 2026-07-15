@@ -73,7 +73,7 @@ export async function getItemsByOwner(
   client: Client,
   neighborhoodId: string,
   ownerId: string,
-  options?: { includeUnavailable?: boolean }
+  options?: { includeUnavailable?: boolean; limit?: number }
 ) {
   let query = client
     .from("items")
@@ -85,6 +85,10 @@ export async function getItemsByOwner(
 
   if (!options?.includeUnavailable) {
     query = query.in("availability", ["available", "borrowed"]);
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
   }
 
   const result = await query;

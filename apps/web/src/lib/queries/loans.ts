@@ -63,7 +63,7 @@ export async function getLoansForOwner(
 export async function getLoansForBorrower(
   client: Client,
   borrowerId: string,
-  options?: { status?: LoanStatus | LoanStatus[] }
+  options?: { status?: LoanStatus | LoanStatus[]; neighborhoodId?: string }
 ) {
   let query = client
     .from("loans")
@@ -77,6 +77,10 @@ export async function getLoansForBorrower(
       ? options.status
       : [options.status];
     query = query.in("status", statuses);
+  }
+
+  if (options?.neighborhoodId) {
+    query = query.eq("item.neighborhood_id", options.neighborhoodId);
   }
 
   const result = await query;
@@ -107,17 +111,71 @@ export async function getLoanById(client: Client, loanId: string) {
  * Get active loan for a specific item (if any).
  * Used to check if an item is currently borrowed.
  */
-export async function getActiveLoanForItem(client: Client, itemId: string) {
-  const result = await client
+export async function getActiveLoanForItem(
+  client: Client,
+  itemId: string,
+  neighborhoodId?: string,
+) {
+  let query = client
     .from("loans")
     .select(LOAN_WITH_DETAILS_SELECT)
     .eq("item_id", itemId)
-    .in("status", ["approved", "active"])
-    .is("deleted_at", null)
-    .single();
+    .in("status", ["requested", "approved", "active"])
+    .is("deleted_at", null);
+
+  if (neighborhoodId) {
+    query = query.eq("item.neighborhood_id", neighborhoodId);
+  }
+
+  const result = await query.maybeSingle();
 
   return result as {
     data: LoanWithDetails | null;
+    error: typeof result.error;
+  };
+}
+
+/** Get a borrower's live request for one item within a neighborhood. */
+export async function getBorrowerLoanForItem(
+  client: Client,
+  itemId: string,
+  borrowerId: string,
+  neighborhoodId?: string,
+) {
+  let query = client
+    .from("loans")
+    .select(LOAN_WITH_ITEM_AND_OWNER_SELECT)
+    .eq("item_id", itemId)
+    .eq("borrower_id", borrowerId)
+    .in("status", ["requested", "approved", "active"])
+    .is("deleted_at", null);
+
+  if (neighborhoodId) {
+    query = query.eq("item.neighborhood_id", neighborhoodId);
+  }
+
+  const result = await query.maybeSingle();
+  return result as {
+    data: LoanWithItemAndOwner | null;
+    error: typeof result.error;
+  };
+}
+
+/** Get live reservations for an owner's items. */
+export async function getReservationsForItems(client: Client, itemIds: string[]) {
+  if (itemIds.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const result = await client
+    .from("loans")
+    .select("item_id, status")
+    .in("item_id", itemIds)
+    .eq("status", "requested")
+    .is("deleted_at", null);
+
+  return result as {
+    data: Array<{ item_id: string; status: LoanStatus }> | null;
     error: typeof result.error;
   };
 }

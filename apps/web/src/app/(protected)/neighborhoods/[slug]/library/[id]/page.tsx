@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getBorrowerLoanForItem, getActiveLoanForItem, getItemById } from "@/lib/queries";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   getCategoryEmoji,
@@ -27,17 +28,9 @@ export default async function ItemDetailPage({ params }: Props) {
   const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  // Fetch item with owner
-  // Note: Use FK hint for ambiguous relationship (items has multiple user FKs)
-  const { data: item } = await supabase
-    .from("items")
-    .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url, phone)")
-    .eq("id", id)
-    .eq("neighborhood_id", neighborhood.id)
-    .is("deleted_at", null)
-    .single();
+  const { data: item } = await getItemById(supabase, id);
 
-  if (!item) {
+  if (!item || item.neighborhood_id !== neighborhood.id) {
     notFound();
   }
 
@@ -47,27 +40,10 @@ export default async function ItemDetailPage({ params }: Props) {
   // impersonation-aware mutation boundary is implemented.
   const canRemoveItem = isNeighborhoodAdmin && !isOwner;
 
-  // Fetch active loan for this item
-  // Note: Use FK hint for ambiguous relationship (loans has multiple user FKs)
-  const { data: activeLoan } = await supabase
-    .from("loans")
-    .select("*, borrower:users!loans_borrower_id_fkey(id, name)")
-    .eq("item_id", id)
-    .eq("items.neighborhood_id", neighborhood.id)
-    .in("status", ["requested", "approved", "active"])
-    .is("deleted_at", null)
-    .single();
-
-  // Check if current user has a pending request
-  const { data: userRequest } = await supabase
-    .from("loans")
-    .select("*")
-    .eq("item_id", id)
-    .eq("borrower_id", user.id)
-    .eq("items.neighborhood_id", neighborhood.id)
-    .in("status", ["requested", "approved", "active"])
-    .is("deleted_at", null)
-    .single();
+  const [{ data: activeLoan }, { data: userRequest }] = await Promise.all([
+    getActiveLoanForItem(supabase, id, neighborhood.id),
+    getBorrowerLoanForItem(supabase, id, user.id, neighborhood.id),
+  ]);
 
   return (
     <div className={styles.pageContainer}>

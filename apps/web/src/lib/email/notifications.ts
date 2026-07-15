@@ -10,7 +10,7 @@ import {
   type LoanWithBorrowerRow,
   type LoanReturnedRow,
   type OwnerRow,
-} from "@/lib/supabase/queries";
+} from "@/lib/queries";
 import { logger } from "@/lib/logger";
 import { displayDateLocal } from "@/lib/date-utils";
 import { sendEmail } from "./service";
