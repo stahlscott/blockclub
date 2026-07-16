@@ -12,7 +12,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import type { User } from "@blockclub/shared";
 
 const IMPERSONATION_COOKIE = "bc_impersonating";
@@ -37,7 +37,8 @@ async function getImpersonationContextImpl(): Promise<ImpersonationContext | nul
     cookies(),
   ]);
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  const adminSupabase = createAdminClient();
+  if (!authUser || !(await isStaffAdminUser(adminSupabase, authUser.id))) {
     return null;
   }
 
@@ -53,8 +54,7 @@ async function getImpersonationContextImpl(): Promise<ImpersonationContext | nul
     };
   }
 
-  // Fetch impersonated user data using admin client (bypasses RLS)
-  const adminSupabase = createAdminClient();
+  // Fetch impersonated user data using the already-created admin client.
   const { data: impersonatedUser } = await adminSupabase
     .from("users")
     .select("*")

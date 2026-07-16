@@ -65,7 +65,7 @@ The design calls for a database-maintained `staff_admins` allowlist, synchroniza
 
 ### Concurrency and rollback
 
-The partial unique reservation index, row locks, and loan invariants are present. The named concurrent duplicate-request, activation-race, stale-transition, and injected-failure rollback tests are not all present in the current 39-test suite. These are required before declaring the database boundary complete.
+The partial unique reservation index, row locks, and loan invariants are present. The named concurrent duplicate-request, activation-race, stale-transition, and injected-failure rollback tests are not all present in the current 44-test integration suite. These are required before declaring the database boundary complete.
 
 ### UI and repository gates
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -31,8 +31,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Only staff admins can delete neighborhoods
-  if (!isStaffAdmin(user.email)) {
+  // Only database-allowlisted staff admins can delete neighborhoods
+  if (!(await isStaffAdminUser(createAdminClient(), user.id))) {
     logger.warn("Non-staff admin attempted to delete neighborhood", {
       userId: user.id,
       neighborhoodId,
@@ -171,8 +171,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Only staff admins can update neighborhoods via this endpoint
-  if (!isStaffAdmin(user.email)) {
+  // Only database-allowlisted staff admins can update neighborhoods via this endpoint
+  if (!(await isStaffAdminUser(createAdminClient(), user.id))) {
     logger.warn("Non-staff admin attempted to update neighborhood", {
       userId: user.id,
       neighborhoodId,

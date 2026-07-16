@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdmin, isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 export interface UserMembership {
@@ -52,7 +52,7 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  if (!authUser || !(await isStaffAdminUser(createAdminClient(), authUser.id))) {
     logger.warn("Unauthorized user search attempt", {
       userId: authUser?.id,
       email: authUser?.email,
@@ -169,7 +169,7 @@ export async function getAllUsers(
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  if (!authUser || !(await isStaffAdminUser(createAdminClient(), authUser.id))) {
     logger.warn("Unauthorized get all users attempt", {
       userId: authUser?.id,
       email: authUser?.email,

@@ -2,7 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
 
@@ -15,7 +15,7 @@ export async function approveMembership(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isStaffAdmin(user.email)) {
+  if (!user || !(await isStaffAdminUser(createAdminClient(), user.id))) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -43,7 +43,7 @@ export async function declineMembership(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isStaffAdmin(user.email)) {
+  if (!user || !(await isStaffAdminUser(createAdminClient(), user.id))) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -71,7 +71,7 @@ export async function removeMembership(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isStaffAdmin(user.email)) {
+  if (!user || !(await isStaffAdminUser(createAdminClient(), user.id))) {
     return { success: false, error: "Unauthorized" };
   }
 

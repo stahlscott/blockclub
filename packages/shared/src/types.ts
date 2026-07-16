@@ -151,6 +151,15 @@ export interface Membership {
   status: MembershipStatus;
   joined_at: string;
   deleted_at: string | null;
+  staff_actor_id?: string | null;
+}
+
+export interface StaffAdmin {
+  user_id: string;
+  email: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // ============================================================================
@@ -439,6 +448,11 @@ export interface Database {
         Insert: MembershipInsert;
         Update: MembershipUpdate;
       };
+      staff_admins: {
+        Row: StaffAdmin;
+        Insert: Pick<StaffAdmin, "user_id" | "email"> & Partial<Pick<StaffAdmin, "active">>;
+        Update: Partial<Pick<StaffAdmin, "email" | "active">>;
+      };
       items: {
         Row: Item;
         Insert: ItemInsert;
@@ -512,6 +526,19 @@ export interface Database {
       };
       moderate_pending_membership: {
         Args: { p_membership_id: string; p_decision: string };
+        Returns: MembershipModerationResult;
+      };
+      is_staff_admin: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
+      staff_moderate_pending_membership: {
+        Args: {
+          p_membership_id: string;
+          p_effective_user_id: string;
+          p_staff_actor_id: string;
+          p_decision: string;
+        };
         Returns: MembershipModerationResult;
       };
     };

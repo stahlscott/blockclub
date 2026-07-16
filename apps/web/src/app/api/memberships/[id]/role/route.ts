@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  const userIsStaffAdmin = isStaffAdmin(user.email);
+  const userIsStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
 
   // Use admin client for staff admins to bypass RLS (they aren't members of neighborhoods)
   const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;

@@ -1,7 +1,7 @@
 # Block Club Codebase Panel Remediation Design
 
 **Date:** 2026-07-14  
-**Status:** Checkpoint after Phase 2 and the initial Phase 3 slices; Phase 3 is partial and Phases 4–6 remain open  
+**Status:** Phase 4A checkpoint complete; remaining work is sequenced into eight bounded implementation sessions
 **Current status report:** `docs/reviews/2026-07-15-codebase-panel-remediation-status.md`  
 **Historical inputs:** `docs/reviews/2026-07-14-codebase-panel-review.md` and `docs/reviews/2026-07-14-codebase-panel-review-followup.md`
 
@@ -159,9 +159,149 @@ The integration command must fail before Vitest when local Supabase prerequisite
 
 ## Current checkpoint
 
-The implementation is paused after the core RLS/schema and initial high-risk mutation slices. The local database reset, authenticated integration suite, unit suite, typecheck, and lint are passing. The next bounded session is Phase 4A: migrate the known leak-prone reads to `apps/web/src/lib/queries/`, add admin-client soft-delete/tenant tests, and classify every remaining protected direct write before adding the static inventory checker.
+The remediation foundation and Phase 4A read slice are committed. Migrations through `00030`, the authenticated local integration harness, core ordinary-user lifecycle RPCs, move-out/rejoin, item/post soft deletion, pending membership moderation, and the identified Phase 4A reads are implemented. The latest verified checkpoint records 44 integration tests across 9 files, 269 unit tests, typecheck, and lint passing. The deprecated query shim has no application consumers but remains as a compatibility file.
 
-The current phase disposition, verification evidence, open risks, and stopping point are maintained in `docs/reviews/2026-07-15-codebase-panel-remediation-status.md`. This status report is a checkpoint, not a declaration of remediation completion. The historical mutation inventory remains unchanged because it records pre-remediation behavior.
+The remediation is not release-ready. The highest-risk gaps are the database-backed staff identity model, direct service-role staff membership mutations, the sequential physical neighborhood teardown route, remaining protected writes, missing concurrency/failure-injection evidence, native browser dialogs, and absent executable release/documentation gates.
+
+The current phase disposition and evidence are maintained in `docs/reviews/2026-07-15-codebase-panel-remediation-status.md`. Historical review reports and the pre-remediation mutation inventory remain unchanged.
+
+## Remaining implementation sequence
+
+The remaining work is organized into eight bounded sessions. Security and data-integrity dependencies take priority over the original numeric phase order.
+
+### Session 1 — Staff authorization foundation
+
+**Goal:** Implement the database-backed staff identity model required by the authorization design.
+
+**Scope:**
+
+- add a database-maintained `staff_admins` allowlist after migration `00030`;
+- define an explicit service-role provisioning/synchronization path from `STAFF_ADMIN_EMAILS`; the command is `npm run sync:staff-admins` and fails closed when a configured email has no Auth user;
+- add database validation for the authenticated staff actor, effective user, actor/target relationship, and target neighborhood;
+- add the first staff-only membership moderation or administrative move-out function using `SECURITY DEFINER`, `SET search_path = public`, exact signatures, and explicit grants;
+- preserve `staff_actor_id` and effective-user audit attribution;
+- deny direct anon/authenticated invocation of every staff-only signature.
+
+**Required verification:** unallowlisted actor denial, forged effective-user denial, valid actor/target audit attribution, missing-ID denial, browser-role RPC denial, clean local reset, integration suite, typecheck, and lint.
+
+**Stopping point:** Stop when the database can independently validate one real staff operation and no generic service-role mutation function is exposed to browser roles.
+
+### Session 2 — Staff membership operations and physical teardown
+
+**Goal:** Remove the highest-risk remaining service-role mutation paths.
+
+**Scope:**
+
+- migrate staff membership approve, decline, remove, reactivate, and role-change paths to the Session 1 boundary;
+- define distinct approve, decline, remove, move-out, promote, and demote semantics;
+- remove `as never` from the migrated staff paths and enforce affected-row results;
+- resolve `apps/web/src/app/api/admin/neighborhoods/[id]/route.ts` by removing/deprecating physical teardown or replacing its sequential deletes with one transactional/resumable staff-only operation;
+- add audit, confirmation, idempotency, and recovery behavior if teardown is retained.
+
+**Required verification:** staff allowlist enforcement, zero-row failure, immutable membership identity/tenant fields, preserved history, role authorization, teardown denial for ordinary users, and injected teardown rollback/recovery.
+
+**Stopping point:** Stop when no sequential destructive teardown remains and staff membership mutations no longer perform unclassified direct service-role writes.
+
+**Decision:** Prefer deprecating physical teardown unless a current operational requirement justifies the transactional implementation cost.
+
+### Session 3 — Remaining protected writes and authoritative inventory
+
+**Goal:** Make every production write fit an explicit, testable boundary.
+
+**Scope:**
+
+- classify item editing, neighborhood settings, neighborhood creation, signup/auth callback membership creation, join operations, item/post creation, due-date/availability commands, and neighborhood switching;
+- assign each write to a named RPC/server command, a narrow authenticated RLS write with integration coverage, a staff-only exception, or a test-only fixture path;
+- require authoritative target state, tenant scope, affected-row confirmation, and side-effect gating;
+- remove remaining unsafe mutation casts;
+- create a current approved mutation-boundary inventory without rewriting the historical pre-remediation inventory.
+
+**Required verification:** zero-row failure, cross-neighborhood denial, deleted-row non-resurrection, immutable relationship fields, impersonated actor/effective-user behavior, and no side effects after denial/conflict.
+
+**Stopping point:** Stop when every production write is classified and every approved direct RLS write has a named integration test. The inventory must be accurate enough to support the static checker in Session 7.
+
+### Session 4 — Complete query centralization
+
+**Goal:** Finish the intended application read migration and remove the compatibility shim.
+
+**Scope:**
+
+- migrate dashboard data/page, directory, pending-member, protected-layout, settings, waiting/auth membership, library listing, post-edit, staff/admin, and notification reads where centralized contracts fit;
+- add explicit dashboard, pending-membership, membership-gate, reaction, notification, and staff/history query helpers;
+- require service-role/admin queries to apply explicit soft-delete, neighborhood, and effective-user predicates;
+- delete `apps/web/src/lib/supabase/queries.ts` after grep and typecheck prove it has no consumers.
+
+**Required verification:** admin-client soft-delete tests for every user-facing query family, dashboard and notification tenant tests, pending-membership filtering, no deprecated imports, typecheck, lint, and integration tests.
+
+**Stopping point:** Stop when intended application reads use `@/lib/queries`, the compatibility shim is removed, and migrated admin-client reads have explicit tenant/soft-delete evidence.
+
+### Session 5 — Database concurrency, rollback, and policy inspection
+
+**Goal:** Complete adversarial database evidence before UI cleanup.
+
+**Scope:**
+
+- test concurrent duplicate loan requests, concurrent activation, stale transitions, cancellation/activation races, move-out/lifecycle races, and item-removal races;
+- add injected failure tests for move-out, lifecycle, item removal, and retained teardown operations;
+- add committed policy/function/index/grant inspection assertions;
+- verify the old broad loan policy and ordinary hard-delete policies are absent, partial unique indexes exist, and staff RPC grants are service-role only.
+
+**Stopping point:** Stop when every race produces a deterministic success/conflict outcome, failure injection proves transaction rollback, and clean reset plus policy inspection and integration tests pass.
+
+### Session 6 — Accessibility and interaction cleanup
+
+**Goal:** Replace native browser dialogs and close confirmed interaction/accessibility gaps.
+
+**Scope:**
+
+- replace remaining `confirm()` and `alert()` usage in member move-out, role changes, settings leave-neighborhood, staff impersonation, staff moderation, and staff user search;
+- use the existing accessible modal pattern with focus management, Escape behavior, accessible names, pending state, inline errors, and stable test IDs;
+- verify library search labeling, reaction pressed state, human-readable membership/loan status copy, approved borrower pickup guidance, and absence of borrower pickup mutation.
+
+**Stopping point:** Stop when no application `confirm()` or `alert()` remains and focused render plus targeted Playwright accessibility tests pass.
+
+### Session 7 — Maintainability and executable repository gates
+
+**Goal:** Turn architectural expectations into executable checks.
+
+**Scope:**
+
+- add and wire `scripts/check-static-inventory.ts`, `scripts/check-component-sizes.ts`, a component waiver file, `scripts/check-doc-links.ts`, and `scripts/check-finding-dispositions.ts`;
+- enforce the authoritative mutation inventory from Session 3;
+- split or waive oversized dashboard/profile/settings/staff components;
+- remove stale/debug/dead code, forbidden mutation casts, deprecated imports, and touched design-token drift.
+
+**Stopping point:** Stop when all four repository checks, lint, typecheck, and focused component tests pass. Do not encode the static mutation gate before Session 3 produces a trustworthy inventory.
+
+### Session 8 — Architecture documentation, release matrix, and final review
+
+**Goal:** Complete release verification and determine whether remediation can be declared finished.
+
+**Scope:**
+
+- add `docs/architecture/data-integrity-and-authorization.md`;
+- update `README.md`, `SELF-HOSTING.md`, and approved repository guidance with durable operational rules;
+- add the final F1–F38/N1–N9 disposition report with code, migration, test, and documentation evidence;
+- run the complete clean-reset release matrix;
+- perform a fresh adversarial review against both historical reports and resolve or rebut every remaining Critical/Important result.
+
+**Required release matrix:**
+
+```text
+supabase db reset --local
+npm run lint
+npm run typecheck
+npm run test:unit
+npm run test:integration
+npm run test:e2e -- <targeted remediation specs>
+npm run build:web
+npm run check:static-inventory
+npm run check:component-sizes
+npm run check:doc-links
+npm run check:finding-dispositions
+```
+
+**Stopping point:** Declare completion only when every acceptance criterion has code, test, and documentation evidence, the full matrix passes, the final adversarial review is resolved, and remaining operational risks are explicit.
 
 ## Required Phase 0 evidence
 

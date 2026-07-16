@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const neighborhoodId = targetMembership.neighborhood_id;
   const targetUserId = targetMembership.user_id;
   const isOwnMembership = targetUserId === user.id;
-  const userIsStaffAdmin = isStaffAdmin(user.email);
+  const userIsStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
 
   // Check if current user is a neighborhood admin
   const { data: userMembership } = await supabase

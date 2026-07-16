@@ -6,13 +6,26 @@
 // - Ability to demote admins to member in any neighborhood
 // - Impersonating users to see the app from their perspective
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+type StaffLookupClient = SupabaseClient;
 import { env } from "./env";
 
 /**
- * Check if a user is a staff admin based on their email.
- * Staff admins are identified by email in the STAFF_ADMIN_EMAILS env var.
+ * Legacy synchronous check retained only for non-authoritative display paths.
+ * Request authorization must use isStaffAdminUser(), which reads the database
+ * allowlist provisioned from STAFF_ADMIN_EMAILS.
  */
 export function isStaffAdmin(email: string | null | undefined): boolean {
   return env.STAFF_ADMIN_EMAILS.includes(email || "");
+}
+
+export async function isStaffAdminUser(
+  supabase: StaffLookupClient,
+  userId: string | null | undefined,
+): Promise<boolean> {
+  if (!userId) return false;
+  const { data, error } = await supabase.rpc("is_staff_admin", { p_user_id: userId });
+  return !error && data === true;
 }
 

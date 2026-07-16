@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -30,7 +30,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   }
 
   // Only staff admins can force-remove memberships
-  if (!isStaffAdmin(user.email)) {
+  if (!(await isStaffAdminUser(createAdminClient(), user.id))) {
     logger.warn("Non-staff admin attempted to force-remove membership", {
       userId: user.id,
       targetUserId: userId,

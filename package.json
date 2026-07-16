@@ -20,6 +20,7 @@
     "test:unit": "turbo test:unit --filter=@blockclub/web --filter=@blockclub/shared",
     "test:integration": "node scripts/integration-preflight.mjs",
     "check:integration-preflight": "node scripts/integration-preflight.mjs --check-only",
+    "sync:staff-admins": "node scripts/sync-staff-admins.mjs",
     "test:e2e": "turbo test:e2e --filter=@blockclub/web",
     "test:coverage": "turbo test:coverage --filter=@blockclub/web --filter=@blockclub/shared"
   },

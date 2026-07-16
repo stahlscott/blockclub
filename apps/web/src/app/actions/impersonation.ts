@@ -9,7 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { setImpersonationCookie, clearImpersonationCookie } from "@/lib/impersonation";
 import { logger } from "@/lib/logger";
 
@@ -30,12 +30,12 @@ export async function startImpersonation(
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  const adminSupabase = createAdminClient();
+  if (!authUser || !(await isStaffAdminUser(adminSupabase, authUser.id))) {
     return { success: false, error: "Unauthorized: Only staff admins can impersonate users" };
   }
 
   // Use admin client to fetch target user (bypasses RLS)
-  const adminSupabase = createAdminClient();
   const { data: targetUser, error } = await adminSupabase
     .from("users")
     .select("id, email, name")
@@ -50,7 +50,7 @@ export async function startImpersonation(
   const user = targetUser as { id: string; email: string; name: string };
 
   // Prevent impersonating another staff admin
-  if (isStaffAdmin(user.email)) {
+  if (await isStaffAdminUser(adminSupabase, user.id)) {
     return { success: false, error: "Cannot impersonate another staff admin" };
   }
 
@@ -78,7 +78,8 @@ export async function stopImpersonation(): Promise<{ success: boolean; error?: s
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  const staffClient = createAdminClient();
+  if (!authUser || !(await isStaffAdminUser(staffClient, authUser.id))) {
     return { success: false, error: "Unauthorized" };
   }
 

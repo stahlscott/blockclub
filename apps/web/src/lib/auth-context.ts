@@ -9,9 +9,9 @@
  */
 
 import type { User as AuthUser } from "@supabase/supabase-js";
-import { isStaffAdmin } from "@/lib/auth";
 import { getImpersonationContext, ImpersonationContext } from "@/lib/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isStaffAdminUser } from "@/lib/auth";
 
 export interface AuthContext<T> {
   /** The authenticated Supabase auth user */
@@ -57,7 +57,8 @@ export async function getAuthContext<T>(
   supabase: T,
   authUser: AuthUser
 ): Promise<AuthContext<T>> {
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
+  const staffClient = createAdminClient();
+  const userIsStaffAdmin = await isStaffAdminUser(staffClient, authUser.id);
 
   // Check for impersonation (only for staff admins)
   const impersonationContext = userIsStaffAdmin

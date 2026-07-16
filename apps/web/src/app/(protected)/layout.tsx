@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
-import { isStaffAdmin } from "@/lib/auth";
 
 export default async function ProtectedLayout({
   children,
@@ -15,8 +14,8 @@ export default async function ProtectedLayout({
   }
 
   const supabase = await createClient();
-  const { effectiveUserId, isImpersonating, queryClient } = await getAuthContext(supabase, authUser);
-  const isUserStaffAdmin = isStaffAdmin(authUser.email);
+  const { effectiveUserId, isImpersonating, isStaffAdmin: isUserStaffAdmin, queryClient } =
+    await getAuthContext(supabase, authUser);
 
   if (isUserStaffAdmin && !isImpersonating) {
     return <>{children}</>;

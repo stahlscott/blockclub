@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 
   // Only staff admins can add users to neighborhoods
-  if (!isStaffAdmin(user.email)) {
+  if (!(await isStaffAdminUser(createAdminClient(), user.id))) {
     logger.warn("Non-staff admin attempted to add user to neighborhood", {
       userId: user.id,
       targetUserId: userId,

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NewNeighborhoodForm } from "./form";
 
 export default async function NewNeighborhoodPage() {
@@ -11,7 +12,7 @@ export default async function NewNeighborhoodPage() {
     redirect("/signin");
   }
 
-  if (!isStaffAdmin(user.email)) {
+  if (!(await isStaffAdminUser(createAdminClient(), user.id))) {
     redirect("/dashboard");
   }
 

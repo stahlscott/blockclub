@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { UserSearch } from "./user-search";
 
 export default async function StaffUsersPage() {
@@ -10,7 +11,7 @@ export default async function StaffUsersPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isStaffAdmin(user.email)) {
+  if (!user || !(await isStaffAdminUser(createAdminClient(), user.id))) {
     redirect("/dashboard");
   }
 
