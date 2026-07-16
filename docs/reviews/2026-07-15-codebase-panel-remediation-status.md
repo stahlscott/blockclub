@@ -1,7 +1,7 @@
 # Codebase Panel Remediation Status
 
 **Date:** 2026-07-15  
-**Scope:** Checkpoint after the initial RLS, loan lifecycle, move-out, deletion, and membership-moderation implementation slices  
+**Scope:** Checkpoint after the initial RLS, loan lifecycle, move-out, deletion, membership moderation, database-backed staff authorization, and staff membership command implementation slices  
 **Plan:** `docs/plans/2026-07-14-codebase-panel-remediation-design.md`  
 **Historical reviews:** `docs/reviews/2026-07-14-codebase-panel-review.md` and `docs/reviews/2026-07-14-codebase-panel-review-followup.md`
 
@@ -9,14 +9,14 @@
 
 The remediation has a working database/RLS and integration-test foundation, but the full remediation plan is not complete. The previous membership-moderation blocker is resolved. The repository is at a safe stopping point for a new implementation session focused on query centralization and protected-mutation inventory closure.
 
-The current working tree includes a committed Phase 4A checkpoint. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
+The current working tree includes committed checkpoints for Phase 4A and Sessions 1–2. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
 
 ## Verified checkpoint
 
 The following commands passed after a clean local database reset:
 
 - `supabase db reset --local`
-- `npm run test:integration` — 44 tests passing across 9 files
+- `npm run test:integration` — 51 tests passing across 9 files
 - `npm run test:unit` — 269 tests passing
 - `npm run typecheck`
 - `npm run lint`
@@ -30,7 +30,7 @@ The local integration harness uses authenticated users and anon clients, checks 
 | Phase 0 — Contracts, inventory, migration safety | **Complete as a planning phase** | Design record and mutation inventory exist. The inventory remains a historical pre-remediation record. Final evidence mapping still belongs in this status report and the eventual final report. |
 | Phase 1 — Regression infrastructure | **Substantially complete** | Local harness, preflight, unit contracts, and authenticated integration suites are working. Mocked server-action sequencing coverage, Playwright fixtures, and some named concurrency/failure tests remain. |
 | Phase 2 — RLS/schema hardening | **Substantially complete** | Additive migrations `00022`–`00030` reset cleanly and the current integration suite covers core membership, loan, item, post, deletion, and move-out behavior. Staff allowlist/RPC infrastructure, policy-inspection scripts, and the full concurrency/failure matrix remain. |
-| Phase 3 — High-risk mutation remediation | **Partial** | Move-out, rejoin, loan lifecycle RPCs, item/post mutation paths, request validation, and pending moderation are implemented. Direct protected writes still exist in staff membership actions/APIs, item edit and some creation/auth paths, neighborhood settings, and the physical teardown route. |
+| Phase 3 — High-risk mutation remediation | **Partial** | Move-out, rejoin, loan lifecycle RPCs, item/post mutation paths, request validation, pending moderation, and staff membership command paths are implemented. Direct protected writes still exist in item edit and some creation/auth paths, neighborhood settings, and other Session 3 inventory items. |
 | Phase 4 — Query/data-access/impersonation consistency | **Partial; Phase 4A read slice complete** | The identified posts, member-profile, My Loans, item-detail, and My Items reads now use centralized queries. Admin-client soft-delete and borrower neighborhood-scope tests pass. Broader dashboard/directory migration, protected-write classification, impersonation consistency, and removal of remaining inline reads are still open. |
 | Phase 5 — Accessibility, UX, maintainability, cleanup | **Partial** | Some touched controls and error flows were improved. The full dialog, component-size, status-copy, design-token, dead-code, and render/accessibility scope is not complete or independently gated. |
 | Phase 6 — Documentation and release verification | **Not started as a release phase** | This checkpoint report is the first status artifact. Architecture documentation, executable repository checks, final finding report, targeted E2E, build, and final adversarial review remain. |
@@ -57,11 +57,11 @@ Admin/service-role query tests now prove that soft-deleted posts, items, members
 
 A repository search still finds direct protected writes and `as never` casts. The remaining inventory includes staff membership actions and APIs, item edit/settings paths, some creation/auth flows, neighborhood settings, and the physical neighborhood teardown route. Each must be classified as an approved RLS write, a server command/RPC, or a documented staff-only exception before the static inventory gate can be added.
 
-The physical neighborhood teardown route remains a release risk. It performs sequential destructive service-role deletes and needs removal or replacement with a transactional/resumable, staff-only, audited operation with recovery tests.
+The physical neighborhood teardown route is now intentionally deprecated and returns `410 Gone`; no destructive delete path remains. A future transactional/resumable teardown would require a separate operational decision, backup expectations, audit requirements, and recovery tests.
 
 ### Staff identity and impersonation
 
-The design calls for a database-maintained `staff_admins` allowlist, synchronization from `STAFF_ADMIN_EMAILS`, staff-only RPC signatures, and database validation of actor/effective-user pairs. The current migrations retain audit columns, but the complete allowlist/provisioning and staff-RPC contract is not yet evidenced by the repository or integration suite.
+Migration `00031` adds the database-maintained `staff_admins` allowlist, `npm run sync:staff-admins` provisions it from `STAFF_ADMIN_EMAILS`, and protected staff entry points use database validation. Migration `00032` adds the service-role-only membership command with actor validation, effective-user/tenant checks, soft-delete semantics, and audit attribution. The 51-test integration suite covers allowlisted and forged actors, browser denial, history preservation, and role/add/reactivation operations.
 
 ### Concurrency and rollback
 

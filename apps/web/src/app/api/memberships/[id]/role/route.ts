@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdminUser } from "@/lib/auth";
+import { runStaffMembershipOperation } from "@/lib/staff-membership";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -100,22 +101,28 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ membership: targetMembership });
   }
 
-  // Update the role
-  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
-  const { data: updatedMembership, error: updateError } = await queryClient
-    .from("memberships")
-    .update({ role } as never)
-    .eq("id", membershipId)
-    .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
-    .single();
-
-  if (updateError) {
-    logger.error("Error updating membership role", updateError, { membershipId });
-    return NextResponse.json(
-      { error: "Failed to update role" },
-      { status: 500 }
-    );
+  const operation = role === "admin" ? "promote" : "demote";
+  if (!userIsStaffAdmin && operation !== "promote") {
+    return NextResponse.json({ error: "Only staff admins can demote admins" }, { status: 403 });
   }
+
+  const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
+    operation,
+    membershipId,
+    role,
+    staffActorId: user.id,
+  });
+
+  if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
+    logger.error("Error updating membership role", operationError, { membershipId, operation });
+    return NextResponse.json({ error: operationResult?.reason || "Failed to update role" }, { status: 409 });
+  }
+
+  const { data: updatedMembership } = await createAdminClient()
+    .from("memberships")
+    .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
+    .eq("id", membershipId)
+    .single();
 
   return NextResponse.json({ membership: updatedMembership });
 }

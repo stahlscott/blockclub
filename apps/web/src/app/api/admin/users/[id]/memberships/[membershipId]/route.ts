@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdminUser } from "@/lib/auth";
+import { runStaffMembershipOperation } from "@/lib/staff-membership";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -69,18 +70,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     neighborhoodName: membership.neighborhood?.name,
   });
 
-  // Delete the membership
-  const { error: deleteError } = await adminSupabase
-    .from("memberships")
-    .delete()
-    .eq("id", membershipId);
+  const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
+    operation: "remove",
+    membershipId,
+    staffActorId: user.id,
+  });
 
-  if (deleteError) {
-    logger.error("Error deleting membership", deleteError, { membershipId });
-    return NextResponse.json(
-      { error: "Failed to remove membership" },
-      { status: 500 }
-    );
+  if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
+    logger.error("Error removing membership", operationError, { membershipId });
+    return NextResponse.json({ error: operationResult?.reason || "Failed to remove membership" }, { status: 409 });
   }
 
   logger.info("Membership removed successfully", {

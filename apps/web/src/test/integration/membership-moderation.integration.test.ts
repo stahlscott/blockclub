@@ -110,6 +110,84 @@ describe("membership moderation contract", () => {
     expect(error?.code).toBe("42501");
   });
 
+  it("staff_membership_commands_preserve_history_and_enforce_state", async () => {
+    const { data: removed, error: removeError } = await service.rpc("staff_membership_operation", {
+      p_operation: "remove",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: staff.id,
+    });
+    expect(removeError).toBeNull();
+    expect(removed).toMatchObject({ success: true, status: "inactive", affected_membership_count: 1 });
+
+    const { data: preserved } = await service
+      .from("memberships")
+      .select("id, user_id, neighborhood_id, deleted_at, staff_actor_id")
+      .eq("id", pendingMembership.id)
+      .single();
+    expect(preserved).toMatchObject({ id: pendingMembership.id, user_id: member.id, neighborhood_id: neighborhood.id, staff_actor_id: staff.id });
+    expect(preserved?.deleted_at).toBeTruthy();
+
+    const { data: reactivated, error: reactivateError } = await service.rpc("staff_membership_operation", {
+      p_operation: "reactivate",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: staff.id,
+    });
+    expect(reactivateError).toBeNull();
+    expect(reactivated).toMatchObject({ success: true, status: "active", affected_membership_count: 1 });
+
+    const promoted = await service.rpc("staff_membership_operation", {
+      p_operation: "promote",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: staff.id,
+    });
+    expect(promoted.error).toBeNull();
+    expect(promoted.data).toMatchObject({ success: true, role: "admin", affected_membership_count: 1 });
+
+    const demoted = await service.rpc("staff_membership_operation", {
+      p_operation: "demote",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: staff.id,
+    });
+    expect(demoted.error).toBeNull();
+    expect(demoted.data).toMatchObject({ success: true, role: "member", affected_membership_count: 1 });
+
+    await service.from("memberships").update({ status: "pending", deleted_at: null, staff_actor_id: null }).eq("id", pendingMembership.id);
+  });
+
+  it("staff_add_command_creates_membership_with_audit", async () => {
+    const { data, error } = await service.rpc("staff_membership_operation", {
+      p_operation: "add",
+      p_target_user_id: member.id,
+      p_neighborhood_id: otherNeighborhood.id,
+      p_role: "member",
+      p_staff_actor_id: staff.id,
+    });
+    expect(error).toBeNull();
+    expect(data).toMatchObject({ success: true, user_id: member.id, neighborhood_id: otherNeighborhood.id, status: "active", affected_membership_count: 1 });
+    const { data: row } = await service.from("memberships").select("staff_actor_id").eq("id", data?.membership_id).single();
+    expect(row?.staff_actor_id).toBe(staff.id);
+  });
+
+  it("staff_command_rejects_unallowlisted_and_browser_callers", async () => {
+    const unallowlisted = await service.rpc("staff_membership_operation", {
+      p_operation: "approve",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: outsider.id,
+    });
+    expect(unallowlisted.error).toBeNull();
+    expect(unallowlisted.data).toMatchObject({ success: false, reason: "staff_actor_not_allowlisted" });
+
+    await anon.auth.signOut();
+    await signInAs(anon, admin);
+    const browser = await anon.rpc("staff_membership_operation", {
+      p_operation: "approve",
+      p_membership_id: pendingMembership.id,
+      p_staff_actor_id: staff.id,
+    });
+    expect(browser.data).toBeNull();
+    expect(browser.error?.code).toBe("42501");
+  });
+
   it("admin_can_approve_pending_membership", async () => {
     await anon.auth.signOut();
     await signInAs(anon, admin);

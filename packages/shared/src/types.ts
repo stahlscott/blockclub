@@ -232,6 +232,18 @@ export interface MembershipModerationResult {
   affected_membership_count: number;
 }
 
+export interface StaffMembershipOperationResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  user_id: string | null;
+  neighborhood_id: string | null;
+  role: MembershipRole | null;
+  status: MembershipStatus | null;
+  deleted_at: string | null;
+  affected_membership_count: number;
+}
+
 export type LoanClosureReason =
   | "borrower_returned"
   | "borrower_cancelled"
@@ -540,6 +552,17 @@ export interface Database {
           p_decision: string;
         };
         Returns: MembershipModerationResult;
+      };
+      staff_membership_operation: {
+        Args: {
+          p_operation: string;
+          p_membership_id?: string | null;
+          p_target_user_id?: string | null;
+          p_neighborhood_id?: string | null;
+          p_role?: MembershipRole | null;
+          p_staff_actor_id?: string | null;
+        };
+        Returns: StaffMembershipOperationResult;
       };
     };
     Enums: {

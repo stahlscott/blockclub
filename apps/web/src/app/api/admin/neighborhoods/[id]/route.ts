@@ -8,17 +8,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-interface NeighborhoodRow {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface ItemRow {
-  id: string;
-}
-
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { id: neighborhoodId } = await params;
   const supabase = await createClient();
 
@@ -40,122 +30,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Use admin client to bypass RLS
-  const adminSupabase = createAdminClient();
-
-  // Fetch the neighborhood to verify it exists
-  const { data: neighborhoodData, error: fetchError } = await adminSupabase
-    .from("neighborhoods")
-    .select("id, name, slug")
-    .eq("id", neighborhoodId)
-    .single();
-
-  const neighborhood = neighborhoodData as NeighborhoodRow | null;
-
-  if (fetchError || !neighborhood) {
-    return NextResponse.json(
-      { error: "Neighborhood not found" },
-      { status: 404 }
-    );
-  }
-
-  logger.info("Staff admin deleting neighborhood", {
-    userId: user.id,
-    email: user.email,
-    neighborhoodId,
-    neighborhoodName: neighborhood.name,
-  });
-
-  // Delete in order to respect foreign key constraints
-  // Order: loans -> items -> posts -> memberships -> neighborhoods
-
-  // 1. Delete loans for items in this neighborhood
-  const { data: itemsData } = await adminSupabase
-    .from("items")
-    .select("id")
-    .eq("neighborhood_id", neighborhoodId);
-
-  const items = (itemsData || []) as ItemRow[];
-  const itemIds = items.map((i) => i.id);
-
-  if (itemIds.length > 0) {
-    const { error: loansError } = await adminSupabase
-      .from("loans")
-      .delete()
-      .in("item_id", itemIds);
-
-    if (loansError) {
-      logger.error("Error deleting loans", loansError, { neighborhoodId });
-      return NextResponse.json(
-        { error: "Failed to delete neighborhood data" },
-        { status: 500 }
-      );
-    }
-  }
-
-  // 2. Delete items
-  const { error: itemsError } = await adminSupabase
-    .from("items")
-    .delete()
-    .eq("neighborhood_id", neighborhoodId);
-
-  if (itemsError) {
-    logger.error("Error deleting items", itemsError, { neighborhoodId });
-    return NextResponse.json(
-      { error: "Failed to delete neighborhood data" },
-      { status: 500 }
-    );
-  }
-
-  // 3. Delete posts
-  const { error: postsError } = await adminSupabase
-    .from("posts")
-    .delete()
-    .eq("neighborhood_id", neighborhoodId);
-
-  if (postsError) {
-    logger.error("Error deleting posts", postsError, { neighborhoodId });
-    return NextResponse.json(
-      { error: "Failed to delete neighborhood data" },
-      { status: 500 }
-    );
-  }
-
-  // 4. Delete memberships
-  const { error: membershipsError } = await adminSupabase
-    .from("memberships")
-    .delete()
-    .eq("neighborhood_id", neighborhoodId);
-
-  if (membershipsError) {
-    logger.error("Error deleting memberships", membershipsError, { neighborhoodId });
-    return NextResponse.json(
-      { error: "Failed to delete neighborhood data" },
-      { status: 500 }
-    );
-  }
-
-  // 5. Delete the neighborhood itself
-  const { error: neighborhoodError } = await adminSupabase
-    .from("neighborhoods")
-    .delete()
-    .eq("id", neighborhoodId);
-
-  if (neighborhoodError) {
-    logger.error("Error deleting neighborhood", neighborhoodError, { neighborhoodId });
-    return NextResponse.json(
-      { error: "Failed to delete neighborhood" },
-      { status: 500 }
-    );
-  }
-
-  logger.info("Neighborhood deleted successfully", {
-    userId: user.id,
-    neighborhoodId,
-    neighborhoodName: neighborhood.name,
-  });
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json(
+    {
+      error: "Physical neighborhood teardown is deprecated and disabled. Preserve history and use the documented recovery workflow.",
+      code: "NEIGHBORHOOD_TEARDOWN_DISABLED",
+    },
+    { status: 410 },
+  );
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
@@ -194,7 +75,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     .eq("id", neighborhoodId)
     .single();
 
-  const neighborhood = neighborhoodData as (NeighborhoodRow & { settings?: Record<string, unknown> }) | null;
+  const neighborhood = neighborhoodData as {
+    id: string;
+    name: string;
+    slug: string;
+    settings?: Record<string, unknown>;
+  } | null;
 
   if (fetchError || !neighborhood) {
     return NextResponse.json(

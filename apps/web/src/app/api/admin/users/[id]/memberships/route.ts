@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdminUser } from "@/lib/auth";
+import { runStaffMembershipOperation } from "@/lib/staff-membership";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -81,32 +82,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Neighborhood not found" }, { status: 404 });
   }
 
-  // Check if active (non-deleted) membership already exists
-  const { data: activeMembership } = await adminSupabase
+  const { data: existingMembershipData } = await adminSupabase
     .from("memberships")
-    .select("id, status")
+    .select("id, status, deleted_at")
     .eq("user_id", userId)
     .eq("neighborhood_id", neighborhood_id)
-    .is("deleted_at", null)
-    .single();
+    .maybeSingle();
+  const existingMembership = existingMembershipData as { id: string; status: string; deleted_at: string | null } | null;
 
-  if (activeMembership) {
-    return NextResponse.json(
-      { error: "User is already a member of this neighborhood" },
-      { status: 400 }
-    );
+  if (existingMembership && existingMembership.deleted_at === null) {
+    return NextResponse.json({ error: "User is already a member of this neighborhood" }, { status: 400 });
   }
-
-  // Check if a soft-deleted membership exists (user was previously removed)
-  const { data: deletedMembershipData } = await adminSupabase
-    .from("memberships")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("neighborhood_id", neighborhood_id)
-    .not("deleted_at", "is", null)
-    .single();
-
-  const deletedMembership = deletedMembershipData as { id: string } | null;
 
   logger.info("Staff admin adding user to neighborhood", {
     adminId: user.id,
@@ -115,47 +101,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     targetUserEmail: targetUser.email,
     neighborhoodId: neighborhood_id,
     neighborhoodName: neighborhood.name,
-    reactivating: !!deletedMembership,
+    reactivating: Boolean(existingMembership),
   });
 
-  if (deletedMembership) {
-    // Reactivate the soft-deleted membership
-    const { error: updateError } = await adminSupabase
-      .from("memberships")
-      .update({
-        status: "active",
-        role: "member",
-        deleted_at: null,
-        joined_at: new Date().toISOString(),
-      } as never)
-      .eq("id", deletedMembership.id);
+  const operation = existingMembership ? "reactivate" : "add";
+  const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
+    operation,
+    membershipId: existingMembership?.id,
+    targetUserId: existingMembership ? null : userId,
+    neighborhoodId: existingMembership ? null : neighborhood_id,
+    role: "member",
+    staffActorId: user.id,
+  });
 
-    if (updateError) {
-      logger.error("Error reactivating membership", updateError, { userId, neighborhood_id });
-      return NextResponse.json(
-        { error: "Failed to add user to neighborhood" },
-        { status: 500 }
-      );
-    }
-  } else {
-    // Create a new membership
-    const { error: insertError } = await adminSupabase
-      .from("memberships")
-      .insert({
-        user_id: userId,
-        neighborhood_id: neighborhood_id,
-        role: "member",
-        status: "active",
-        joined_at: new Date().toISOString(),
-      } as never);
-
-    if (insertError) {
-      logger.error("Error creating membership", insertError, { userId, neighborhood_id });
-      return NextResponse.json(
-        { error: "Failed to add user to neighborhood" },
-        { status: 500 }
-      );
-    }
+  if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
+    logger.error("Error applying staff membership operation", operationError, { userId, neighborhood_id, operation });
+    return NextResponse.json({ error: operationResult?.reason || "Failed to add user to neighborhood" }, { status: 409 });
   }
 
   logger.info("User added to neighborhood successfully", {
