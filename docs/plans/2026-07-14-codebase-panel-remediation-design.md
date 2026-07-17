@@ -220,6 +220,8 @@ The remaining work is organized into eight bounded sessions. Security and data-i
 
 **Stopping point:** Stop when every production write is classified and every approved direct RLS write has a named integration test. The inventory must be accurate enough to support the static checker in Session 7.
 
+**Session 3 checkpoint:** Item editing now uses `updateItem()` in the library server-action boundary. The action resolves the neighborhood from the route slug, loads the authoritative non-deleted item, requires the effective user to own it, validates name/description lengths, constrains the update by item/owner/neighborhood/non-deleted predicates, confirms the returned affected item ID, and revalidates only after success. Remaining classified writes include item creation, neighborhood settings/creation, signup callback membership creation, join operations, due-date/availability updates, profile/settings updates, and the dashboard/settings/admin payload typing cleanup.
+
 ### Session 4 — Complete query centralization
 
 **Goal:** Finish the intended application read migration and remove the compatibility shim.

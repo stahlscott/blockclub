@@ -9,7 +9,7 @@
 
 The remediation has a working database/RLS and integration-test foundation, but the full remediation plan is not complete. The previous membership-moderation blocker is resolved. The repository is at a safe stopping point for a new implementation session focused on query centralization and protected-mutation inventory closure.
 
-The current working tree includes committed checkpoints for Phase 4A and Sessions 1–2. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
+The current working tree includes committed checkpoints for Phase 4A and Sessions 1–2, plus the verified Session 3 item-edit boundary. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
 
 ## Verified checkpoint
 
@@ -17,7 +17,8 @@ The following commands passed after a clean local database reset:
 
 - `supabase db reset --local`
 - `npm run test:integration` — 51 tests passing across 9 files
-- `npm run test:unit` — 269 tests passing
+- `npm run test:unit` — 132 web tests passing
+- Session 3 item editing uses the server-action boundary with authoritative ownership, neighborhood, soft-delete, validation, and affected-row checks
 - `npm run typecheck`
 - `npm run lint`
 
