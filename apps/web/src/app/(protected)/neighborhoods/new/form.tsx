@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { ensureUserProfile } from "@/lib/ensure-profile";
+import { createNeighborhood } from "./actions";
 import { MAX_LENGTHS } from "@/lib/validation";
 import styles from "./new-neighborhood.module.css";
 
@@ -30,73 +29,18 @@ export function NewNeighborhoodForm() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-
-    // Get current user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setError("You must be logged in to create a neighborhood");
+    const result = await createNeighborhood({
+      name,
+      description,
+      location,
+      requireApproval,
+    });
+    if (!result.success) {
+      setError(result.error || "The neighborhood could not be created.");
       setLoading(false);
       return;
     }
 
-    const slug = generateSlug(name);
-
-    // Ensure user profile exists
-    const { success, error: profileError } = await ensureUserProfile(
-      supabase,
-      user,
-    );
-    if (!success) {
-      setError(
-        profileError || "Failed to create user profile. Please try again.",
-      );
-      setLoading(false);
-      return;
-    }
-
-    // Check if slug is already taken
-    const { data: existing } = await supabase
-      .from("neighborhoods")
-      .select("id")
-      .eq("slug", slug)
-      .single();
-
-    if (existing) {
-      setError(
-        "A neighborhood with this name already exists. Please choose a different name.",
-      );
-      setLoading(false);
-      return;
-    }
-
-    // Create the neighborhood
-    const { error: createError } = await supabase
-      .from("neighborhoods")
-      .insert({
-        name,
-        slug,
-        description: description || null,
-        location: location || null,
-        settings: {
-          require_approval: requireApproval,
-          allow_public_directory: false,
-        },
-        created_by: user.id,
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      setError(createError.message);
-      setLoading(false);
-      return;
-    }
-
-    // Neighborhood created with 0 members
-    // The first user to join will become admin via database trigger
     router.push("/staff");
     router.refresh();
   };

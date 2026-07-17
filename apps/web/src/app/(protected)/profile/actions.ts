@@ -51,7 +51,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
   // Use admin client only when impersonating to bypass RLS
   const queryClient = isImpersonating ? createAdminClient() : supabase;
 
-  const { error: updateError } = await queryClient
+  const { data: updatedProfile, error: updateError } = await queryClient
     .from("users")
     .update({
       name: data.name,
@@ -67,10 +67,12 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
       pets: data.pets,
       photo_urls: data.photoUrls,
     })
-    .eq("id", data.userId);
+    .eq("id", data.userId)
+    .select("id")
+    .maybeSingle();
 
-  if (updateError) {
-    return { success: false, error: updateError.message };
+  if (updateError || !updatedProfile?.id || updatedProfile.id !== data.userId) {
+    return { success: false, error: updateError?.message || "The profile could not be updated. Please try again." };
   }
 
   revalidatePath("/profile");

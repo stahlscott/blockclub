@@ -77,12 +77,17 @@ function SignUpForm() {
             .maybeSingle();
 
           if (!existingMembership) {
-            await supabase.from("memberships").insert({
-              user_id: data.user.id,
-              neighborhood_id: neighborhoodId,
-              role: "member",
-              status: "pending",
+            const membershipResponse = await fetch("/api/join", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ neighborhoodId }),
             });
+            if (!membershipResponse.ok) {
+              const membershipResult = await membershipResponse.json();
+              setError(membershipResult.error || "Could not join the neighborhood.");
+              setLoading(false);
+              return;
+            }
           }
 
           // Clear pending metadata since we handled it
