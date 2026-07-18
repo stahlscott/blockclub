@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  createAuthenticatedClient,
   createIntegrationClients,
   createNeighborhood,
   createTestUser,
@@ -120,5 +121,48 @@ describe("loan lifecycle RPCs", () => {
     const { data, error } = await anon.rpc("approve_loan", { p_loan_id: loan.id });
     expect(data).toBeNull();
     expect(error?.code).toBe("42501");
+  });
+
+  it("concurrent_activation_has_one_winner_and_one_conflict", async () => {
+    const { loan, item } = await createLoan("approved");
+    const [first, second] = await Promise.all([
+      createAuthenticatedClient(owner),
+      createAuthenticatedClient(owner),
+    ]);
+    const results = await Promise.all([
+      first.rpc("activate_loan", { p_loan_id: loan.id, p_start_date: "2026-07-14", p_due_date: "2026-07-28" }),
+      second.rpc("activate_loan", { p_loan_id: loan.id, p_start_date: "2026-07-15", p_due_date: "2026-07-29" }),
+    ]);
+    expect(results.every(({ error }) => error === null)).toBe(true);
+    expect(results.filter(({ data }) => data?.success).length).toBe(1);
+    expect(results.filter(({ data }) => data?.reason === "conflict" || data?.reason === "invalid_transition").length).toBe(1);
+
+    const { data: row } = await service.from("loans").select("status, start_date, due_date").eq("id", loan.id).single();
+    expect(row?.status).toBe("active");
+    expect(["2026-07-14", "2026-07-15"]).toContain(row?.start_date);
+    expect(["2026-07-28", "2026-07-29"]).toContain(row?.due_date);
+    const { data: itemRow } = await service.from("items").select("availability").eq("id", item.id).single();
+    expect(itemRow).toEqual({ availability: "borrowed" });
+  });
+
+  it("concurrent_borrower_cancellation_and_owner_activation_has_one_terminal_outcome", async () => {
+    const { loan } = await createLoan("approved");
+    const ownerClient = await createAuthenticatedClient(owner);
+    const borrowerClient = await createAuthenticatedClient(borrower);
+    const results = await Promise.all([
+      ownerClient.rpc("activate_loan", { p_loan_id: loan.id, p_start_date: "2026-07-14", p_due_date: "2026-07-28" }),
+      borrowerClient.rpc("cancel_loan", { p_loan_id: loan.id }),
+    ]);
+    expect(results.every(({ error }) => error === null)).toBe(true);
+    expect(results.filter(({ data }) => data?.success).length).toBe(1);
+
+    const { data: row } = await service.from("loans").select("status, start_date, closure_reason").eq("id", loan.id).single();
+    expect(["active", "cancelled"]).toContain(row?.status);
+    if (row?.status === "active") {
+      expect(row.start_date).toBe("2026-07-14");
+      expect(row.closure_reason).toBeNull();
+    } else {
+      expect(row?.closure_reason).toBe("borrower_cancelled");
+    }
   });
 });

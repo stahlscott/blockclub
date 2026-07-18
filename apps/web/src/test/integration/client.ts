@@ -50,6 +50,17 @@ export async function signInAs(
   return anon;
 }
 
+export async function createAuthenticatedClient(user: { email: string; password: string }): Promise<SupabaseClient<Database>> {
+  const url = process.env.SUPABASE_INTEGRATION_URL;
+  const anonKey = process.env.SUPABASE_INTEGRATION_ANON_KEY;
+  if (!url || !anonKey) throw new Error("Integration credentials are missing");
+  const client = createClient<Database>(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, storageKey: `blockclub-integration-race-${randomUUID()}` },
+  });
+  await signInAs(client, user);
+  return client;
+}
+
 export async function deleteTestUser(service: SetupClient, userId: string): Promise<void> {
   const { error } = await service.auth.admin.deleteUser(userId);
   if (error) throw new Error(`Could not clean integration user ${userId}: ${error.message}`);

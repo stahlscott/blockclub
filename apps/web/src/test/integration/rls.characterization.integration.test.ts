@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import {
+  createAuthenticatedClient,
   createIntegrationClients,
   createNeighborhood,
   createTestUser,
@@ -151,6 +152,25 @@ describe("authenticated RLS characterization", () => {
       .select("id");
     expect(error).not.toBeNull();
     expect(insertedRows).toBeNull();
+  });
+
+  it("concurrent_duplicate_loan_requests_have_one_unique_index_winner", async () => {
+    const borrowerTwo = await createTestUser(service, "borrower-two");
+    await seedProfile(service, borrowerTwo, "Integration Borrower Two");
+    await seedMembership(service, { userId: borrowerTwo.id, neighborhoodId: neighborhood.id });
+    const [first, second] = await Promise.all([
+      createAuthenticatedClient(borrower),
+      createAuthenticatedClient(borrowerTwo),
+    ]);
+    const requests = await Promise.all([
+      first.from("loans").insert({ item_id: item.id, borrower_id: borrower.id, status: "requested", notes: "race one", deleted_at: null }).select("id"),
+      second.from("loans").insert({ item_id: item.id, borrower_id: borrowerTwo.id, status: "requested", notes: "race two", deleted_at: null }).select("id"),
+    ]);
+    expect(requests.filter(({ data, error }) => error === null && (data?.length ?? 0) === 1)).toHaveLength(1);
+    expect(requests.filter(({ error }) => error !== null)).toHaveLength(1);
+    await service.from("loans").delete().eq("borrower_id", borrowerTwo.id);
+    await service.from("memberships").delete().eq("user_id", borrowerTwo.id);
+    await deleteTestUser(service, borrowerTwo.id);
   });
 
   it("rls_self_move_out_policy_allows_only_own_active_membership", async () => {
