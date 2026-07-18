@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { switchNeighborhood as saveNeighborhood } from "@/app/actions/neighborhood";
 import { useAuth } from "./AuthProvider";
 import { logger } from "@/lib/logger";
+import { getActiveMembershipsForUser, getImpersonatedLayoutProfile } from "@/lib/queries";
 import { setSentryNeighborhood, addBreadcrumb } from "@/lib/sentry";
 
 interface Neighborhood {
@@ -166,25 +167,12 @@ export function NeighborhoodProvider({ children, impersonation, initialData }: N
         return;
       }
 
-      // Fetch user's profile with primary neighborhood and avatar
-      const { data: profile } = await supabase
-        .from("users")
-        .select("primary_neighborhood_id, avatar_url")
-        .eq("id", effectiveUserId)
-        .single();
+      const [{ data: profile }, { data: memberships, error }] = await Promise.all([
+        getImpersonatedLayoutProfile(supabase, effectiveUserId),
+        getActiveMembershipsForUser(supabase, effectiveUserId),
+      ]);
 
       setUserAvatarUrl(profile?.avatar_url ?? null);
-
-      // Fetch user's active memberships with neighborhood data
-      const { data: memberships, error } = await supabase
-        .from("memberships")
-        .select(`
-          role,
-          neighborhood:neighborhoods(id, name, slug)
-        `)
-        .eq("user_id", effectiveUserId)
-        .eq("status", "active")
-        .is("deleted_at", null);
 
       if (error) {
         logger.error("Failed to fetch neighborhood data", error);

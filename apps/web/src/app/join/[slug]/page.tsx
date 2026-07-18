@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getNeighborhoodBySlug, getMembershipForUserInNeighborhood } from "@/lib/queries";
 import { getSeasonalClosing } from "@/lib/date-utils";
 import { requestMembership, rejoinMembership } from "../actions";
 import "@/app/globals.css";
@@ -27,11 +28,7 @@ export default function PublicJoinPage() {
       const supabase = createClient();
 
       // Fetch neighborhood (public query)
-      const { data: neighborhoodData } = await supabase
-        .from("neighborhoods")
-        .select("id, name, slug, description, location, settings")
-        .eq("slug", slug)
-        .single();
+      const { data: neighborhoodData } = await getNeighborhoodBySlug(supabase, slug);
 
       if (!neighborhoodData) {
         setLoading(false);
@@ -49,12 +46,11 @@ export default function PublicJoinPage() {
         setUser(authUser);
 
         // Check for existing membership
-        const { data: membershipData } = await supabase
-          .from("memberships")
-          .select("*")
-          .eq("neighborhood_id", neighborhoodData.id)
-          .eq("user_id", authUser.id)
-          .maybeSingle();
+        const { data: membershipData } = await getMembershipForUserInNeighborhood(
+          supabase,
+          authUser.id,
+          neighborhoodData.id,
+        );
 
         if (membershipData) {
           setExistingMembership(membershipData);

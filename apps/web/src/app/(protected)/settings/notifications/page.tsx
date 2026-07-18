@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { getAuthContext } from "@/lib/auth-context";
+import { getUserById } from "@/lib/queries";
 import { NotificationsForm } from "./NotificationsForm";
 import type { NotificationPreferences, EmailEntry } from "@blockclub/shared";
 import styles from "../settings.module.css";
@@ -40,11 +41,7 @@ export default async function NotificationSettingsPage() {
   const { effectiveUserId, queryClient } = await getAuthContext(supabase, authUser);
 
   // Fetch user with notification preferences and custom emails
-  const { data: user } = await queryClient
-    .from("users")
-    .select("email, emails, notification_preferences")
-    .eq("id", effectiveUserId)
-    .single();
+  const { data: user } = await getUserById(queryClient, effectiveUserId);
 
   const preferences = (user?.notification_preferences as NotificationPreferences) || DEFAULT_PREFERENCES;
   const authEmail = user?.email || authUser.email || "";

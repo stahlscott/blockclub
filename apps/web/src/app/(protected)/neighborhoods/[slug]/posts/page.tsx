@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
-import { getPostsByNeighborhood } from "@/lib/queries";
+import { getPostReactions, getPostsByNeighborhood } from "@/lib/queries";
 import { PostsClient } from "./posts-client";
 import type { PostReactionType } from "@blockclub/shared";
 import styles from "./posts-page.module.css";
@@ -17,14 +17,8 @@ export default async function PostsPage({ params }: Props) {
 
   const { data: posts } = await getPostsByNeighborhood(supabase, neighborhood.id);
 
-  // Fetch all reactions for these posts
   const postIds = posts?.map((p) => p.id) || [];
-  const { data: reactions } = postIds.length
-    ? await supabase
-        .from("post_reactions")
-        .select("*")
-        .in("post_id", postIds)
-    : { data: [] };
+  const { data: reactions } = await getPostReactions(supabase, postIds);
 
   // Aggregate reactions per post
   const postsWithReactions =

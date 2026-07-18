@@ -5,6 +5,9 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  getLoanDecisionNotification,
+  getLoanRequestedNotification,
+  getLoanReturnedNotification,
   isNotificationPreferences,
   type LoanRequestedRow,
   type LoanWithBorrowerRow,
@@ -75,22 +78,7 @@ export async function notifyLoanRequested(loanId: string): Promise<void> {
   try {
     const supabase = createAdminClient();
 
-    // Fetch loan with all related data
-    const { data: loanData, error } = await supabase
-      .from("loans")
-      .select(`
-        id,
-        notes,
-        borrower:users!loans_borrower_id_fkey(id, name),
-        item:items!loans_item_id_fkey(
-          id,
-          name,
-          owner_id,
-          neighborhood:neighborhoods!items_neighborhood_id_fkey(slug)
-        )
-      `)
-      .eq("id", loanId)
-      .single();
+    const { data: loanData, error } = await getLoanRequestedNotification(supabase, loanId);
 
     if (error || !loanData) {
       logger.error("Failed to fetch loan for notification", error, { loanId });
@@ -156,22 +144,7 @@ export async function notifyLoanApproved(loanId: string): Promise<void> {
   try {
     const supabase = createAdminClient();
 
-    // Fetch loan with all related data
-    const { data: loanData, error } = await supabase
-      .from("loans")
-      .select(`
-        id,
-        due_date,
-        borrower:users!loans_borrower_id_fkey(id, name, email, notification_preferences),
-        item:items!loans_item_id_fkey(
-          id,
-          name,
-          owner:users!items_owner_id_fkey(id, name),
-          neighborhood:neighborhoods!items_neighborhood_id_fkey(slug)
-        )
-      `)
-      .eq("id", loanId)
-      .single();
+    const { data: loanData, error } = await getLoanDecisionNotification(supabase, loanId);
 
     if (error || !loanData) {
       logger.error("Failed to fetch loan for notification", error, { loanId });
@@ -223,21 +196,7 @@ export async function notifyLoanDeclined(loanId: string): Promise<void> {
   try {
     const supabase = createAdminClient();
 
-    // Fetch loan with all related data (reusing same query shape as approved)
-    const { data: loanData, error } = await supabase
-      .from("loans")
-      .select(`
-        id,
-        borrower:users!loans_borrower_id_fkey(id, name, email, notification_preferences),
-        item:items!loans_item_id_fkey(
-          id,
-          name,
-          owner:users!items_owner_id_fkey(id, name),
-          neighborhood:neighborhoods!items_neighborhood_id_fkey(slug)
-        )
-      `)
-      .eq("id", loanId)
-      .single();
+    const { data: loanData, error } = await getLoanDecisionNotification(supabase, loanId);
 
     if (error || !loanData) {
       logger.error("Failed to fetch loan for notification", error, { loanId });
@@ -288,21 +247,7 @@ export async function notifyLoanReturned(loanId: string): Promise<void> {
   try {
     const supabase = createAdminClient();
 
-    // Fetch loan with all related data
-    const { data: loanData, error } = await supabase
-      .from("loans")
-      .select(`
-        id,
-        borrower:users!loans_borrower_id_fkey(id, name),
-        item:items!loans_item_id_fkey(
-          id,
-          name,
-          owner:users!items_owner_id_fkey(id, name, email, notification_preferences),
-          neighborhood:neighborhoods!items_neighborhood_id_fkey(slug)
-        )
-      `)
-      .eq("id", loanId)
-      .single();
+    const { data: loanData, error } = await getLoanReturnedNotification(supabase, loanId);
 
     if (error || !loanData) {
       logger.error("Failed to fetch loan for notification", error, { loanId });

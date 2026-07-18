@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getNeighborhoodBySlug, getMembershipForUserInNeighborhood } from "@/lib/queries";
 import { getSeasonalClosing } from "@/lib/date-utils";
 import { requestMembership, rejoinMembership } from "@/app/join/actions";
 import styles from "@/app/join/join.module.css";
@@ -33,11 +34,7 @@ export default function JoinNeighborhoodPage() {
       }
 
       // Fetch neighborhood
-      const { data: neighborhoodData } = await supabase
-        .from("neighborhoods")
-        .select("*")
-        .eq("slug", slug)
-        .single();
+      const { data: neighborhoodData } = await getNeighborhoodBySlug(supabase, slug);
 
       if (!neighborhoodData) {
         router.push("/dashboard");
@@ -47,12 +44,11 @@ export default function JoinNeighborhoodPage() {
       setNeighborhood(neighborhoodData);
 
       // Check for existing membership
-      const { data: membershipData } = await supabase
-        .from("memberships")
-        .select("*")
-        .eq("neighborhood_id", neighborhoodData.id)
-        .eq("user_id", user.id)
-        .single();
+      const { data: membershipData } = await getMembershipForUserInNeighborhood(
+        supabase,
+        user.id,
+        neighborhoodData.id,
+      );
 
       if (membershipData) {
         setExistingMembership(membershipData);

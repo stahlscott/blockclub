@@ -4,8 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
+import { getActiveMembership, getBorrowerLoanForItem, getItemOwnership } from "@/lib/queries";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
+import type { LoanInsert } from "@blockclub/shared";
 import { notifyLoanRequested } from "@/lib/email/notifications";
 
 export interface RequestLoanState {
@@ -43,12 +45,7 @@ export async function requestLoan(
     await getAuthContext(supabase, authUser);
 
   // Verify the item exists and is available
-  const { data: item } = await queryClient
-    .from("items")
-    .select("id, owner_id, availability, neighborhood_id")
-    .eq("id", itemId)
-    .is("deleted_at", null)
-    .single();
+  const { data: item } = await getItemOwnership(queryClient, itemId);
 
   if (!item) {
     return { error: "Item not found" };
@@ -62,31 +59,26 @@ export async function requestLoan(
     return { error: "Item is not available for borrowing" };
   }
 
-  const { data: membership } = await queryClient
-    .from("memberships")
-    .select("id")
-    .eq("user_id", effectiveUserId)
-    .eq("neighborhood_id", item.neighborhood_id)
-    .eq("status", "active")
-    .is("deleted_at", null)
-    .maybeSingle();
+  const { data: membership } = await getActiveMembership(
+    queryClient,
+    item.neighborhood_id,
+    effectiveUserId,
+  );
   if (!membership) return { error: "You must be an active neighborhood member to borrow items" };
 
   // Check if user already has a pending/active request for this item
-  const { data: existingLoan } = await queryClient
-    .from("loans")
-    .select("id, status")
-    .eq("item_id", itemId)
-    .eq("borrower_id", effectiveUserId)
-    .in("status", ["requested", "approved", "active"])
-    .is("deleted_at", null)
-    .maybeSingle();
+  const { data: existingLoan } = await getBorrowerLoanForItem(
+    queryClient,
+    itemId,
+    effectiveUserId,
+    item.neighborhood_id,
+  );
 
   if (existingLoan) {
     return { error: "You already have an active request for this item" };
   }
 
-  const insertData: Record<string, unknown> = {
+  const insertData: LoanInsert = {
     item_id: itemId,
     borrower_id: effectiveUserId,
     status: "requested",

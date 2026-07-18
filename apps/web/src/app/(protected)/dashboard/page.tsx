@@ -16,6 +16,15 @@ import {
   getPendingMemberRequestsCount,
   getDashboardStats,
 } from "./data";
+import {
+  getActiveMembershipsForUser,
+  getItemIdsByOwner,
+  getPendingLoanRequestsForItems,
+  getPendingMembershipsForUserWithNeighborhood,
+  getUserProfile,
+  getLoansForBorrower,
+  getNeighborhoodGuide,
+} from "@/lib/queries";
 import dashboardStyles from "./dashboard.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -74,75 +83,26 @@ export default async function DashboardPage() {
   // Use admin client when impersonating to bypass RLS
   const queryClient = isImpersonating ? createAdminClient() : supabase;
 
-  // Fetch user profile
-  const { data: profile } = await queryClient
-    .from("users")
-    .select("*")
-    .eq("id", effectiveUserId)
-    .single();
-
-  // Fetch user's memberships with neighborhood details
-  const { data: memberships } = await queryClient
-    .from("memberships")
-    .select(
-      `
-      *,
-      neighborhood:neighborhoods(*)
-    `,
-    )
-    .eq("user_id", effectiveUserId)
-    .eq("status", "active");
-
-  // Fetch pending membership requests (user's own pending requests to join)
-  const { data: pendingMemberships } = await queryClient
-    .from("memberships")
-    .select(
-      `
-      *,
-      neighborhood:neighborhoods(*)
-    `,
-    )
-    .eq("user_id", effectiveUserId)
-    .eq("status", "pending");
-
-  // Fetch user's items (for loan request notifications)
-  const { data: userItems } = await queryClient
-    .from("items")
-    .select("id")
-    .eq("owner_id", effectiveUserId);
+  // Fetch profile and membership state through the centralized query layer.
+  const [{ data: profile }, { data: memberships }, { data: pendingMemberships }, { data: userItems }] =
+    await Promise.all([
+      getUserProfile(queryClient, effectiveUserId),
+      getActiveMembershipsForUser(queryClient, effectiveUserId),
+      getPendingMembershipsForUserWithNeighborhood(queryClient, effectiveUserId),
+      getItemIdsByOwner(queryClient, effectiveUserId),
+    ]);
 
   // Fetch pending loan requests for user's items
-  const itemIds = userItems?.map((i) => i.id) || [];
-  let pendingLoanRequests: any[] = [];
-  if (itemIds.length > 0) {
-    const { data: loans } = await queryClient
-      .from("loans")
-      .select(
-        `
-        *,
-        item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
-        borrower:users!loans_borrower_id_fkey(id, name)
-      `,
-      )
-      .in("item_id", itemIds)
-      .eq("status", "requested")
-      .order("requested_at", { ascending: true });
-    pendingLoanRequests = loans || [];
-  }
+  const itemIds = userItems?.map((item) => item.id) || [];
+  const { data: pendingLoanRequestsData } = await getPendingLoanRequestsForItems(queryClient, itemIds);
+  const pendingLoanRequests = pendingLoanRequestsData ?? [];
 
-  // Fetch user's active borrowed items
-  // Note: Use FK hints for ambiguous relationships
-  const { data: borrowedItems, error: borrowedError } = await queryClient
-    .from("loans")
-    .select(
-      `
-      *,
-      item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users!items_owner_id_fkey(id, name))
-    `,
-    )
-    .eq("borrower_id", effectiveUserId)
-    .eq("status", "active")
-    .order("start_date", { ascending: false });
+  // Fetch user's active borrowed items through the centralized loan query.
+  const { data: borrowedItems, error: borrowedError } = await getLoansForBorrower(
+    queryClient,
+    effectiveUserId,
+    { status: "active" },
+  );
 
   if (borrowedError) {
     logger.error("Error fetching borrowed items", borrowedError);
@@ -189,11 +149,7 @@ export default async function DashboardPage() {
       getRecentPosts(primaryNeighborhood.id, queryClient),
       isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient) : Promise.resolve(0),
       getDashboardStats(primaryNeighborhood.id, queryClient),
-      queryClient
-        .from("neighborhood_guides")
-        .select("title, content")
-        .eq("neighborhood_id", primaryNeighborhood.id)
-        .maybeSingle()
+      getNeighborhoodGuide(queryClient, primaryNeighborhood.id)
         .then(({ data }) => data),
     ]);
 

@@ -16,6 +16,7 @@ import {
   getItemsByNeighborhood,
   getItemsByOwner,
   getLoansForBorrower,
+  getPostReactions,
   getPostsByNeighborhood,
 } from "@/lib/queries";
 
@@ -63,6 +64,28 @@ describe("centralized query layer with admin clients", () => {
     expect(error).toBeNull();
     expect(data?.map((post) => post.id)).toContain(visible.id);
     expect(data?.map((post) => post.id)).not.toContain(deleted.id);
+  });
+
+  it("query_layer_reads_post_reactions_and_handles_empty_posts", async () => {
+    const post = await seedPost(service, {
+      neighborhoodId: neighborhood.id,
+      authorId: owner.id,
+      content: "Reaction query post",
+    });
+    const { data: insertedReaction, error: insertError } = await service
+      .from("post_reactions")
+      .insert({ post_id: post.id, user_id: owner.id, reaction: "heart" })
+      .select("*")
+      .single();
+    expect(insertError).toBeNull();
+
+    const visible = await getPostReactions(service, [post.id]);
+    expect(visible.error).toBeNull();
+    expect(visible.data).toContainEqual(insertedReaction);
+
+    const empty = await getPostReactions(service, []);
+    expect(empty.error).toBeNull();
+    expect(empty.data).toEqual([]);
   });
 
   it("query_admin_client_hides_soft_deleted_items", async () => {

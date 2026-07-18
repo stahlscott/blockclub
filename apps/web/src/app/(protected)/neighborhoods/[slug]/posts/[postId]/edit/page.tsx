@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getActiveMembership, getNeighborhoodBySlug, getPostById } from "@/lib/queries";
 import { logger } from "@/lib/logger";
 import { updatePost } from "../../actions";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -74,11 +75,7 @@ export default function EditPostPage() {
         }
 
         // Get neighborhood
-        const { data: neighborhood } = await supabase
-          .from("neighborhoods")
-          .select("id")
-          .eq("slug", slug)
-          .single();
+        const { data: neighborhood } = await getNeighborhoodBySlug(supabase, slug);
 
         if (!neighborhood) {
           setError("Neighborhood not found");
@@ -86,14 +83,7 @@ export default function EditPostPage() {
         }
 
         // Get membership and check role
-        const { data: membership } = await supabase
-          .from("memberships")
-          .select("role")
-          .eq("neighborhood_id", neighborhood.id)
-          .eq("user_id", user.id)
-          .eq("status", "active")
-          .is("deleted_at", null)
-          .single();
+        const { data: membership } = await getActiveMembership(supabase, neighborhood.id, user.id);
 
         if (!membership) {
           setError("You must be a member to edit posts");
@@ -105,13 +95,11 @@ export default function EditPostPage() {
         setUserId(user.id);
 
         // Get post
-        const { data: postData, error: postError } = await supabase
-          .from("posts")
-          .select("*")
-          .eq("id", postId)
-          .eq("neighborhood_id", neighborhood.id)
-          .is("deleted_at", null)
-          .single();
+        const { data: postData, error: postError } = await getPostById(
+          supabase,
+          postId,
+          neighborhood.id,
+        );
 
         if (postError || !postData) {
           setError("Post not found");

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getItemsByNeighborhood } from "@/lib/queries";
 import {
   FILTER_CATEGORIES,
   type FilterCategoryOption,
@@ -30,14 +31,10 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const { category } = await searchParams;
   const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  // Fetch all items (no category filter) to determine available categories
-  // Note: Use !items_owner_id_fkey to specify which FK to use (there are multiple user references)
-  const { data: allItems } = await supabase
-    .from("items")
-    .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url)")
-    .eq("neighborhood_id", neighborhood.id)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+  // Fetch all visible items (no category filter) to determine available categories
+  const { data: allItems } = await getItemsByNeighborhood(supabase, neighborhood.id, {
+    includeUnavailable: true,
+  });
 
   // Compute which categories have items
   const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);

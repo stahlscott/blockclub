@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
-import type { ItemCategory } from "@blockclub/shared";
+import type { ItemCategory, ItemInsert } from "@blockclub/shared";
 
 interface CreateItemData {
   slug: string;
@@ -63,7 +63,7 @@ export async function createItem(data: CreateItemData): Promise<{ success: boole
   }
 
   // Create item with correct owner and audit trail
-  const insertData: Record<string, unknown> = {
+  const insertData: ItemInsert = {
     neighborhood_id: neighborhood.id,
     owner_id: effectiveUserId,
     name: data.name.trim(),

@@ -1,6 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  countActiveMemberships,
+  countAvailableItems,
+  countPendingMemberships,
+  countPosts,
+  getItemsByNeighborhood,
+  getPostsByNeighborhood,
+  getRecentMembers as getMembers,
+} from "@/lib/queries";
 
 /**
  * Data fetching functions for the dashboard.
@@ -20,14 +29,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export async function getRecentItems(neighborhoodId: string, client?: SupabaseClient) {
   const supabase = client ?? await createClient();
 
-  const { data: items } = await supabase
-    .from("items")
-    .select("*, owner:users!items_owner_id_fkey(name)")
-    .eq("neighborhood_id", neighborhoodId)
-    .eq("availability", "available")
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(8);
+  const { data: items } = await getItemsByNeighborhood(supabase, neighborhoodId, {
+    limit: 8,
+  });
 
   return items || [];
 }
@@ -35,35 +39,20 @@ export async function getRecentItems(neighborhoodId: string, client?: SupabaseCl
 export async function getRecentMembers(neighborhoodId: string, currentUserId: string, client?: SupabaseClient) {
   const supabase = client ?? await createClient();
 
-  const { data: members } = await supabase
-    .from("memberships")
-    .select(
-      `
-      *,
-      user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)
-    `
-    )
-    .eq("neighborhood_id", neighborhoodId)
-    .eq("status", "active")
-    .order("joined_at", { ascending: false })
-    .limit(6);
+  const { data: members } = await getMembers(supabase, neighborhoodId, 6);
 
   // Filter out staff admin users and current user from the recent members list
   return (members || []).filter(
-    (m: any) => !isStaffAdmin(m.user?.email) && m.user_id !== currentUserId
+    (m) => !isStaffAdmin(m.user?.email) && m.user_id !== currentUserId
   );
 }
 
 export async function getRecentPosts(neighborhoodId: string, client?: SupabaseClient) {
   const supabase = client ?? await createClient();
 
-  const { data: postsData } = await supabase
-    .from("posts")
-    .select("*, author:users!author_id(id, name, avatar_url)")
-    .eq("neighborhood_id", neighborhoodId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const { data: postsData } = await getPostsByNeighborhood(supabase, neighborhoodId, {
+    limit: 5,
+  });
 
   return postsData || [];
 }
@@ -71,13 +60,7 @@ export async function getRecentPosts(neighborhoodId: string, client?: SupabaseCl
 export async function getPendingMemberRequestsCount(neighborhoodId: string, client?: SupabaseClient) {
   const supabase = client ?? await createClient();
 
-  const { count } = await supabase
-    .from("memberships")
-    .select("*", { count: "exact", head: true })
-    .eq("neighborhood_id", neighborhoodId)
-    .eq("status", "pending");
-
-  return count || 0;
+  return countPendingMemberships(supabase, neighborhoodId);
 }
 
 /**
@@ -86,32 +69,15 @@ export async function getPendingMemberRequestsCount(neighborhoodId: string, clie
 export async function getDashboardStats(neighborhoodId: string, client?: SupabaseClient) {
   const supabase = client ?? await createClient();
 
-  // Fetch all counts in parallel
-  const [postsResult, itemsResult, membersResult] = await Promise.all([
-    // Active posts (not deleted)
-    supabase
-      .from("posts")
-      .select("*", { count: "exact", head: true })
-      .eq("neighborhood_id", neighborhoodId)
-      .is("deleted_at", null),
-    // Available items (not deleted, available status)
-    supabase
-      .from("items")
-      .select("*", { count: "exact", head: true })
-      .eq("neighborhood_id", neighborhoodId)
-      .eq("availability", "available")
-      .is("deleted_at", null),
-    // Active members
-    supabase
-      .from("memberships")
-      .select("*", { count: "exact", head: true })
-      .eq("neighborhood_id", neighborhoodId)
-      .eq("status", "active"),
+  const [postsCount, itemsCount, neighborsCount] = await Promise.all([
+    countPosts(supabase, neighborhoodId),
+    countAvailableItems(supabase, neighborhoodId),
+    countActiveMemberships(supabase, neighborhoodId),
   ]);
 
   return {
-    postsCount: postsResult.count || 0,
-    itemsCount: itemsResult.count || 0,
-    neighborsCount: membersResult.count || 0,
+    postsCount,
+    itemsCount,
+    neighborsCount,
   };
 }

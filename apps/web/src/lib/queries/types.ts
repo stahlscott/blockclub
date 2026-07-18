@@ -13,6 +13,8 @@ import type {
   Post,
   NotificationPreferences,
   User,
+  NeighborhoodGuideWithUpdatedBy,
+  PostReaction,
 } from "@blockclub/shared";
 
 // ============================================================================
@@ -35,6 +37,37 @@ export interface UserWithContact extends UserSummary {
 /** User with notification preferences */
 export interface UserWithPreferences extends UserWithContact {
   notification_preferences: NotificationPreferences | null;
+}
+
+/** User profile fields used by dashboard/settings pages. */
+export interface UserProfile extends User {
+  primary_neighborhood_id: string | null;
+}
+
+export interface StaffUserMembership {
+  membership_id: string;
+  neighborhood_id: string;
+  neighborhood_name: string;
+  neighborhood_slug: string;
+  role: string;
+  status: string;
+}
+
+export interface StaffUserSearchResult {
+  id: string;
+  name: string | null;
+  email: string;
+  avatar_url: string | null;
+  memberships: StaffUserMembership[];
+}
+
+/** A pending or active loan with the joined item and borrower/owner display data. */
+export interface LoanWithDashboardDetails extends Loan {
+  item: Item & {
+    neighborhood: { slug: string } | null;
+    owner: UserSummary | null;
+  };
+  borrower: UserSummary | null;
 }
 
 // ============================================================================
@@ -66,6 +99,12 @@ export interface ItemWithOwner extends Item {
   owner: UserSummary;
 }
 
+/** Item shape consumed by the library client, including owner display data. */
+export interface LibraryItem extends Omit<Item, "description"> {
+  description: string | null;
+  owner: UserSummary;
+}
+
 // ============================================================================
 // LOAN QUERY TYPES
 // ============================================================================
@@ -74,6 +113,19 @@ export interface ItemWithOwner extends Item {
 export interface LoanWithDetails extends Loan {
   item: Item;
   borrower: UserSummary;
+}
+
+/** Minimal item relationship used by request validation and owner commands. */
+export interface ItemOwnership {
+  id: string;
+  owner_id: string;
+  neighborhood_id: string;
+  availability: Item["availability"];
+}
+
+/** Minimal active loan relationship used by item availability commands. */
+export interface ActiveLoanSummary {
+  id: string;
 }
 
 /** Loan with full item including owner (for borrower's view) */
@@ -91,6 +143,9 @@ export interface PostWithAuthor extends Post {
   author: UserSummary;
   editor?: User | null;
 }
+
+export type NeighborhoodGuideQuery = NeighborhoodGuideWithUpdatedBy;
+export type PostReactionQuery = PostReaction;
 
 // ============================================================================
 // NOTIFICATION QUERY TYPES (moved from lib/supabase/queries.ts)
@@ -150,6 +205,25 @@ export interface OwnerRow {
   name: string;
   email: string;
   notification_preferences: NotificationPreferences | null;
+}
+
+export interface LoanNotificationQuery {
+  id: string;
+  notes?: string | null;
+  due_date?: string | null;
+  borrower: {
+    id: string;
+    name: string;
+    email?: string;
+    notification_preferences?: NotificationPreferences | null;
+  };
+  item: {
+    id: string;
+    name: string;
+    owner_id?: string;
+    owner?: { id: string; name: string; email?: string; notification_preferences?: NotificationPreferences | null };
+    neighborhood: { slug: string };
+  };
 }
 
 // ============================================================================

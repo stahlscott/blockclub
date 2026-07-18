@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
+import type { NeighborhoodSettings } from "@blockclub/shared";
 
 export interface NeighborhoodSettingsInput {
   name: string;
@@ -53,9 +54,9 @@ export async function updateNeighborhoodSettings(
   if (!name) return { success: false, error: "Neighborhood name cannot be empty." };
   if (nameError) return { success: false, error: nameError };
 
-  const settings = {
-    ...(neighborhood.settings as Record<string, unknown> | null),
+  const settings: NeighborhoodSettings = {
     require_approval: input.requireApproval,
+    allow_public_directory: neighborhood.settings?.allow_public_directory ?? false,
   };
   const { data: updated, error } = await auth.queryClient
     .from("neighborhoods")

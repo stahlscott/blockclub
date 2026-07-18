@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdmin, isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { searchStaffUsers } from "@/lib/queries";
 
 export interface UserMembership {
   membership_id: string;
@@ -65,86 +66,14 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
   }
 
   const adminSupabase = createAdminClient();
-  const searchPattern = `%${query}%`;
-
-  // Search for users matching the query
-  const { data: users, error: usersError } = await adminSupabase
-    .from("users")
-    .select("id, name, email, avatar_url")
-    .or(`name.ilike.${searchPattern},email.ilike.${searchPattern}`)
-    .limit(50);
-
-  if (usersError) {
-    logger.error("Failed to search users", usersError, { query });
-    return [];
+  const { data, error } = await searchStaffUsers(adminSupabase, query);
+  if (error) {
+    logger.error("Failed to search users", error, { query });
   }
 
-  if (!users || users.length === 0) {
-    return [];
-  }
-
-  const typedUsers = users as UserRow[];
-
-  // Filter out staff admins from results
-  const nonStaffUsers = typedUsers.filter((u) => !isStaffAdmin(u.email));
-
-  if (nonStaffUsers.length === 0) {
-    return [];
-  }
-
-  const userIds = nonStaffUsers.map((u) => u.id);
-
-  // Get memberships for these users
-  const { data: memberships, error: membershipsError } = await adminSupabase
-    .from("memberships")
-    .select(
-      `
-      id,
-      user_id,
-      neighborhood_id,
-      role,
-      status,
-      neighborhood:neighborhoods(name, slug)
-    `
-    )
-    .in("user_id", userIds)
-    .is("deleted_at", null);
-
-  if (membershipsError) {
-    logger.error("Failed to fetch memberships", membershipsError, { userIds });
-    // Continue without membership data
-  }
-
-  const typedMemberships = (memberships || []) as MembershipRow[];
-
-  // Group memberships by user
-  const membershipsByUser = typedMemberships.reduce<
-    Record<string, UserMembership[]>
-  >((acc, m) => {
-    if (!acc[m.user_id]) {
-      acc[m.user_id] = [];
-    }
-    if (m.neighborhood) {
-      acc[m.user_id].push({
-        membership_id: m.id,
-        neighborhood_id: m.neighborhood_id,
-        neighborhood_name: m.neighborhood.name,
-        neighborhood_slug: m.neighborhood.slug,
-        role: m.role,
-        status: m.status,
-      });
-    }
-    return acc;
-  }, {});
-
-  // Build results
-  return nonStaffUsers.map((user) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    avatar_url: user.avatar_url,
-    memberships: membershipsByUser[user.id] || [],
-  }));
+  return data
+    .filter((user) => !isStaffAdmin(user.email))
+    .map((user) => ({ ...user, memberships: user.memberships }));
 }
 
 export interface PaginatedUsersResult {

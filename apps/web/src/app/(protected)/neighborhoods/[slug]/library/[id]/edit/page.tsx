@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getItemById } from "@/lib/queries";
 import { updateItem } from "../../actions";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
@@ -41,12 +42,7 @@ export default function EditItemPage() {
         return;
       }
 
-      const { data: item, error: fetchError } = await supabase
-        .from("items")
-        .select("*")
-        .eq("id", id)
-        .is("deleted_at", null)
-        .single();
+      const { data: item, error: fetchError } = await getItemById(supabase, id);
 
       if (fetchError || !item) {
         setError("Item not found");

@@ -4,6 +4,11 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { isStaffAdmin } from "@/lib/auth";
+import {
+  getActiveMembershipForUser,
+  getNeighborhoodBySlug,
+  getPendingMembersByNeighborhood,
+} from "@/lib/queries";
 import { MembershipActions } from "./membership-actions";
 import pendingStyles from "./pending.module.css";
 
@@ -29,24 +34,14 @@ export default async function PendingMembersPage({ params }: Props) {
   }
 
   // Fetch neighborhood
-  const { data: neighborhood } = await supabase
-    .from("neighborhoods")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: neighborhood } = await getNeighborhoodBySlug(supabase, slug);
 
   if (!neighborhood) {
     notFound();
   }
 
   // Check if user is admin (neighborhood admin or staff admin)
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
+  const { data: membership } = await getActiveMembershipForUser(supabase, neighborhood.id, user.id);
 
   const isNeighborhoodAdmin = membership?.role === "admin";
   const userIsStaffAdmin = isStaffAdmin(user.email);
@@ -56,14 +51,7 @@ export default async function PendingMembersPage({ params }: Props) {
   }
 
   // Fetch pending memberships
-  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
-  const { data: pendingMembers } = await supabase
-    .from("memberships")
-    .select("*, user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("status", "pending")
-    .is("deleted_at", null)
-    .order("joined_at", { ascending: true });
+  const { data: pendingMembers } = await getPendingMembersByNeighborhood(supabase, neighborhood.id);
 
   return (
     <div className={pendingStyles.container}>

@@ -55,5 +55,5 @@ export async function moderateMembership(input: {
 
   revalidatePath(`/neighborhoods/${input.neighborhoodSlug}/members/pending`);
   revalidatePath(`/neighborhoods/${input.neighborhoodSlug}/members`);
-  return { success: true, data: { membershipId: result.membership_id, neighborhoodId: result.neighborhood_id, status: result.status, deletedAt: result.deleted_at } };
+  return { success: true, data: { membershipId: result.membership_id, neighborhoodId: result.neighborhood_id, status: result.status === "active" ? "active" : "inactive", deletedAt: result.deleted_at } };
 }

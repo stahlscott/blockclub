@@ -1,16 +1,17 @@
 import { cache } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { Database } from "@blockclub/shared";
 import { cookies } from "next/headers";
 
 /**
  * Create a Supabase client for server components.
  * Cached per request - multiple calls return the same client instance.
  */
-export const createClient = cache(async () => {
+export const createClient = cache(async (): Promise<SupabaseClient<Database>> => {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {

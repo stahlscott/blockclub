@@ -11,7 +11,7 @@ import libraryStyles from "./library.module.css";
 interface Item {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   category: string;
   availability: string;
   photo_urls?: string[];
@@ -19,7 +19,7 @@ interface Item {
   owner?: {
     id: string;
     name: string;
-    avatar_url?: string;
+    avatar_url: string | null;
   };
 }
 

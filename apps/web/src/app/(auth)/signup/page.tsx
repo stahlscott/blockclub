@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getMembershipForUserInNeighborhood } from "@/lib/queries";
 import "@/app/globals.css";
 import styles from "../auth.module.css";
 
@@ -69,12 +70,11 @@ function SignUpForm() {
         // If signing up via invite link, auto-create the membership
         // (mirrors the callback route logic for the email-confirmation path)
         if (neighborhoodId) {
-          const { data: existingMembership } = await supabase
-            .from("memberships")
-            .select("id")
-            .eq("user_id", data.user.id)
-            .eq("neighborhood_id", neighborhoodId)
-            .maybeSingle();
+          const { data: existingMembership } = await getMembershipForUserInNeighborhood(
+            supabase,
+            data.user.id,
+            neighborhoodId,
+          );
 
           if (!existingMembership) {
             const membershipResponse = await fetch("/api/join", {
