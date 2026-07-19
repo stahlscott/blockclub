@@ -44,9 +44,7 @@ test.describe('Accessibility Audit - Public Pages', () => {
       });
     }
 
-    // For now, we log violations but don't fail - this allows us to audit first
-    // Uncomment the line below to enforce accessibility compliance:
-    // expect(accessibilityScanResults.violations).toEqual([]);
+    expect(accessibilityScanResults.violations).toEqual([]);
   });
 
   test('forgot-password page should have no accessibility violations', async ({ page }) => {
@@ -59,6 +57,8 @@ test.describe('Accessibility Audit - Public Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/forgot-password', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Forgot Password Page Accessibility Violations ===');
@@ -83,6 +83,8 @@ test.describe('Accessibility Audit - Public Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/reset-password', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Reset Password Page Accessibility Violations ===');
@@ -120,6 +122,8 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/dashboard', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Dashboard Page Accessibility Violations ===');
@@ -165,6 +169,8 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/library', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Library Page Accessibility Violations ===');

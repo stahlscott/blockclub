@@ -97,6 +97,8 @@ export default async function DashboardPage() {
   const { data: pendingLoanRequestsData } = await getPendingLoanRequestsForItems(queryClient, itemIds);
   const pendingLoanRequests = pendingLoanRequestsData ?? [];
 
+  const activeMemberships = memberships || [];
+
   // Fetch user's active borrowed items through the centralized loan query.
   const { data: borrowedItems, error: borrowedError } = await getLoansForBorrower(
     queryClient,
@@ -104,12 +106,13 @@ export default async function DashboardPage() {
     { status: "active" },
   );
 
-  if (borrowedError) {
-    logger.error("Error fetching borrowed items", borrowedError);
+  if (borrowedError && activeMemberships.length > 0) {
+    logger.error("Error fetching borrowed items", borrowedError, {
+      effectiveUserId,
+    });
   }
 
   // Determine the primary neighborhood
-  const activeMemberships = memberships || [];
   let primaryNeighborhood: any = null;
   let primaryMembership: any = null;
 

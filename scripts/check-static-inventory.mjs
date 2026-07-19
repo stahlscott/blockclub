@@ -25,10 +25,10 @@ for (const path of productionFiles) {
     .replace(/\/\/.*$/gm, "");
   const relativePath = relative(root, path);
   if (/\bas never\b|@ts-ignore|@ts-expect-error/.test(text)) violations.push(`${relativePath}: forbidden unsafe cast/directive`);
-  const databaseMutation = /\.from\(\s*["'][^"']+["']\s*\)[\s\S]{0,220}?\.(insert|update|delete)\s*\(/.test(text) || /\.rpc\s*\(/.test(text);
+  const databaseMutation = /\.from\(\s*["'][^"']+["']\s*\)[\s\S]{0,220}?\.(insert|upsert|update|delete)\s*\(/.test(text) || /\.rpc\s*\(/.test(text);
   if (/\.from\(\s*["'][^"']+["']\s*\)[\s\S]{0,220}?\.delete\s*\(/.test(text)) violations.push(`${relativePath}: direct production delete is not approved`);
   if (databaseMutation) {
-    if (!inventory.includes(`\`${relativePath}\``) && !/[\/]actions\.ts$/.test(relativePath) && !/[\/]route\.ts$/.test(relativePath) && !relativePath.endsWith("neighborhood-mutations.ts")) {
+    if (!inventory.includes(`\`${relativePath}\``)) {
       violations.push(`${relativePath}: mutation call site is not listed in the approved inventory`);
     }
   }

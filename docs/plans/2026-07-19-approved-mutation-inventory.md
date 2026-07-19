@@ -27,15 +27,18 @@ This file is intentionally separate from the historical pre-remediation inventor
 | `apps/web/src/app/(protected)/neighborhoods/[slug]/library/actions.ts` | item create/update | `server-action` | membership/owner checks and affected-row handling |
 | `apps/web/src/app/(protected)/neighborhoods/[slug]/members/pending/actions.ts` | pending moderation RPC | `named-rpc` | `moderate_pending_membership` |
 | `apps/web/src/app/(protected)/neighborhoods/[slug]/posts/actions.ts` | post/reaction/pin mutations | `named-rpc` | named post RPCs and validated creation action |
+| `apps/web/src/app/join/actions.ts` | join/rejoin membership insert/update | `server-action` | authenticated route-neighborhood validation and affected-row checks |
 | `apps/web/src/app/(protected)/neighborhoods/[slug]/settings/actions.ts` | neighborhood update | `server-action` | admin membership, typed payload, affected-row check |
 | `apps/web/src/app/(protected)/profile/actions.ts` | profile update | `server-action` | effective-user predicate and affected-row check |
 | `apps/web/src/app/(protected)/settings/actions.ts` | notification preferences | `server-action` | effective-user predicate and affected-row check |
 | `apps/web/src/app/actions/neighborhood.ts` | primary neighborhood switch | `server-action` | active membership validation and affected-row check |
 | `apps/web/src/app/api/memberships/[id]/move-out/route.ts` | move out | `named-rpc` | `move_out_membership` |
 | `apps/web/src/app/api/admin/users/[id]/memberships/route.ts` | staff membership add/reactivate | `staff-command` | `staff_membership_operation` |
+| `apps/web/src/app/api/admin/neighborhoods/[id]/route.ts` | deprecated physical teardown / staff neighborhood patch | `staff-command` | DELETE returns 410; PATCH uses database-allowlisted staff authorization and typed update payload |
 | `apps/web/src/app/api/admin/users/[id]/memberships/[membershipId]/route.ts` | staff membership removal | `staff-command` | `staff_membership_operation` |
 | `apps/web/src/lib/auth.ts` | staff allowlist RPC lookup | `staff-command` | read-only authorization RPC; no data mutation |
 | `apps/web/src/lib/ensure-membership.ts` | idempotent membership insert | `server-action` | authenticated join boundary and unique target lookup |
+| `apps/web/src/lib/ensure-profile.ts` | idempotent profile upsert | `server-action` | auth-trigger fallback; preserves existing profile fields through conflict-safe upsert |
 | `apps/web/src/lib/neighborhood-mutations.ts` | staff neighborhood creation | `admin-create` | staff-authenticated server boundary and typed insert payload |
 | `apps/web/src/lib/staff-membership.ts` | staff membership RPC | `staff-command` | actor/effective-user validation and named staff RPC |
 | `apps/web/src/test/**` | fixture setup/cleanup | `test-fixture` | integration harness only |

@@ -55,8 +55,8 @@ This report is the current disposition map. Historical review files remain immut
 
 ## Remaining release conditions
 
-- Clean-reset integration, lint, typecheck, unit tests, build, repository gates, and targeted accessibility scans pass at this checkpoint. The default E2E user has no neighborhood navigation/posts, so three protected accessibility tests skip by design; a fixture with active neighborhood content is still needed for those paths.
-- Targeted E2E logs repeated pre-existing `Error fetching borrowed items` messages while the dashboard fixture rendered; investigate that query/error path separately before production rollout.
+- Clean-reset integration, lint, typecheck, unit tests, build, repository gates, and targeted accessibility scans pass at this checkpoint. The default E2E user has no neighborhood navigation/posts, so three protected accessibility tests skip by design; a fixture with active neighborhood content is still needed for those paths. The current setup intentionally skips auth without `E2E_TEST_USER_EMAIL` and `E2E_TEST_USER_PASSWORD`, so production-like protected coverage requires those credentials plus seeded active neighborhood content.
+- The dashboard now suppresses the borrowed-item error log when the user has no active memberships—the known default-fixture state—and retains diagnostic logging for active members. Local integration/query tests do not reproduce a database error; investigate any active-member occurrence separately before production rollout.
 - Perform a fresh adversarial review against both historical reports.
 - Keep the four oversized component waivers or complete the proposed extractions in a follow-up.
 - Treat injected-failure rollback testing as optional hardening unless a safe failure-injection seam is introduced.
