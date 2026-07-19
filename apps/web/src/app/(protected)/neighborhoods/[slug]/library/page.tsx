@@ -31,10 +31,18 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const { category } = await searchParams;
   const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  // Fetch all visible items (no category filter) to determine available categories
-  const { data: allItems } = await getItemsByNeighborhood(supabase, neighborhood.id, {
-    includeUnavailable: true,
-  });
+  // Fetch visible items and active member count in parallel.
+  const [{ data: allItems }, { count: memberCount }] = await Promise.all([
+    getItemsByNeighborhood(supabase, neighborhood.id, {
+      includeUnavailable: true,
+    }),
+    supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "active")
+      .is("deleted_at", null),
+  ]);
 
   // Compute which categories have items
   const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);
@@ -82,6 +90,8 @@ export default async function LibraryPage({ params, searchParams }: Props) {
         slug={slug}
         userId={user.id}
         category={category}
+        memberCount={memberCount || 0}
+        totalItemCount={allItems?.length || 0}
       />
     </div>
   );

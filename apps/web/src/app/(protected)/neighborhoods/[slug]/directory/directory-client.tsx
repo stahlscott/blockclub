@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Search, MapPin } from "lucide-react";
+import { InviteNudge } from "@/components/InviteNudge";
+import { isInGrowthMode, shouldShowContentNudge } from "@/lib/growth";
+import { useInvite } from "@/lib/hooks/useInvite";
 import styles from "./directory.module.css";
 
 interface PhoneEntry {
@@ -43,6 +46,7 @@ interface Props {
   slug: string;
   neighborhoodName: string;
   members: Member[];
+  memberCount: number;
 }
 
 type SortOption =
@@ -119,7 +123,7 @@ function isNewMember(joinedAt: string): boolean {
   return joinDate > thirtyDaysAgo;
 }
 
-export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
+export function DirectoryClient({ slug, neighborhoodName, members, memberCount }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("address-asc");
@@ -230,6 +234,8 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
     return result;
   }, [members, debouncedQuery, sortOption]);
 
+  const { handleInvite, modal: inviteModal } = useInvite(slug);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -273,71 +279,84 @@ export function DirectoryClient({ slug, neighborhoodName, members }: Props) {
       </div>
 
       {filteredMembers.length > 0 ? (
-        <div className={styles.memberGrid}>
-          {filteredMembers.map((member) => {
-            const isNew = isNewMember(member.joined_at);
-            const showNewBadge = isNew && member.role !== "admin";
+        <>
+          <div className={styles.memberGrid}>
+            {filteredMembers.map((member) => {
+              const isNew = isNewMember(member.joined_at);
+              const showNewBadge = isNew && member.role !== "admin";
 
-            return (
-              <Link
-                key={member.id}
-                href={`/neighborhoods/${slug}/members/${member.user.id}`}
-                className={styles.memberCard}
-              >
-                <div className={`${styles.avatar} ${!member.user.avatar_url ? getAvatarColorClass(member.user.name) : ""}`}>
-                  {member.user.avatar_url ? (
-                    <Image
-                      src={member.user.avatar_url}
-                      alt={member.user.name}
-                      width={80}
-                      height={80}
-                      className={styles.avatarImg}
-                    />
-                  ) : (
-                    <span className={styles.avatarInitial}>
-                      {getInitial(member.user.name)}
-                    </span>
-                  )}
-                </div>
-                <div className={styles.memberInfo}>
-                  <h3 className={styles.memberName}>{member.user.name}</h3>
+              return (
+                <Link
+                  key={member.id}
+                  href={`/neighborhoods/${slug}/members/${member.user.id}`}
+                  className={styles.memberCard}
+                >
+                  <div className={`${styles.avatar} ${!member.user.avatar_url ? getAvatarColorClass(member.user.name) : ""}`}>
+                    {member.user.avatar_url ? (
+                      <Image
+                        src={member.user.avatar_url}
+                        alt={member.user.name}
+                        width={80}
+                        height={80}
+                        className={styles.avatarImg}
+                      />
+                    ) : (
+                      <span className={styles.avatarInitial}>
+                        {getInitial(member.user.name)}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.memberInfo}>
+                    <h3 className={styles.memberName}>{member.user.name}</h3>
 
-                  {(member.role === "admin" || showNewBadge) && (
-                    <div className={styles.badgeRow}>
-                      {member.role === "admin" && (
-                        <span className={styles.adminBadge}>Admin</span>
-                      )}
-                      {showNewBadge && (
-                        <span className={styles.newBadge}>New</span>
-                      )}
-                    </div>
-                  )}
+                    {(member.role === "admin" || showNewBadge) && (
+                      <div className={styles.badgeRow}>
+                        {member.role === "admin" && (
+                          <span className={styles.adminBadge}>Admin</span>
+                        )}
+                        {showNewBadge && (
+                          <span className={styles.newBadge}>New</span>
+                        )}
+                      </div>
+                    )}
 
-                  {member.user.address && (
-                    <p className={styles.memberAddress}>
-                      <MapPin className={styles.addressIcon} />
-                      {member.user.address}
-                      {member.user.unit && `, ${member.user.unit}`}
-                    </p>
-                  )}
+                    {member.user.address && (
+                      <p className={styles.memberAddress}>
+                        <MapPin className={styles.addressIcon} />
+                        {member.user.address}
+                        {member.user.unit && `, ${member.user.unit}`}
+                      </p>
+                    )}
 
-                  {member.user.bio && (
-                    <p className={styles.memberBio}>{member.user.bio}</p>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                    {member.user.bio && (
+                      <p className={styles.memberBio}>{member.user.bio}</p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          {isInGrowthMode(memberCount) && shouldShowContentNudge(memberCount, "directory") && (
+            <InviteNudge slug={slug} section="directory" />
+          )}
+        </>
       ) : debouncedQuery ? (
         <div className={styles.emptyState}>
           <p>No results found for &ldquo;{debouncedQuery}&rdquo;</p>
         </div>
       ) : (
         <div className={styles.emptyState}>
-          <p>No members yet. Be the first to invite neighbors!</p>
+          <p>No members yet.</p>
+          <button
+            onClick={handleInvite}
+            className={styles.inviteButton}
+            type="button"
+          >
+            Invite your neighbors
+          </button>
         </div>
       )}
+      {inviteModal}
     </div>
   );
 }

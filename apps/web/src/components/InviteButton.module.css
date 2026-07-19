@@ -71,10 +71,6 @@
   .linkButton {
     padding: var(--space-2) var(--space-3);
   }
-
-  .linkText {
-    display: none;
-  }
 }
 
 /* Modal overlay */

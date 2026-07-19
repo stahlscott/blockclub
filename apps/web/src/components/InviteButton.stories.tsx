@@ -23,7 +23,7 @@ const meta: Meta<typeof InviteButton> = {
     docs: {
       description: {
         component:
-          "Button that opens a modal with invite link and QR code. " +
+          "Button that triggers native share (on supported devices) or opens a modal with invite link and QR code. " +
           "Supports copy-to-clipboard and QR download.",
       },
     },
@@ -53,7 +53,9 @@ export const Link: Story = {
   parameters: {
     docs: {
       description: {
-        story: "Link-style variant with wave emoji. Used in navigation.",
+        story:
+          'Link-style variant with wave emoji and "Invite Neighbors" label. ' +
+          "Used in dashboard welcome section. Label always visible on mobile.",
       },
     },
   },

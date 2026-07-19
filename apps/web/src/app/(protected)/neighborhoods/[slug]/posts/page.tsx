@@ -15,7 +15,16 @@ export default async function PostsPage({ params }: Props) {
   const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  const { data: posts } = await getPostsByNeighborhood(supabase, neighborhood.id);
+  // Fetch posts and active member count in parallel.
+  const [{ data: posts }, { count: memberCount }] = await Promise.all([
+    getPostsByNeighborhood(supabase, neighborhood.id),
+    supabase
+      .from("memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("neighborhood_id", neighborhood.id)
+      .eq("status", "active")
+      .is("deleted_at", null),
+  ]);
 
   const postIds = posts?.map((p) => p.id) || [];
   const { data: reactions } = await getPostReactions(supabase, postIds);
@@ -77,6 +86,7 @@ export default async function PostsPage({ params }: Props) {
         isAdmin={isNeighborhoodAdmin}
         slug={slug}
         neighborhoodId={neighborhood.id}
+        memberCount={memberCount || 0}
       />
     </div>
   );
