@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   getActiveMembershipForUser,
   getNeighborhoodBySlug,
@@ -44,7 +45,7 @@ export default async function PendingMembersPage({ params }: Props) {
   const { data: membership } = await getActiveMembershipForUser(supabase, neighborhood.id, user.id);
 
   const isNeighborhoodAdmin = membership?.role === "admin";
-  const userIsStaffAdmin = isStaffAdmin(user.email);
+  const userIsStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
 
   if (!isNeighborhoodAdmin && !userIsStaffAdmin) {
     redirect("/dashboard");

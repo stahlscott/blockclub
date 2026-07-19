@@ -48,10 +48,9 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);
 
   // Apply category filter in memory
-  let items = allItems || [];
-  if (category && category !== "all") {
-    items = items.filter((item: any) => item.category === category);
-  }
+  const items = category && category !== "all"
+    ? (allItems || []).filter((item) => item.category === category)
+    : allItems || [];
 
   return (
     <div className={libraryStyles.container}>

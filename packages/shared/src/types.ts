@@ -233,6 +233,15 @@ export interface MembershipModerationResult {
   affected_membership_count: number;
 }
 
+export interface RoleChangeResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  neighborhood_id: string | null;
+  role: MembershipRole | null;
+  affected_membership_count: number;
+}
+
 export interface StaffMembershipOperationResult {
   success: boolean;
   reason: string;
@@ -584,6 +593,10 @@ export interface Database {
       moderate_pending_membership: {
         Args: { p_membership_id: string; p_decision: string };
         Returns: MembershipModerationResult;
+      };
+      promote_membership_to_admin: {
+        Args: { p_membership_id: string };
+        Returns: RoleChangeResult;
       };
       is_staff_admin: {
         Args: { p_user_id: string };

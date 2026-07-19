@@ -41,7 +41,7 @@ export async function getRecentMembers(neighborhoodId: string, currentUserId: st
 
   const { data: members } = await getMembers(supabase, neighborhoodId, 6);
 
-  // Filter out staff admin users and current user from the recent members list
+  // Presentation-only filtering; authorization uses the database-backed staff check.
   return (members || []).filter(
     (m) => !isStaffAdmin(m.user?.email) && m.user_id !== currentUserId
   );

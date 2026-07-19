@@ -42,7 +42,6 @@ interface Props {
   currentUserId: string;
   isAdmin: boolean;
   slug: string;
-  neighborhoodId: string;
   memberCount: number;
 }
 
@@ -266,12 +265,13 @@ const PostCard = memo(function PostCard({
   const hasReactedHeart = post.user_reactions.includes("heart");
   const isHeartLoading = loadingReaction === `${post.id}-heart`;
 
-  const getHeartClassName = () => {
-    let className = styles.heartButton;
-    if (hasReactedHeart) className += ` ${styles.heartButtonActive}`;
-    if (isHeartLoading) className += ` ${styles.heartButtonLoading}`;
-    return className;
-  };
+  const heartClassName = [
+    styles.heartButton,
+    hasReactedHeart && styles.heartButtonActive,
+    isHeartLoading && styles.heartButtonLoading,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <article className={styles.postCard}>
@@ -349,7 +349,7 @@ const PostCard = memo(function PostCard({
             disabled={isHeartLoading}
             aria-label={hasReactedHeart ? "Remove heart reaction" : "React with heart"}
             aria-pressed={hasReactedHeart}
-            className={getHeartClassName()}
+            className={heartClassName}
           >
             <span className={styles.heartEmoji}>{hasReactedHeart ? "\u2764\uFE0F" : "\uD83E\uDD0D"}</span>
             {heartCount > 0 && <span className={styles.heartCount}>{heartCount}</span>}

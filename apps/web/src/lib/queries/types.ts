@@ -130,7 +130,7 @@ export interface ActiveLoanSummary {
 
 /** Loan with full item including owner (for borrower's view) */
 export interface LoanWithItemAndOwner extends Loan {
-  item: ItemWithOwner;
+  item: ItemWithOwner & { neighborhood: { slug: string } | null };
   borrower: UserSummary;
 }
 

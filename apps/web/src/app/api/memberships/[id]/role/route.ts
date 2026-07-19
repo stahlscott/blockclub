@@ -106,16 +106,33 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Only staff admins can demote admins" }, { status: 403 });
   }
 
-  const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
-    operation,
-    membershipId,
-    role,
-    staffActorId: user.id,
-  });
+  if (!userIsStaffAdmin) {
+    // Neighborhood admins are not staff actors, so their promotions go through
+    // the auth.uid()-validated RPC rather than the staff command boundary.
+    const { data: promoteResult, error: promoteError } = await supabase.rpc(
+      "promote_membership_to_admin",
+      { p_membership_id: membershipId },
+    );
 
-  if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
-    logger.error("Error updating membership role", operationError, { membershipId, operation });
-    return NextResponse.json({ error: operationResult?.reason || "Failed to update role" }, { status: 409 });
+    if (promoteError || !promoteResult?.success || promoteResult.affected_membership_count !== 1) {
+      logger.error("Error promoting membership", promoteError, { membershipId });
+      return NextResponse.json(
+        { error: "This member could not be promoted. Refresh and try again." },
+        { status: 409 },
+      );
+    }
+  } else {
+    const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
+      operation,
+      membershipId,
+      role,
+      staffActorId: user.id,
+    });
+
+    if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
+      logger.error("Error updating membership role", operationError, { membershipId, operation });
+      return NextResponse.json({ error: operationResult?.reason || "Failed to update role" }, { status: 409 });
+    }
   }
 
   const { data: updatedMembership } = await createAdminClient()

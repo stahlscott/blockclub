@@ -102,6 +102,15 @@ test.describe('Accessibility Audit - Public Pages', () => {
 
 // Authenticated page tests - require E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD
 authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
+  // In CI, missing credentials must fail loudly: a silent describe-level skip
+  // lets every protected-page scan vanish while the run stays green.
+  if (process.env.CI && (!process.env.E2E_TEST_USER_EMAIL || !process.env.E2E_TEST_USER_PASSWORD)) {
+    throw new Error(
+      'Protected accessibility scans require E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD in CI. ' +
+        'Provision the E2E test user secrets instead of skipping the suite.'
+    );
+  }
+
   authenticatedTest.skip(
     !process.env.E2E_TEST_USER_EMAIL || !process.env.E2E_TEST_USER_PASSWORD,
     'Skipping authenticated tests: E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD required'
@@ -155,8 +164,7 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
     } else if (await mobileLibraryLink.isVisible()) {
       await mobileLibraryLink.click();
     } else {
-      // Skip if we can't find the library link
-      authenticatedTest.skip();
+      authenticatedTest.skip(true, 'Library nav link not found — E2E fixture has no active neighborhood');
       return;
     }
 

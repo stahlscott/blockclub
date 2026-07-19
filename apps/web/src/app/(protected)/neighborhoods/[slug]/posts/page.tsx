@@ -85,7 +85,6 @@ export default async function PostsPage({ params }: Props) {
         currentUserId={user.id}
         isAdmin={isNeighborhoodAdmin}
         slug={slug}
-        neighborhoodId={neighborhood.id}
         memberCount={memberCount || 0}
       />
     </div>

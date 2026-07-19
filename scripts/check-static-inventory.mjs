@@ -25,6 +25,13 @@ for (const path of productionFiles) {
     .replace(/\/\/.*$/gm, "");
   const relativePath = relative(root, path);
   if (/\bas never\b|@ts-ignore|@ts-expect-error/.test(text)) violations.push(`${relativePath}: forbidden unsafe cast/directive`);
+  // Dynamic table references cannot be statically verified against the
+  // inventory, so they are rejected outright rather than silently skipped.
+  // Storage-bucket chains (supabase.storage.from(bucket)) are not table reads.
+  const tableText = text.replace(/\bstorage\s*\.\s*from\s*\(/g, "storage.bucket(");
+  if (/(?<!Array|Buffer)\.from\(\s*(?!["'][^"']+["']\s*\))[^)]/.test(tableText)) {
+    violations.push(`${relativePath}: dynamic .from() argument — table names must be string literals so mutations stay statically checkable`);
+  }
   const databaseMutation = /\.from\(\s*["'][^"']+["']\s*\)[\s\S]{0,220}?\.(insert|upsert|update|delete)\s*\(/.test(text) || /\.rpc\s*\(/.test(text);
   if (/\.from\(\s*["'][^"']+["']\s*\)[\s\S]{0,220}?\.delete\s*\(/.test(text)) violations.push(`${relativePath}: direct production delete is not approved`);
   if (databaseMutation) {

@@ -24,6 +24,10 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run check:static-inventory
+      - run: npm run check:component-sizes
+      - run: npm run check:doc-links
+      - run: npm run check:finding-dispositions
 
   unit-tests:
     name: Unit Tests

@@ -13,6 +13,7 @@ export interface StaffNeighborhoodSummary extends StaffNeighborhoodRow {
   memberCount: number;
   itemCount: number;
 }
+type StaffNeighborhoodDetailRow = Pick<Neighborhood, "id" | "name" | "slug">;
 type StaffMembershipCountRow = { neighborhood_id: string };
 type StaffItemCountRow = { neighborhood_id: string };
 type StaffMembershipRow = {
@@ -125,7 +126,7 @@ export async function getStaffNeighborhoodDetail(client: Client, slug: string) {
     .select("id, name, slug")
     .eq("slug", slug)
     .single();
-  const typedNeighborhood = neighborhood as unknown as Pick<Neighborhood, "id" | "name" | "slug"> | null;
+  const typedNeighborhood = neighborhood as StaffNeighborhoodDetailRow | null;
   if (!typedNeighborhood) return null;
 
   const { data: memberships } = await client

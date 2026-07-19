@@ -107,6 +107,7 @@ CREATE OR REPLACE FUNCTION public.loan_result(
 RETURNS public.loan_operation_result
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = public
 AS $$
   SELECT p_success, p_reason, p_loan_id, p_item_id, p_loan_count, p_item_count;
 $$;
@@ -179,7 +180,7 @@ BEGIN
   IF v_loan.status <> 'approved' THEN
     RETURN public.loan_result(FALSE, 'invalid_transition', v_loan.id, v_item.id);
   END IF;
-  IF v_item.availability = 'unavailable' THEN
+  IF v_item.availability <> 'available' THEN
     RETURN public.loan_result(FALSE, 'conflict', v_loan.id, v_item.id);
   END IF;
 

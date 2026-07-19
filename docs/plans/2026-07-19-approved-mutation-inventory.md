@@ -33,6 +33,7 @@ This file is intentionally separate from the historical pre-remediation inventor
 | `apps/web/src/app/(protected)/settings/actions.ts` | notification preferences | `server-action` | effective-user predicate and affected-row check |
 | `apps/web/src/app/actions/neighborhood.ts` | primary neighborhood switch | `server-action` | active membership validation and affected-row check |
 | `apps/web/src/app/api/memberships/[id]/move-out/route.ts` | move out | `named-rpc` | `move_out_membership` |
+| `apps/web/src/app/api/memberships/[id]/role/route.ts` | role change | `named-rpc` / `staff-command` | `promote_membership_to_admin` for neighborhood admins; `staff_membership_operation` for staff |
 | `apps/web/src/app/api/admin/users/[id]/memberships/route.ts` | staff membership add/reactivate | `staff-command` | `staff_membership_operation` |
 | `apps/web/src/app/api/admin/neighborhoods/[id]/route.ts` | deprecated physical teardown / staff neighborhood patch | `staff-command` | DELETE returns 410; PATCH uses database-allowlisted staff authorization and typed update payload |
 | `apps/web/src/app/api/admin/users/[id]/memberships/[membershipId]/route.ts` | staff membership removal | `staff-command` | `staff_membership_operation` |

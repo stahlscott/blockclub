@@ -25,7 +25,7 @@ const LOAN_WITH_DETAILS_SELECT = `
 // Select for loan with full item including owner (borrower's view)
 const LOAN_WITH_ITEM_AND_OWNER_SELECT = `
   *,
-  item:items!loans_item_id_fkey(*, owner:users!items_owner_id_fkey(id, name, avatar_url)),
+  item:items!loans_item_id_fkey(*, owner:users!items_owner_id_fkey(id, name, avatar_url), neighborhood:neighborhoods!items_neighborhood_id_fkey(slug)),
   borrower:users!loans_borrower_id_fkey(id, name, avatar_url)
 ` as const;
 

@@ -22,7 +22,7 @@ for (const path of files) {
   const text = await readFile(path, "utf8");
   const lines = text.split(/\r?\n/).length;
   if (lines > maxLines && !waivers[relativePath]?.reason) failures.push(`${relativePath}: ${lines} lines without a waiver reason`);
-  if (lines <= maxLines && waivers[relativePath]?.reason) console.warn(`${relativePath}: waiver is now unnecessary (${lines} lines)`);
+  if (lines <= maxLines && waivers[relativePath]?.reason) failures.push(`${relativePath}: stale waiver — file is now ${lines} lines; remove it from component-size-waivers.json`);
 }
 for (const relativePath of Object.keys(waivers)) {
   if (!files.includes(join(root, relativePath))) failures.push(`${relativePath}: waiver target does not exist`);

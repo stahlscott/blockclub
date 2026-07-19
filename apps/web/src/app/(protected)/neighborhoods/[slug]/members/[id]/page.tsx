@@ -5,7 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
 import { getItemsByOwner, getUserById, getActiveMembership } from "@/lib/queries";
 import { RoleActions } from "./role-actions";
-import { MoveOutActions } from "./move-out-actions";
 import { ProfileGallery } from "@/components/ProfileGallery";
 import profileStyles from "./member-profile.module.css";
 
@@ -46,9 +45,9 @@ export default async function MemberProfilePage({ params }: Props) {
   const canDemote =
     isStaffAdmin && memberMembership.role === "admin" && !isOwnProfile;
 
-  // Admins can mark any active member as moved out (except themselves)
-  const canMarkMovedOut =
-    (isStaffAdmin || (membership?.role === "admin")) && !isOwnProfile;
+  // Administrative move-out is deliberately unavailable until a staff-capable
+  // atomic RPC exists (the move-out route returns 501 for non-self targets),
+  // so no move-out control renders here. Self move-out lives in settings.
 
   return (
     <div className={profileStyles.container}>
@@ -250,26 +249,16 @@ export default async function MemberProfilePage({ params }: Props) {
         })}
       </div>
 
-      {!isOwnProfile && (canPromote || canDemote || canMarkMovedOut) && (
+      {!isOwnProfile && (canPromote || canDemote) && (
         <div className={profileStyles.adminActionsSection}>
           <div className={profileStyles.adminActionsRow}>
-            {(canPromote || canDemote) && (
-              <RoleActions
-                membershipId={memberMembership.id}
-                currentRole={memberMembership.role}
-                canPromote={canPromote}
-                canDemote={canDemote}
-                memberName={member.name}
-              />
-            )}
-            {canMarkMovedOut && (
-              <MoveOutActions
-                membershipId={memberMembership.id}
-                slug={slug}
-                canMarkMovedOut={canMarkMovedOut}
-                memberName={member.name}
-              />
-            )}
+            <RoleActions
+              membershipId={memberMembership.id}
+              currentRole={memberMembership.role}
+              canPromote={canPromote}
+              canDemote={canDemote}
+              memberName={member.name}
+            />
           </div>
         </div>
       )}
