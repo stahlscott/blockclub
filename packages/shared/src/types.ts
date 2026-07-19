@@ -139,6 +139,7 @@ export interface Neighborhood {
   location: string | null;
   settings: NeighborhoodSettings;
   created_by: string;
+  staff_actor_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -442,7 +443,7 @@ export type NeighborhoodGuideInsert = {
   updated_by?: string | null;
 };
 export type NeighborhoodGuideUpdate = Partial<
-  Pick<NeighborhoodGuide, "title" | "content" | "updated_by">
+  Pick<NeighborhoodGuide, "title" | "content" | "updated_at" | "updated_by">
 >;
 
 // ============================================================================

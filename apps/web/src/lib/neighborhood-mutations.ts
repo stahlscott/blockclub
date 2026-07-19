@@ -1,4 +1,4 @@
-import type { NeighborhoodInsert, NeighborhoodSettings } from "@blockclub/shared";
+import type { NeighborhoodSettings } from "@blockclub/shared";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface CreateNeighborhoodRecord {
@@ -11,13 +11,16 @@ export interface CreateNeighborhoodRecord {
   staff_actor_id: string;
 }
 
+type StaffNeighborhoodInsert = Record<string, unknown> & CreateNeighborhoodRecord;
+
+
 export async function insertStaffNeighborhood(
   record: CreateNeighborhoodRecord,
 ): Promise<{ id: string | null; error: unknown }> {
   const client = createAdminClient();
   const { data, error } = await client
     .from("neighborhoods")
-    .insert(record satisfies NeighborhoodInsert)
+    .insert(record as StaffNeighborhoodInsert)
     .select("id")
     .maybeSingle();
   return { id: (data as { id: string } | null)?.id ?? null, error };

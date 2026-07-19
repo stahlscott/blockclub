@@ -92,6 +92,7 @@ export function LibraryClient({ items, slug, userId, category }: Props) {
         <input
           type="text"
           placeholder="Search items..."
+          aria-label="Search library items"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={libraryStyles.searchInput}

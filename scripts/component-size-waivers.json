@@ -18,5 +18,35 @@
     "reason": "Staff member list coordinates search, role moderation, move-out, and confirmation state; extraction is deferred until the staff UI receives focused render coverage.",
     "owner": "remediation",
     "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(auth)/signup/page.tsx": {
+    "reason": "Signup owns the multi-step invite and neighborhood membership flow; extraction is deferred until auth-flow E2E coverage is expanded.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/neighborhoods/[slug]/settings/page.tsx": {
+    "reason": "Neighborhood settings combines server data loading, admin gating, and settings form composition; extraction is deferred to the architecture/UI review.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/neighborhoods/[slug]/posts/posts-client.tsx": {
+    "reason": "Posts client coordinates filtering, reaction state, image lightbox, and moderation controls; extraction is deferred until post interaction coverage is expanded.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/neighborhoods/[slug]/directory/directory-client.tsx": {
+    "reason": "Directory client coordinates sorting, filtering, and responsive member cards; extraction is deferred to a focused UI pass.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/neighborhoods/[slug]/library/[id]/owner-actions.tsx": {
+    "reason": "Owner actions coordinate loan lifecycle controls, due dates, availability, and item removal; extraction is deferred until lifecycle E2E coverage expands.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/join/[slug]/page.tsx": {
+    "reason": "Public join flow combines invite validation, membership state, and rejoin branches; extraction is deferred until join-flow render coverage expands.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
   }
 }

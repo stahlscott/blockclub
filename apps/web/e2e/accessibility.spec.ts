@@ -178,6 +178,44 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
       });
     }
   });
+
+  authenticatedTest('library search exposes an accessible name', async ({ authenticatedPage }) => {
+    const page = authenticatedPage as unknown as import('@playwright/test').Page;
+    await expect(page).toHaveURL('/dashboard');
+    const libraryLink = page.getByTestId('header-library-link');
+    if (!(await libraryLink.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no active neighborhood navigation');
+      return;
+    }
+    await expect(libraryLink).toBeVisible();
+    await libraryLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const search = page.getByTestId('library-search-input');
+    await expect(search).toBeVisible();
+    await expect(search).toHaveAttribute('aria-label', /search/i);
+  });
+
+  authenticatedTest('post reactions expose accessible pressed state', async ({ authenticatedPage }) => {
+    const page = authenticatedPage as unknown as import('@playwright/test').Page;
+    await expect(page).toHaveURL('/dashboard');
+    const postsLink = page.getByTestId('header-posts-link');
+    if (!(await postsLink.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no active neighborhood navigation');
+      return;
+    }
+    await expect(postsLink).toBeVisible();
+    await postsLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const reaction = page.locator('button[aria-pressed]').first();
+    if (!(await reaction.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no posts with reaction controls');
+      return;
+    }
+    await expect(reaction).toHaveAttribute('aria-label', /reaction/i);
+    await expect(reaction).toHaveAttribute('aria-pressed', /true|false/);
+  });
 });
 
 // Generate summary report after all tests

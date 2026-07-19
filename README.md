@@ -170,6 +170,21 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | `SENTRY_PROJECT`                       | Sentry project slug (build-time)           |
 | `SENTRY_AUTH_TOKEN`                    | Sentry auth token for source maps (build-time) |
 
+## Data integrity and release checks
+
+Production authorization, tenant isolation, soft-delete behavior, lifecycle RPCs, staff impersonation, and rollback limits are documented in [`docs/architecture/data-integrity-and-authorization.md`](docs/architecture/data-integrity-and-authorization.md).
+
+Before release, run the clean-reset matrix from the remediation status report. The repository checks are executable and fail closed:
+
+```bash
+npm run check:static-inventory
+npm run check:component-sizes
+npm run check:doc-links
+npm run check:finding-dispositions
+```
+
+The static inventory is maintained separately from the historical pre-remediation inventory at `docs/plans/2026-07-14-codebase-panel-remediation-mutation-inventory.md`.
+
 ## Infrastructure
 
 | Service | Purpose | Notes |
