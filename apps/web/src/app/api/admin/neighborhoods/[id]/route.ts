@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { NeighborhoodUpdate } from "@blockclub/shared";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStaffAdminUser } from "@/lib/auth";
@@ -90,7 +91,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 
   // Build update object with only provided fields
-  const updateData: Record<string, unknown> = {};
+  const updateData: NeighborhoodUpdate = {};
 
   if (slug !== undefined) {
     // Validate slug format (lowercase, alphanumeric, hyphens only)
@@ -152,7 +153,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   // Update the neighborhood
   const { error: updateError } = await adminSupabase
     .from("neighborhoods")
-    .update(updateData as never)
+    .update(updateData)
     .eq("id", neighborhoodId);
 
   if (updateError) {

@@ -1,0 +1,22 @@
+{
+  "apps/web/src/app/(protected)/dashboard/page.tsx": {
+    "reason": "Server-rendered dashboard composes neighborhood data, loan summaries, and empty-state branches; split is tracked for a later UI-focused pass.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/profile/profile-form.tsx": {
+    "reason": "Profile form owns the dynamic phone/email collections and validation lifecycle; splitting during the accessibility cleanup would increase state coordination risk.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/settings/SettingsClient.tsx": {
+    "reason": "Settings client coordinates membership leave confirmation, staff status, and preference form state; split is deferred to a focused UI pass.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  },
+  "apps/web/src/app/(protected)/staff/neighborhoods/[slug]/member-list.tsx": {
+    "reason": "Staff member list coordinates search, role moderation, move-out, and confirmation state; extraction is deferred until the staff UI receives focused render coverage.",
+    "owner": "remediation",
+    "reviewed": "2026-07-19"
+  }
+}

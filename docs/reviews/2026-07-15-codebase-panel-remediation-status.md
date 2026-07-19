@@ -70,12 +70,8 @@ The partial unique reservation index, row locks, and loan invariants are present
 
 ### UI and repository gates
 
-Session 6 replaced the remaining native `confirm()`/`alert()` calls with Radix dialogs or inline `role="alert"` errors. Reaction pressed state, library search labeling, approved pickup guidance, and the protected status-copy paths are covered in the current UI. The following planned gates or deliverables are still absent or incomplete:
+Session 6 replaced the remaining native `confirm()`/`alert()` calls with Radix dialogs or inline `role="alert"` errors. Session 7 adds executable repository gates for mutation inventory, component sizes, documentation links, and finding dispositions. The four gates pass against the current tree; four oversized components remain under explicit, dated waivers with follow-up extraction recommendations. The following planned deliverables are still absent or incomplete:
 
-- component-size checker and waiver file;
-- static mutation inventory checker;
-- Markdown/documentation link checker;
-- finding-disposition completeness checker;
 - architecture note at `docs/architecture/data-integrity-and-authorization.md`;
 - final finding disposition report;
 - complete Playwright/axe remediation coverage;
@@ -85,23 +81,19 @@ Session 6 replaced the remaining native `confirm()`/`alert()` calls with Radix d
 
 ### Goal
 
-Complete the remaining Phase 4 read migration and produce the authoritative protected-mutation classification. Do not start the broader UI cleanup in that session.
+Complete architecture documentation, release-matrix preparation, and the final adversarial review. Session 7 has established executable repository gates; the remaining work is to document the authorization/data-integrity contracts, add final finding evidence, and run the full release matrix.
 
 ### Work sequence
 
-1. Migrate dashboard, directory, pending-member, settings, auth-flow, and notification reads to the centralized query layer where the query contract fits.
-2. Add query tests for those consumers, especially admin-client soft-delete and neighborhood predicates.
-3. Remove the deprecated compatibility shim after grep confirms no consumers and typecheck passes.
-4. Classify every remaining protected write as:
-   - approved RPC/server command;
-   - narrow authenticated RLS write with a test;
-   - staff-only exception;
-   - remaining legacy/unapproved direct write.
-5. Add the static inventory checker only after the inventory is accurate.
+1. Add `docs/architecture/data-integrity-and-authorization.md` and link the operational contracts to the design record and current evidence.
+2. Produce the final F1–F38/N1–N9 disposition report with code, migration, test, and documentation evidence.
+3. Add targeted Playwright/axe coverage for the remediation-critical dialogs, labels, and lifecycle surfaces.
+4. Run the clean-reset release matrix, including build and all four repository gates.
+5. Perform a fresh adversarial review against both historical reports and resolve or formally rebut every remaining Critical/Important result.
 
 ### Stopping point
 
-Stop when all intended application query consumers are migrated, the deprecated shim is removed, admin-client query tests pass, and every remaining protected write is explicitly classified. Keep the unit, integration, typecheck, and lint commands green.
+Stop when architecture and finding evidence are complete, targeted accessibility coverage exists, the clean-reset release matrix passes, and the fresh adversarial review has no unresolved Critical/Important findings.
 
 ## Durable checkpoint notes
 

@@ -1,5 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { NeighborhoodSettings } from "@blockclub/shared";
+import type { NeighborhoodInsert, NeighborhoodSettings } from "@blockclub/shared";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface CreateNeighborhoodRecord {
@@ -15,10 +14,10 @@ export interface CreateNeighborhoodRecord {
 export async function insertStaffNeighborhood(
   record: CreateNeighborhoodRecord,
 ): Promise<{ id: string | null; error: unknown }> {
-  const client = createAdminClient() as SupabaseClient;
+  const client = createAdminClient();
   const { data, error } = await client
     .from("neighborhoods")
-    .insert(record as never)
+    .insert(record satisfies NeighborhoodInsert)
     .select("id")
     .maybeSingle();
   return { id: (data as { id: string } | null)?.id ?? null, error };

@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+import { readFile } from "node:fs/promises";
+
+const status = await readFile("docs/reviews/2026-07-15-codebase-panel-remediation-status.md", "utf8");
+const design = await readFile("docs/plans/2026-07-14-codebase-panel-remediation-design.md", "utf8");
+const requiredFindings = [
+  ...Array.from({ length: 38 }, (_, index) => `F${index + 1}`),
+  ...Array.from({ length: 9 }, (_, index) => `N${index + 1}`),
+];
+const missing = requiredFindings.filter((finding) => !design.includes(finding));
+const requiredArtifacts = [
+  "docs/plans/2026-07-19-approved-mutation-inventory.md",
+  "docs/reviews/2026-07-15-codebase-panel-remediation-status.md",
+];
+const missingArtifacts = [];
+for (const artifact of requiredArtifacts) {
+  try { await readFile(artifact); } catch { missingArtifacts.push(artifact); }
+}
+if (missing.length || missingArtifacts.length || !status.includes("## Open gaps and release risks")) {
+  console.error("Finding disposition check failed.");
+  if (missing.length) console.error(`Missing finding references: ${missing.join(", ")}`);
+  if (missingArtifacts.length) console.error(`Missing artifacts: ${missingArtifacts.join(", ")}`);
+  if (!status.includes("## Open gaps and release risks")) console.error("Status report is missing its open-risk section.");
+  process.exit(1);
+}
+console.log(`Finding disposition check passed (${requiredFindings.length} finding references and ${requiredArtifacts.length} artifacts).`);

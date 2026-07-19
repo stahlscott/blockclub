@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MembershipRole, StaffMembershipOperationResult } from "@blockclub/shared";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -14,7 +13,7 @@ export interface StaffMembershipOperationInput {
 export async function runStaffMembershipOperation(
   input: StaffMembershipOperationInput,
 ): Promise<{ data: StaffMembershipOperationResult | null; error: unknown }> {
-  const client = createAdminClient() as SupabaseClient;
+  const client = createAdminClient();
   const { data, error } = await client.rpc("staff_membership_operation", {
     p_operation: input.operation,
     p_membership_id: input.membershipId ?? null,
