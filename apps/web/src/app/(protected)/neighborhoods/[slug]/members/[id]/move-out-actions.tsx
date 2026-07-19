@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalHeader,
+  ModalTitle,
+} from "@/components/Modal";
 import styles from "./member-profile.module.css";
 
 interface MoveOutActionsProps {
@@ -20,15 +27,11 @@ export function MoveOutActions({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleMoveOut = async () => {
-    const confirmed = window.confirm(
-      `Are you sure you want to mark ${memberName} as moved out? Their lending library items will be removed.`
-    );
-
-    if (!confirmed) return;
-
     setLoading(true);
+    setDialogOpen(false);
     setError(null);
 
     try {
@@ -59,13 +62,32 @@ export function MoveOutActions({
   return (
     <div className={styles.actionContainer}>
       {error && <p className={styles.actionError}>{error}</p>}
-      <button
-        onClick={handleMoveOut}
-        disabled={loading}
-        className={styles.actionLink}
-      >
-        {loading ? "Updating..." : "Mark as moved out"}
-      </button>
+      <Modal open={dialogOpen} onOpenChange={setDialogOpen}>
+        <button
+          onClick={() => setDialogOpen(true)}
+          disabled={loading}
+          className={styles.actionLink}
+          data-testid="member-move-out-button"
+        >
+          {loading ? "Updating..." : "Mark as moved out"}
+        </button>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>Mark {memberName} as moved out?</ModalTitle>
+            <ModalDescription>
+              Their lending library items will be removed from the neighborhood.
+            </ModalDescription>
+          </ModalHeader>
+          <div className={styles.actionContainer}>
+            <button type="button" onClick={() => setDialogOpen(false)} disabled={loading}>
+              Cancel
+            </button>
+            <button type="button" onClick={handleMoveOut} disabled={loading}>
+              {loading ? "Updating..." : "Confirm move-out"}
+            </button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

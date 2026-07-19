@@ -69,6 +69,18 @@
   cursor: not-allowed;
 }
 
+.actionError {
+  margin: 0 0 var(--space-3);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 .settingsLink {
   display: inline-flex;
   align-items: center;

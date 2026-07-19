@@ -100,6 +100,10 @@ export default function JoinNeighborhoodPage() {
     );
   }
 
+  const membershipStatusCopy = {
+    inactive: "inactive",
+  } as const;
+
   // Handle existing membership (but not moved_out)
   if (existingMembership && existingMembership.status !== "moved_out") {
     return (
@@ -129,7 +133,7 @@ export default function JoinNeighborhoodPage() {
           ) : (
             <>
               <p className={styles.message}>
-                Your membership status is: {existingMembership.status}
+                Your membership status is: {membershipStatusCopy[existingMembership.status as "inactive"] ?? "not currently active"}
               </p>
               <Link href="/dashboard" className={styles.secondaryButton}>
                 Back to Dashboard

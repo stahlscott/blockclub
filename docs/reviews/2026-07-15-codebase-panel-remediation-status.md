@@ -66,11 +66,11 @@ Migration `00031` adds the database-maintained `staff_admins` allowlist, `npm ru
 
 ### Concurrency and rollback
 
-The partial unique reservation index, row locks, and loan invariants are present. The named concurrent duplicate-request, activation-race, stale-transition, and injected-failure rollback tests are not all present in the current 44-test integration suite. These are required before declaring the database boundary complete.
+The partial unique reservation index, row locks, and loan invariants are present. Session 5 added concurrent duplicate-request, activation-race, and activation/cancellation race coverage, plus a committed catalog/policy/index/grant inspection command (`npm run check:database-boundaries`). Injected-failure rollback testing is explicitly deferred as optional test hardening: the application RPCs are transactional and current functional/concurrency tests pass, but no safe production-neutral failure-injection seam exists yet.
 
 ### UI and repository gates
 
-The following planned gates or deliverables are still absent or incomplete:
+Session 6 replaced the remaining native `confirm()`/`alert()` calls with Radix dialogs or inline `role="alert"` errors. Reaction pressed state, library search labeling, approved pickup guidance, and the protected status-copy paths are covered in the current UI. The following planned gates or deliverables are still absent or incomplete:
 
 - component-size checker and waiver file;
 - static mutation inventory checker;

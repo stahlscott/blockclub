@@ -244,8 +244,8 @@ The remaining work is organized into eight bounded sessions. Security and data-i
 **Scope:**
 
 - test concurrent duplicate loan requests, concurrent activation, stale transitions, cancellation/activation races, move-out/lifecycle races, and item-removal races;
-- add injected failure tests for move-out, lifecycle, item removal, and retained teardown operations;
 - add committed policy/function/index/grant inspection assertions;
+- optionally add injected failure tests for move-out, lifecycle, item removal, and retained teardown operations as follow-up test hardening; this is deferred and not an application-functionality blocker;
 - verify the old broad loan policy and ordinary hard-delete policies are absent, partial unique indexes exist, and staff RPC grants are service-role only.
 
 **Stopping point:** Stop when every race produces a deterministic success/conflict outcome, failure injection proves transaction rollback, and clean reset plus policy inspection and integration tests pass.

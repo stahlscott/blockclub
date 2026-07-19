@@ -12,21 +12,25 @@ interface ActAsAdminButtonProps {
 export function ActAsAdminButton({ adminUserId }: ActAsAdminButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     if (!adminUserId) return;
 
     setLoading(true);
+    setError(null);
     const result = await startImpersonation(adminUserId, "/dashboard");
     if (result.success && result.redirectTo) {
       router.push(result.redirectTo);
     } else {
-      alert(result.error || "Failed to impersonate admin");
+      setError(result.error || "Failed to impersonate admin");
       setLoading(false);
     }
   };
 
   return (
+    <>
+    {error && <p className={styles.actionError} role="alert">{error}</p>}
     <button
       className={styles.actAsAdminButton}
       onClick={handleClick}
@@ -36,5 +40,6 @@ export function ActAsAdminButton({ adminUserId }: ActAsAdminButtonProps) {
     >
       {loading ? "..." : "Act as Admin"}
     </button>
+    </>
   );
 }
