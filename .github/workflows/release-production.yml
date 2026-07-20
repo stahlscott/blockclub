@@ -173,7 +173,7 @@ jobs:
         run: npm run sync:staff-admins
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://${{ secrets.SUPABASE_PROD_PROJECT_REF }}.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_PROD_SERVICE_ROLE_KEY }}
           STAFF_ADMIN_EMAILS: ${{ secrets.PROD_STAFF_ADMIN_EMAILS }}
 
   skip-migrations:
