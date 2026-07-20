@@ -1,0 +1,49 @@
+name: Full Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or ref to validate'
+        required: true
+        default: main
+        type: string
+
+jobs:
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: npm ci
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Capture Supabase logs
+        if: failure()
+        run: supabase logs
+
+  e2e-tests:
+    name: E2E Tests
+    needs: integration-tests
+    uses: ./.github/workflows/e2e.yml
+    with:
+      ref: ${{ inputs.ref }}
+    secrets: inherit
