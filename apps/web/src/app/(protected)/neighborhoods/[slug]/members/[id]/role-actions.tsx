@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalHeader,
+  ModalTitle,
+} from "@/components/Modal";
 import styles from "./member-profile.module.css";
 
 interface RoleActionsProps {
@@ -20,15 +27,10 @@ export function RoleActions({
 }: RoleActionsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingRole, setPendingRole] = useState<"admin" | "member" | null>(null);
 
   const handleRoleChange = async (newRole: "admin" | "member") => {
-    const action = newRole === "admin" ? "promote" : "demote";
-    const confirmed = window.confirm(
-      `Are you sure you want to ${action} ${memberName} to ${newRole}?`
-    );
-
-    if (!confirmed) return;
-
+    setPendingRole(null);
     setLoading(true);
     setError(null);
 
@@ -64,9 +66,10 @@ export function RoleActions({
 
       {currentRole === "member" && canPromote && (
         <button
-          onClick={() => handleRoleChange("admin")}
+          onClick={() => setPendingRole("admin")}
           disabled={loading}
           className={styles.actionLink}
+          data-testid="member-promote-button"
         >
           {loading ? "Updating..." : "Promote to admin"}
         </button>
@@ -74,13 +77,35 @@ export function RoleActions({
 
       {currentRole === "admin" && canDemote && (
         <button
-          onClick={() => handleRoleChange("member")}
+          onClick={() => setPendingRole("member")}
           disabled={loading}
           className={styles.actionLink}
+          data-testid="member-demote-button"
         >
           {loading ? "Updating..." : "Demote to member"}
         </button>
       )}
+
+      <Modal open={pendingRole !== null} onOpenChange={(open) => !open && setPendingRole(null)}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>
+              {pendingRole === "admin" ? "Promote" : "Demote"} {memberName}?
+            </ModalTitle>
+            <ModalDescription>
+              This will change {memberName}&apos;s neighborhood role to {pendingRole}.
+            </ModalDescription>
+          </ModalHeader>
+          <div className={styles.actionContainer}>
+            <button type="button" onClick={() => setPendingRole(null)} disabled={loading}>
+              Cancel
+            </button>
+            <button type="button" onClick={() => pendingRole && handleRoleChange(pendingRole)} disabled={loading}>
+              {loading ? "Updating..." : "Confirm change"}
+            </button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { getImpersonationContext } from "@/lib/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { type MembershipWithNeighborhoodRow, hasNeighborhood } from "@/lib/supabase/queries";
+import { getActiveMembershipsForUser, getImpersonatedLayoutProfile, hasNeighborhood } from "@/lib/queries";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -76,25 +76,13 @@ export default async function RootLayout({
       const adminClient = createAdminClient();
       const impersonatedUserId = impersonationContext.impersonatedUserId;
 
-      type UserProfile = { primary_neighborhood_id: string | null; avatar_url: string | null };
-
       const [profileResult, membershipsResult] = await Promise.all([
-        adminClient
-          .from("users")
-          .select("primary_neighborhood_id, avatar_url")
-          .eq("id", impersonatedUserId)
-          .single(),
-        adminClient
-          .from("memberships")
-          .select("id, role, neighborhood:neighborhoods(id, name, slug)")
-          .eq("user_id", impersonatedUserId)
-          .eq("status", "active")
-          .is("deleted_at", null),
+        getImpersonatedLayoutProfile(adminClient, impersonatedUserId),
+        getActiveMembershipsForUser(adminClient, impersonatedUserId),
       ]);
 
-      const profile = profileResult.data as UserProfile | null;
-      // Cast to explicit interface defined in queries.ts
-      const allMemberships = (membershipsResult.data || []) as MembershipWithNeighborhoodRow[];
+      const profile = profileResult.data;
+      const allMemberships = membershipsResult.data || [];
       // Filter out null neighborhoods using type guard
       const memberships = allMemberships.filter(hasNeighborhood);
 

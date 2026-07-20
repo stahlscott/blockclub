@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
-import { isStaffAdmin } from "@/lib/auth";
+import { getPendingMembershipsForUser, hasActiveMembership } from "@/lib/queries";
 
 export default async function ProtectedLayout({
   children,
@@ -15,34 +15,20 @@ export default async function ProtectedLayout({
   }
 
   const supabase = await createClient();
-  const { effectiveUserId, queryClient } = await getAuthContext(supabase, authUser);
-  const isUserStaffAdmin = isStaffAdmin(authUser.email);
+  const { effectiveUserId, isImpersonating, isStaffAdmin: isUserStaffAdmin, queryClient } =
+    await getAuthContext(supabase, authUser);
 
-  if (isUserStaffAdmin) {
+  if (isUserStaffAdmin && !isImpersonating) {
     return <>{children}</>;
   }
 
   // Check for active memberships
-  const { data: activeMemberships } = await queryClient
-    .from("memberships")
-    .select("id")
-    .eq("user_id", effectiveUserId)
-    .eq("status", "active")
-    .is("deleted_at", null)
-    .limit(1);
-
-  if (activeMemberships && activeMemberships.length > 0) {
+  if (await hasActiveMembership(queryClient, effectiveUserId)) {
     return <>{children}</>;
   }
 
   // No active memberships — check for pending
-  const { data: pendingMemberships } = await queryClient
-    .from("memberships")
-    .select("id")
-    .eq("user_id", effectiveUserId)
-    .eq("status", "pending")
-    .is("deleted_at", null)
-    .limit(1);
+  const { data: pendingMemberships } = await getPendingMembershipsForUser(queryClient, effectiveUserId);
 
   if (pendingMemberships && pendingMemberships.length > 0) {
     redirect("/waiting");

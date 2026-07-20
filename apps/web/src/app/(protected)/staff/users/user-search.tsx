@@ -23,6 +23,7 @@ export function UserSearch() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Pagination state
@@ -108,11 +109,12 @@ export function UserSearch() {
 
   const handleImpersonate = async (userId: string) => {
     setLoadingAction(`impersonate-${userId}`);
+    setActionError(null);
     const result = await startImpersonation(userId, "/dashboard");
     if (result.success && result.redirectTo) {
       router.push(result.redirectTo);
     } else {
-      alert(result.error || "Failed to impersonate user");
+      setActionError(result.error || "Failed to impersonate user");
       setLoadingAction(null);
     }
   };
@@ -121,6 +123,7 @@ export function UserSearch() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Users</h2>
+        {actionError && <p className={styles.error} role="alert">{actionError}</p>}
         <p className={styles.subtitle}>
           Browse all users or search by name or email
         </p>

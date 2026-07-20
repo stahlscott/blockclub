@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { ensureUserProfile } from "@/lib/ensure-profile";
+import { ensureNeighborhoodMembership } from "@/lib/ensure-membership";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -21,39 +23,14 @@ export async function GET(request: Request) {
       const pendingNeighborhoodId = user?.user_metadata?.pending_neighborhood_id;
 
       if (pendingNeighborhoodId && user) {
-        // Ensure user profile exists (trigger may not have run yet)
-        const { data: profile } = await supabase
-          .from("users")
-          .select("id")
-          .eq("id", user.id)
-          .single();
-
-        if (!profile) {
-          // Create profile if trigger hasn't run yet
-          await supabase.from("users").insert({
-            id: user.id,
-            email: user.email!,
-            name: user.user_metadata?.name || user.email?.split("@")[0],
-            address: user.user_metadata?.address || null,
-          });
+        const profile = await ensureUserProfile(supabase, user);
+        if (!profile.success) {
+          return NextResponse.redirect(`${origin}/signin?error=${encodeURIComponent(profile.error || "Could not create profile")}`);
         }
 
-        // Check for existing membership
-        const { data: existingMembership } = await supabase
-          .from("memberships")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("neighborhood_id", pendingNeighborhoodId)
-          .maybeSingle();
-
-        if (!existingMembership) {
-          // Create membership - database trigger handles auto-approval
-          await supabase.from("memberships").insert({
-            user_id: user.id,
-            neighborhood_id: pendingNeighborhoodId,
-            role: "member",
-            status: "pending",
-          });
+        const membership = await ensureNeighborhoodMembership(supabase, user.id, pendingNeighborhoodId);
+        if (!membership.success) {
+          return NextResponse.redirect(`${origin}/signin?error=${encodeURIComponent(membership.error || "Could not join neighborhood")}`);
         }
 
         // Clear the pending neighborhood from metadata

@@ -139,6 +139,7 @@ export interface Neighborhood {
   location: string | null;
   settings: NeighborhoodSettings;
   created_by: string;
+  staff_actor_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -151,6 +152,15 @@ export interface Membership {
   status: MembershipStatus;
   joined_at: string;
   deleted_at: string | null;
+  staff_actor_id?: string | null;
+}
+
+export interface StaffAdmin {
+  user_id: string;
+  email: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // ============================================================================
@@ -171,17 +181,102 @@ export interface Item {
   deleted_at: string | null;
 }
 
+export interface LoanOperationResult {
+  success: boolean;
+  reason: string;
+  loan_id: string | null;
+  item_id: string | null;
+  affected_loan_count: number;
+  affected_item_count: number;
+}
+
+export interface MoveOutResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  affected_item_count: number;
+  cancelled_loan_count: number;
+  returned_loan_count: number;
+}
+
+export interface ItemRemovalResult {
+  success: boolean;
+  reason: string;
+  item_id: string | null;
+  affected_item_count: number;
+  cancelled_loan_count: number;
+}
+
+export interface PostOperationResult {
+  success: boolean;
+  reason: string;
+  post_id: string | null;
+  affected_post_count: number;
+}
+
+export interface PostReactionOperationResult {
+  success: boolean;
+  reason: string;
+  post_id: string | null;
+  reaction: PostReactionType;
+  active: boolean;
+  affected_reaction_count: number;
+}
+
+export interface MembershipModerationResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  neighborhood_id: string | null;
+  status: MembershipStatus | null;
+  deleted_at: string | null;
+  affected_membership_count: number;
+}
+
+export interface RoleChangeResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  neighborhood_id: string | null;
+  role: MembershipRole | null;
+  affected_membership_count: number;
+}
+
+export interface StaffMembershipOperationResult {
+  success: boolean;
+  reason: string;
+  membership_id: string | null;
+  user_id: string | null;
+  neighborhood_id: string | null;
+  role: MembershipRole | null;
+  status: MembershipStatus | null;
+  deleted_at: string | null;
+  affected_membership_count: number;
+}
+
+export type LoanClosureReason =
+  | "borrower_returned"
+  | "borrower_cancelled"
+  | "owner_declined"
+  | "administrative_move_out"
+  | "administrative_item_removal"
+  | "staff_correction";
+
 export interface Loan {
   id: string;
   item_id: string;
   borrower_id: string;
   status: LoanStatus;
   requested_at: string;
+  created_at: string;
   start_date: string | null;
   due_date: string | null;
   returned_at: string | null;
   notes: string | null;
   deleted_at: string | null;
+  staff_actor_id: string | null;
+  closure_reason: LoanClosureReason | null;
+  closed_by_user_id: string | null;
 }
 
 // ============================================================================
@@ -307,7 +402,9 @@ export type MembershipUpdate = Partial<
   Pick<Membership, "role" | "status" | "deleted_at">
 >;
 
-export type ItemInsert = Omit<Item, "id" | "created_at" | "updated_at">;
+export type ItemInsert = Omit<Item, "id" | "created_at" | "updated_at" | "deleted_at"> & {
+  staff_actor_id?: string | null;
+};
 export type ItemUpdate = Partial<
   Omit<
     Item,
@@ -315,9 +412,17 @@ export type ItemUpdate = Partial<
   >
 >;
 
-export type LoanInsert = Omit<Loan, "id" | "requested_at">;
+export type LoanInsert = Omit<
+  Loan,
+  "id" | "requested_at" | "created_at" | "start_date" | "due_date" | "returned_at" | "staff_actor_id" | "closure_reason" | "closed_by_user_id"
+> & {
+  start_date?: string | null;
+  due_date?: string | null;
+  returned_at?: string | null;
+  staff_actor_id?: string | null;
+};
 export type LoanUpdate = Partial<
-  Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes">
+  Pick<Loan, "status" | "start_date" | "due_date" | "returned_at" | "notes" | "deleted_at" | "staff_actor_id" | "closure_reason" | "closed_by_user_id">
 >;
 
 export type PostInsert = {
@@ -347,55 +452,175 @@ export type NeighborhoodGuideInsert = {
   updated_by?: string | null;
 };
 export type NeighborhoodGuideUpdate = Partial<
-  Pick<NeighborhoodGuide, "title" | "content" | "updated_by">
+  Pick<NeighborhoodGuide, "title" | "content" | "updated_at" | "updated_by">
 >;
 
 // ============================================================================
 // DATABASE SCHEMA TYPE (for Supabase client)
 // ============================================================================
 
+type DatabaseRecord<T> = T & Record<string, unknown>;
+
 export interface Database {
   public: {
     Tables: {
       users: {
-        Row: User;
-        Insert: UserInsert;
-        Update: UserUpdate;
+        Row: DatabaseRecord<User>;
+        Insert: DatabaseRecord<UserInsert>;
+        Update: DatabaseRecord<UserUpdate>;
+        Relationships: [
+          { foreignKeyName: "users_primary_neighborhood_id_fkey"; columns: ["primary_neighborhood_id"]; isOneToOne: false; referencedRelation: "neighborhoods"; referencedColumns: ["id"] },
+        ];
       };
       neighborhoods: {
-        Row: Neighborhood;
-        Insert: NeighborhoodInsert;
-        Update: NeighborhoodUpdate;
+        Row: DatabaseRecord<Neighborhood>;
+        Insert: DatabaseRecord<NeighborhoodInsert>;
+        Update: DatabaseRecord<NeighborhoodUpdate>;
+        Relationships: [
+          { foreignKeyName: "neighborhoods_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
       };
       memberships: {
-        Row: Membership;
-        Insert: MembershipInsert;
-        Update: MembershipUpdate;
+        Row: DatabaseRecord<Membership>;
+        Insert: DatabaseRecord<MembershipInsert>;
+        Update: DatabaseRecord<MembershipUpdate>;
+        Relationships: [
+          { foreignKeyName: "memberships_neighborhood_id_fkey"; columns: ["neighborhood_id"]; isOneToOne: false; referencedRelation: "neighborhoods"; referencedColumns: ["id"] },
+          { foreignKeyName: "memberships_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
+      };
+      staff_admins: {
+        Row: DatabaseRecord<StaffAdmin>;
+        Insert: DatabaseRecord<Pick<StaffAdmin, "user_id" | "email"> & Partial<Pick<StaffAdmin, "active">>>;
+        Update: DatabaseRecord<Partial<Pick<StaffAdmin, "email" | "active">>>;
+        Relationships: [
+          { foreignKeyName: "staff_admins_user_id_fkey"; columns: ["user_id"]; isOneToOne: true; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
       };
       items: {
-        Row: Item;
-        Insert: ItemInsert;
-        Update: ItemUpdate;
+        Row: DatabaseRecord<Item>;
+        Insert: DatabaseRecord<ItemInsert>;
+        Update: DatabaseRecord<ItemUpdate>;
+        Relationships: [
+          { foreignKeyName: "items_neighborhood_id_fkey"; columns: ["neighborhood_id"]; isOneToOne: false; referencedRelation: "neighborhoods"; referencedColumns: ["id"] },
+          { foreignKeyName: "items_owner_id_fkey"; columns: ["owner_id"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
       };
       loans: {
-        Row: Loan;
-        Insert: LoanInsert;
-        Update: LoanUpdate;
+        Row: DatabaseRecord<Loan>;
+        Insert: DatabaseRecord<LoanInsert>;
+        Update: DatabaseRecord<LoanUpdate>;
+        Relationships: [
+          { foreignKeyName: "loans_borrower_id_fkey"; columns: ["borrower_id"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+          { foreignKeyName: "loans_item_id_fkey"; columns: ["item_id"]; isOneToOne: false; referencedRelation: "items"; referencedColumns: ["id"] },
+        ];
       };
       posts: {
-        Row: Post;
-        Insert: PostInsert;
-        Update: PostUpdate;
+        Row: DatabaseRecord<Post>;
+        Insert: DatabaseRecord<PostInsert>;
+        Update: DatabaseRecord<PostUpdate>;
+        Relationships: [
+          { foreignKeyName: "posts_author_id_fkey"; columns: ["author_id"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+          { foreignKeyName: "posts_edited_by_fkey"; columns: ["edited_by"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+          { foreignKeyName: "posts_neighborhood_id_fkey"; columns: ["neighborhood_id"]; isOneToOne: false; referencedRelation: "neighborhoods"; referencedColumns: ["id"] },
+        ];
       };
       post_reactions: {
-        Row: PostReaction;
-        Insert: PostReactionInsert;
+        Row: DatabaseRecord<PostReaction>;
+        Insert: DatabaseRecord<PostReactionInsert>;
         Update: never;
+        Relationships: [
+          { foreignKeyName: "post_reactions_post_id_fkey"; columns: ["post_id"]; isOneToOne: false; referencedRelation: "posts"; referencedColumns: ["id"] },
+          { foreignKeyName: "post_reactions_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
       };
       neighborhood_guides: {
-        Row: NeighborhoodGuide;
-        Insert: NeighborhoodGuideInsert;
-        Update: NeighborhoodGuideUpdate;
+        Row: DatabaseRecord<NeighborhoodGuide>;
+        Insert: DatabaseRecord<NeighborhoodGuideInsert>;
+        Update: DatabaseRecord<NeighborhoodGuideUpdate>;
+        Relationships: [
+          { foreignKeyName: "neighborhood_guides_neighborhood_id_fkey"; columns: ["neighborhood_id"]; isOneToOne: true; referencedRelation: "neighborhoods"; referencedColumns: ["id"] },
+          { foreignKeyName: "neighborhood_guides_updated_by_fkey"; columns: ["updated_by"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      approve_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      activate_loan: {
+        Args: { p_loan_id: string; p_start_date: string; p_due_date?: string | null };
+        Returns: LoanOperationResult;
+      };
+      return_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      decline_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      cancel_loan: {
+        Args: { p_loan_id: string };
+        Returns: LoanOperationResult;
+      };
+      move_out_membership: {
+        Args: { p_membership_id: string };
+        Returns: MoveOutResult;
+      };
+      soft_delete_item: {
+        Args: { p_item_id: string };
+        Returns: ItemRemovalResult;
+      };
+      soft_delete_post: {
+        Args: { p_post_id: string };
+        Returns: PostOperationResult;
+      };
+      set_post_pin: {
+        Args: { p_post_id: string; p_is_pinned: boolean };
+        Returns: PostOperationResult;
+      };
+      update_post: {
+        Args: { p_post_id: string; p_content: string; p_image_url: string | null; p_expires_at: string | null; p_is_pinned?: boolean | null };
+        Returns: PostOperationResult;
+      };
+      toggle_post_reaction: {
+        Args: { p_post_id: string; p_reaction: PostReactionType };
+        Returns: PostReactionOperationResult;
+      };
+      moderate_pending_membership: {
+        Args: { p_membership_id: string; p_decision: string };
+        Returns: MembershipModerationResult;
+      };
+      promote_membership_to_admin: {
+        Args: { p_membership_id: string };
+        Returns: RoleChangeResult;
+      };
+      is_staff_admin: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
+      staff_moderate_pending_membership: {
+        Args: {
+          p_membership_id: string;
+          p_effective_user_id: string;
+          p_staff_actor_id: string;
+          p_decision: string;
+        };
+        Returns: MembershipModerationResult;
+      };
+      staff_membership_operation: {
+        Args: {
+          p_operation: string;
+          p_membership_id?: string | null;
+          p_target_user_id?: string | null;
+          p_neighborhood_id?: string | null;
+          p_role?: MembershipRole | null;
+          p_staff_actor_id?: string | null;
+        };
+        Returns: StaffMembershipOperationResult;
       };
     };
     Enums: {

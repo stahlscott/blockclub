@@ -52,6 +52,11 @@ describe('validation', () => {
       expect(MAX_LENGTHS.postContent).toBe(2000);
     });
 
+    it('loan_notes_validation_enforces_max_length', () => {
+      expect(validateLength('a'.repeat(MAX_LENGTHS.loanNotes), 'Loan notes', MAX_LENGTHS.loanNotes)).toBeNull();
+      expect(validateLength('a'.repeat(MAX_LENGTHS.loanNotes + 1), 'Loan notes', MAX_LENGTHS.loanNotes)).toContain('1000');
+    });
+
     it('has expected general field limits', () => {
       expect(MAX_LENGTHS.address).toBe(200);
       expect(MAX_LENGTHS.phone).toBe(20);

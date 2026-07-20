@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startImpersonation } from "@/app/actions/impersonation";
+import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/Modal";
 import {
   approveMembership,
   declineMembership,
@@ -29,6 +30,7 @@ interface MemberListProps {
 }
 
 type FilterStatus = "all" | "active" | "pending";
+type Confirmation = { action: "remove" | "promote" | "demote"; membershipId: string; memberName: string } | null;
 
 export function MemberList({
   members,
@@ -39,6 +41,8 @@ export function MemberList({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterStatus>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation>(null);
 
   const filteredMembers = members.filter((m) => {
     // Filter by status
@@ -69,46 +73,51 @@ export function MemberList({
 
   const handleImpersonate = async (userId: string) => {
     setLoadingAction(`impersonate-${userId}`);
+    setActionError(null);
     const result = await startImpersonation(userId, "/dashboard");
     if (result.success && result.redirectTo) {
       router.push(result.redirectTo);
     } else {
-      alert(result.error || "Failed to impersonate user");
+      setActionError(result.error || "Failed to impersonate user");
       setLoadingAction(null);
     }
   };
 
   const handleApprove = async (membershipId: string) => {
     setLoadingAction(`approve-${membershipId}`);
+    setActionError(null);
     const result = await approveMembership(membershipId, neighborhoodSlug);
     if (!result.success) {
-      alert(result.error || "Failed to approve");
+      setActionError(result.error || "Failed to approve");
     }
     setLoadingAction(null);
   };
 
   const handleDecline = async (membershipId: string) => {
     setLoadingAction(`decline-${membershipId}`);
+    setActionError(null);
     const result = await declineMembership(membershipId, neighborhoodSlug);
     if (!result.success) {
-      alert(result.error || "Failed to decline");
+      setActionError(result.error || "Failed to decline");
     }
     setLoadingAction(null);
   };
 
-  const handleRemove = async (membershipId: string, memberName: string) => {
-    if (!confirm(`Remove ${memberName} from this neighborhood?`)) return;
+  const handleRemove = async (membershipId: string) => {
     setLoadingAction(`remove-${membershipId}`);
+    setActionError(null);
+    setConfirmation(null);
     const result = await removeMembership(membershipId, neighborhoodSlug);
     if (!result.success) {
-      alert(result.error || "Failed to remove");
+      setActionError(result.error || "Failed to remove");
     }
     setLoadingAction(null);
   };
 
-  const handlePromote = async (membershipId: string, memberName: string) => {
-    if (!confirm(`Promote ${memberName} to admin?`)) return;
+  const handlePromote = async (membershipId: string) => {
     setLoadingAction(`promote-${membershipId}`);
+    setActionError(null);
+    setConfirmation(null);
     try {
       const response = await fetch(`/api/memberships/${membershipId}/role`, {
         method: "PATCH",
@@ -117,19 +126,20 @@ export function MemberList({
       });
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Failed to promote");
+        setActionError(data.error || "Failed to promote");
       } else {
         router.refresh();
       }
     } catch {
-      alert("Failed to promote member");
+      setActionError("Failed to promote member");
     }
     setLoadingAction(null);
   };
 
-  const handleDemote = async (membershipId: string, memberName: string) => {
-    if (!confirm(`Demote ${memberName} from admin to member?`)) return;
+  const handleDemote = async (membershipId: string) => {
     setLoadingAction(`demote-${membershipId}`);
+    setActionError(null);
+    setConfirmation(null);
     try {
       const response = await fetch(`/api/memberships/${membershipId}/role`, {
         method: "PATCH",
@@ -138,18 +148,48 @@ export function MemberList({
       });
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Failed to demote");
+        setActionError(data.error || "Failed to demote");
       } else {
         router.refresh();
       }
     } catch {
-      alert("Failed to demote admin");
+      setActionError("Failed to demote admin");
     }
     setLoadingAction(null);
   };
 
   return (
     <div>
+      {actionError && <p className={styles.actionError} role="alert">{actionError}</p>}
+      <Modal open={confirmation !== null} onOpenChange={(open) => !open && setConfirmation(null)}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>
+              {confirmation?.action === "remove" ? "Remove" : confirmation?.action === "promote" ? "Promote" : "Demote"} {confirmation?.memberName}?
+            </ModalTitle>
+            <ModalDescription>
+              {confirmation?.action === "remove"
+                ? "This member will lose access to the neighborhood and their active items will be removed."
+                : <>This will change {confirmation?.memberName}&apos;s role to {confirmation?.action === "promote" ? "admin" : "member"}.</>}
+            </ModalDescription>
+          </ModalHeader>
+          <div className={styles.modalActions}>
+            <button type="button" onClick={() => setConfirmation(null)} disabled={loadingAction !== null}>Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!confirmation) return;
+                if (confirmation.action === "remove") void handleRemove(confirmation.membershipId);
+                if (confirmation.action === "promote") void handlePromote(confirmation.membershipId);
+                if (confirmation.action === "demote") void handleDemote(confirmation.membershipId);
+              }}
+              disabled={loadingAction !== null}
+            >
+              {loadingAction ? "Working..." : "Confirm"}
+            </button>
+          </div>
+        </ModalContent>
+      </Modal>
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>Members</h3>
         <input
@@ -275,10 +315,7 @@ export function MemberList({
                   <button
                     className={`${styles.actionButton} ${styles.demoteButton}`}
                     onClick={() =>
-                      handleDemote(
-                        member.membership_id,
-                        member.name || member.email
-                      )
+                      setConfirmation({ action: "demote", membershipId: member.membership_id, memberName: member.name || member.email })
                     }
                     disabled={loadingAction !== null || adminCount <= 1}
                     title={
@@ -293,10 +330,7 @@ export function MemberList({
                   <button
                     className={`${styles.actionButton} ${styles.removeButton}`}
                     onClick={() =>
-                      handleRemove(
-                        member.membership_id,
-                        member.name || member.email
-                      )
+                      setConfirmation({ action: "remove", membershipId: member.membership_id, memberName: member.name || member.email })
                     }
                     disabled={loadingAction !== null || adminCount <= 1}
                     title={
@@ -325,10 +359,7 @@ export function MemberList({
                   <button
                     className={`${styles.actionButton} ${styles.promoteButton}`}
                     onClick={() =>
-                      handlePromote(
-                        member.membership_id,
-                        member.name || member.email
-                      )
+                      setConfirmation({ action: "promote", membershipId: member.membership_id, memberName: member.name || member.email })
                     }
                     disabled={loadingAction !== null}
                     data-testid={`promote-button-${member.membership_id}`}
@@ -340,10 +371,7 @@ export function MemberList({
                   <button
                     className={`${styles.actionButton} ${styles.removeButton}`}
                     onClick={() =>
-                      handleRemove(
-                        member.membership_id,
-                        member.name || member.email
-                      )
+                      setConfirmation({ action: "remove", membershipId: member.membership_id, memberName: member.name || member.email })
                     }
                     disabled={loadingAction !== null}
                     data-testid={`remove-button-${member.membership_id}`}

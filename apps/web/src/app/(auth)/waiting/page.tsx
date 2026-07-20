@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getPendingMembershipsForUser } from "@/lib/queries";
 import "@/app/globals.css";
 import styles from "../auth.module.css";
 import { SignOutButton } from "./SignOutButton";
@@ -14,12 +15,7 @@ export default async function WaitingPage() {
   }
 
   // Fetch pending memberships with neighborhood names
-  const { data: pendingMemberships } = await supabase
-    .from("memberships")
-    .select("id, neighborhood:neighborhoods(name)")
-    .eq("user_id", user.id)
-    .eq("status", "pending")
-    .is("deleted_at", null);
+  const { data: pendingMemberships } = await getPendingMembershipsForUser(supabase, user.id);
 
   // If no pending memberships, they may have been approved or have none
   if (!pendingMemberships || pendingMemberships.length === 0) {

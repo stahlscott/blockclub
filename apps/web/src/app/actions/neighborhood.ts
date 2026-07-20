@@ -20,15 +20,37 @@ export async function switchNeighborhood(neighborhoodId: string): Promise<{ succ
 
   const { effectiveUserId, queryClient } = await getAuthContext(supabase, authUser);
 
-  // Update the effective user's primary neighborhood
-  const { error } = await queryClient
+  const { data: membership, error: membershipError } = await queryClient
+    .from("memberships")
+    .select("id")
+    .eq("user_id", effectiveUserId)
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (membershipError) {
+    logger.error("Failed to verify neighborhood membership", membershipError, { neighborhoodId, effectiveUserId });
+    return { success: false, error: "The neighborhood could not be selected." };
+  }
+  if (!membership) {
+    return { success: false, error: "You are not an active member of that neighborhood." };
+  }
+
+  const { data, error } = await queryClient
     .from("users")
     .update({ primary_neighborhood_id: neighborhoodId })
-    .eq("id", effectiveUserId);
+    .eq("id", effectiveUserId)
+    .select("primary_neighborhood_id")
+    .maybeSingle();
 
   if (error) {
-    logger.error("Failed to update primary neighborhood", error);
-    return { success: false, error: error.message };
+    logger.error("Failed to update primary neighborhood", error, { neighborhoodId, effectiveUserId });
+    return { success: false, error: "The neighborhood could not be selected." };
+  }
+  if (!data || data.primary_neighborhood_id !== neighborhoodId) {
+    logger.error("Neighborhood switch affected no user row", { neighborhoodId, effectiveUserId });
+    return { success: false, error: "The neighborhood selection was not saved. Please try again." };
   }
 
   revalidatePath("/dashboard");

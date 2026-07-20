@@ -1,21 +1,12 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getStaffOverviewCounts } from "@/lib/queries";
 import responsive from "@/app/responsive.module.css";
 
 async function getStats() {
   const adminSupabase = createAdminClient();
 
-  const [neighborhoods, users, items] = await Promise.all([
-    adminSupabase.from("neighborhoods").select("*", { count: "exact", head: true }),
-    adminSupabase.from("users").select("*", { count: "exact", head: true }),
-    adminSupabase.from("items").select("*", { count: "exact", head: true }),
-  ]);
-
-  return {
-    neighborhoodCount: neighborhoods.count || 0,
-    userCount: users.count || 0,
-    itemCount: items.count || 0,
-  };
+  return getStaffOverviewCounts(adminSupabase);
 }
 
 const styles: { [key: string]: React.CSSProperties } = {

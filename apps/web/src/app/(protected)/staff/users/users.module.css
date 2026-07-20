@@ -17,6 +17,12 @@
   color: var(--color-text-secondary);
 }
 
+.error {
+  margin: var(--space-2) 0;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
 .searchContainer {
   margin-bottom: var(--space-6);
 }

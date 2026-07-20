@@ -74,11 +74,15 @@ const requestedLoan: Loan = {
   borrower_id: "borrower123",
   status: "requested",
   requested_at: "2024-01-01",
+  created_at: "2024-01-01",
   start_date: null,
   due_date: null,
   returned_at: null,
   notes: null,
   deleted_at: null,
+  staff_actor_id: null,
+  closure_reason: null,
+  closed_by_user_id: null,
 };
 
 const activeLoan: Loan = {

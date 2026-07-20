@@ -4,7 +4,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, MembershipRole } from "@blockclub/shared";
+import type { Database, Membership, MembershipRole, User } from "@blockclub/shared";
 import type { MembershipWithUser, MembershipWithNeighborhood } from "./types";
 
 type Client = SupabaseClient<Database>;
@@ -74,6 +74,19 @@ export async function getMembersByNeighborhood(
   return result as { data: MembershipWithUser[] | null; error: typeof result.error };
 }
 
+/** Get active directory members with full user profiles for the public directory UI. */
+export async function getDirectoryMembers(client: Client, neighborhoodId: string) {
+  const result = await client
+    .from("memberships")
+    .select("*, user:users!memberships_user_id_fkey(*)")
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .order("joined_at", { ascending: true });
+
+  return result as { data: Array<Membership & { user: User }> | null; error: typeof result.error };
+}
+
 /**
  * Get all neighborhoods a user belongs to.
  * Used for neighborhood switcher.
@@ -120,5 +133,147 @@ export async function checkMembership(
   return {
     isMember: !!row,
     role: row?.role ?? null,
+  };
+}
+
+/** Get a user's membership record for one neighborhood. */
+export async function getMembershipForUserInNeighborhood(
+  client: Client,
+  userId: string,
+  neighborhoodId: string,
+) {
+  const result = await client
+    .from("memberships")
+    .select("id, status, deleted_at")
+    .eq("user_id", userId)
+    .eq("neighborhood_id", neighborhoodId)
+    .maybeSingle();
+
+  return result as {
+    data: { id: string; status: Membership["status"]; deleted_at: string | null } | null;
+    error: typeof result.error;
+  };
+}
+
+/** Check whether a user has any active, non-deleted membership. */
+export async function hasActiveMembership(client: Client, userId: string) {
+  const result = await client
+    .from("memberships")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .limit(1);
+
+  return (result.data?.length ?? 0) > 0;
+}
+
+/** Get a user's active memberships with full neighborhood data. */
+export async function getActiveMembershipsForUser(client: Client, userId: string) {
+  const result = await client
+    .from("memberships")
+    .select(MEMBERSHIP_WITH_NEIGHBORHOOD_SELECT)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .is("deleted_at", null);
+
+  return result as { data: MembershipWithNeighborhood[] | null; error: typeof result.error };
+}
+
+/** Get a user's pending memberships with full neighborhood data. */
+export async function getPendingMembershipsForUserWithNeighborhood(
+  client: Client,
+  userId: string,
+) {
+  const result = await client
+    .from("memberships")
+    .select(MEMBERSHIP_WITH_NEIGHBORHOOD_SELECT)
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .is("deleted_at", null);
+
+  return result as { data: MembershipWithNeighborhood[] | null; error: typeof result.error };
+}
+
+/** Get a user's pending membership requests with neighborhood names. */
+export async function getPendingMembershipsForUser(client: Client, userId: string) {
+  const result = await client
+    .from("memberships")
+    .select("id, neighborhood:neighborhoods(name)")
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .is("deleted_at", null);
+
+  return result as {
+    data: Array<{ id: string; neighborhood: { name: string } | { name: string }[] | null }> | null;
+    error: typeof result.error;
+  };
+}
+
+/** Get the active membership used to authorize a neighborhood-admin page. */
+export async function getActiveMembershipForUser(client: Client, neighborhoodId: string, userId: string) {
+  const result = await client
+    .from("memberships")
+    .select("*")
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  return result as { data: Membership | null; error: typeof result.error };
+}
+
+/** Get the newest active members for the dashboard. */
+export async function getRecentMembers(client: Client, neighborhoodId: string, limit = 6) {
+  const result = await client
+    .from("memberships")
+    .select(MEMBERSHIP_WITH_USER_SELECT)
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .order("joined_at", { ascending: false })
+    .limit(limit);
+
+  return result as { data: MembershipWithUser[] | null; error: typeof result.error };
+}
+
+/** Count pending membership requests in a neighborhood. */
+export async function countPendingMemberships(client: Client, neighborhoodId: string) {
+  const result = await client
+    .from("memberships")
+    .select("id", { count: "exact", head: true })
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "pending")
+    .is("deleted_at", null);
+
+  return result.count ?? 0;
+}
+
+/** Count active memberships in a neighborhood. */
+export async function countActiveMemberships(client: Client, neighborhoodId: string) {
+  const result = await client
+    .from("memberships")
+    .select("id", { count: "exact", head: true })
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "active")
+    .is("deleted_at", null);
+
+  return result.count ?? 0;
+}
+
+/** Get pending memberships with contact details for neighborhood moderation. */
+export async function getPendingMembersByNeighborhood(client: Client, neighborhoodId: string) {
+  const result = await client
+    .from("memberships")
+    .select("*, user:users!memberships_user_id_fkey(id, name, email, avatar_url, address)")
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("status", "pending")
+    .is("deleted_at", null)
+    .order("joined_at", { ascending: true });
+
+  return result as {
+    data: MembershipWithUser[] | null;
+    error: typeof result.error;
   };
 }

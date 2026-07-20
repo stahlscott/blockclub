@@ -86,12 +86,17 @@ export async function updateNotificationPreferences(
       channels: currentPrefs.channels, // Preserve existing channel preferences
     };
 
-    const { error } = await supabase
+    const { data: updatedUser, error } = await supabase
       .from("users")
       .update({ notification_preferences: preferences })
-      .eq("id", user.id);
+      .eq("id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) throw error;
+    if (!updatedUser?.id || updatedUser.id !== user.id) {
+      return { error: "Your notification preferences could not be saved. Please try again." };
+    }
 
     revalidatePath("/settings/notifications");
     return { success: true };

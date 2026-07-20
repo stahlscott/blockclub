@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
+import { getUserById } from "@/lib/queries";
 import { ProfileForm } from "./profile-form";
 
 export default async function ProfilePage() {
@@ -22,11 +23,7 @@ export default async function ProfilePage() {
   const queryClient = isImpersonating ? createAdminClient() : supabase;
 
   // Fetch the profile
-  const { data: profile } = await queryClient
-    .from("users")
-    .select("*")
-    .eq("id", effectiveUserId)
-    .single();
+  const { data: profile } = await getUserById(queryClient, effectiveUserId);
 
   if (!profile) {
     redirect("/signin");

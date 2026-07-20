@@ -6,6 +6,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalHeader,
+  ModalTitle,
+} from "@/components/Modal";
 import styles from "./settings.module.css";
 
 interface SettingsClientProps {
@@ -30,6 +37,7 @@ export function SettingsClient({
   // Leave neighborhood state
   const [leaving, setLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   // Password change state
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -49,12 +57,7 @@ export function SettingsClient({
   const handleLeaveNeighborhood = async () => {
     if (!membershipId) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to leave ${neighborhoodName || "this neighborhood"}? You will need an invitation to return!`
-    );
-
-    if (!confirmed) return;
-
+    setLeaveDialogOpen(false);
     setLeaving(true);
     setLeaveError(null);
 
@@ -368,15 +371,33 @@ export function SettingsClient({
             Leave {neighborhoodName || "your neighborhood"}. You will need an invitation to return.
           </p>
           {leaveError && <p className={styles.error}>{leaveError}</p>}
-          <button
-            type="button"
-            onClick={handleLeaveNeighborhood}
-            disabled={leaving}
-            className={styles.leaveButton}
-            data-testid="settings-leave-neighborhood-button"
-          >
-            {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
-          </button>
+          <Modal open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
+            <button
+              type="button"
+              onClick={() => setLeaveDialogOpen(true)}
+              disabled={leaving}
+              className={styles.leaveButton}
+              data-testid="settings-leave-neighborhood-button"
+            >
+              {leaving ? "Leaving..." : `Leave ${neighborhoodName || "Neighborhood"}`}
+            </button>
+            <ModalContent>
+              <ModalHeader>
+                <ModalTitle>Leave {neighborhoodName || "this neighborhood"}?</ModalTitle>
+                <ModalDescription>
+                  You will need an invitation to return, and your library items will be removed.
+                </ModalDescription>
+              </ModalHeader>
+              <div className={styles.actionRow}>
+                <button type="button" onClick={() => setLeaveDialogOpen(false)} disabled={leaving}>
+                  Cancel
+                </button>
+                <button type="button" onClick={handleLeaveNeighborhood} disabled={leaving}>
+                  {leaving ? "Leaving..." : "Confirm leave"}
+                </button>
+              </div>
+            </ModalContent>
+          </Modal>
         </div>
       )}
     </div>

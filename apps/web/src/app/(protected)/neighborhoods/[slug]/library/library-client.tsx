@@ -14,7 +14,7 @@ import libraryStyles from "./library.module.css";
 interface Item {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   category: string;
   availability: string;
   photo_urls?: string[];
@@ -22,7 +22,7 @@ interface Item {
   owner?: {
     id: string;
     name: string;
-    avatar_url?: string;
+    avatar_url: string | null;
   };
 }
 
@@ -100,6 +100,7 @@ export function LibraryClient({ items, slug, userId, category, memberCount, tota
         <input
           type="text"
           placeholder="Search items..."
+          aria-label="Search library items"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={libraryStyles.searchInput}

@@ -1,0 +1,108 @@
+# Codebase Panel Remediation Status
+
+**Date:** 2026-07-15  
+**Scope:** Checkpoint after the initial RLS, loan lifecycle, move-out, deletion, membership moderation, database-backed staff authorization, and staff membership command implementation slices  
+**Plan:** `docs/plans/2026-07-14-codebase-panel-remediation-design.md`  
+**Historical reviews:** `docs/reviews/2026-07-14-codebase-panel-review.md` and `docs/reviews/2026-07-14-codebase-panel-review-followup.md`
+
+## Executive status
+
+The remediation has a working database/RLS and integration-test foundation, but the full remediation plan is not complete. The previous membership-moderation blocker is resolved. The repository is at a safe stopping point for a new implementation session focused on query centralization and protected-mutation inventory closure.
+
+The current working tree includes committed checkpoints for Phase 4A and Sessions 1–2, plus the verified Session 3 protected-write boundaries. Do not treat the repository as release-ready until the remaining Phase 3–6 work and release matrix have been completed.
+
+## Verified checkpoint
+
+The following commands passed after a clean local database reset:
+
+- `supabase db reset --local`
+- `npm run test:integration` — 51 tests passing across 9 files
+- `npm run test:unit` — 132 web tests passing
+- Session 3 protected-write boundaries cover item editing, neighborhood settings/creation, signup/callback membership creation, join API membership creation, profile updates, notification preferences, due-date/availability updates, join/rejoin, and neighborhood switching
+- `npm run typecheck`
+- `npm run lint`
+
+The local integration harness uses authenticated users and anon clients, checks local Supabase prerequisites, serializes the suite, and exercises RLS rather than using the service-role client for assertions.
+
+## Phase status
+
+| Phase | Status | Evidence and remaining work |
+|---|---|---|
+| Phase 0 — Contracts, inventory, migration safety | **Complete as a planning phase** | Design record and mutation inventory exist. The inventory remains a historical pre-remediation record. Final evidence mapping still belongs in this status report and the eventual final report. |
+| Phase 1 — Regression infrastructure | **Substantially complete** | Local harness, preflight, unit contracts, and authenticated integration suites are working. Mocked server-action sequencing coverage, Playwright fixtures, and some named concurrency/failure tests remain. |
+| Phase 2 — RLS/schema hardening | **Substantially complete** | Additive migrations `00022`–`00030` reset cleanly and the current integration suite covers core membership, loan, item, post, deletion, and move-out behavior. Staff allowlist/RPC infrastructure, policy-inspection scripts, and the full concurrency/failure matrix remain. |
+| Phase 3 — High-risk mutation remediation | **Substantially complete for Session 3 scope** | Move-out, rejoin, loan lifecycle RPCs, item/post mutation paths, request validation, pending moderation, staff membership commands, item editing, neighborhood settings/creation, signup/join membership creation, profile/settings updates, due-date/availability, and neighborhood switching boundaries are implemented. Guide/item/post creation and the neighborhood PATCH typing cleanup remain classified follow-up work. |
+| Phase 4 — Query/data-access/impersonation consistency | **Partial; Phase 4A read slice complete** | The identified posts, member-profile, My Loans, item-detail, and My Items reads now use centralized queries. Admin-client soft-delete and borrower neighborhood-scope tests pass. Broader dashboard/directory migration, protected-write classification, impersonation consistency, and removal of remaining inline reads are still open. |
+| Phase 5 — Accessibility, UX, maintainability, cleanup | **Partial** | Some touched controls and error flows were improved. The full dialog, component-size, status-copy, design-token, dead-code, and render/accessibility scope is not complete or independently gated. |
+| Phase 6 — Documentation and release verification | **Not started as a release phase** | This checkpoint report is the first status artifact. Architecture documentation, executable repository checks, final finding report, targeted E2E, build, and final adversarial review remain. |
+
+## Implemented evidence by finding area
+
+These areas have implementation and passing integration or unit evidence in the current checkpoint:
+
+- **Move-out and rejoin:** atomic `move_out_membership`, self-transition policies, dependent item soft deletion, requested/approved cancellation, active administrative return, and history-preservation tests.
+- **Loan lifecycle:** requested → approved → active → returned, permitted borrower cancellation, owner decline, terminal-state rejection, item availability changes, immutable relationship protection, and direct browser/RPC denial tests.
+- **Request and deletion integrity:** self-borrow rejection, notes validation, item soft deletion, post soft deletion, reaction/pin RPCs, and direct hard-delete denial for ordinary authenticated clients.
+- **Membership moderation:** explicit pending-only policy and atomic `moderate_pending_membership` RPC. The earlier failing tests were corrected by configuring their fixture neighborhood with `require_approval: true`; the auto-approval trigger had otherwise converted the test row before moderation.
+- **Test safety:** clean migration reset, local Supabase preflight, authenticated anon clients, non-empty integration suite, unit contract coverage, typecheck, and lint.
+
+## Open gaps and release risks
+
+### Query layer and tenant scope
+
+The deprecated query shim has no remaining application consumers; the compatibility file remains temporarily. The Phase 4A slice migrated the posts page, member profile items, My Loans, item detail, active-loan/user-request reads, and My Items. The remaining query work includes dashboard, directory, pending-member, settings, auth-flow, notification query consolidation, and removal of the compatibility file after static checks.
+
+Admin/service-role query tests now prove that soft-deleted posts, items, memberships, and loans remain hidden and that borrower loans are scoped by neighborhood. Additional query-layer tests are still needed for the remaining consumers.
+
+### Protected mutation boundary
+
+A repository search still finds direct protected writes and `as never` casts. The remaining inventory is limited to classified guide/item/post creation paths, the staff neighborhood PATCH payload typing cleanup, and broader query/static inventory work. Each remains subject to the later static mutation-boundary gate.
+
+The physical neighborhood teardown route is now intentionally deprecated and returns `410 Gone`; no destructive delete path remains. A future transactional/resumable teardown would require a separate operational decision, backup expectations, audit requirements, and recovery tests.
+
+### Staff identity and impersonation
+
+Migration `00031` adds the database-maintained `staff_admins` allowlist, `npm run sync:staff-admins` provisions it from `STAFF_ADMIN_EMAILS`, and protected staff entry points use database validation. Migration `00032` adds the service-role-only membership command with actor validation, effective-user/tenant checks, soft-delete semantics, and audit attribution. The 51-test integration suite covers allowlisted and forged actors, browser denial, history preservation, and role/add/reactivation operations.
+
+### Concurrency and rollback
+
+The partial unique reservation index, row locks, and loan invariants are present. Session 5 added concurrent duplicate-request, activation-race, and activation/cancellation race coverage, plus a committed catalog/policy/index/grant inspection command (`npm run check:database-boundaries`). Injected-failure rollback testing is explicitly deferred as optional test hardening: the application RPCs are transactional and current functional/concurrency tests pass, but no safe production-neutral failure-injection seam exists yet.
+
+### UI and repository gates
+
+Session 6 replaced the remaining native `confirm()`/`alert()` calls with Radix dialogs or inline `role="alert"` errors. Session 7 adds executable repository gates for mutation inventory, component sizes, documentation links, and finding dispositions. The four gates pass against the current tree; four oversized components remain under explicit, dated waivers with follow-up extraction recommendations. The following planned deliverables are still absent or incomplete:
+
+- architecture note at `docs/architecture/data-integrity-and-authorization.md`;
+- final finding disposition report;
+- complete Playwright/axe remediation coverage;
+- `npm run build:web` and targeted E2E verification in this checkpoint.
+
+## Next bounded session
+
+### Goal
+
+Complete architecture documentation, release-matrix preparation, and the final adversarial review. Session 7 has established executable repository gates; the remaining work is to document the authorization/data-integrity contracts, add final finding evidence, and run the full release matrix.
+
+### Work sequence
+
+1. Add `docs/architecture/data-integrity-and-authorization.md` and link the operational contracts to the design record and current evidence.
+2. Produce the final F1–F38/N1–N9 disposition report with code, migration, test, and documentation evidence.
+3. Add targeted Playwright/axe coverage for the remediation-critical dialogs, labels, and lifecycle surfaces.
+4. Run the clean-reset release matrix, including build and all four repository gates.
+5. Perform a fresh adversarial review against both historical reports and resolve or formally rebut every remaining Critical/Important result.
+
+### Stopping point
+
+Stop when architecture and finding evidence are complete, targeted accessibility coverage exists, the clean-reset release matrix passes, and the fresh adversarial review has no unresolved Critical/Important findings.
+
+## Durable checkpoint notes
+
+- Historical review reports are immutable.
+- The pre-remediation mutation inventory is intentionally historical and should not be edited to make it appear current.
+- Migrations through `00030` are additive and pass clean local reset.
+- The remediation foundation is committed at `3693285`; the Phase 4A read migration is committed at `bc699bc`.
+- The previous saved goal is terminally marked blocked in session metadata. Continue with a new bounded goal for the next session rather than relying on that stale goal state.
+
+## Completion standard
+
+Do not produce a final remediation-complete report until the remaining findings have code/test/documentation evidence, the direct-write and teardown exceptions are resolved or formally approved, the full release matrix passes, and a fresh adversarial review has compared the result with both historical reports.

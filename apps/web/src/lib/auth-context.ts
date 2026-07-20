@@ -8,12 +8,15 @@
  * - Return effective user ID and appropriate query client
  */
 
-import type { User as AuthUser } from "@supabase/supabase-js";
-import { isStaffAdmin } from "@/lib/auth";
+import type { User as AuthUser, SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@blockclub/shared";
 import { getImpersonationContext, ImpersonationContext } from "@/lib/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isStaffAdminUser } from "@/lib/auth";
 
-export interface AuthContext<T> {
+export type AppSupabaseClient = SupabaseClient<Database>;
+
+export interface AuthContext {
   /** The authenticated Supabase auth user */
   authUser: AuthUser;
   /** Whether the authenticated user is a staff admin */
@@ -25,7 +28,7 @@ export interface AuthContext<T> {
   /** The effective user ID for queries (impersonated user ID or actual user ID) */
   effectiveUserId: string;
   /** The appropriate Supabase client (admin client for staff, regular client otherwise) */
-  queryClient: T;
+  queryClient: AppSupabaseClient;
 }
 
 /**
@@ -53,11 +56,12 @@ export interface AuthContext<T> {
  * const { data } = await queryClient.from("items").select("*");
  * ```
  */
-export async function getAuthContext<T>(
-  supabase: T,
+export async function getAuthContext(
+  supabase: AppSupabaseClient,
   authUser: AuthUser
-): Promise<AuthContext<T>> {
-  const userIsStaffAdmin = isStaffAdmin(authUser.email);
+): Promise<AuthContext> {
+  const staffClient = createAdminClient();
+  const userIsStaffAdmin = await isStaffAdminUser(staffClient, authUser.id);
 
   // Check for impersonation (only for staff admins)
   const impersonationContext = userIsStaffAdmin
@@ -71,9 +75,8 @@ export async function getAuthContext<T>(
       ? impersonationContext.impersonatedUserId
       : authUser.id;
 
-  // Use admin client for staff admins to bypass RLS
-  // Cast to T because both clients have the same interface at runtime
-  const queryClient = (userIsStaffAdmin ? createAdminClient() : supabase) as T;
+  // Use admin client for staff admins to bypass RLS.
+  const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
 
   return {
     authUser,

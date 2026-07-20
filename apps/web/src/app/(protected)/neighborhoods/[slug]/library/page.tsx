@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getItemsByNeighborhood } from "@/lib/queries";
 import {
   FILTER_CATEGORIES,
   type FilterCategoryOption,
@@ -30,15 +31,11 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const { category } = await searchParams;
   const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  // Fetch all items (no category filter) to determine available categories
-  // Note: Use !items_owner_id_fkey to specify which FK to use (there are multiple user references)
+  // Fetch visible items and active member count in parallel.
   const [{ data: allItems }, { count: memberCount }] = await Promise.all([
-    supabase
-      .from("items")
-      .select("*, owner:users!items_owner_id_fkey(id, name, avatar_url)")
-      .eq("neighborhood_id", neighborhood.id)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false }),
+    getItemsByNeighborhood(supabase, neighborhood.id, {
+      includeUnavailable: true,
+    }),
     supabase
       .from("memberships")
       .select("*", { count: "exact", head: true })
@@ -51,10 +48,9 @@ export default async function LibraryPage({ params, searchParams }: Props) {
   const availableCategories = getCategoriesWithItems(allItems || [], FILTER_CATEGORIES);
 
   // Apply category filter in memory
-  let items = allItems || [];
-  if (category && category !== "all") {
-    items = items.filter((item: any) => item.category === category);
-  }
+  const items = category && category !== "all"
+    ? (allItems || []).filter((item) => item.category === category)
+    : allItems || [];
 
   return (
     <div className={libraryStyles.container}>

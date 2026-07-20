@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getItemsByOwner, getReservationsForItems } from "@/lib/queries";
 import {
   getCategoryEmoji,
   getCategoryColorLight,
@@ -19,24 +20,10 @@ export default async function MyItemsPage({ params }: Props) {
   const { slug } = await params;
   const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  // Fetch user's items
-  const { data: items } = await supabase
-    .from("items")
-    .select("*")
-    .eq("neighborhood_id", neighborhood.id)
-    .eq("owner_id", user.id)
-    .order("created_at", { ascending: false });
+  const { data: items } = await getItemsByOwner(supabase, neighborhood.id, user.id);
 
-  // Fetch pending requests for user's items
-  const itemIds = items?.map((i) => i.id) || [];
-  const { data: pendingRequests } =
-    itemIds.length > 0
-      ? await supabase
-          .from("loans")
-          .select("item_id")
-          .in("item_id", itemIds)
-          .eq("status", "requested")
-      : { data: [] };
+  const itemIds = items?.map((item) => item.id) ?? [];
+  const { data: pendingRequests } = await getReservationsForItems(supabase, itemIds);
 
   const requestCountByItem =
     pendingRequests?.reduce((acc: Record<string, number>, loan) => {

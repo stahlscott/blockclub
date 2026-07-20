@@ -5,7 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getActiveMembership, getNeighborhoodBySlug, getPostById } from "@/lib/queries";
 import { logger } from "@/lib/logger";
+import { updatePost } from "../../actions";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { PostImageUpload } from "@/components/PostImageUpload";
 import styles from "../../post-form.module.css";
@@ -73,11 +75,7 @@ export default function EditPostPage() {
         }
 
         // Get neighborhood
-        const { data: neighborhood } = await supabase
-          .from("neighborhoods")
-          .select("id")
-          .eq("slug", slug)
-          .single();
+        const { data: neighborhood } = await getNeighborhoodBySlug(supabase, slug);
 
         if (!neighborhood) {
           setError("Neighborhood not found");
@@ -85,14 +83,7 @@ export default function EditPostPage() {
         }
 
         // Get membership and check role
-        const { data: membership } = await supabase
-          .from("memberships")
-          .select("role")
-          .eq("neighborhood_id", neighborhood.id)
-          .eq("user_id", user.id)
-          .eq("status", "active")
-          .is("deleted_at", null)
-          .single();
+        const { data: membership } = await getActiveMembership(supabase, neighborhood.id, user.id);
 
         if (!membership) {
           setError("You must be a member to edit posts");
@@ -104,11 +95,11 @@ export default function EditPostPage() {
         setUserId(user.id);
 
         // Get post
-        const { data: postData, error: postError } = await supabase
-          .from("posts")
-          .select("*")
-          .eq("id", postId)
-          .single();
+        const { data: postData, error: postError } = await getPostById(
+          supabase,
+          postId,
+          neighborhood.id,
+        );
 
         if (postError || !postData) {
           setError("Post not found");
@@ -145,48 +136,16 @@ export default function EditPostPage() {
     setSaving(true);
 
     try {
-      const supabase = createClient();
-
-      // Get current user for edited_by
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      // Build update object
-      const updateData: {
-        content: string;
-        image_url: string | null;
-        expires_at: string | null;
-        edited_at: string;
-        edited_by: string;
-        is_pinned?: boolean;
-      } = {
-        content: content.trim(),
-        image_url: imageUrl,
-        expires_at: expiresAt
-          ? new Date(expiresAt + "T23:59:59").toISOString()
-          : null,
-        edited_at: new Date().toISOString(),
-        edited_by: user.id,
-      };
-
-      // Only admins can change pin status
-      if (isAdmin) {
-        updateData.is_pinned = isPinned;
-      }
-
-      const { error: updateError } = await supabase
-        .from("posts")
-        .update(updateData)
-        .eq("id", postId);
-
-      if (updateError) {
-        logger.error("Update error", updateError);
-        setError(updateError.message);
+      const result = await updatePost({
+        slug,
+        postId,
+        content,
+        imageUrl,
+        expiresAt,
+        ...(isAdmin ? { isPinned } : {}),
+      });
+      if (!result.success) {
+        setError(result.error);
         return;
       }
 
