@@ -34,8 +34,44 @@ jobs:
             echo "has_migrations=false" >> $GITHUB_OUTPUT
           fi
 
+  prepare-e2e-database:
+    name: Prepare E2E database
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      STAFF_ADMIN_EMAILS: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: npm ci
+
+      - name: Apply migrations to E2E database
+        run: |
+          PROJECT_REF="${NEXT_PUBLIC_SUPABASE_URL#https://}"
+          PROJECT_REF="${PROJECT_REF%%.*}"
+          test -n "$PROJECT_REF"
+          supabase link --project-ref "$PROJECT_REF"
+          supabase db push
+
+      - name: Provision E2E staff allowlist
+        run: npm run sync:staff-admins
+
   e2e-tests:
     name: E2E Tests (${{ matrix.shard }})
+    needs: prepare-e2e-database
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -115,6 +151,13 @@ jobs:
         with:
           ref: main
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
       - uses: supabase/setup-cli@v1
         with:
           version: latest
@@ -125,6 +168,13 @@ jobs:
           supabase db push
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Provision production staff allowlist
+        run: npm run sync:staff-admins
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://${{ secrets.SUPABASE_PROD_PROJECT_REF }}.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STAFF_ADMIN_EMAILS: ${{ secrets.PROD_STAFF_ADMIN_EMAILS }}
 
   skip-migrations:
     name: Skip migrations

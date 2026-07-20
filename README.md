@@ -174,16 +174,7 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 
 Production authorization, tenant isolation, soft-delete behavior, lifecycle RPCs, staff impersonation, and rollback limits are documented in [`docs/architecture/data-integrity-and-authorization.md`](docs/architecture/data-integrity-and-authorization.md).
 
-Before release, run the clean-reset matrix from the remediation status report. The repository checks are executable and fail closed:
-
-```bash
-npm run check:static-inventory
-npm run check:component-sizes
-npm run check:doc-links
-npm run check:finding-dispositions
-```
-
-The static inventory is maintained separately from the historical pre-remediation inventory at `docs/plans/2026-07-14-codebase-panel-remediation-mutation-inventory.md`.
+Before release, run the clean-reset matrix from the remediation status report. The production database migrations and staff allowlist are applied explicitly by the release workflow before production is advanced.
 
 ## Infrastructure
 
