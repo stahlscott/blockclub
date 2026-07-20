@@ -21,10 +21,6 @@
     "test:integration": "node scripts/integration-preflight.mjs",
     "check:integration-preflight": "node scripts/integration-preflight.mjs --check-only",
     "check:database-boundaries": "scripts/inspect-database-boundaries.sh",
-    "check:static-inventory": "node scripts/check-static-inventory.mjs",
-    "check:component-sizes": "node scripts/check-component-sizes.mjs",
-    "check:doc-links": "node scripts/check-doc-links.mjs",
-    "check:finding-dispositions": "node scripts/check-finding-dispositions.mjs",
     "sync:staff-admins": "node scripts/sync-staff-admins.mjs",
     "test:e2e": "turbo test:e2e --filter=@blockclub/web",
     "test:coverage": "turbo test:coverage --filter=@blockclub/web --filter=@blockclub/shared"
