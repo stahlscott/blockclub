@@ -293,6 +293,7 @@
 }
 
 .toggleButton {
+  width: 100%;
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-surface);
   color: var(--color-primary);
