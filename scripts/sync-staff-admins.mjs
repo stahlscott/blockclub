@@ -17,20 +17,42 @@ const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const users = [];
-for (let page = 1; ; page += 1) {
-  const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-  if (error) throw new Error(`Could not list auth users: ${error.message}`);
-  users.push(...data.users);
-  if (data.users.length < 1000) break;
-}
+const listAuthUsers = async () => {
+  const users = [];
+  for (let page = 1; ; page += 1) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+    users.push(...data.users);
+    if (data.users.length < 1000) break;
+  }
+  return users;
+};
 
+const resolveConfiguredUsers = async () => {
+  try {
+    return await listAuthUsers();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`Auth user listing failed; falling back to public.users: ${message}`);
+
+    const { data, error: profileError } = await supabase
+      .from("users")
+      .select("id, email")
+      .in("email", configuredEmails);
+    if (profileError) {
+      throw new Error(`Could not list auth users or resolve profiles: ${profileError.message}`);
+    }
+    return data || [];
+  }
+};
+
+const users = await resolveConfiguredUsers();
 const matches = users.filter((user) => configuredEmails.includes((user.email || "").toLowerCase()));
 const missing = configuredEmails.filter(
   (email) => !matches.some((user) => (user.email || "").toLowerCase() === email),
 );
 if (missing.length > 0) {
-  throw new Error(`Configured staff emails have no auth user: ${missing.join(", ")}`);
+  throw new Error(`Configured staff emails have no auth user or profile: ${missing.join(", ")}`);
 }
 
 for (const user of matches) {
