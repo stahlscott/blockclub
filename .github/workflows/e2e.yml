@@ -2,6 +2,12 @@ name: E2E Tests
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to test'
+        required: false
+        default: main
+        type: string
     secrets:
       SUPABASE_TEST_URL:
         required: true
@@ -41,6 +47,8 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: actions/setup-node@v4
         with:
@@ -75,6 +83,8 @@ jobs:
         shard: [1/3, 2/3, 3/3]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: actions/setup-node@v4
         with:
