@@ -10,14 +10,14 @@ import { env } from "@/lib/env";
 let adminClient: SupabaseClient<Database> | null = null;
 
 export function createAdminClient(): SupabaseClient<Database> {
-  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+  if (!env.SUPABASE_SECRET_KEY) {
+    throw new Error("SUPABASE_SECRET_KEY is not configured");
   }
 
   if (!adminClient) {
     adminClient = createSupabaseClient<Database>(
       env.SUPABASE_URL,
-      env.SUPABASE_SERVICE_ROLE_KEY,
+      env.SUPABASE_SECRET_KEY,
       {
         auth: {
           autoRefreshToken: false,
