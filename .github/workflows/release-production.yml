@@ -10,32 +10,44 @@ on:
         type: boolean
 
 jobs:
-  check-migrations:
-    name: Check for migrations
+  prepare-e2e-database:
+    name: Prepare E2E database
     runs-on: ubuntu-latest
-    outputs:
-      has_migrations: ${{ steps.check.outputs.has_migrations }}
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      STAFF_ADMIN_EMAILS: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          ref: main
 
-      - name: Check for migration file changes
-        id: check
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - run: npm ci
+
+      - name: Apply migrations to E2E database
         run: |
-          # Get the list of changed files between prod and main
-          CHANGED_FILES=$(git diff --name-only origin/prod...origin/main -- 'supabase/migrations/' || true)
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "Migration files changed:"
-            echo "$CHANGED_FILES"
-            echo "has_migrations=true" >> $GITHUB_OUTPUT
-          else
-            echo "No migration files changed"
-            echo "has_migrations=false" >> $GITHUB_OUTPUT
-          fi
+          PROJECT_REF="${NEXT_PUBLIC_SUPABASE_URL#https://}"
+          PROJECT_REF="${PROJECT_REF%%.*}"
+          test -n "$PROJECT_REF"
+          supabase link --project-ref "$PROJECT_REF"
+          supabase db push
+
+      - name: Provision E2E staff allowlist
+        run: npm run sync:staff-admins
 
   e2e-tests:
     name: E2E Tests (${{ matrix.shard }})
+    needs: prepare-e2e-database
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -52,13 +64,13 @@ jobs:
       E2E_STAFF_ADMIN_EMAIL: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
       E2E_STAFF_ADMIN_PASSWORD: ${{ secrets.E2E_STAFF_ADMIN_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - run: npm ci
@@ -69,7 +81,7 @@ jobs:
 
       - name: Cache Playwright Browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
@@ -89,7 +101,7 @@ jobs:
         run: cd apps/web && npx playwright test --shard=${{ matrix.shard }}
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-${{ strategy.job-index }}
@@ -97,7 +109,7 @@ jobs:
           retention-days: 7
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-${{ strategy.job-index }}
@@ -107,15 +119,22 @@ jobs:
   run-migrations:
     name: Run migrations
     runs-on: ubuntu-latest
-    needs: [check-migrations, e2e-tests]
-    if: needs.check-migrations.outputs.has_migrations == 'true' && inputs.dry_run == false
+    needs: e2e-tests
+    if: inputs.dry_run == false
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
-      - uses: supabase/setup-cli@v1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
 
@@ -126,26 +145,23 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-  skip-migrations:
-    name: Skip migrations
-    runs-on: ubuntu-latest
-    needs: [check-migrations, e2e-tests]
-    if: needs.check-migrations.outputs.has_migrations == 'false'
-    steps:
-      - name: No migrations needed
-        run: echo "No migration files changed, skipping database migration"
+      - name: Provision production staff allowlist
+        run: npm run sync:staff-admins
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://${{ secrets.SUPABASE_PROD_PROJECT_REF }}.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_PROD_SECRET_KEY }}
+          STAFF_ADMIN_EMAILS: ${{ secrets.PROD_STAFF_ADMIN_EMAILS }}
 
   fast-forward-prod:
     name: Fast-forward prod to main
     runs-on: ubuntu-latest
-    needs: [e2e-tests, run-migrations, skip-migrations]
+    needs: [e2e-tests, run-migrations]
     if: |
       always() &&
       needs.e2e-tests.result == 'success' &&
-      (needs.run-migrations.result == 'success' || needs.run-migrations.result == 'skipped') &&
-      (needs.skip-migrations.result == 'success' || needs.skip-migrations.result == 'skipped')
+      (needs.run-migrations.result == 'success' || needs.run-migrations.result == 'skipped')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}

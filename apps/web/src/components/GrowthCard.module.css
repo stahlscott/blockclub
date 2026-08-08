@@ -1,0 +1,104 @@
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-warm-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.info {
+  flex: 1;
+}
+
+.heading {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.subtext {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.shareButton {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.shareButton:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(166, 93, 76, 0.25);
+}
+
+.socialProof {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.avatarStack {
+  display: flex;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+}
+
+.avatar + .avatar {
+  margin-left: -8px;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.socialProofText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shareButton {
+    width: 100%;
+    text-align: center;
+  }
+}

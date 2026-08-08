@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthContext } from "@/lib/auth-context";
+import { checkMembership, getNeighborhoodById } from "@/lib/queries";
 import { logger } from "@/lib/logger";
 
 interface SaveGuideData {
@@ -36,26 +37,15 @@ export async function saveGuide(
 
   // Verify admin access (staff admins without impersonation bypass, impersonating staff need admin role)
   if (!userIsStaffAdmin || isImpersonating) {
-    const { data: membership } = await queryClient
-      .from("memberships")
-      .select("id, role")
-      .eq("neighborhood_id", data.neighborhoodId)
-      .eq("user_id", effectiveUserId)
-      .eq("status", "active")
-      .is("deleted_at", null)
-      .single();
+    const { role } = await checkMembership(queryClient, data.neighborhoodId, effectiveUserId);
 
-    if (!membership || membership.role !== "admin") {
+    if (role !== "admin") {
       return { success: false, error: "Only admins can edit the guide" };
     }
   }
 
   // Get neighborhood slug for revalidation
-  const { data: neighborhood } = await queryClient
-    .from("neighborhoods")
-    .select("slug")
-    .eq("id", data.neighborhoodId)
-    .single();
+  const { data: neighborhood } = await getNeighborhoodById(queryClient, data.neighborhoodId);
 
   if (!neighborhood) {
     return { success: false, error: "Neighborhood not found" };

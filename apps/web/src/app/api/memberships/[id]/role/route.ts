@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { runStaffMembershipOperation } from "@/lib/staff-membership";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -41,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  const userIsStaffAdmin = isStaffAdmin(user.email);
+  const userIsStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
 
   // Use admin client for staff admins to bypass RLS (they aren't members of neighborhoods)
   const queryClient = userIsStaffAdmin ? createAdminClient() : supabase;
@@ -100,22 +101,45 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ membership: targetMembership });
   }
 
-  // Update the role
-  // Note: Use FK hint for ambiguous relationship (memberships has multiple user FKs)
-  const { data: updatedMembership, error: updateError } = await queryClient
-    .from("memberships")
-    .update({ role } as never)
-    .eq("id", membershipId)
-    .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
-    .single();
-
-  if (updateError) {
-    logger.error("Error updating membership role", updateError, { membershipId });
-    return NextResponse.json(
-      { error: "Failed to update role" },
-      { status: 500 }
-    );
+  const operation = role === "admin" ? "promote" : "demote";
+  if (!userIsStaffAdmin && operation !== "promote") {
+    return NextResponse.json({ error: "Only staff admins can demote admins" }, { status: 403 });
   }
+
+  if (!userIsStaffAdmin) {
+    // Neighborhood admins are not staff actors, so their promotions go through
+    // the auth.uid()-validated RPC rather than the staff command boundary.
+    const { data: promoteResult, error: promoteError } = await supabase.rpc(
+      "promote_membership_to_admin",
+      { p_membership_id: membershipId },
+    );
+
+    if (promoteError || !promoteResult?.success || promoteResult.affected_membership_count !== 1) {
+      logger.error("Error promoting membership", promoteError, { membershipId });
+      return NextResponse.json(
+        { error: "This member could not be promoted. Refresh and try again." },
+        { status: 409 },
+      );
+    }
+  } else {
+    const { data: operationResult, error: operationError } = await runStaffMembershipOperation({
+      operation,
+      membershipId,
+      role,
+      staffActorId: user.id,
+    });
+
+    if (operationError || !operationResult?.success || operationResult.affected_membership_count !== 1) {
+      logger.error("Error updating membership role", operationError, { membershipId, operation });
+      return NextResponse.json({ error: operationResult?.reason || "Failed to update role" }, { status: 409 });
+    }
+  }
+
+  const { data: updatedMembership } = await createAdminClient()
+    .from("memberships")
+    .select("*, neighborhood:neighborhoods(*), user:users!memberships_user_id_fkey(*)")
+    .eq("id", membershipId)
+    .single();
 
   return NextResponse.json({ membership: updatedMembership });
 }

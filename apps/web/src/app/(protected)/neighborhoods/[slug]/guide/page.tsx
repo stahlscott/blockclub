@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getNeighborhoodGuideWithUpdatedBy } from "@/lib/queries";
 import { GuideClient } from "./guide-client";
-import type { NeighborhoodGuideWithUpdatedBy } from "@blockclub/shared";
 import styles from "./guide.module.css";
 
 interface Props {
@@ -14,20 +14,10 @@ export default async function GuidePage({ params }: Props) {
   const { user, neighborhood, isNeighborhoodAdmin, supabase } =
     await getNeighborhoodAccess(slug);
 
-  // Fetch guide with the user who last updated it
-  const { data: guide } = await supabase
-    .from("neighborhood_guides")
-    .select(
-      `
-      *,
-      updated_by_user:users!updated_by(id, name, avatar_url)
-    `
-    )
-    .eq("neighborhood_id", neighborhood.id)
-    .maybeSingle();
-
-  // Type the guide data properly
-  const typedGuide = guide as NeighborhoodGuideWithUpdatedBy | null;
+  const { data: typedGuide } = await getNeighborhoodGuideWithUpdatedBy(
+    supabase,
+    neighborhood.id,
+  );
 
   return (
     <div className={styles.container}>

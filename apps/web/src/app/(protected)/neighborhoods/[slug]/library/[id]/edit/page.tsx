@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getItemById } from "@/lib/queries";
+import { updateItem } from "../../actions";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ITEM_CATEGORIES } from "@/lib/category-utils";
@@ -40,11 +42,7 @@ export default function EditItemPage() {
         return;
       }
 
-      const { data: item, error: fetchError } = await supabase
-        .from("items")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data: item, error: fetchError } = await getItemById(supabase, id);
 
       if (fetchError || !item) {
         setError("Item not found");
@@ -75,21 +73,17 @@ export default function EditItemPage() {
     setSaving(true);
 
     try {
-      const supabase = createClient();
+      const result = await updateItem({
+        itemId: id,
+        slug,
+        name,
+        description,
+        category,
+        photoUrls,
+      });
 
-      const { error: updateError } = await supabase
-        .from("items")
-        .update({
-          name: name.trim(),
-          description: description.trim() || null,
-          category,
-          photo_urls: photoUrls,
-        })
-        .eq("id", id);
-
-      if (updateError) {
-        logger.error("Update error", updateError, { itemId: id });
-        setError(updateError.message);
+      if (!result.success) {
+        setError(result.error || "The item could not be updated.");
         return;
       }
 

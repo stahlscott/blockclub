@@ -12,7 +12,8 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { getUserById, getUserProfile } from "@/lib/queries";
 import type { User } from "@blockclub/shared";
 
 const IMPERSONATION_COOKIE = "bc_impersonating";
@@ -37,7 +38,8 @@ async function getImpersonationContextImpl(): Promise<ImpersonationContext | nul
     cookies(),
   ]);
 
-  if (!authUser || !isStaffAdmin(authUser.email)) {
+  const adminSupabase = createAdminClient();
+  if (!authUser || !(await isStaffAdminUser(adminSupabase, authUser.id))) {
     return null;
   }
 
@@ -53,13 +55,7 @@ async function getImpersonationContextImpl(): Promise<ImpersonationContext | nul
     };
   }
 
-  // Fetch impersonated user data using admin client (bypasses RLS)
-  const adminSupabase = createAdminClient();
-  const { data: impersonatedUser } = await adminSupabase
-    .from("users")
-    .select("*")
-    .eq("id", impersonatingUserId)
-    .single();
+  const { data: impersonatedUser } = await getUserById(adminSupabase, impersonatingUserId);
 
   // If impersonated user doesn't exist, clear the cookie
   if (!impersonatedUser) {
@@ -127,13 +123,9 @@ export async function getEffectiveUser(): Promise<User | null> {
   if (!authUser) return null;
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", authUser.id)
-    .single();
+  const { data: profile } = await getUserProfile(supabase, authUser.id);
 
-  return profile as User | null;
+  return profile;
 }
 
 /**

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { getNeighborhoodAccess } from "@/lib/neighborhood-access";
+import { getLoansForBorrower } from "@/lib/queries";
+import type { LoanWithItemAndOwner } from "@/lib/queries";
 import styles from "../library-pages.module.css";
 import libraryStyles from "../library.module.css";
 import { LibraryTabs } from "../library-tabs";
@@ -12,19 +14,12 @@ interface Props {
 
 export default async function MyLoansPage({ params }: Props) {
   const { slug } = await params;
-  const { user, supabase } = await getNeighborhoodAccess(slug);
+  const { user, neighborhood, supabase } = await getNeighborhoodAccess(slug);
 
-  // Fetch loans where user is borrower
-  // Note: Use FK hints for ambiguous relationships
-  const { data: borrowedLoans } = await supabase
-    .from("loans")
-    .select("*, item:items!loans_item_id_fkey(id, name, photo_urls, owner:users!items_owner_id_fkey(id, name))")
-    .eq("borrower_id", user.id)
-    .order("requested_at", { ascending: false });
-
-  // Filter to only items from this neighborhood
-  const neighborhoodLoans =
-    borrowedLoans?.filter((loan: any) => loan.item?.owner) || [];
+  const { data: borrowedLoans } = await getLoansForBorrower(supabase, user.id, {
+    neighborhoodId: neighborhood.id,
+  });
+  const neighborhoodLoans: LoanWithItemAndOwner[] = borrowedLoans ?? [];
 
   // Group by status
   const activeLoans = neighborhoodLoans.filter(

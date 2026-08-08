@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getPathFromUrl, validateImageFile } from "../storage";
+import { getPathFromUrl, isAllowedStorageImageUrl, validateImageFile } from "../storage";
 
 describe("getPathFromUrl", () => {
   const baseUrl = "https://example.supabase.co/storage/v1/object/public";
@@ -57,6 +57,20 @@ describe("getPathFromUrl", () => {
       const url = `${baseUrl}/avatars/user-123/my%20image.jpg`;
       expect(getPathFromUrl(url, "avatars")).toBe("user-123/my%20image.jpg");
     });
+  });
+});
+
+describe("isAllowedStorageImageUrl", () => {
+  const origin = "https://example.supabase.co";
+
+  it("image_url_validation_rejects_untrusted_origin", () => {
+    expect(isAllowedStorageImageUrl("https://evil.example/image.png", origin)).toBe(false);
+    expect(isAllowedStorageImageUrl("https://example.supabase.co/storage/v1/object/public/posts/post/image.png", origin)).toBe(true);
+    expect(isAllowedStorageImageUrl("https://example.supabase.co/storage/v1/object/public/items/item/image.png", origin, "items")).toBe(true);
+    expect(isAllowedStorageImageUrl("https://example.supabase.co/storage/v1/object/public/items/item/image.png", origin, "posts")).toBe(false);
+    expect(isAllowedStorageImageUrl("https://example.supabase.co/profile/image.png", origin)).toBe(false);
+    expect(isAllowedStorageImageUrl("not-a-url", origin)).toBe(false);
+    expect(isAllowedStorageImageUrl(null, origin)).toBe(true);
   });
 });
 

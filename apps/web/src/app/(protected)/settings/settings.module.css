@@ -210,6 +210,12 @@
 }
 
 /* Leave neighborhood button */
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 .leaveButton {
   padding: var(--space-3) var(--space-6);
   background-color: var(--color-surface);

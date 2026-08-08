@@ -170,6 +170,24 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | `SENTRY_PROJECT`                       | Sentry project slug (build-time)           |
 | `SENTRY_AUTH_TOKEN`                    | Sentry auth token for source maps (build-time) |
 
+## Data integrity and release checks
+
+Production authorization, tenant isolation, soft-delete behavior, lifecycle RPCs, staff impersonation, and rollback limits are documented in [`docs/architecture/data-integrity-and-authorization.md`](docs/architecture/data-integrity-and-authorization.md).
+
+Before release, run the clean-reset matrix from the remediation status report. The production database migrations and staff allowlist are applied explicitly by the release workflow before production is advanced.
+
+### Full validation before release
+
+Standard CI intentionally runs the inexpensive checks—lint, typecheck, unit tests, and build—on every push and pull request. The longer integration and E2E suites are available on demand through the **Full Validation** workflow:
+
+1. Push the final commits you intend to release.
+2. Open **Actions → Full Validation → Run workflow**.
+3. Enter the branch or ref containing those commits and run it.
+4. Wait for integration tests and all E2E shards to pass.
+5. Dispatch **Release to Production** only after the final validation is green.
+
+Full Validation runs integration tests against a fresh local Supabase instance and runs E2E against the isolated E2E Supabase project. It does not modify production or advance the `prod` branch. The production release workflow retains its own final E2E gate before migrations and the `prod` fast-forward.
+
 ## Infrastructure
 
 | Service | Purpose | Notes |

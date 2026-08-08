@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { updateNeighborhoodSettings } from "./actions";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
 import styles from "@/app/(protected)/settings/settings.module.css";
@@ -103,45 +104,15 @@ export default function NeighborhoodSettingsPage() {
     setSaving(true);
 
     try {
-      // Staff admins use the admin API to bypass RLS
-      if (isStaffAdmin) {
-        const response = await fetch(`/api/admin/neighborhoods/${neighborhood.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: form.name.trim(),
-            description: form.description.trim() || null,
-            location: form.location.trim() || null,
-            settings: { require_approval: form.require_approval },
-          }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          setError(data.error || "Failed to save changes");
-          return;
-        }
-      } else {
-        // Regular neighborhood admins use direct Supabase update
-        const supabase = createClient();
-
-        const { error: updateError } = await supabase
-          .from("neighborhoods")
-          .update({
-            name: form.name.trim(),
-            description: form.description.trim() || null,
-            location: form.location.trim() || null,
-            settings: {
-              ...neighborhood.settings,
-              require_approval: form.require_approval,
-            },
-          })
-          .eq("id", neighborhood.id);
-
-        if (updateError) {
-          setError(updateError.message);
-          return;
-        }
+      const result = await updateNeighborhoodSettings(slug, {
+        name: form.name,
+        description: form.description,
+        location: form.location,
+        requireApproval: form.require_approval,
+      });
+      if (!result.success) {
+        setError(result.error || "Failed to save changes");
+        return;
       }
 
       setSuccess(true);

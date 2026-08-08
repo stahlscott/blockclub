@@ -10,6 +10,15 @@ import {
 } from "../loans";
 
 describe("loans", () => {
+  it("loan_action_matrix_rejects_terminal_and_wrong-role_transitions", () => {
+    expect(getAvailableLoanActions("returned", true, true)).toEqual([]);
+    expect(getAvailableLoanActions("cancelled", true, true)).toEqual([]);
+    expect(getAvailableLoanActions("approved", false, true)).toEqual(["cancel"]);
+    expect(getAvailableLoanActions("active", false, true)).toEqual([]);
+    expect(canTransitionLoan("approved", "return")).toBe(false);
+    expect(canTransitionLoan("active", "approve")).toBe(false);
+  });
+
   describe("getLoanStatusDisplay", () => {
     it("returns display text for each status", () => {
       expect(getLoanStatusDisplay("requested")).toBe("Requested");

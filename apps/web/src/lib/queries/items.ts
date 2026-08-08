@@ -5,7 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, ItemCategory } from "@blockclub/shared";
-import type { ItemWithOwner } from "./types";
+import type { ItemOwnership, ItemWithOwner, LibraryItem } from "./types";
 
 type Client = SupabaseClient<Database>;
 
@@ -49,7 +49,23 @@ export async function getItemsByNeighborhood(
   }
 
   const result = await query;
-  return result as { data: ItemWithOwner[] | null; error: typeof result.error };
+  return result as { data: LibraryItem[] | null; error: typeof result.error };
+}
+
+/** Get an item's ownership and availability fields within an optional neighborhood. */
+export async function getItemOwnership(client: Client, itemId: string, neighborhoodId?: string) {
+  let query = client
+    .from("items")
+    .select("id, owner_id, neighborhood_id, availability")
+    .eq("id", itemId)
+    .is("deleted_at", null);
+
+  if (neighborhoodId) {
+    query = query.eq("neighborhood_id", neighborhoodId);
+  }
+
+  const result = await query.maybeSingle();
+  return result as { data: ItemOwnership | null; error: typeof result.error };
 }
 
 /**
@@ -73,7 +89,7 @@ export async function getItemsByOwner(
   client: Client,
   neighborhoodId: string,
   ownerId: string,
-  options?: { includeUnavailable?: boolean }
+  options?: { includeUnavailable?: boolean; limit?: number }
 ) {
   let query = client
     .from("items")
@@ -87,6 +103,41 @@ export async function getItemsByOwner(
     query = query.in("availability", ["available", "borrowed"]);
   }
 
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
   const result = await query;
   return result as { data: ItemWithOwner[] | null; error: typeof result.error };
+}
+
+/** Get non-deleted item IDs owned by a user. */
+export async function getItemIdsByOwner(client: Client, ownerId: string) {
+  const result = await client
+    .from("items")
+    .select("id")
+    .eq("owner_id", ownerId)
+    .is("deleted_at", null);
+
+  return result as { data: Array<{ id: string }> | null; error: typeof result.error };
+}
+
+/** Count available items in a neighborhood. */
+export async function countAvailableItems(client: Client, neighborhoodId: string) {
+  const result = await client
+    .from("items")
+    .select("id", { count: "exact", head: true })
+    .eq("neighborhood_id", neighborhoodId)
+    .eq("availability", "available")
+    .is("deleted_at", null);
+
+  return result.count ?? 0;
+}
+
+/** Get the newest available items for the dashboard. */
+export async function getRecentItems(client: Client, neighborhoodId: string, limit = 8) {
+  return getItemsByNeighborhood(client, neighborhoodId, {
+    limit,
+    category: undefined,
+  });
 }

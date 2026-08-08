@@ -44,9 +44,7 @@ test.describe('Accessibility Audit - Public Pages', () => {
       });
     }
 
-    // For now, we log violations but don't fail - this allows us to audit first
-    // Uncomment the line below to enforce accessibility compliance:
-    // expect(accessibilityScanResults.violations).toEqual([]);
+    expect(accessibilityScanResults.violations).toEqual([]);
   });
 
   test('forgot-password page should have no accessibility violations', async ({ page }) => {
@@ -59,6 +57,8 @@ test.describe('Accessibility Audit - Public Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/forgot-password', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Forgot Password Page Accessibility Violations ===');
@@ -84,6 +84,8 @@ test.describe('Accessibility Audit - Public Pages', () => {
 
     allViolations.push({ page: '/reset-password', violations: accessibilityScanResults.violations });
 
+    expect(accessibilityScanResults.violations).toEqual([]);
+
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Reset Password Page Accessibility Violations ===');
       accessibilityScanResults.violations.forEach((violation) => {
@@ -100,6 +102,15 @@ test.describe('Accessibility Audit - Public Pages', () => {
 
 // Authenticated page tests - require E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD
 authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
+  // In CI, missing credentials must fail loudly: a silent describe-level skip
+  // lets every protected-page scan vanish while the run stays green.
+  if (process.env.CI && (!process.env.E2E_TEST_USER_EMAIL || !process.env.E2E_TEST_USER_PASSWORD)) {
+    throw new Error(
+      'Protected accessibility scans require E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD in CI. ' +
+        'Provision the E2E test user secrets instead of skipping the suite.'
+    );
+  }
+
   authenticatedTest.skip(
     !process.env.E2E_TEST_USER_EMAIL || !process.env.E2E_TEST_USER_PASSWORD,
     'Skipping authenticated tests: E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD required'
@@ -120,6 +131,8 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
       .analyze();
 
     allViolations.push({ page: '/dashboard', violations: accessibilityScanResults.violations });
+
+    expect(accessibilityScanResults.violations).toEqual([]);
 
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Dashboard Page Accessibility Violations ===');
@@ -151,8 +164,7 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
     } else if (await mobileLibraryLink.isVisible()) {
       await mobileLibraryLink.click();
     } else {
-      // Skip if we can't find the library link
-      authenticatedTest.skip();
+      authenticatedTest.skip(true, 'Library nav link not found — E2E fixture has no active neighborhood');
       return;
     }
 
@@ -166,6 +178,8 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
 
     allViolations.push({ page: '/library', violations: accessibilityScanResults.violations });
 
+    expect(accessibilityScanResults.violations).toEqual([]);
+
     if (accessibilityScanResults.violations.length > 0) {
       console.log('\n=== Library Page Accessibility Violations ===');
       accessibilityScanResults.violations.forEach((violation) => {
@@ -177,6 +191,44 @@ authenticatedTest.describe('Accessibility Audit - Protected Pages', () => {
         });
       });
     }
+  });
+
+  authenticatedTest('library search exposes an accessible name', async ({ authenticatedPage }) => {
+    const page = authenticatedPage as unknown as import('@playwright/test').Page;
+    await expect(page).toHaveURL('/dashboard');
+    const libraryLink = page.getByTestId('header-library-link');
+    if (!(await libraryLink.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no active neighborhood navigation');
+      return;
+    }
+    await expect(libraryLink).toBeVisible();
+    await libraryLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const search = page.getByTestId('library-search-input');
+    await expect(search).toBeVisible();
+    await expect(search).toHaveAttribute('aria-label', /search/i);
+  });
+
+  authenticatedTest('post reactions expose accessible pressed state', async ({ authenticatedPage }) => {
+    const page = authenticatedPage as unknown as import('@playwright/test').Page;
+    await expect(page).toHaveURL('/dashboard');
+    const postsLink = page.getByTestId('header-posts-link');
+    if (!(await postsLink.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no active neighborhood navigation');
+      return;
+    }
+    await expect(postsLink).toBeVisible();
+    await postsLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const reaction = page.locator('button[aria-pressed]').first();
+    if (!(await reaction.count())) {
+      authenticatedTest.skip(true, 'E2E fixture has no posts with reaction controls');
+      return;
+    }
+    await expect(reaction).toHaveAttribute('aria-label', /reaction/i);
+    await expect(reaction).toHaveAttribute('aria-pressed', /true|false/);
   });
 });
 

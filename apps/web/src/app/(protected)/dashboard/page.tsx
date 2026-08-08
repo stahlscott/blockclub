@@ -6,9 +6,12 @@ import { createClient, getAuthUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
+import { resolveBorrowedItemsState } from "@/lib/borrowed-items-state";
 import { parseDateLocal, formatRelativeTime } from "@/lib/date-utils";
 import { InviteButton } from "@/components/InviteButton";
+import { GrowthCard } from "@/components/GrowthCard";
 import { Greeting } from "@/components/Greeting";
+import { isInGrowthMode } from "@/lib/growth";
 import {
   getRecentItems,
   getRecentMembers,
@@ -16,6 +19,15 @@ import {
   getPendingMemberRequestsCount,
   getDashboardStats,
 } from "./data";
+import {
+  getActiveMembershipsForUser,
+  getItemIdsByOwner,
+  getPendingLoanRequestsForItems,
+  getPendingMembershipsForUserWithNeighborhood,
+  getUserProfile,
+  getLoansForBorrower,
+  getNeighborhoodGuide,
+} from "@/lib/queries";
 import dashboardStyles from "./dashboard.module.css";
 
 function getInitial(name: string | null | undefined): string {
@@ -74,136 +86,65 @@ export default async function DashboardPage() {
   // Use admin client when impersonating to bypass RLS
   const queryClient = isImpersonating ? createAdminClient() : supabase;
 
-  // Fetch user profile
-  const { data: profile } = await queryClient
-    .from("users")
-    .select("*")
-    .eq("id", effectiveUserId)
-    .single();
-
-  // Fetch user's memberships with neighborhood details
-  const { data: memberships } = await queryClient
-    .from("memberships")
-    .select(
-      `
-      *,
-      neighborhood:neighborhoods(*)
-    `,
-    )
-    .eq("user_id", effectiveUserId)
-    .eq("status", "active");
-
-  // Fetch pending membership requests (user's own pending requests to join)
-  const { data: pendingMemberships } = await queryClient
-    .from("memberships")
-    .select(
-      `
-      *,
-      neighborhood:neighborhoods(*)
-    `,
-    )
-    .eq("user_id", effectiveUserId)
-    .eq("status", "pending");
-
-  // Fetch user's items (for loan request notifications)
-  const { data: userItems } = await queryClient
-    .from("items")
-    .select("id")
-    .eq("owner_id", effectiveUserId);
-
-  // Fetch pending loan requests for user's items
-  const itemIds = userItems?.map((i) => i.id) || [];
-  let pendingLoanRequests: any[] = [];
-  if (itemIds.length > 0) {
-    const { data: loans } = await queryClient
-      .from("loans")
-      .select(
-        `
-        *,
-        item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug)),
-        borrower:users!loans_borrower_id_fkey(id, name)
-      `,
-      )
-      .in("item_id", itemIds)
-      .eq("status", "requested")
-      .order("requested_at", { ascending: true });
-    pendingLoanRequests = loans || [];
-  }
-
-  // Fetch user's active borrowed items
-  // Note: Use FK hints for ambiguous relationships
-  const { data: borrowedItems, error: borrowedError } = await queryClient
-    .from("loans")
-    .select(
-      `
-      *,
-      item:items!loans_item_id_fkey(id, name, neighborhood_id, neighborhood:neighborhoods(slug), owner:users!items_owner_id_fkey(id, name))
-    `,
-    )
-    .eq("borrower_id", effectiveUserId)
-    .eq("status", "active")
-    .order("start_date", { ascending: false });
-
-  if (borrowedError) {
-    logger.error("Error fetching borrowed items", borrowedError);
-  }
-
-  // Determine the primary neighborhood
-  const activeMemberships = memberships || [];
-  let primaryNeighborhood: any = null;
-  let primaryMembership: any = null;
-
-  if (activeMemberships.length > 0) {
-    // First try to use the user's saved primary neighborhood
-    if (profile?.primary_neighborhood_id) {
-      primaryMembership = activeMemberships.find(
-        (m: any) => m.neighborhood.id === profile.primary_neighborhood_id,
-      );
-    }
-    // Fall back to first membership if primary not found
-    if (!primaryMembership) {
-      primaryMembership = activeMemberships[0];
-    }
-    primaryNeighborhood = primaryMembership?.neighborhood;
-  }
-
-  // Check admin status based on membership role (not staff admin)
-  // When impersonating, we inherit the impersonated user's permissions
-  const isAdmin = primaryMembership?.role === "admin";
-
-  // Fetch neighborhood-specific data if user has a primary neighborhood
-  // Use cached functions for better performance
-  let recentItems: any[] = [];
-  let recentMembers: any[] = [];
-  let recentPosts: any[] = [];
-  let pendingMemberRequests = 0;
-  let stats = { postsCount: 0, itemsCount: 0, neighborsCount: 0 };
-  let guide: { title: string; content: string } | null = null;
-
-  if (primaryNeighborhood) {
-    // Fetch data in parallel
-    // Pass queryClient to support impersonation (admin client bypasses RLS)
-    const [items, members, posts, pendingCount, dashboardStats, guideData] = await Promise.all([
-      getRecentItems(primaryNeighborhood.id, queryClient),
-      getRecentMembers(primaryNeighborhood.id, effectiveUserId, queryClient),
-      getRecentPosts(primaryNeighborhood.id, queryClient),
-      isAdmin ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient) : Promise.resolve(0),
-      getDashboardStats(primaryNeighborhood.id, queryClient),
-      queryClient
-        .from("neighborhood_guides")
-        .select("title, content")
-        .eq("neighborhood_id", primaryNeighborhood.id)
-        .maybeSingle()
-        .then(({ data }) => data),
+  // Fetch profile and membership state through the centralized query layer.
+  const [{ data: profile }, { data: memberships }, { data: pendingMemberships }, { data: userItems }] =
+    await Promise.all([
+      getUserProfile(queryClient, effectiveUserId),
+      getActiveMembershipsForUser(queryClient, effectiveUserId),
+      getPendingMembershipsForUserWithNeighborhood(queryClient, effectiveUserId),
+      getItemIdsByOwner(queryClient, effectiveUserId),
     ]);
 
-    recentItems = items;
-    recentMembers = members;
-    recentPosts = posts;
-    pendingMemberRequests = pendingCount;
-    stats = dashboardStats;
-    guide = guideData;
+  // Fetch pending loan requests for user's items
+  const itemIds = userItems?.map((item) => item.id) || [];
+  const { data: pendingLoanRequestsData } = await getPendingLoanRequestsForItems(queryClient, itemIds);
+  const pendingLoanRequests = pendingLoanRequestsData ?? [];
+
+  const activeMemberships = memberships || [];
+
+  // Fetch user's active borrowed items through the centralized loan query.
+  const { data: borrowedItemsData, error: borrowedError } = await getLoansForBorrower(
+    queryClient,
+    effectiveUserId,
+    { status: "active" },
+  );
+
+  const { loans: borrowedItems, degraded: borrowedItemsDegraded } = resolveBorrowedItemsState(
+    borrowedItemsData,
+    !!borrowedError,
+    activeMemberships.length,
+  );
+
+  if (borrowedItemsDegraded) {
+    logger.error("Error fetching borrowed items", borrowedError, {
+      effectiveUserId,
+    });
   }
+
+  // Determine the primary neighborhood.
+  const primaryMembership = profile?.primary_neighborhood_id
+    ? activeMemberships.find(
+        (membership) => membership.neighborhood.id === profile.primary_neighborhood_id,
+      ) ?? activeMemberships[0]
+    : activeMemberships[0];
+  const primaryNeighborhood = primaryMembership?.neighborhood;
+
+  // Check admin status based on membership role (not staff admin).
+  const isAdmin = primaryMembership?.role === "admin";
+
+  // Fetch neighborhood-specific data if the user has a primary neighborhood.
+  const [recentItems, recentMembers, recentPosts, pendingMemberRequests, stats, guide] = primaryNeighborhood
+    ? await Promise.all([
+        getRecentItems(primaryNeighborhood.id, queryClient),
+        getRecentMembers(primaryNeighborhood.id, effectiveUserId, queryClient),
+        getRecentPosts(primaryNeighborhood.id, queryClient),
+        isAdmin
+          ? getPendingMemberRequestsCount(primaryNeighborhood.id, queryClient)
+          : Promise.resolve(0),
+        getDashboardStats(primaryNeighborhood.id, queryClient),
+        getNeighborhoodGuide(queryClient, primaryNeighborhood.id).then(({ data }) => data),
+      ])
+    : [[], [], [], 0, { postsCount: 0, itemsCount: 0, neighborsCount: 0 }, null];
 
   return (
     <div className={dashboardStyles.container}>
@@ -215,8 +156,18 @@ export default async function DashboardPage() {
             </h1>
             <p className={dashboardStyles.neighborhoodName}>{primaryNeighborhood.name}</p>
           </div>
-          <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          {!isInGrowthMode(stats.neighborsCount) && (
+            <InviteButton slug={primaryNeighborhood.slug} variant="link" />
+          )}
         </div>
+      )}
+
+      {primaryNeighborhood && isInGrowthMode(stats.neighborsCount) && (
+        <GrowthCard
+          slug={primaryNeighborhood.slug}
+          memberCount={stats.neighborsCount}
+          members={recentMembers}
+        />
       )}
 
       {/* Stat Cards - Figma layout: label on top, number below, icon on right */}
@@ -337,8 +288,15 @@ export default async function DashboardPage() {
       )}
 
       {/* Borrowed Items / Overdue Items Banners */}
-      {borrowedItems &&
-        borrowedItems.length > 0 &&
+      {borrowedItemsDegraded && (
+        <section className={dashboardStyles.section}>
+          <div className={dashboardStyles.overdueBanner} role="alert">
+            We couldn&apos;t load your borrowed items right now. Refresh to try
+            again — your loans are safe.
+          </div>
+        </section>
+      )}
+      {borrowedItems.length > 0 &&
         (() => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);

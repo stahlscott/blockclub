@@ -253,3 +253,20 @@
   padding: var(--space-12);
   color: var(--color-text-secondary);
 }
+
+.inviteButton {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.inviteButton:hover {
+  background: var(--color-primary-hover);
+}

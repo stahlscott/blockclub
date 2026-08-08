@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthContext } from "@/lib/auth-context";
+import { isStaffAdminUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 interface RouteParams {
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const neighborhoodId = targetMembership.neighborhood_id;
   const targetUserId = targetMembership.user_id;
   const isOwnMembership = targetUserId === user.id;
-  const userIsStaffAdmin = isStaffAdmin(user.email);
+  const userIsStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
 
   // Check if current user is a neighborhood admin
   const { data: userMembership } = await supabase
@@ -66,40 +68,35 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  // Update the membership status to moved_out
-  const { error: updateError } = await supabase
-    .from("memberships")
-    .update({ status: "moved_out" })
-    .eq("id", membershipId);
-
-  if (updateError) {
-    logger.error("Error updating membership to moved_out", updateError, { membershipId });
+  if (!isOwnMembership) {
+    // Admin/staff move-out requires the staff-capable atomic function so the
+    // database can record effective-user and actor audit fields. Do not fall
+    // back to split browser writes or hard deletes.
     return NextResponse.json(
-      { error: "Failed to update membership status" },
-      { status: 500 }
+      { error: userIsStaffAdmin || isNeighborhoodAdmin ? "Administrative move-out is temporarily unavailable" : "You don't have permission to perform this action" },
+      { status: userIsStaffAdmin || isNeighborhoodAdmin ? 501 : 403 },
     );
   }
 
-  // Delete the user's lending library items in this neighborhood
-  const { error: deleteItemsError } = await supabase
-    .from("items")
-    .delete()
-    .eq("owner_id", targetUserId)
-    .eq("neighborhood_id", neighborhoodId);
+  const { queryClient } = await getAuthContext(supabase, user);
+  const { data: result, error: moveOutError } = await queryClient.rpc("move_out_membership", {
+    p_membership_id: membershipId,
+  });
 
-  if (deleteItemsError) {
-    logger.error("Error deleting items for moved out member", deleteItemsError, {
-      membershipId,
-      userId: targetUserId,
-      neighborhoodId,
-    });
-    // Don't fail the request - membership was already updated
+  if (moveOutError) {
+    logger.error("Error moving out membership", moveOutError, { membershipId });
+    return NextResponse.json({ error: "Failed to complete move-out" }, { status: 500 });
+  }
+  if (!result?.success || result.membership_id !== membershipId) {
+    return NextResponse.json(
+      { error: result?.reason === "not_authorized" ? "You don't have permission to perform this action" : "Move-out could not be completed", result },
+      { status: result?.reason === "not_authorized" ? 403 : 409 },
+    );
   }
 
   return NextResponse.json({
     success: true,
-    message: isOwnMembership
-      ? "You have been marked as moved out"
-      : "Member has been marked as moved out",
+    result,
+    message: "You have been marked as moved out. Your items and loan history were preserved.",
   });
 }

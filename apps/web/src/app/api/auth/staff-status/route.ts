@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isStaffAdmin } from "@/lib/auth";
+import { isStaffAdminUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
   const supabase = await createClient();
@@ -12,5 +13,6 @@ export async function GET() {
     return NextResponse.json({ isStaffAdmin: false });
   }
 
-  return NextResponse.json({ isStaffAdmin: isStaffAdmin(user.email) });
+  const isStaffAdmin = await isStaffAdminUser(createAdminClient(), user.id);
+  return NextResponse.json({ isStaffAdmin });
 }

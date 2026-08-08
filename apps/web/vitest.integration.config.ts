@@ -12,6 +12,9 @@ export default defineConfig({
     exclude: ['node_modules', '.next', 'e2e'],
     testTimeout: 30000,
     hookTimeout: 30000,
+    fileParallelism: false,
+    maxWorkers: 1,
+    minWorkers: 1,
   },
   resolve: {
     alias: {
