@@ -1,5 +1,15 @@
 import '@testing-library/jest-dom';
+import React from 'react';
 import { vi } from 'vitest';
+
+vi.mock('qrcode.react', () => ({
+  QRCodeCanvas: ({ id, value }: { id?: string; value: string }) =>
+    React.createElement('canvas', {
+      id,
+      'data-testid': 'invite-qr-code',
+      'data-value': value,
+    }),
+}));
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
