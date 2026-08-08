@@ -8,12 +8,15 @@ import { createClient } from "@/lib/supabase/client";
 import { updateNeighborhoodSettings } from "./actions";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS } from "@/lib/validation";
+import { useInvite } from "@/lib/hooks/useInvite";
 import styles from "@/app/(protected)/settings/settings.module.css";
+import neighborhoodStyles from "./neighborhood-settings.module.css";
 
 export default function NeighborhoodSettingsPage() {
   const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
+  const { handleInvite, handleShowQR, modal: inviteModal } = useInvite(slug);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -266,14 +269,52 @@ export default function NeighborhoodSettingsPage() {
 
           <div className={styles.divider} />
 
-          <h2 className={styles.sectionTitle}>Admin Actions</h2>
-
-          <Link
-            href={`/neighborhoods/${slug}/members/pending`}
-            className={styles.adminLink}
+          <section
+            className={neighborhoodStyles.adminActions}
+            data-testid="neighborhood-admin-actions"
+            aria-labelledby="neighborhood-admin-actions-heading"
           >
-            Review pending requests
-          </Link>
+            <h2
+              className={styles.sectionTitle}
+              id="neighborhood-admin-actions-heading"
+            >
+              Admin Actions
+            </h2>
+
+            <Link
+              href={`/neighborhoods/${slug}/members/pending`}
+              className={neighborhoodStyles.adminLink}
+              data-testid="neighborhood-admin-pending-link"
+            >
+              Review pending requests
+            </Link>
+
+            <div className={neighborhoodStyles.inviteSection}>
+              <h3 className={neighborhoodStyles.inviteHeading}>Invite neighbors</h3>
+              <p className={neighborhoodStyles.inviteDescription}>
+                Share this neighborhood invite online, or open a QR code for
+                neighbors to scan in person.
+              </p>
+              <div className={neighborhoodStyles.inviteActions}>
+                <button
+                  type="button"
+                  onClick={handleInvite}
+                  className={neighborhoodStyles.invitePrimary}
+                  data-testid="neighborhood-admin-share-button"
+                >
+                  Share Invite
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShowQR}
+                  className={neighborhoodStyles.inviteSecondary}
+                  data-testid="neighborhood-admin-qr-button"
+                >
+                  Show QR code
+                </button>
+              </div>
+            </div>
+          </section>
 
           <div className={styles.actions}>
             <button type="submit" disabled={saving} className={styles.submitButton}>
@@ -282,6 +323,8 @@ export default function NeighborhoodSettingsPage() {
           </div>
         </form>
       </div>
+
+      {inviteModal}
 
       {/* Staff Admin Section - only visible to staff admins */}
       {isStaffAdmin && (

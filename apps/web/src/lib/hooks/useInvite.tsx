@@ -7,7 +7,17 @@ import styles from "@/components/InviteButton.module.css";
 interface UseInviteReturn {
   url: string;
   handleInvite: () => Promise<void>;
+  handleShowQR: () => void;
   modal: React.ReactNode;
+}
+
+function isAbortError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AbortError"
+  );
 }
 
 export function useInvite(slug: string): UseInviteReturn {
@@ -82,10 +92,14 @@ export function useInvite(slug: string): UseInviteReturn {
         });
         return;
       } catch (err) {
-        if (err instanceof Error && err.name === "AbortError") return;
+        if (isAbortError(err)) return;
         // Share failed or was cancelled — fall through to modal
       }
     }
+    setShowModal(true);
+  };
+
+  const handleShowQR = () => {
     setShowModal(true);
   };
 
@@ -149,5 +163,5 @@ export function useInvite(slug: string): UseInviteReturn {
     </div>
   ) : null;
 
-  return { url, handleInvite, modal };
+  return { url, handleInvite, handleShowQR, modal };
 }
