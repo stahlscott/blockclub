@@ -17,5 +17,5 @@ DROP POLICY IF EXISTS "Users can delete from own posts folder" ON storage.object
 
 -- The service-role client used by /api/uploads/images bypasses these policies.
 -- Public SELECT policies are intentionally retained for legacy objects.
-COMMENT ON TABLE storage.objects IS
-  'New application image writes must use the server normalization boundary and end in .webp. Legacy objects remain readable.';
+-- Do not COMMENT ON storage.objects here: the Storage system table is owned by
+-- Supabase's internal role and application migrations cannot alter its metadata.
