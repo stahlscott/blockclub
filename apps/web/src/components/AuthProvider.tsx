@@ -76,15 +76,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Skip refresh on initial load - only refresh on actual auth changes
+      // The initiating auth flows own their navigation/refresh. Avoid a second
+      // router transition here, which can race with the destination page load.
       if (initialLoadRef.current) {
         initialLoadRef.current = false;
-        return;
-      }
-
-      // Refresh router to update server components when auth state changes
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        router.refresh();
       }
     });
 
