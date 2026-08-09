@@ -7,6 +7,7 @@ import { getAuthContext } from "@/lib/auth-context";
 import { logger } from "@/lib/logger";
 import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
 import type { ItemCategory, ItemInsert } from "@blockclub/shared";
+import { cleanupImageUrl } from "@/lib/image-reference-safety";
 
 interface CreateItemData {
   slug: string;
@@ -82,6 +83,7 @@ export async function createItem(data: CreateItemData): Promise<{ success: boole
 
   if (insertError) {
     logger.error("Error creating item", insertError);
+    await Promise.all(data.photoUrls.map((url) => cleanupImageUrl("items", url)));
     return { success: false, error: insertError.message };
   }
 
@@ -104,7 +106,7 @@ export async function updateItem(data: UpdateItemData): Promise<{ success: boole
 
   const { data: item } = await queryClient
     .from("items")
-    .select("id, owner_id, neighborhood_id, deleted_at")
+    .select("id, owner_id, neighborhood_id, deleted_at, photo_urls")
     .eq("id", data.itemId)
     .eq("neighborhood_id", neighborhood.id)
     .is("deleted_at", null)
@@ -131,8 +133,11 @@ export async function updateItem(data: UpdateItemData): Promise<{ success: boole
 
   if (error || !updated?.id || updated.id !== data.itemId) {
     logger.error("Error updating item", error, { itemId: data.itemId, neighborhoodId: neighborhood.id });
+    await Promise.all(data.photoUrls.filter((url) => !item.photo_urls.includes(url)).map((url) => cleanupImageUrl("items", url)));
     return { success: false, error: "The item could not be updated. Refresh and try again." };
   }
+
+  await Promise.all(item.photo_urls.filter((url) => !data.photoUrls.includes(url)).map((url) => cleanupImageUrl("items", url)));
 
   revalidatePath(`/neighborhoods/${data.slug}/library`);
   revalidatePath(`/neighborhoods/${data.slug}/library/${data.itemId}`);

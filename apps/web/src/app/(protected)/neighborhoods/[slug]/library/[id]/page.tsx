@@ -59,6 +59,7 @@ export default async function ItemDetailPage({ params }: Props) {
             alt={item.name}
             width={400}
             height={300}
+            sizes="(max-width: 768px) 100vw, 400px"
             className={styles.image}
             borderRadius="var(--radius-lg)"
             priority
@@ -125,6 +126,7 @@ export default async function ItemDetailPage({ params }: Props) {
                   alt={item.owner?.name || "Owner"}
                   width={48}
                   height={48}
+                  sizes="48px"
                   className={styles.avatarImage}
                   borderRadius="50%"
                   fallback={<span>{getInitial(item.owner?.name)}</span>}

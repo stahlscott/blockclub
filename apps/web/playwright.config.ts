@@ -29,21 +29,20 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
     },
     {
-      name: 'chromium',
+      name: 'desktop-chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
-    // Uncomment to test additional browsers (requires: npx playwright install)
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    //   dependencies: ['setup'],
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup'],
-    // },
+    {
+      name: 'mobile-chromium',
+      use: { ...devices['Pixel 5'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'mobile-webkit',
+      use: { ...devices['iPhone 13'] },
+      dependencies: ['setup'],
+    },
   ],
   webServer: {
     command: 'npm run dev',

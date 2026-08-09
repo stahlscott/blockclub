@@ -291,6 +291,7 @@ const PostCard = memo(function PostCard({
             alt={post.author.name}
             width={40}
             height={40}
+            sizes="40px"
             wrapperClassName={styles.avatarWrapper}
             borderRadius="50%"
             fallback={
@@ -323,6 +324,7 @@ const PostCard = memo(function PostCard({
               alt="Post image"
               width={800}
               height={600}
+              sizes="(max-width: 768px) 100vw, 800px"
               className={styles.postImage}
               borderRadius="var(--radius-lg)"
             />

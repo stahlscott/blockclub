@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth-context";
 import { revalidatePath } from "next/cache";
+import { cleanupImageUrl } from "@/lib/image-reference-safety";
 
 interface PhoneEntry {
   label: string;
@@ -42,6 +43,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
   }
 
   const { isImpersonating, effectiveUserId } = await getAuthContext(supabase, authUser);
+  const { data: previousProfile } = await (isImpersonating ? createAdminClient() : supabase).from("users").select("avatar_url, photo_urls").eq("id", effectiveUserId).maybeSingle();
 
   // Verify the userId matches the expected user
   if (data.userId !== effectiveUserId) {
@@ -72,8 +74,19 @@ export async function updateProfile(data: ProfileUpdateData): Promise<{ success:
     .maybeSingle();
 
   if (updateError || !updatedProfile?.id || updatedProfile.id !== data.userId) {
+    const newUrls = [
+      previousProfile?.avatar_url !== data.avatarUrl ? data.avatarUrl : null,
+      ...data.photoUrls.filter((url) => !(previousProfile?.photo_urls ?? []).includes(url)),
+    ];
+    await Promise.all(newUrls.filter(Boolean).map((url) => cleanupImageUrl("avatars", url)));
     return { success: false, error: updateError?.message || "The profile could not be updated. Please try again." };
   }
+
+  const removedUrls = [
+    previousProfile?.avatar_url && previousProfile.avatar_url !== data.avatarUrl ? previousProfile.avatar_url : null,
+    ...(previousProfile?.photo_urls ?? []).filter((url) => !data.photoUrls.includes(url)),
+  ];
+  await Promise.all(removedUrls.filter(Boolean).map((url) => cleanupImageUrl("avatars", url)));
 
   revalidatePath("/profile");
   revalidatePath("/dashboard");

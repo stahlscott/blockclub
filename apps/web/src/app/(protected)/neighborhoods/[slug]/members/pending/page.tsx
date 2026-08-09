@@ -85,6 +85,7 @@ export default async function PendingMembersPage({ params }: Props) {
                         alt={userName || "User"}
                         width={48}
                         height={48}
+                        sizes="48px"
                         className={pendingStyles.avatarImage}
                       />
                     ) : (

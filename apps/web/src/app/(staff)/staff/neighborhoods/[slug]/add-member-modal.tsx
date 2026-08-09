@@ -173,6 +173,7 @@ export function AddMemberModal({
                       alt={user.name || "User"}
                       width={32}
                       height={32}
+                      sizes="32px"
                       className={styles.modalAvatar}
                     />
                   ) : (

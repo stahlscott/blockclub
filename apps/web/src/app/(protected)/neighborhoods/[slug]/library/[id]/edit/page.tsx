@@ -179,6 +179,7 @@ export default function EditItemPage() {
             {userId && (
               <ItemPhotoUpload
                 userId={userId}
+                itemId={id}
                 photos={photoUrls}
                 onPhotosChange={setPhotoUrls}
                 onError={setError}

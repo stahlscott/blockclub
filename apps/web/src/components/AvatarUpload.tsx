@@ -2,11 +2,8 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import {
-  uploadFile,
-  validateImageFile,
-  getPathFromUrl,
-} from "@/lib/storage";
+import { uploadFile, validateImageFile } from "@/lib/storage";
+import { normalizeImage } from "@/lib/image-normalization";
 import styles from "./AvatarUpload.module.css";
 
 interface AvatarUploadProps {
@@ -45,24 +42,24 @@ export function AvatarUpload({
       return;
     }
 
-    // Show preview
-    setImageLoading(true);
-    const reader = new FileReader();
-    reader.onload = () => setPreviewUrl(reader.result as string);
-    reader.readAsDataURL(file);
-
-    // Upload
     setUploading(true);
-    const existingPath = currentAvatarUrl
-      ? getPathFromUrl(currentAvatarUrl, "avatars")
-      : undefined;
+    setImageLoading(true);
+    let normalizedFile: File;
+    try {
+      const normalized = await normalizeImage(file, "avatar", { useWebWorker: true });
+      normalizedFile = normalized.file;
+      setPreviewUrl(URL.createObjectURL(normalizedFile));
+    } catch (error) {
+      setUploading(false);
+      onError(error instanceof Error ? error.message : "The image could not be processed.");
+      return;
+    }
 
-    const { data, error } = await uploadFile(
-      "avatars",
-      userId,
-      file,
-      existingPath || undefined
-    );
+    const { data, error } = await uploadFile("avatars", userId, normalizedFile, {
+      profile: "avatar",
+      operation: "replace",
+      targetId: userId,
+    });
 
     setUploading(false);
 
@@ -103,6 +100,7 @@ export function AvatarUpload({
               alt={name}
               width={100}
               height={100}
+              sizes="100px"
               className={`${styles.avatarImage} ${imageLoading ? styles.imageHidden : ""}`}
               unoptimized={!!previewUrl}
               onLoad={() => setImageLoading(false)}
@@ -118,8 +116,9 @@ export function AvatarUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleFileSelect}
+        aria-label="Upload profile photo"
         className={styles.hiddenInput}
         disabled={uploading}
       />

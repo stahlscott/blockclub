@@ -34,6 +34,7 @@ export function ProfileGallery({ photoUrls, memberName }: ProfileGalleryProps) {
               alt={`${memberName} photo ${index + 1}`}
               width={200}
               height={200}
+              sizes="(max-width: 640px) 45vw, 200px"
               className={styles.photo}
               borderRadius="var(--radius-lg)"
             />

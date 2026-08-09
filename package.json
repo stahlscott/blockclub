@@ -14,6 +14,7 @@
     "build:mobile": "turbo build --filter=@blockclub/mobile",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "benchmark:image-profiles": "node scripts/benchmark-image-profiles.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules",
     "test": "turbo test --filter=@blockclub/web --filter=@blockclub/shared",

@@ -3,16 +3,14 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { OptimizedImage } from "./OptimizedImage";
-import {
-  uploadFile,
-  deleteFile,
-  validateImageFile,
-  getPathFromUrl,
-} from "@/lib/storage";
+import { uploadFile, validateImageFile } from "@/lib/storage";
+import { normalizeImage } from "@/lib/image-normalization";
 import styles from "./ItemPhotoUpload.module.css";
 
 interface ItemPhotoUploadProps {
   userId: string;
+  itemId?: string;
+  uploadCapability?: string;
   photos: string[];
   maxPhotos?: number;
   onPhotosChange: (urls: string[]) => void;
@@ -27,6 +25,8 @@ interface PendingUpload {
 
 export function ItemPhotoUpload({
   userId,
+  itemId,
+  uploadCapability,
   photos,
   maxPhotos = 5,
   onPhotosChange,
@@ -72,7 +72,21 @@ export function ItemPhotoUpload({
       const file = filesToUpload[i];
       const pending = newPending[i];
 
-      const { data, error } = await uploadFile("items", userId, file);
+      let normalizedFile: File;
+      try {
+        normalizedFile = (await normalizeImage(file, "item", { useWebWorker: true })).file;
+      } catch (error) {
+        setPendingUploads((prev) => prev.map((p) => p.id === pending.id ? { ...p, status: "error" as const } : p));
+        onError(error instanceof Error ? error.message : "The image could not be processed.");
+        continue;
+      }
+
+      const { data, error } = await uploadFile("items", userId, normalizedFile, {
+        profile: "item",
+        operation: itemId ? "replace" : "create",
+        targetId: itemId,
+        capability: uploadCapability,
+      });
 
       if (error) {
         setPendingUploads((prev) =>
@@ -98,14 +112,7 @@ export function ItemPhotoUpload({
     }
   };
 
-  const handleRemove = async (index: number) => {
-    const url = photos[index];
-    const path = getPathFromUrl(url, "items");
-
-    if (path) {
-      await deleteFile("items", path);
-    }
-
+  const handleRemove = (index: number) => {
     const newPhotos = photos.filter((_, i) => i !== index);
     onPhotosChange(newPhotos);
   };
@@ -136,6 +143,7 @@ export function ItemPhotoUpload({
               width={120}
               height={120}
               className={styles.photo}
+              sizes="120px"
               borderRadius="var(--radius-md)"
             />
             {index === 0 && <span className={styles.coverBadge}>Cover</span>}
@@ -169,6 +177,7 @@ export function ItemPhotoUpload({
               alt="Uploading..."
               width={120}
               height={120}
+              sizes="120px"
               className={`${styles.photo} ${styles.photoUploading}`}
               unoptimized
             />

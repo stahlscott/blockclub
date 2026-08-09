@@ -95,6 +95,9 @@ blockclub/
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
    STAFF_ADMIN_EMAILS=your-email@example.com
+   # Server-only image route credentials (never expose in NEXT_PUBLIC_* vars)
+   SUPABASE_SECRET_KEY=your-service-role-key
+   IMAGE_UPLOAD_ENFORCEMENT=false
    ```
 
 5. **Run development server**
@@ -165,6 +168,8 @@ All tables have Row Level Security (RLS) policies ensuring users can only access
 | `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                       |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                   |
 | `STAFF_ADMIN_EMAILS`                   | Comma-separated list of staff admin emails |
+| `SUPABASE_SECRET_KEY`                  | Server-only Supabase service-role key      |
+| `IMAGE_UPLOAD_ENFORCEMENT`             | Set `true` for production canonical WebP enforcement |
 | `NEXT_PUBLIC_SENTRY_DSN`               | Sentry DSN for error reporting             |
 | `SENTRY_ORG`                           | Sentry organization slug (build-time)      |
 | `SENTRY_PROJECT`                       | Sentry project slug (build-time)           |

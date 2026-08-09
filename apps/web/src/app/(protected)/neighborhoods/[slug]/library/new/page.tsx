@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { ITEM_CATEGORIES } from "@/lib/category-utils";
 import { ItemPhotoUpload } from "@/components/ItemPhotoUpload";
+import { requestImageUploadCapability } from "@/lib/storage";
 import { createItem } from "../actions";
 import type { ItemCategory } from "@blockclub/shared";
 import styles from "../library-forms.module.css";
@@ -22,6 +23,7 @@ export default function NewItemPage() {
   const [category, setCategory] = useState<ItemCategory>("other");
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [uploadCapability, setUploadCapability] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -34,10 +36,13 @@ export default function NewItemPage() {
       } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        const capabilityResult = await requestImageUploadCapability("item", slug);
+        if (capabilityResult.error) setError(capabilityResult.error.message);
+        else setUploadCapability(capabilityResult.capability);
       }
     }
     loadUser();
-  }, []);
+  }, [slug]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -139,6 +144,7 @@ export default function NewItemPage() {
             {userId && (
               <ItemPhotoUpload
                 userId={userId}
+                uploadCapability={uploadCapability ?? undefined}
                 photos={photoUrls}
                 onPhotosChange={setPhotoUrls}
                 onError={setError}

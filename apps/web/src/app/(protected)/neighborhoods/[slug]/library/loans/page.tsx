@@ -138,6 +138,7 @@ function LoanCard({ loan, slug }: { loan: any; slug: string }) {
             alt={loan.item.name}
             width={64}
             height={64}
+            sizes="64px"
             className={styles.cardImage}
           />
         ) : (

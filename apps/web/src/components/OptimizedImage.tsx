@@ -19,6 +19,8 @@ interface OptimizedImageProps {
   wrapperClassName?: string;
   /** Border radius for skeleton to match image shape */
   borderRadius?: string | number;
+  /** Responsive slot width used by Next image optimization */
+  sizes?: string;
 }
 
 export function OptimizedImage({
@@ -33,6 +35,7 @@ export function OptimizedImage({
   showLoadingState = true,
   wrapperClassName,
   borderRadius,
+  sizes,
 }: OptimizedImageProps) {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +62,7 @@ export function OptimizedImage({
         className={className}
         style={{ objectFit: "cover", ...style }}
         priority={priority}
+        sizes={sizes}
         onError={() => setError(true)}
       />
     );
@@ -84,6 +88,7 @@ export function OptimizedImage({
         className={`${className || ""} ${isLoading ? styles.imageHidden : styles.imageVisible}`}
         style={{ objectFit: "cover", ...style }}
         priority={priority}
+        sizes={sizes}
         onLoad={() => setIsLoading(false)}
         onError={() => setError(true)}
       />

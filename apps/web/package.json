@@ -33,7 +33,8 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "resend": "^6.7.0"
+    "resend": "^6.7.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",

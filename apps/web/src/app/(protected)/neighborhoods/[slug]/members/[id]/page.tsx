@@ -64,6 +64,7 @@ export default async function MemberProfilePage({ params }: Props) {
               alt={member.name}
               width={100}
               height={100}
+              sizes="100px"
               className={profileStyles.avatarImg}
             />
           ) : (

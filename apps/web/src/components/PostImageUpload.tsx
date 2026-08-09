@@ -2,16 +2,14 @@
 
 import { useState, useRef } from "react";
 import { OptimizedImage } from "./OptimizedImage";
-import {
-  uploadFile,
-  deleteFile,
-  validateImageFile,
-  getPathFromUrl,
-} from "@/lib/storage";
+import { uploadFile, validateImageFile } from "@/lib/storage";
+import { normalizeImage } from "@/lib/image-normalization";
 import styles from "./PostImageUpload.module.css";
 
 interface PostImageUploadProps {
   userId: string;
+  postId?: string;
+  uploadCapability?: string;
   imageUrl: string | null;
   onImageChange: (url: string | null) => void;
   onError: (message: string) => void;
@@ -19,6 +17,8 @@ interface PostImageUploadProps {
 
 export function PostImageUpload({
   userId,
+  postId,
+  uploadCapability,
   imageUrl,
   onImageChange,
   onError,
@@ -38,8 +38,21 @@ export function PostImageUpload({
     }
 
     setUploading(true);
+    let normalizedFile: File;
+    try {
+      normalizedFile = (await normalizeImage(file, "post", { useWebWorker: true })).file;
+    } catch (error) {
+      setUploading(false);
+      onError(error instanceof Error ? error.message : "The image could not be processed.");
+      return;
+    }
 
-    const { data, error } = await uploadFile("posts", userId, file);
+    const { data, error } = await uploadFile("posts", userId, normalizedFile, {
+      profile: "post",
+      operation: postId ? "replace" : "create",
+      targetId: postId,
+      capability: uploadCapability,
+    });
 
     if (error) {
       onError(error.message);
@@ -55,14 +68,8 @@ export function PostImageUpload({
     }
   };
 
-  const handleRemove = async () => {
+  const handleRemove = () => {
     if (!imageUrl) return;
-
-    const path = getPathFromUrl(imageUrl, "posts");
-    if (path) {
-      await deleteFile("posts", path);
-    }
-
     onImageChange(null);
   };
 
@@ -78,6 +85,7 @@ export function PostImageUpload({
             width={200}
             height={200}
             className={styles.image}
+            sizes="(max-width: 640px) 200px, 320px"
             borderRadius="var(--radius-md)"
           />
           <button
@@ -110,7 +118,7 @@ export function PostImageUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleFileSelect}
         className={styles.hiddenInput}
       />

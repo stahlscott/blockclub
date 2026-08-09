@@ -150,6 +150,7 @@ export function Header() {
                       alt="Profile"
                       width={40}
                       height={40}
+                      sizes="40px"
                       className={styles.mobileAvatarImage}
                     />
                   ) : (
