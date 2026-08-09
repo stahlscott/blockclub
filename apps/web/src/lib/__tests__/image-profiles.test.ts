@@ -5,7 +5,8 @@ import { getExifOrientationTransform, resolveDecodedOrientation } from "../image
 describe("image profiles", () => {
   it("keeps explicit bounded profiles", () => {
     expect(getImageProfile("avatar")).toMatchObject({ maxLongestEdge: 512, initialQuality: 0.88, qualityFloor: 0.76, targetBytes: 409600 });
-    expect(getImageProfile("post")).toMatchObject({ maxLongestEdge: 1920, targetBytes: 2048000 });
+    expect(getImageProfile("item")).toMatchObject({ maxLongestEdge: 1600, initialQuality: 0.9, qualityFloor: 0.78, targetBytes: 2048000 });
+    expect(getImageProfile("post")).toMatchObject({ maxLongestEdge: 1920, initialQuality: 0.88, qualityFloor: 0.76, targetBytes: 2560000 });
   });
 
   it("does not upscale smaller images", () => {

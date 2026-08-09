@@ -72,7 +72,7 @@ export async function normalizeServerImage(input: Buffer, profile: ImageProfile)
     const outputMetadata = await sharp(output.data).metadata();
     if (outputMetadata.pages && outputMetadata.pages > 1) throw new ImageServerError("ANIMATED_IMAGE", "Animated and multi-page images are not supported for new uploads.");
     if (output.data.byteLength > config.maxOutputBytes) {
-      const qualities = [0.82, 0.78, config.qualityFloor];
+      const qualities = [config.initialQuality, Math.max(config.qualityFloor, config.initialQuality - 0.06), config.qualityFloor];
       const compressed = await qualities.reduce<Promise<{ data: Buffer; info: sharp.OutputInfo } | null>>(async (previousPromise, quality) => {
         const previous = await previousPromise;
         if (previous && previous.data.byteLength <= config.maxOutputBytes) return previous;
