@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getImageProfile, getOutputDimensions, getWebpFilename, validateImageInput } from "../image-profiles";
-import { getExifOrientationTransform } from "../image-normalization";
+import { getExifOrientationTransform, resolveDecodedOrientation } from "../image-normalization";
 
 describe("image profiles", () => {
   it("keeps explicit bounded profiles", () => {
@@ -55,5 +55,23 @@ describe("image profiles", () => {
   it("falls back to the unrotated transform for invalid EXIF orientations", () => {
     expect(getExifOrientationTransform(0, 400, 300)).toEqual(getExifOrientationTransform(1, 400, 300));
     expect(getExifOrientationTransform(9, 400, 300)).toEqual(getExifOrientationTransform(1, 400, 300));
+  });
+
+  it("does not apply EXIF orientation twice when a decoder already auto-orients portrait pixels", () => {
+    expect(resolveDecodedOrientation(6, { width: 4000, height: 3000 }, { width: 3000, height: 4000 })).toEqual({
+      orientation: 1,
+      width: 3000,
+      height: 4000,
+    });
+    expect(resolveDecodedOrientation(6, { width: 4000, height: 3000 }, { width: 4000, height: 3000 })).toEqual({
+      orientation: 6,
+      width: 3000,
+      height: 4000,
+    });
+    expect(resolveDecodedOrientation(1, { width: 4000, height: 3000 }, { width: 4000, height: 3000 })).toEqual({
+      orientation: 1,
+      width: 4000,
+      height: 3000,
+    });
   });
 });

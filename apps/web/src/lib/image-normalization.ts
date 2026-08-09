@@ -51,6 +51,11 @@ function readUint32(view: DataView, offset: number, littleEndian: boolean): numb
   return view.getUint32(offset, littleEndian);
 }
 
+interface EncodedImageDimensions {
+  width: number;
+  height: number;
+}
+
 /** Read only the EXIF orientation tag. No metadata is copied to the output. */
 export async function readExifOrientation(file: Blob): Promise<number> {
   if (file.type !== "image/jpeg") return 1;
@@ -91,6 +96,42 @@ export async function readExifOrientation(file: Blob): Promise<number> {
     offset += 2 + segmentLength;
   }
   return 1;
+}
+
+/**
+ * Read the encoded JPEG dimensions without asking a browser decoder to
+ * interpret EXIF. This lets us identify decoders that already applied a
+ * quarter-turn to portrait images before drawImage is called.
+ */
+async function readJpegDimensions(file: Blob): Promise<EncodedImageDimensions | null> {
+  if (file.type !== "image/jpeg") return null;
+  const bytes = new Uint8Array(await file.slice(0, 128 * 1024).arrayBuffer());
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+
+  const isStartOfFrame = (marker: number) =>
+    (marker >= 0xc0 && marker <= 0xc3) ||
+    (marker >= 0xc5 && marker <= 0xc7) ||
+    (marker >= 0xc9 && marker <= 0xcb) ||
+    (marker >= 0xcd && marker <= 0xcf);
+
+  for (let offset = 2; offset + 4 < bytes.length;) {
+    if (bytes[offset] !== 0xff) return null;
+    while (offset < bytes.length && bytes[offset] === 0xff) offset += 1;
+    if (offset >= bytes.length) return null;
+    const marker = bytes[offset];
+    if (marker === 0xda || marker === 0xd9) return null;
+    if (offset + 3 >= bytes.length) return null;
+    const segmentLength = (bytes[offset + 1] << 8) | bytes[offset + 2];
+    if (segmentLength < 2 || offset + 1 + segmentLength > bytes.length) return null;
+    if (isStartOfFrame(marker) && segmentLength >= 7) {
+      return {
+        height: (bytes[offset + 4] << 8) | bytes[offset + 5],
+        width: (bytes[offset + 6] << 8) | bytes[offset + 7],
+      };
+    }
+    offset += 1 + segmentLength;
+  }
+  return null;
 }
 
 export interface ExifOrientationTransform {
@@ -158,6 +199,48 @@ function drawOrientedImage(
   context.restore();
 }
 
+export interface DecodedImageDimensions {
+  width: number;
+  height: number;
+}
+
+/**
+ * Determine whether a decoder has already applied a quarter-turn EXIF
+ * orientation. Browsers differ here: ImageBitmap with imageOrientation:none
+ * exposes encoded pixels, while some HTMLImageElement implementations expose
+ * auto-oriented pixels even when they are later drawn to a canvas.
+ */
+export function resolveDecodedOrientation(
+  orientation: number,
+  encoded: DecodedImageDimensions | null,
+  decoded: DecodedImageDimensions,
+): { orientation: number; width: number; height: number } {
+  const normalizedOrientation = orientation >= 1 && orientation <= 8 ? Math.trunc(orientation) : 1;
+  const swapsDimensions = normalizedOrientation >= 5 && normalizedOrientation <= 8;
+  if (!swapsDimensions || !encoded || encoded.width < 1 || encoded.height < 1) {
+    return { orientation: normalizedOrientation, width: decoded.width, height: decoded.height };
+  }
+
+  const matchesEncodedDimensions = decoded.width === encoded.width && decoded.height === encoded.height;
+  const matchesOrientedDimensions = decoded.width === encoded.height && decoded.height === encoded.width;
+  if (matchesOrientedDimensions && !matchesEncodedDimensions) {
+    return { orientation: 1, width: decoded.width, height: decoded.height };
+  }
+  if (matchesEncodedDimensions && !matchesOrientedDimensions) {
+    return { orientation: normalizedOrientation, width: decoded.height, height: decoded.width };
+  }
+
+  // Some decoders report a scaled intrinsic size. Preserve the same decision
+  // using aspect ratios when exact dimensions are unavailable.
+  const encodedAspectRatio = encoded.width / encoded.height;
+  const orientedAspectRatio = encoded.height / encoded.width;
+  const decodedAspectRatio = decoded.width / decoded.height;
+  const isAutoOriented = Math.abs(decodedAspectRatio - orientedAspectRatio) < Math.abs(decodedAspectRatio - encodedAspectRatio);
+  return isAutoOriented
+    ? { orientation: 1, width: decoded.width, height: decoded.height }
+    : { orientation: normalizedOrientation, width: decoded.height, height: decoded.width };
+}
+
 async function decodeImage(file: File): Promise<{ image: ImageBitmap | HTMLImageElement; width: number; height: number; close: () => void }> {
   if (typeof createImageBitmap === "function") {
     try {
@@ -175,6 +258,7 @@ async function decodeImage(file: File): Promise<{ image: ImageBitmap | HTMLImage
   try {
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const element = new Image();
+      element.style.setProperty("image-orientation", "none");
       element.onload = () => resolve(element);
       element.onerror = () => reject(new ImageNormalizationError("malformed"));
       element.src = url;
@@ -196,13 +280,14 @@ function canvasToBlob(canvas: HTMLCanvasElement | OffscreenCanvas, quality: numb
 
 async function normalizeOnMainThread(file: File, profile: ImageProfile, options: NormalizeImageOptions): Promise<NormalizedImage> {
   const config = getImageProfile(profile);
-  const orientation = await readExifOrientation(file);
+  const sourceOrientation = await readExifOrientation(file);
+  const encodedDimensions = await readJpegDimensions(file);
   throwIfAborted(options.signal);
   options.onProgress?.({ phase: "decoding", progress: 0.2 });
   const decoded = await decodeImage(file);
-  const orientedWidth = orientation >= 5 && orientation <= 8 ? decoded.height : decoded.width;
-  const orientedHeight = orientation >= 5 && orientation <= 8 ? decoded.width : decoded.height;
-  const dimensions = getOutputDimensions(orientedWidth, orientedHeight, config.maxLongestEdge);
+  const resolved = resolveDecodedOrientation(sourceOrientation, encodedDimensions, decoded);
+  const orientation = resolved.orientation;
+  const dimensions = getOutputDimensions(resolved.width, resolved.height, config.maxLongestEdge);
   const canvas = typeof OffscreenCanvas === "function"
     ? new OffscreenCanvas(dimensions.width, dimensions.height)
     : typeof document !== "undefined" ? document.createElement("canvas") : null;
