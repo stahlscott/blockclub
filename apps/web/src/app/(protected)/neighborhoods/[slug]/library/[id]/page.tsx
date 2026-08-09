@@ -76,16 +76,18 @@ export default async function ItemDetailPage({ params }: Props) {
                   </span>
                 </div>
                 <div className={styles.placeholderTitle}>No Photo Added</div>
-                <div className={styles.placeholderSubtext}>
-                  Photos help neighbors know what to borrow
-                </div>
                 {isOwner && (
-                  <Link
-                    href={`/neighborhoods/${slug}/library/${item.id}/edit`}
-                    className={styles.placeholderButton}
-                  >
-                    Add Photo
-                  </Link>
+                  <>
+                    <div className={styles.placeholderSubtext}>
+                      Photos help neighbors know what to borrow
+                    </div>
+                    <Link
+                      href={`/neighborhoods/${slug}/library/${item.id}/edit`}
+                      className={styles.placeholderButton}
+                    >
+                      Add Photo
+                    </Link>
+                  </>
                 )}
               </div>
             }

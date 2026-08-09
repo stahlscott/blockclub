@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getImageProfile, getOutputDimensions, getWebpFilename, validateImageInput } from "../image-profiles";
+import { getExifOrientationTransform } from "../image-normalization";
 
 describe("image profiles", () => {
   it("keeps explicit bounded profiles", () => {
@@ -22,5 +23,37 @@ describe("image profiles", () => {
   it("rejects GIF and unsupported inputs", () => {
     expect(validateImageInput({ type: "image/gif", size: 10 }, "post")).toBe("GIF images are not supported for new uploads.");
     expect(validateImageInput({ type: "image/svg+xml", size: 10 }, "post")).toBe("Please select a JPEG, PNG, or WebP image.");
+  });
+
+  it("maps every EXIF orientation to the correct output geometry and matrix", () => {
+    const width = 400;
+    const height = 300;
+    const transforms = Array.from({ length: 8 }, (_, index) => getExifOrientationTransform(index + 1, width, height));
+
+    expect(transforms.map(({ outputWidth, outputHeight }) => [outputWidth, outputHeight])).toEqual([
+      [400, 300],
+      [400, 300],
+      [400, 300],
+      [400, 300],
+      [300, 400],
+      [300, 400],
+      [300, 400],
+      [300, 400],
+    ]);
+    expect(transforms.map(({ a, b, c, d, e, f }) => [a, b, c, d, e, f])).toEqual([
+      [1, 0, 0, 1, 0, 0],
+      [-1, 0, 0, 1, 400, 0],
+      [-1, 0, 0, -1, 400, 300],
+      [1, 0, 0, -1, 0, 300],
+      [0, 1, 1, 0, 0, 0],
+      [0, 1, -1, 0, 300, 0],
+      [0, -1, -1, 0, 300, 400],
+      [0, -1, 1, 0, 0, 400],
+    ]);
+  });
+
+  it("falls back to the unrotated transform for invalid EXIF orientations", () => {
+    expect(getExifOrientationTransform(0, 400, 300)).toEqual(getExifOrientationTransform(1, 400, 300));
+    expect(getExifOrientationTransform(9, 400, 300)).toEqual(getExifOrientationTransform(1, 400, 300));
   });
 });

@@ -93,6 +93,46 @@ export async function readExifOrientation(file: Blob): Promise<number> {
   return 1;
 }
 
+export interface ExifOrientationTransform {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  e: number;
+  f: number;
+  outputWidth: number;
+  outputHeight: number;
+}
+
+/**
+ * Return the canvas transform that bakes an EXIF orientation into pixels.
+ * The matrix follows the EXIF 1–8 definitions and maps source image edges
+ * into a top-left-origin output canvas without relying on browser EXIF handling.
+ */
+export function getExifOrientationTransform(
+  orientation: number,
+  sourceWidth: number,
+  sourceHeight: number,
+): ExifOrientationTransform {
+  const normalizedOrientation = orientation >= 1 && orientation <= 8 ? Math.trunc(orientation) : 1;
+  const swapped = normalizedOrientation >= 5;
+  const outputWidth = swapped ? sourceHeight : sourceWidth;
+  const outputHeight = swapped ? sourceWidth : sourceHeight;
+
+  const matrices: Record<number, [number, number, number, number, number, number]> = {
+    1: [1, 0, 0, 1, 0, 0],
+    2: [-1, 0, 0, 1, sourceWidth, 0],
+    3: [-1, 0, 0, -1, sourceWidth, sourceHeight],
+    4: [1, 0, 0, -1, 0, sourceHeight],
+    5: [0, 1, 1, 0, 0, 0],
+    6: [0, 1, -1, 0, sourceHeight, 0],
+    7: [0, -1, -1, 0, sourceHeight, sourceWidth],
+    8: [0, -1, 1, 0, 0, sourceWidth],
+  };
+  const [a, b, c, d, e, f] = matrices[normalizedOrientation];
+  return { a, b, c, d, e, f, outputWidth, outputHeight };
+}
+
 function drawOrientedImage(
   context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   image: CanvasImageSource,
@@ -102,16 +142,19 @@ function drawOrientedImage(
   destinationWidth: number,
   destinationHeight: number,
 ): void {
-  const scaleX = destinationWidth / (orientation >= 5 && orientation <= 8 ? sourceHeight : sourceWidth);
-  const scaleY = destinationHeight / (orientation >= 5 && orientation <= 8 ? sourceWidth : sourceHeight);
+  const transform = getExifOrientationTransform(orientation, sourceWidth, sourceHeight);
+  const scaleX = destinationWidth / transform.outputWidth;
+  const scaleY = destinationHeight / transform.outputHeight;
   context.save();
-  context.translate(destinationWidth / 2, destinationHeight / 2);
-  context.rotate(([3, 4].includes(orientation) ? Math.PI : orientation === 6 ? Math.PI / 2 : orientation === 8 ? -Math.PI / 2 : 0));
-  context.scale(
-    [2, 4, 5, 7].includes(orientation) ? -1 : 1,
-    [3, 4, 5, 6].includes(orientation) ? -1 : 1,
+  context.setTransform(
+    transform.a * scaleX,
+    transform.b * scaleY,
+    transform.c * scaleX,
+    transform.d * scaleY,
+    transform.e * scaleX,
+    transform.f * scaleY,
   );
-  context.drawImage(image, -(sourceWidth * scaleX) / 2, -(sourceHeight * scaleY) / 2, sourceWidth * scaleX, sourceHeight * scaleY);
+  context.drawImage(image, 0, 0, sourceWidth, sourceHeight);
   context.restore();
 }
 
