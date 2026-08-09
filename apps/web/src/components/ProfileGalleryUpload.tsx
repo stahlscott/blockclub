@@ -2,12 +2,8 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import {
-  uploadFile,
-  deleteFile,
-  validateImageFile,
-  getPathFromUrl,
-} from "@/lib/storage";
+import { uploadFile, validateImageFile } from "@/lib/storage";
+import { normalizeImage } from "@/lib/image-normalization";
 import styles from "./ProfileGalleryUpload.module.css";
 
 const MAX_PHOTOS = 6;
@@ -30,6 +26,7 @@ function GalleryImage({ url, index }: { url: string; index: number }) {
         alt={`Gallery photo ${index + 1}`}
         width={120}
         height={120}
+        sizes="120px"
         className={`${styles.photo} ${isLoading ? styles.photoHidden : ""}`}
         onLoad={() => setIsLoading(false)}
       />
@@ -62,15 +59,20 @@ export function ProfileGalleryUpload({
     }
 
     setUploading(true);
+    let normalizedFile: File;
+    try {
+      normalizedFile = (await normalizeImage(file, "gallery", { useWebWorker: true })).file;
+    } catch (error) {
+      setUploading(false);
+      onError(error instanceof Error ? error.message : "The image could not be processed.");
+      return;
+    }
 
-    // Use gallery subfolder within avatars bucket
-    const timestamp = Date.now();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const customFile = new File([file], `gallery_${timestamp}.${ext}`, {
-      type: file.type,
+    const { data, error } = await uploadFile("avatars", userId, normalizedFile, {
+      profile: "gallery",
+      operation: "replace",
+      targetId: userId,
     });
-
-    const { data, error } = await uploadFile("avatars", userId, customFile);
 
     if (error) {
       onError(error.message);
@@ -85,14 +87,7 @@ export function ProfileGalleryUpload({
     }
   };
 
-  const handleRemove = async (index: number) => {
-    const url = photoUrls[index];
-    const path = getPathFromUrl(url, "avatars");
-
-    if (path) {
-      await deleteFile("avatars", path);
-    }
-
+  const handleRemove = (index: number) => {
     const updated = photoUrls.filter((_, i) => i !== index);
     onPhotosChange(updated);
   };
@@ -143,7 +138,7 @@ export function ProfileGalleryUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleFileSelect}
         className={styles.hiddenInput}
       />

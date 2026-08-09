@@ -97,9 +97,9 @@ describe("validateImageFile", () => {
       expect(validateImageFile(file)).toEqual({ valid: true });
     });
 
-    it("accepts GIF images", () => {
+    it("rejects GIF images for new uploads", () => {
       const file = createMockFile("animation.gif", "image/gif", 1000);
-      expect(validateImageFile(file)).toEqual({ valid: true });
+      expect(validateImageFile(file)).toEqual({ valid: false, error: "GIF images are not supported for new uploads." });
     });
   });
 
@@ -108,7 +108,7 @@ describe("validateImageFile", () => {
       const file = createMockFile("document.pdf", "application/pdf", 1000);
       const result = validateImageFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("Please select a JPEG, PNG, WebP, or GIF image");
+      expect(result.error).toBe("Please select a JPEG, PNG, or WebP image");
     });
 
     it("rejects SVG files", () => {
@@ -173,7 +173,7 @@ describe("validateImageFile", () => {
       const file = createMockFile("document.pdf", "application/pdf", 1000);
       const result = validateImageFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("JPEG, PNG, WebP, or GIF");
+      expect(result.error).toContain("JPEG, PNG, or WebP");
     });
   });
 });

@@ -105,6 +105,18 @@ export interface NotificationPreferences {
   };
 }
 
+export interface ImageUploadCapability {
+  nonce: string;
+  actor_id: string;
+  effective_user_id: string;
+  profile: string;
+  operation: string;
+  neighborhood_id: string;
+  expires_at: string;
+  consumed_at: string | null;
+  created_at: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -464,6 +476,12 @@ type DatabaseRecord<T> = T & Record<string, unknown>;
 export interface Database {
   public: {
     Tables: {
+      image_upload_capabilities: {
+        Row: DatabaseRecord<ImageUploadCapability>;
+        Insert: DatabaseRecord<Omit<ImageUploadCapability, "created_at" | "consumed_at"> & { consumed_at?: string | null }>;
+        Update: DatabaseRecord<Partial<Pick<ImageUploadCapability, "consumed_at">>>;
+        Relationships: [];
+      };
       users: {
         Row: DatabaseRecord<User>;
         Insert: DatabaseRecord<UserInsert>;
@@ -621,6 +639,10 @@ export interface Database {
           p_staff_actor_id?: string | null;
         };
         Returns: StaffMembershipOperationResult;
+      };
+      consume_image_upload_capability: {
+        Args: { p_nonce: string; p_actor_id: string; p_effective_user_id: string; p_profile: string; p_operation: string };
+        Returns: boolean;
       };
     };
     Enums: {

@@ -27,6 +27,7 @@ export default function EditItemPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export default function EditItemPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isUploading) return;
     setError("");
     setSaving(true);
 
@@ -179,9 +181,11 @@ export default function EditItemPage() {
             {userId && (
               <ItemPhotoUpload
                 userId={userId}
+                itemId={id}
                 photos={photoUrls}
                 onPhotosChange={setPhotoUrls}
                 onError={setError}
+                onUploadingChange={setIsUploading}
               />
             )}
           </div>
@@ -194,8 +198,8 @@ export default function EditItemPage() {
           >
             Cancel
           </Link>
-          <button type="submit" disabled={saving} className={styles.submitButton}>
-            {saving ? "Saving..." : "Save Changes"}
+          <button type="submit" disabled={saving || isUploading} className={styles.submitButton}>
+            {saving ? "Saving..." : isUploading ? "Uploading photo..." : "Save Changes"}
           </button>
         </div>
       </form>

@@ -10,116 +10,11 @@ on:
         type: boolean
 
 jobs:
-  prepare-e2e-database:
-    name: Prepare E2E database
-    runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      STAFF_ADMIN_EMAILS: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - uses: supabase/setup-cli@v3
-        with:
-          version: 2.111.0
-
-      - run: npm ci
-
-      - name: Apply migrations to E2E database
-        run: |
-          PROJECT_REF="${NEXT_PUBLIC_SUPABASE_URL#https://}"
-          PROJECT_REF="${PROJECT_REF%%.*}"
-          test -n "$PROJECT_REF"
-          supabase link --project-ref "$PROJECT_REF"
-          supabase db push
-
-      - name: Provision E2E staff allowlist
-        run: npm run sync:staff-admins
-
-  e2e-tests:
-    name: E2E Tests (${{ matrix.shard }})
-    needs: prepare-e2e-database
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1/3, 2/3, 3/3]
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_TEST_URL }}
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_TEST_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      STAFF_ADMIN_EMAILS: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
-      E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
-      E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
-      E2E_STAFF_ADMIN_EMAIL: ${{ secrets.E2E_STAFF_ADMIN_EMAIL }}
-      E2E_STAFF_ADMIN_PASSWORD: ${{ secrets.E2E_STAFF_ADMIN_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - run: npm ci
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright Browsers
-        id: playwright-cache
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright system deps only
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Build app
-        run: npm run build:web
-
-      - name: Run E2E tests
-        run: cd apps/web && npx playwright test --shard=${{ matrix.shard }}
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: playwright-report-${{ strategy.job-index }}
-          path: apps/web/playwright-report/
-          retention-days: 7
-
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: test-results-${{ strategy.job-index }}
-          path: apps/web/test-results/
-          retention-days: 7
-
+  # E2E coverage runs separately through Full Validation and is intentionally
+  # not a production-release gate while the shared E2E environment is repaired.
   run-migrations:
     name: Run migrations
     runs-on: ubuntu-latest
-    needs: e2e-tests
     if: inputs.dry_run == false
     environment: production
     steps:
@@ -155,10 +50,9 @@ jobs:
   fast-forward-prod:
     name: Fast-forward prod to main
     runs-on: ubuntu-latest
-    needs: [e2e-tests, run-migrations]
+    needs: run-migrations
     if: |
       always() &&
-      needs.e2e-tests.result == 'success' &&
       (needs.run-migrations.result == 'success' || needs.run-migrations.result == 'skipped')
     steps:
       - uses: actions/checkout@v7

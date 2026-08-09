@@ -97,6 +97,7 @@ export function UserMenu() {
               alt="Profile"
               width={32}
               height={32}
+              sizes="32px"
               className={styles.avatarImage}
             />
           ) : (
@@ -116,6 +117,7 @@ export function UserMenu() {
                   alt="Profile"
                   width={48}
                   height={48}
+                  sizes="48px"
                   className={styles.avatarImage}
                 />
               ) : (

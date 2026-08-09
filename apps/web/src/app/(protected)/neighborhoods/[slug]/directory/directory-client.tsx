@@ -298,6 +298,7 @@ export function DirectoryClient({ slug, neighborhoodName, members, memberCount }
                         alt={member.user.name}
                         width={80}
                         height={80}
+                        sizes="80px"
                         className={styles.avatarImg}
                       />
                     ) : (

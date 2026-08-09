@@ -59,6 +59,7 @@ export default async function ItemDetailPage({ params }: Props) {
             alt={item.name}
             width={400}
             height={300}
+            sizes="(max-width: 768px) 100vw, 400px"
             className={styles.image}
             borderRadius="var(--radius-lg)"
             priority
@@ -75,16 +76,18 @@ export default async function ItemDetailPage({ params }: Props) {
                   </span>
                 </div>
                 <div className={styles.placeholderTitle}>No Photo Added</div>
-                <div className={styles.placeholderSubtext}>
-                  Photos help neighbors know what to borrow
-                </div>
                 {isOwner && (
-                  <Link
-                    href={`/neighborhoods/${slug}/library/${item.id}/edit`}
-                    className={styles.placeholderButton}
-                  >
-                    Add Photo
-                  </Link>
+                  <>
+                    <div className={styles.placeholderSubtext}>
+                      Photos help neighbors know what to borrow
+                    </div>
+                    <Link
+                      href={`/neighborhoods/${slug}/library/${item.id}/edit`}
+                      className={styles.placeholderButton}
+                    >
+                      Add Photo
+                    </Link>
+                  </>
                 )}
               </div>
             }
@@ -125,6 +128,7 @@ export default async function ItemDetailPage({ params }: Props) {
                   alt={item.owner?.name || "Owner"}
                   width={48}
                   height={48}
+                  sizes="48px"
                   className={styles.avatarImage}
                   borderRadius="50%"
                   fallback={<span>{getInitial(item.owner?.name)}</span>}

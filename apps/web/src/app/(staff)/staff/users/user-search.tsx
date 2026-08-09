@@ -176,6 +176,7 @@ export function UserSearch() {
                       alt={user.name || "User"}
                       width={48}
                       height={48}
+                      sizes="48px"
                       className={styles.avatar}
                     />
                   ) : (

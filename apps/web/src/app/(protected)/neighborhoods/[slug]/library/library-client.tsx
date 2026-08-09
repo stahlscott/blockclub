@@ -124,6 +124,7 @@ export function LibraryClient({ items, slug, userId, category, memberCount, tota
                     alt={item.name}
                     width={200}
                     height={200}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 200px"
                     className={libraryStyles.image}
                     borderRadius="var(--radius-lg) var(--radius-lg) 0 0"
                     fallback={

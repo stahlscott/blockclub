@@ -36,9 +36,11 @@ jobs:
       - name: Run integration tests
         run: npm run test:integration
 
-      - name: Capture Supabase logs
+      - name: Capture Supabase diagnostics
         if: failure()
-        run: supabase logs
+        run: |
+          supabase status --output pretty || true
+          docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' || true
 
   e2e-tests:
     name: E2E Tests

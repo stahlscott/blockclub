@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_LENGTHS } from "@/lib/validation";
 import { PostImageUpload } from "@/components/PostImageUpload";
+import { requestImageUploadCapability } from "@/lib/storage";
 import { createPost } from "../actions";
 import styles from "../post-form.module.css";
 
@@ -21,6 +22,7 @@ export default function NewPostPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
+  const [uploadCapability, setUploadCapability] = useState<string | null>(null);
 
   useEffect(() => {
     async function getUser() {
@@ -28,10 +30,13 @@ export default function NewPostPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        const capabilityResult = await requestImageUploadCapability("post", slug);
+        if (capabilityResult.error) setError(capabilityResult.error.message);
+        else setUploadCapability(capabilityResult.capability);
       }
     }
     getUser();
-  }, []);
+  }, [slug]);
 
   // Helper to format date as YYYY-MM-DD in local timezone
   const formatDateLocal = (date: Date) => {
@@ -107,6 +112,7 @@ export default function NewPostPage() {
             {userId && (
               <PostImageUpload
                 userId={userId}
+                uploadCapability={uploadCapability ?? undefined}
                 imageUrl={imageUrl}
                 onImageChange={setImageUrl}
                 onError={setError}

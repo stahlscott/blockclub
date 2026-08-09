@@ -39,9 +39,10 @@ test.describe('Staff Impersonation', () => {
     await passwordInput.fill(STAFF_ADMIN.password);
     await page.getByTestId('signin-form-submit-button').click();
 
-    // Wait for redirect to dashboard and page to fully stabilize
-    await page.waitForURL('/dashboard', { timeout: 15000 });
-    await page.waitForLoadState('networkidle');
+    // Staff admins are redirected from /dashboard to /staff. Wait for the
+    // final rendered destination instead of racing that redirect.
+    await expect(page).toHaveURL(/\/staff|\/dashboard/, { timeout: 15000 });
+    await expect(page.getByRole('heading', { name: 'Staff Admin' })).toBeVisible({ timeout: 15000 });
   });
 
   test('can access staff page as staff admin', async ({ page }) => {

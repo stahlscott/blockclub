@@ -218,6 +218,7 @@ export default function EditPostPage() {
             {userId && (
               <PostImageUpload
                 userId={userId}
+                postId={postId}
                 imageUrl={imageUrl}
                 onImageChange={setImageUrl}
                 onError={setError}

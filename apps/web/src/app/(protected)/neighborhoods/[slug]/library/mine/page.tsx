@@ -87,6 +87,7 @@ export default async function MyItemsPage({ params }: Props) {
                       alt={item.name}
                       width={80}
                       height={80}
+                      sizes="80px"
                       className={styles.itemImage}
                     />
                   ) : (

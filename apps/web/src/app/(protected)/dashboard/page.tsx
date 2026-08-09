@@ -475,6 +475,7 @@ export default async function DashboardPage() {
                                 alt={post.author.name || "Author"}
                                 width={40}
                                 height={40}
+                                sizes="40px"
                                 className={dashboardStyles.itemCardAvatarImage}
                               />
                             ) : (
@@ -545,6 +546,7 @@ export default async function DashboardPage() {
                                 alt={membership.user.name || "Member"}
                                 width={48}
                                 height={48}
+                                sizes="48px"
                                 className={dashboardStyles.memberCardAvatarImage}
                               />
                             ) : (

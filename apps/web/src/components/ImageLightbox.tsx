@@ -66,6 +66,7 @@ export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
           alt={alt}
           width={1200}
           height={900}
+          sizes="100vw"
           className={styles.image}
           borderRadius="var(--radius-md)"
           style={{ objectFit: "contain", maxWidth: "calc(100vw - 2rem)", maxHeight: "calc(100vh - 4rem)" }}

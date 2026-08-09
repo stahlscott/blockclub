@@ -8,6 +8,7 @@ import { MAX_LENGTHS, validateLength } from "@blockclub/shared";
 import { isAllowedStorageImageUrl } from "@/lib/storage";
 import { env } from "@/lib/env";
 import type { PostOperationResult, PostReactionOperationResult, PostReactionType } from "@blockclub/shared";
+import { cleanupImageUrl } from "@/lib/image-reference-safety";
 
 interface CreatePostData {
   slug: string;
@@ -81,6 +82,7 @@ export async function createPost(data: CreatePostData): Promise<{ success: boole
   }).select("id").maybeSingle();
   if (error || !inserted?.id) {
     logger.error("Error creating post", error, { slug: data.slug });
+    if (input.imageUrl) await cleanupImageUrl("posts", input.imageUrl);
     return { success: false, error: "The post could not be created." };
   }
   revalidatePath(`/neighborhoods/${data.slug}/posts`);
@@ -144,9 +146,14 @@ export async function updatePost(data: { slug: string; postId: string; content: 
   const input = validatePostInput(data.content, data.imageUrl);
   if ("error" in input) return validationError(input.error);
   const expiresAt = data.expiresAt ? new Date(data.expiresAt + "T23:59:59").toISOString() : null;
+  const { data: previousPost } = await supabase.from("posts").select("image_url").eq("id", data.postId).maybeSingle();
   const { data: result, error } = await supabase.rpc("update_post", { p_post_id: data.postId, p_content: input.content, p_image_url: input.imageUrl, p_expires_at: expiresAt, p_is_pinned: data.isPinned ?? null });
-  if (error) return { success: false, code: "DATABASE_ERROR", error: "The post could not be updated." };
+  if (error) {
+    if (input.imageUrl && input.imageUrl !== previousPost?.image_url) await cleanupImageUrl("posts", input.imageUrl);
+    return { success: false, code: "DATABASE_ERROR", error: "The post could not be updated." };
+  }
   if (!result?.success || result.affected_post_count !== 1 || result.post_id !== data.postId) return operationError(result);
+  if (previousPost?.image_url && previousPost.image_url !== input.imageUrl) await cleanupImageUrl("posts", previousPost.image_url);
   revalidatePath(`/neighborhoods/${data.slug}/posts`);
   return { success: true, postId: result.post_id, operation: "updated" };
 }
