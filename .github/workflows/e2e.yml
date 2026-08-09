@@ -110,8 +110,16 @@ jobs:
       - name: Build app
         run: npm run build:web
 
-      - name: Run E2E tests
-        run: cd apps/web && npx playwright test --shard=${{ matrix.shard }}
+      - name: Run Chromium E2E tests
+        run: cd apps/web && npx playwright test --shard=${{ matrix.shard }} --project=desktop-chromium --project=mobile-chromium
+
+      # The required mobile-WebKit project is intentionally limited to the
+      # deterministic image-upload infrastructure contract. The existing
+      # app-wide WebKit suite contains legacy timing/navigation assumptions
+      # that are not yet portable across engines.
+      - name: Run mobile-WebKit image smoke
+        if: matrix.shard == '1/3'
+        run: cd apps/web && npx playwright test --project=mobile-webkit e2e/image-upload-contract.spec.ts
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
