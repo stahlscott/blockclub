@@ -25,6 +25,7 @@ export default function NewItemPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [uploadCapability, setUploadCapability] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
   // Load user ID on mount for photo uploads
@@ -46,6 +47,7 @@ export default function NewItemPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isUploading) return;
     setError("");
 
     startTransition(() => {
@@ -148,6 +150,7 @@ export default function NewItemPage() {
                 photos={photoUrls}
                 onPhotosChange={setPhotoUrls}
                 onError={setError}
+                onUploadingChange={setIsUploading}
               />
             )}
           </div>
@@ -163,11 +166,11 @@ export default function NewItemPage() {
           </Link>
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isUploading}
             className={styles.submitButton}
             data-testid="library-new-item-submit-button"
           >
-            {isPending ? "Adding..." : "Add Item"}
+            {isPending ? "Adding..." : isUploading ? "Uploading photo..." : "Add Item"}
           </button>
         </div>
       </form>

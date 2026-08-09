@@ -15,6 +15,7 @@ interface ItemPhotoUploadProps {
   maxPhotos?: number;
   onPhotosChange: (urls: string[]) => void;
   onError: (message: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 interface PendingUpload {
@@ -31,13 +32,14 @@ export function ItemPhotoUpload({
   maxPhotos = 5,
   onPhotosChange,
   onError,
+  onUploadingChange,
 }: ItemPhotoUploadProps) {
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFilesSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    if (files.length === 0 || pendingUploads.some((pending) => pending.status === "uploading")) return;
 
     const remaining = maxPhotos - photos.length - pendingUploads.length;
     if (remaining <= 0) {
@@ -64,51 +66,56 @@ export function ItemPhotoUpload({
     }));
 
     setPendingUploads((prev) => [...prev, ...newPending]);
+    onUploadingChange?.(true);
 
-    // Upload files
-    const uploadedUrls: string[] = [];
+    try {
+      // Upload files
+      const uploadedUrls: string[] = [];
 
-    for (let i = 0; i < filesToUpload.length; i++) {
-      const file = filesToUpload[i];
-      const pending = newPending[i];
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
+        const pending = newPending[i];
 
-      let normalizedFile: File;
-      try {
-        normalizedFile = (await normalizeImage(file, "item", { useWebWorker: true })).file;
-      } catch (error) {
-        setPendingUploads((prev) => prev.map((p) => p.id === pending.id ? { ...p, status: "error" as const } : p));
-        onError(error instanceof Error ? error.message : "The image could not be processed.");
-        continue;
+        let normalizedFile: File;
+        try {
+          normalizedFile = (await normalizeImage(file, "item", { useWebWorker: true })).file;
+        } catch (error) {
+          setPendingUploads((prev) => prev.map((p) => p.id === pending.id ? { ...p, status: "error" as const } : p));
+          onError(error instanceof Error ? error.message : "The image could not be processed.");
+          continue;
+        }
+
+        const { data, error } = await uploadFile("items", userId, normalizedFile, {
+          profile: "item",
+          operation: itemId ? "replace" : "create",
+          targetId: itemId,
+          capability: uploadCapability,
+        });
+
+        if (error) {
+          setPendingUploads((prev) =>
+            prev.map((p) =>
+              p.id === pending.id ? { ...p, status: "error" as const } : p
+            )
+          );
+          onError(error.message);
+        } else if (data) {
+          uploadedUrls.push(data.url);
+          setPendingUploads((prev) => prev.filter((p) => p.id !== pending.id));
+          URL.revokeObjectURL(pending.previewUrl);
+        }
       }
 
-      const { data, error } = await uploadFile("items", userId, normalizedFile, {
-        profile: "item",
-        operation: itemId ? "replace" : "create",
-        targetId: itemId,
-        capability: uploadCapability,
-      });
-
-      if (error) {
-        setPendingUploads((prev) =>
-          prev.map((p) =>
-            p.id === pending.id ? { ...p, status: "error" as const } : p
-          )
-        );
-        onError(error.message);
-      } else if (data) {
-        uploadedUrls.push(data.url);
-        setPendingUploads((prev) => prev.filter((p) => p.id !== pending.id));
-        URL.revokeObjectURL(pending.previewUrl);
+      if (uploadedUrls.length > 0) {
+        onPhotosChange([...photos, ...uploadedUrls]);
       }
-    }
+    } finally {
+      onUploadingChange?.(false);
 
-    if (uploadedUrls.length > 0) {
-      onPhotosChange([...photos, ...uploadedUrls]);
-    }
-
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -133,6 +140,9 @@ export function ItemPhotoUpload({
       <p className={styles.hint}>
         Add up to {maxPhotos} photos. First photo will be the cover image.
       </p>
+      {pendingUploads.some((pending) => pending.status === "uploading") && (
+        <p role="status">Processing photo. Save will be available when it finishes.</p>
+      )}
 
       <div className={styles.grid}>
         {photos.map((url, index) => (
